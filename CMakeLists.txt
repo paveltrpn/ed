@@ -41,8 +41,6 @@ include_directories("src")
 
 set(QT_VERSION 6.10)
 list(APPEND CMAKE_PREFIX_PATH $ENV{LOCAL_LATEST_QT})
-# set(QML_IMPORT_PATH  $ENV{LOCAL_LATEST_QT}/lib/cmake CACHE STRING "Extra QML Import Paths for Qt Creator" FORCE)
-set(QML_IMPORT_PATH /mnt/main/sources_build/qt6_10/qml CACHE STRING "Extra QML Import Paths for Qt Creator" FORCE)
 find_package(Qt6 ${QT_VERSION} COMPONENTS
     Core
     Gui
