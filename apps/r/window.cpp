@@ -21,10 +21,11 @@
 
 #include "window.h"
 
-#include "event/eventemitter.h"
+#include "r/event/eventemitter.h"
+#include "r/render/rendervk.h"
+#include "r/context/context.h"
+
 #include "config/config.h"
-#include "context/context.h"
-#include "render/rendervk.h"
 #include "config/config.h"
 #include "log/log.h"
 

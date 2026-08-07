@@ -62,7 +62,7 @@ target_compile_options(config PRIVATE "${CXX_STANDART}")
 # ================================
 # Module context
 # ================================
-file(GLOB_RECURSE MOD_CONTEXT_SRC "src/context/*.cpp" "src/context/*.h")
+file(GLOB_RECURSE MOD_CONTEXT_SRC "src/r/context/*.cpp" "src/r/context/*.h")
 add_library(context ${MOD_CONTEXT_SRC})
 target_link_libraries(context vulkan config image)
 target_compile_options(context PRIVATE "${CXX_STANDART}")
@@ -70,7 +70,7 @@ target_compile_options(context PRIVATE "${CXX_STANDART}")
 # ================================
 # Module r_ui
 # ================================
-file(GLOB MOD_R_UI_SRC "src/r_ui/*.cpp" "src/r_ui/*.h")
+file(GLOB MOD_R_UI_SRC "src/r/ui/*.cpp" "src/r/ui/*.h")
 add_library(r_ui ${MOD_R_UI_SRC})
 target_link_libraries(r_ui log algebra image)
 target_compile_options(r_ui PRIVATE "${CXX_STANDART}")
@@ -78,7 +78,7 @@ target_compile_options(r_ui PRIVATE "${CXX_STANDART}")
 # ================================
 # Module render
 # ================================
-file(GLOB_RECURSE MOD_RENDER_SRC "src/render/*.cpp" "src/render/*.h")
+file(GLOB_RECURSE MOD_RENDER_SRC "src/r/render/*.cpp" "src/r/render/*.h")
 add_library(render ${MOD_RENDER_SRC})
 target_link_libraries(render vulkan context r_ui config algebra)
 target_compile_options(render PRIVATE "${CXX_STANDART}")
@@ -115,7 +115,7 @@ target_link_libraries(log
 # ================================
 # Module vk
 # ================================
-file(GLOB_RECURSE MOD_VK_SRC "src/vk/*.cpp" "src/vk/*.h")
+file(GLOB_RECURSE MOD_VK_SRC "src/ed/vk/*.cpp" "src/ed/vk/*.h")
 add_library(vk ${MOD_VK_SRC})
 set_target_properties(vk PROPERTIES AUTOMOC TRUE)
 target_compile_options(vk PRIVATE "${CXX_STANDART}")
@@ -139,7 +139,7 @@ target_link_libraries(image
 # ================================
 # Module event
 # ================================
-file(GLOB_RECURSE MOD_EVENT_SRC "src/event/*.cpp" "src/event/*.h")
+file(GLOB_RECURSE MOD_EVENT_SRC "src/r/event/*.cpp" "src/r/event/*.h")
 add_library(event ${MOD_EVENT_SRC})
 set_target_properties(event PROPERTIES AUTOMOC TRUE)
 target_compile_options(event PRIVATE "${CXX_STANDART}")
@@ -150,7 +150,7 @@ target_link_libraries(event
 # ================================
 # Module tired
 # ================================
-file(GLOB_RECURSE MOD_TIRED_SRC "src/tired/*.cpp" "src/tired/*.h")
+file(GLOB_RECURSE MOD_TIRED_SRC "src/ed/tired/*.cpp" "src/ed/tired/*.h")
 add_library(tired ${MOD_TIRED_SRC})
 set_target_properties(tired PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(tired PROPERTIES AUTOMOC TRUE)
@@ -188,7 +188,7 @@ target_link_libraries(tired
 # ================================
 # Module ed_ui
 # ================================
-file(GLOB_RECURSE MOD_TIRED_ED_UI_SRC "src/ed_ui/*.cpp" "src/ed_ui/*.h")
+file(GLOB_RECURSE MOD_TIRED_ED_UI_SRC "src/ed/ui/*.cpp" "src/ed/ui/*.h")
 add_library(ed_ui ${MOD_TIRED_ED_UI_SRC})
 set_target_properties(ed_ui PROPERTIES AUTOMOC TRUE)
 target_compile_options(ed_ui PRIVATE "${CXX_STANDART}")
@@ -209,7 +209,7 @@ target_link_libraries(ed_ui
 # ================================
 # Module qt_window
 # ================================
-file(GLOB MOD_QT_WINDOW_SRC "src/qt_window/*.cpp" "src/qt_window/*.h")
+file(GLOB MOD_QT_WINDOW_SRC "src/ed/window/*.cpp" "src/ed/window/*.h")
 add_library(qt_window ${MOD_QT_WINDOW_SRC})
 set_target_properties(qt_window PROPERTIES AUTOMOC TRUE)
 target_link_libraries(qt_window

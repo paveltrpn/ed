@@ -6,10 +6,10 @@
 #include <QQuickWidget>
 #include <QMainWindow>
 
-#include "qt_window/window.h"
+#include "ed/window/window.h"
 
 #include "appearance.h"
-#include "tired/tired.h"
+#include "ed/tired/tired.h"
 
 namespace tire {
 

@@ -7,8 +7,8 @@
 
 #include <vsg/all.h>
 
-#include "vk/context.h"
-#include "qt_window/window.h"
+#include "ed/vk/context.h"
+#include "ed/window/window.h"
 #include "manipulator.h"
 #include "inputhandler.h"
 #include "scenegraph.h"

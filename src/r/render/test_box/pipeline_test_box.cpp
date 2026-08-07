@@ -3,8 +3,6 @@
 
 #include "pipeline_test_box.h"
 
-#include "context/context.h"
-#include "context/pipeline.h"
 #include "log/log.h"
 
 namespace tire {

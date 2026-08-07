@@ -11,9 +11,6 @@
 #include "algebra/vector3.h"
 #include "algebra/matrix4.h"
 
-#include "context/context.h"
-#include "context/pipeline.h"
-
 #include "test_box_shader.h"
 #include "pipeline_test_box.h"
 

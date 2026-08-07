@@ -10,13 +10,13 @@
 
 #include "vma/vk_mem_alloc.h"
 
-#include "context/context.h"
-#include "context/program.h"
+#include "r/context/context.h"
+#include "r/context/program.h"
 #include "config/config.h"
 #include "log/log.h"
 
-#include "r_ui/billboard.h"
-#include "r_ui/label.h"
+#include "r/ui/billboard.h"
+#include "r/ui/label.h"
 
 #include "ui.h"
 #include "pipeline_ui.h"

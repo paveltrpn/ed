@@ -8,11 +8,11 @@
 
 #include "test_box.h"
 
+#include "r/context/context.h"
+#include "r/context/pipeline.h"
+
 #include "algebra/vector3.h"
 #include "algebra/matrix4.h"
-
-#include "context/context.h"
-#include "context/pipeline.h"
 
 namespace tire {
 
