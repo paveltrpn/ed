@@ -5,6 +5,7 @@
 #include <mutex>
 #include <memory>
 #include <vector>
+#include <array>
 
 #define SURFACE_X11
 // #define SURFACE_WAYLAND
