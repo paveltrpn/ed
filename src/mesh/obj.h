@@ -9,9 +9,8 @@ namespace tire {
 
 namespace {
 
-[[nodiscard]]
-auto readWavefrontObjFile( const std::string &filePath ) -> std::shared_ptr<SeparatedBuffersMesh>;
+[[nodiscard]] auto readWavefrontObjFile( const std::string &filePath ) -> std::shared_ptr<OBJMesh>;
 
 }
 
-}
+}  // namespace tire

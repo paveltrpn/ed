@@ -8,6 +8,8 @@
 #include <vsg/all.h>
 
 #include "../scene_object/sceneobjectbase.h"
+#include "mesh/mesh.h"
+#include "mesh/obj.h"
 
 // #define PREFIX_PATH_ONE "/home/pavel/code/ed"
 #define PREFIX_PATH_ONE "/mnt/main/code/ed"

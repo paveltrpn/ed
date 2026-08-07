@@ -83,7 +83,7 @@ std::map<ObjTokens, std::string> tokens_ = {
     { ObjTokens::CURVE_APPROXIMATION_TECHNIQUE, "ctech " },
     { ObjTokens::SURFACE_APPROXIMATION_TECHNIQUE, "stech " },
     { ObjTokens::COMMENT, "# " },
-    };
+};
 
 namespace {
 
@@ -100,50 +100,47 @@ auto split( std::string_view str, char delim ) -> std::vector<std::string> {
     return result;
 }
 
+[[nodiscard]] auto parseVertexString( std::string_view str ) -> std::tuple<float, float, float> {
+    const auto vertexValuesString = split( str, ' ' );
+    const auto [x, y, z] = std::make_tuple( std::stof( vertexValuesString[0] ), std::stof( vertexValuesString[1] ),
+                                            std::stof( vertexValuesString[2] ) );
+    return { x, y, z };
 }
-// [[nodiscard]] auto parseVertexString( std::string_view str )
-//     -> std::tuple<MeshValueType, MeshValueType, MeshValueType> {
-//     const auto vertexValuesString = split( str, ' ' );
-//     const auto [x, y, z] = std::make_tuple(
-//         std::stof( vertexValuesString[0] ), std::stof( vertexValuesString[1] ), std::stof( vertexValuesString[2] ) );
-//     return { x, y, z };
-// }
 
-// [[nodiscard]] auto parseNormalString( std::string_view str )
-//     -> std::tuple<MeshValueType, MeshValueType, MeshValueType> {
-//     const auto normalValuesString = split( str, ' ' );
-//     const auto [x, y, z] = std::make_tuple(
-//         std::stof( normalValuesString[0] ), std::stof( normalValuesString[1] ), std::stof( normalValuesString[2] ) );
-//     return { x, y, z };
-// }
+[[nodiscard]] auto parseNormalString( std::string_view str ) -> std::tuple<float, float, float> {
+    const auto normalValuesString = split( str, ' ' );
+    const auto [x, y, z] = std::make_tuple( std::stof( normalValuesString[0] ), std::stof( normalValuesString[1] ),
+                                            std::stof( normalValuesString[2] ) );
+    return { x, y, z };
+}
 
-// [[nodiscard]] auto parseTexCoordString( std::string_view str ) -> std::tuple<float, float> {
-//     const auto texCoordValuesString = split( str, ' ' );
-//     const auto [u, v] = std::make_tuple( std::stof( texCoordValuesString[0] ), std::stof( texCoordValuesString[1] ) );
-//     return { u, v };
-// }
+[[nodiscard]] auto parseTexCoordString( std::string_view str ) -> std::tuple<float, float> {
+    const auto texCoordValuesString = split( str, ' ' );
+    const auto [u, v] = std::make_tuple( std::stof( texCoordValuesString[0] ), std::stof( texCoordValuesString[1] ) );
+    return { u, v };
+}
 
-// [[nodiscard]] auto parseTriangleString( std::string_view str ) -> ObjTriangleIndices {
-//     const auto indicesString = split( str, ' ' );
+[[nodiscard]] auto parseTriangleString( std::string_view str ) -> ObjFileTriangleIndices {
+    const auto indicesString = split( str, ' ' );
 
-//     ObjTriangleIndices triangle{};
+    ObjFileTriangleIndices triangle{};
 
-//     for ( int i = 0; auto &&indexString : std::move( indicesString ) ) {
-//         const auto indicies = split( indexString, '/' );
-//         const auto [v, t, n] =
-//             std::make_tuple( std::stoi( indicies[0] ), std::stoi( indicies[1] ), std::stoi( indicies[2] ) );
+    for ( int i = 0; auto &&indexString : std::move( indicesString ) ) {
+        const auto indicies = split( indexString, '/' );
+        const auto [v, t, n] =
+            std::make_tuple( std::stoi( indicies[0] ), std::stoi( indicies[1] ), std::stoi( indicies[2] ) );
 
-//         // In obj file indicies start from 1, but in our code we start from 0
-//         triangle.vertexIndex[i] = v - 1;
-//         triangle.normalIndex[i] = n - 1;
-//         triangle.texCoordIndex[i] = t - 1;
+        // In obj file indicies start from 1, but in our code we start from 0
+        triangle.vertexIndex[i] = v - 1;
+        triangle.normalIndex[i] = n - 1;
+        triangle.texCoordIndex[i] = t - 1;
 
-//         ++i;
-//     }
+        ++i;
+    }
 
-//     return triangle;
-// }
-// }
+    return triangle;
+}
+}  // namespace
 
 // [[nodiscard]]
 // auto readWavefrontObjFile( const std::string &filePath ) -> std::shared_ptr<SeparatedBuffersMesh> {
@@ -198,4 +195,4 @@ auto split( std::string_view str, char delim ) -> std::vector<std::string> {
 //     return std::shared_ptr<SeparatedBuffersMesh>( mesh );
 // }
 
-}
+}  // namespace tire
