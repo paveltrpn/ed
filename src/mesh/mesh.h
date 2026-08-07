@@ -1,4 +1,18 @@
 
 #pragma once
 
-namespace tire {}
+namespace tire {
+
+struct Mesh {
+
+};
+
+struct OBJMesh: Mesh {
+
+};
+
+struct SeparatedBuffersMesh: Mesh{
+
+};
+
+}
