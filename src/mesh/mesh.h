@@ -22,7 +22,7 @@ struct Mesh {
     auto operator=( const Mesh& other ) -> Mesh& = delete;
     auto operator=( Mesh&& other ) -> Mesh& = delete;
 
-    virtual ~Mesh() = default;
+    virtual ~Mesh() = 0;
 
     [[nodiscard]] auto name() -> std::string;
 
