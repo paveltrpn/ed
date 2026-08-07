@@ -11,7 +11,7 @@ Editor built with:
   
 ### GLFW3 and nlohmann-json
 ```bash
-apt install nlohmann-json3-dev libglfw3 libglfw3-dev
+apt install nlohmann-json3-dev libglfw3 libglfw3-dev glslang-dev glslang-tools
 ```
 
 ### Vulkan SDK

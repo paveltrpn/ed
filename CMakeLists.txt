@@ -47,15 +47,11 @@ else()
     message(SEND_ERROR "vsg_DIR is not set")
 endif()
 
-if (DEFINED ENV{glslang_DIR} AND NOT "$ENV{glslang_DIR}" STREQUAL "")
-    message( "glslang_DIR is set to $ENV{glslang_DIR}")
-    include_directories($ENV{glslang_DIR}/include)
-    link_directories($ENV{glslang_DIR}/lib)
-else()
-    message(SEND_ERROR "glslang_DIR is not set")
-endif()
+find_package(glslang 15.0 REQUIRED)
 
+list(APPEND CMAKE_PREFIX_PATH "/mnt/main/sources_build/glfw")
 find_package(glfw3 3.3 REQUIRED)
+
 find_package(nlohmann_json 3.11 REQUIRED)
 
 include_directories("src")
@@ -81,7 +77,7 @@ file(GLOB MOD_CONFIG_SRC "src/config/*.cpp" "src/config/*.h")
 add_library(config ${MOD_CONFIG_SRC})
 target_link_libraries(config log)
 target_compile_features(config PUBLIC cxx_std_26)
-target_compile_options(config PRIVATE -freflection)
+target_compile_options(config PRIVATE)
 
 # ================================
 # Module context
@@ -90,7 +86,7 @@ file(GLOB_RECURSE MOD_CONTEXT_SRC "src/context/*.cpp" "src/context/*.h")
 add_library(context ${MOD_CONTEXT_SRC})
 target_link_libraries(context vulkan config image)
 target_compile_features(context PUBLIC cxx_std_26)
-target_compile_options(context PRIVATE -freflection)
+target_compile_options(context PRIVATE)
 
 # ================================
 # Module r_ui
@@ -99,7 +95,7 @@ file(GLOB MOD_R_UI_SRC "src/r_ui/*.cpp" "src/r_ui/*.h")
 add_library(r_ui ${MOD_R_UI_SRC})
 target_link_libraries(r_ui log algebra image)
 target_compile_features(r_ui PUBLIC cxx_std_26)
-target_compile_options(r_ui PRIVATE -freflection )
+target_compile_options(r_ui PRIVATE)
 
 # ================================
 # Module render
@@ -108,7 +104,7 @@ file(GLOB_RECURSE MOD_RENDER_SRC "src/render/*.cpp" "src/render/*.h")
 add_library(render ${MOD_RENDER_SRC})
 target_link_libraries(render vulkan context r_ui config algebra)
 target_compile_features(render PUBLIC cxx_std_26)
-target_compile_options(render PRIVATE -freflection)
+target_compile_options(render PRIVATE)
 
 # ================================
 # Module lib/fast_obj
@@ -126,7 +122,7 @@ add_subdirectory(lib/libtga)
 file(GLOB_RECURSE MOD_ALGEBRA_SRC "src/algebra/*.h")
 add_library(algebra ${MOD_ALGEBRA_SRC})
 set_target_properties(algebra PROPERTIES AUTOMOC TRUE)
-target_compile_options(algebra PRIVATE -freflection -std=c++26)
+target_compile_options(algebra PRIVATE -std=c++26)
 
 # ================================
 # Module log
@@ -134,7 +130,7 @@ target_compile_options(algebra PRIVATE -freflection -std=c++26)
 file(GLOB_RECURSE MOD_LOG_SRC "src/log/*.cpp" "src/log/*.h")
 add_library(log ${MOD_LOG_SRC})
 set_target_properties(log PROPERTIES AUTOMOC TRUE)
-target_compile_options(log PRIVATE -freflection -std=c++26)
+target_compile_options(log PRIVATE -std=c++26)
 target_link_libraries(log
    algebra
 )
@@ -145,7 +141,7 @@ target_link_libraries(log
 file(GLOB_RECURSE MOD_VK_SRC "src/vk/*.cpp" "src/vk/*.h")
 add_library(vk ${MOD_VK_SRC})
 set_target_properties(vk PROPERTIES AUTOMOC TRUE)
-target_compile_options(vk PRIVATE -freflection -std=c++26)
+target_compile_options(vk PRIVATE  -std=c++26)
 target_link_libraries(vk
    vulkan
    log
@@ -157,7 +153,7 @@ target_link_libraries(vk
 file(GLOB_RECURSE MOD_IMAGE_SRC "src/image/*.cpp" "src/image/*.h")
 add_library(image ${MOD_IMAGE_SRC})
 set_target_properties(image PROPERTIES AUTOMOC TRUE)
-target_compile_options(image PRIVATE -freflection -std=c++26)
+target_compile_options(image PRIVATE -std=c++26)
 target_link_libraries(image
     log
     libtga
@@ -169,7 +165,7 @@ target_link_libraries(image
 file(GLOB_RECURSE MOD_EVENT_SRC "src/event/*.cpp" "src/event/*.h")
 add_library(event ${MOD_EVENT_SRC})
 set_target_properties(event PROPERTIES AUTOMOC TRUE)
-target_compile_options(event PRIVATE -freflection -std=c++26)
+target_compile_options(event PRIVATE -std=c++26)
 target_link_libraries(event
     log
 )
@@ -181,7 +177,7 @@ file(GLOB_RECURSE MOD_TIRED_SRC "src/tired/*.cpp" "src/tired/*.h")
 add_library(tired ${MOD_TIRED_SRC})
 set_target_properties(tired PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(tired PROPERTIES AUTOMOC TRUE)
-target_compile_options(tired PRIVATE -freflection -std=c++26)
+target_compile_options(tired PRIVATE -std=c++26)
 target_link_libraries(tired
     vsg
     vulkan
