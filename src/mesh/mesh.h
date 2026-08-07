@@ -14,6 +14,10 @@ struct ObjFileTriangleIndices {
     int texCoordIndex[3];
 };
 
+// ============================================================================
+// ======================= Mesh ===============================================
+// ============================================================================
+
 struct Mesh {
     Mesh( const std::string& name );
 
@@ -29,6 +33,10 @@ struct Mesh {
 protected:
     std::string _name{};
 };
+
+// ============================================================================
+// ======================= OBJMesh ============================================
+// ============================================================================
 
 struct OBJMesh : Mesh {
     OBJMesh( std::string name, std::vector<float> vertices, std::vector<float> vnormals, std::vector<float> txcoords,
@@ -49,7 +57,13 @@ private:
     std::vector<ObjFileTriangleIndices> _indices{};
 };
 
+// ============================================================================
+// ======================= ArraysMesh =========================================
+// ============================================================================
+
 struct ArraysMesh : Mesh {
+    ArraysMesh( OBJMesh&& source );
+
     [[nodiscard]] auto vertices() const -> const std::vector<float>&;
 
     [[nodiscard]] auto vnormals() const -> const std::vector<float>&;
@@ -62,7 +76,13 @@ private:
     std::vector<float> _txcoords{};
 };
 
+// ============================================================================
+// ======================= IndexedMesh ========================================
+// ============================================================================
+
 struct IndexedMesh : Mesh {
+    IndexedMesh( OBJMesh&& source );
+
     [[nodiscard]] auto vertices() const -> const std::vector<float>&;
 
     [[nodiscard]] auto vnormals() const -> const std::vector<float>&;
@@ -78,7 +98,13 @@ private:
     std::vector<int> _indices{};
 };
 
+// ============================================================================
+// ======================= InterleavedMesh ====================================
+// ============================================================================
+
 struct InterleavedMesh : Mesh {
+    InterleavedMesh( OBJMesh&& source );
+
     [[nodiscard]] auto mesh() const -> const std::vector<float>&;
 
 private:

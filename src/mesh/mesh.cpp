@@ -51,6 +51,10 @@ auto OBJMesh::indices() const -> const std::vector<ObjFileTriangleIndices>& {
 // ======================= ArraysMesh =========================================
 // ============================================================================
 
+ArraysMesh::ArraysMesh( OBJMesh&& source )
+    : Mesh{ source.name() } {
+}
+
 auto ArraysMesh::vertices() const -> const std::vector<float>& {
     return _vertices;
 }
@@ -66,6 +70,10 @@ auto ArraysMesh::txcoords() const -> const std::vector<float>& {
 // ============================================================================
 // ======================= IndexedMesh ========================================
 // ============================================================================
+
+IndexedMesh::IndexedMesh( OBJMesh&& source )
+    : Mesh{ source.name() } {
+}
 
 auto IndexedMesh::vertices() const -> const std::vector<float>& {
     return _vertices;
@@ -86,6 +94,10 @@ auto IndexedMesh::indices() const -> const std::vector<int>& {
 // ============================================================================
 // ======================= InterleavedMesh ====================================
 // ============================================================================
+
+InterleavedMesh::InterleavedMesh( OBJMesh&& source )
+    : Mesh{ source.name() } {
+}
 
 auto InterleavedMesh::mesh() const -> const std::vector<float>& {
     return _mesh;
