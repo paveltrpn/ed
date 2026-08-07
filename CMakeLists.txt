@@ -52,6 +52,28 @@ find_package(Qt6 ${QT_VERSION} COMPONENTS
 )
 
 # ================================
+# Module lib/fast_obj
+# ================================
+add_subdirectory(lib/fast_obj)
+
+# ================================
+# Module lib/libtga
+# ================================
+add_subdirectory(lib/libtga)
+
+# ================================
+# Module config
+# ================================
+file(GLOB MOD_MESH_SRC "src/mesh/*.cpp" "src/mesh/*.h")
+add_library(mesh ${MOD_MESH_SRC})
+target_link_libraries(mesh log)
+target_compile_options(mesh PRIVATE "${CXX_STANDART}")
+target_link_libraries(mesh
+   algebra
+   fast_obj
+)
+
+# ================================
 # Module config
 # ================================
 file(GLOB MOD_CONFIG_SRC "src/config/*.cpp" "src/config/*.h")
@@ -82,16 +104,6 @@ file(GLOB_RECURSE MOD_RENDER_SRC "src/r/render/*.cpp" "src/r/render/*.h")
 add_library(render ${MOD_RENDER_SRC})
 target_link_libraries(render vulkan context r_ui config algebra)
 target_compile_options(render PRIVATE "${CXX_STANDART}")
-
-# ================================
-# Module lib/fast_obj
-# ================================
-add_subdirectory(lib/fast_obj)
-
-# ================================
-# Module lib/libtga
-# ================================
-add_subdirectory(lib/libtga)
 
 # ================================
 # Module algebra
@@ -184,6 +196,7 @@ target_link_libraries(tired
     fast_obj
     event
     vsg
+    mesh
 )
 
 # ================================
@@ -267,6 +280,7 @@ target_link_libraries(${TIRE_EDITOR_EXE}
     ed_ui
     tired
     qt_window
+    mesh
 )
 
 # ================================
