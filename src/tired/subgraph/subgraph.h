@@ -9,8 +9,8 @@
 
 #include "../scene_object/sceneobjectbase.h"
 
-// #define PREFIX_PATH_ONE "/home/pavel/code/tire_ed"
-#define PREFIX_PATH_ONE "/mnt/main/code/tire"
+// #define PREFIX_PATH_ONE "/home/pavel/code/ed"
+#define PREFIX_PATH_ONE "/mnt/main/code/ed"
 
 namespace tire {
 

@@ -1,22 +1,7 @@
 cmake_minimum_required(VERSION 4.2)
 
-set(USE_LATEST_GCC ON)
-# set(USE_SYSTEM_GCC ON)
-
-# Choose compiler toolchain.
-if(USE_SYSTEM_GCC)
-    message( "USE SYSTEM GCC")
-    set(CMAKE_C_COMPILER gcc)
-    set(CMAKE_CXX_COMPILER g++)
-elseif(USE_LATEST_GCC)
-    message( "USE LATEST GCC")
-    set(CMAKE_C_COMPILER $ENV{GCC_LATEST}/bin/gcc)
-    set(CMAKE_CXX_COMPILER $ENV{GCC_LATEST}/bin/g++)
-endif()
-
-# SHUT UP qt creator!!!! DELETE THIS!!!
-set(CMAKE_C_COMPILER_WORKS 1)
-set(CMAKE_CXX_COMPILER_WORKS 1)
+set(CMAKE_C_COMPILER $ENV{GCC_LATEST}/bin/gcc)
+set(CMAKE_CXX_COMPILER $ENV{GCC_LATEST}/bin/g++)
 
 project(tire_ed)
 
@@ -49,7 +34,7 @@ endif()
 
 find_package(glslang 15.0 REQUIRED)
 
-list(APPEND CMAKE_PREFIX_PATH "/mnt/main/sources_build/glfw")
+list(APPEND CMAKE_PREFIX_PATH $ENV{LOCAL_GLFW})
 find_package(glfw3 3.3 REQUIRED)
 
 find_package(nlohmann_json 3.11 REQUIRED)
