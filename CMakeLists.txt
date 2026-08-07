@@ -6,7 +6,7 @@ include_directories("src")
 
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_EXPORT_COMPILE_COMMANDS true)
-set(CXX_STANDART -std=c++23)
+set(CXX_STANDART -std=c++26)
 
 if (DEFINED ENV{VULKAN_SDK} AND NOT "$ENV{VULKAN_SDK}" STREQUAL "")
     message( "VULKAN_SDK is set to $ENV{VULKAN_SDK}")

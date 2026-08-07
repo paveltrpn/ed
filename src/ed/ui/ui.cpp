@@ -61,16 +61,16 @@ TiredUI::TiredUI( vsg::ref_ptr<vsg::WindowTraits> traits, QObject *parent )
     // Qt widgets initialization.
     _vsgWidget = QWidget::createWindowContainer( _vsgWindow, this );
 
-    _topPanel->setSource( QUrl::fromLocalFile( "../src/ed_ui/qml/panels/TopPanel.qml" ) );
+    _topPanel->setSource( QUrl::fromLocalFile( "../src/ed/ui/qml/panels/TopPanel.qml" ) );
     _topPanel->setResizeMode( QQuickWidget::SizeRootObjectToView );
 
-    _leftPanel->setSource( QUrl::fromLocalFile( "../src/ed_ui/qml/panels/LeftPanel.qml" ) );
+    _leftPanel->setSource( QUrl::fromLocalFile( "../src/ed/ui/qml/panels/LeftPanel.qml" ) );
     _leftPanel->setResizeMode( QQuickWidget::SizeRootObjectToView );
 
-    _bottomPanel->setSource( QUrl::fromLocalFile( "../src/ed_ui/qml/panels/BottomPanel.qml" ) );
+    _bottomPanel->setSource( QUrl::fromLocalFile( "../src/ed/ui/qml/panels/BottomPanel.qml" ) );
     _bottomPanel->setResizeMode( QQuickWidget::SizeRootObjectToView );
 
-    _rightPanel->setSource( QUrl::fromLocalFile( "../src/ed_ui/qml/panels/RightPanel.qml" ) );
+    _rightPanel->setSource( QUrl::fromLocalFile( "../src/ed/ui/qml/panels/RightPanel.qml" ) );
     _rightPanel->setResizeMode( QQuickWidget::SizeRootObjectToView );
 
     // Set qml QQuickWidgets conteiners trnsparent background color.

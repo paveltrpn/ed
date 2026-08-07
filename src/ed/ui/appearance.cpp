@@ -12,7 +12,7 @@ TiredImageProvider::TiredImageProvider()
 }
 
 QImage TiredImageProvider::requestImage( const QString &id, QSize *size, const QSize &requestedSize ) {
-    QImage requestedImg{ QString{ "/mnt/main/code/ed/src/ed_ui/qml/icons/%1" }.arg( id ) };
+    QImage requestedImg{ QString{ "/mnt/main/code/ed/src/ed/ui/qml/icons/%1" }.arg( id ) };
 
     if ( requestedImg.isNull() ) {
         std::println( "image \"{}\" not found!", id.toStdString() );
@@ -31,7 +31,7 @@ Appearance::Appearance( QObject *parent )
     wp.cdUp();
 
     // Load color scheme.
-    QFile file( wp.path() + QDir::separator() + "src/ed_ui/qml/appearence/default.json" );
+    QFile file( wp.path() + QDir::separator() + "src/ed/ui/qml/appearence/default.json" );
 
     if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
         std::println( "appearence file not exist : {}", file.fileName().toStdString() );
