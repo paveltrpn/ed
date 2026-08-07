@@ -5,6 +5,7 @@
 
 #include <QQuickWidget>
 #include <QMainWindow>
+#include <QSettings>
 
 #include "ed/window/window.h"
 
@@ -20,9 +21,12 @@ namespace tire {
 struct TiredUI final : QMainWindow {
     Q_OBJECT
 public:
-    TiredUI( vsg::ref_ptr<vsg::WindowTraits> traits, QObject *parent = nullptr );
+    TiredUI( QObject *parent = nullptr );
 
     void onGlobalMouseMove( const QPointF &pos );
+
+    void writeSettings();
+    void readSettings();
 
     Q_INVOKABLE void moveWindow();
     Q_INVOKABLE void resizeWindow( int edge );
@@ -36,8 +40,10 @@ private:
 private:
     std::unique_ptr<tire::Tired> _tired{};
 
-    QQmlEngine *_engine;
-    QQmlContext *_context;
+    QSettings *_settings{};
+
+    QQmlEngine *_engine{};
+    QQmlContext *_context{};
 
     Window *_vsgWindow{};
     QWidget *_vsgWidget{};

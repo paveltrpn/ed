@@ -116,9 +116,13 @@ Window::~Window() {
 }
 
 void Window::initializeWindow() {
-    if ( windowAdapter ) return;
+    if ( windowAdapter ) {
+        return;
+    }
 
-    if ( !traits ) traits = vsg::WindowTraits::create();
+    if ( !traits ) {
+        traits = vsg::WindowTraits::create();
+    }
 
 #if defined( VK_USE_PLATFORM_WIN32_KHR )
     traits->nativeWindow = reinterpret_cast<HWND>( winId() );
@@ -127,16 +131,16 @@ void Window::initializeWindow() {
 #elif defined( VK_USE_PLATFORM_XCB_KHR )
     traits->nativeWindow = static_cast<xcb_window_t>( winId() );
 #elif defined( VK_USE_PLATFORM_WAYLAND_KHR )
-        //traits->nativeWindow =  reinterpret_cast<wl_surface*>( winId() );
-        //traits->nativeDisplay = wl_display;
+    //traits->nativeWindow =  reinterpret_cast<wl_surface*>( winId() );
+    //traits->nativeDisplay = wl_display;
 #elif defined( VK_USE_PLATFORM_MACOS_MVK )
     traits->nativeWindow = winId();
 #endif
 
-    traits->x = convert_coord( x() );
-    traits->y = convert_coord( y() );
-    traits->width = convert_coord( width() );
-    traits->height = convert_coord( height() );
+    // traits->x = convert_coord( x() );
+    // traits->y = convert_coord( y() );
+    // traits->width = convert_coord( width() );
+    // traits->height = convert_coord( height() );
 
     windowAdapter = vsg::Window::create( traits );
     _initialized = true;
@@ -317,4 +321,4 @@ std::pair<int32_t, int32_t> Window::convertMousePosition( QMouseEvent* e ) const
 #endif
 }
 
-}  // namespace tired
+}  // namespace tire

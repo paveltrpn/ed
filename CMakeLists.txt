@@ -183,6 +183,7 @@ target_link_libraries(tired
     image
     fast_obj
     event
+    vsg
 )
 
 # ================================
@@ -204,6 +205,7 @@ target_link_libraries(ed_ui
     Qt::QuickWidgets
     Qt::QuickControls2
     Qt::QuickLayouts
+    vsg
 )
 
 # ================================
@@ -222,6 +224,7 @@ target_link_libraries(qt_window
     Qt::QuickWidgets
     Qt::QuickControls2
     Qt::QuickLayouts
+    vsg
 )
 
 # ================================
@@ -257,7 +260,12 @@ target_link_libraries(${TIRE_EDITOR_EXE}
     Qt::QuickControls2
     Qt::QuickLayouts
     tired
+    qt_window
     ed_ui
+    tired
+    vsg
+    ed_ui
+    tired
     qt_window
 )
 

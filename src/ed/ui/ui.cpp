@@ -14,8 +14,9 @@ namespace tire {
 // ========== TiredUi =================================================
 // ====================================================================
 
-TiredUI::TiredUI( vsg::ref_ptr<vsg::WindowTraits> traits, QObject *parent )
+TiredUI::TiredUI( QObject *parent )
     : _tired{ std::make_unique<tire::Tired>() }
+    , _settings{ new QSettings{ this } }
     , _engine{ new QQmlEngine{ this } }
     , _context{ _engine->rootContext() }
     , _topPanel{ new QQuickWidget{ _engine, this } }
@@ -25,24 +26,23 @@ TiredUI::TiredUI( vsg::ref_ptr<vsg::WindowTraits> traits, QObject *parent )
     , _theme{ new Appearance{ this } } {
     //
 
+    readSettings();
+
     _tired->registerTypes();
 
     _engine->addImageProvider( "TiredImageProvider", new TiredImageProvider{} );
 
-    const auto topPanelHeight = _theme->getGap( "top_panel_height" );
-    const auto leftPanelWidth = _theme->getGap( "left_panel_width" );
-    const auto rightPanelWidth = 56;
-    const auto splitterBorderColor = _theme->getColor( "background" );
-    const auto splitterHandleWidth = _theme->getGap( "quarter" );
-    const auto clearColor = _theme->getColor( "clear_color" );
+    auto windowTraits = vsg::WindowTraits::create();
+    windowTraits->windowTitle = "ed";
+    windowTraits->vulkanVersion = VK_MAKE_API_VERSION( 0, 1, 4, 0 );
+    // windowTraits->clearColor = vsg::vec4{ 55.0f / 255.0f, 55.0f / 255.0f, 55.0f / 255.0f, 1.0f };
+    // windowTraits->fullscreen = true;
 
     qmlRegisterSingletonInstance( "Tire", 1, 0, "Appearence", _theme );
     qmlRegisterSingletonInstance( "Tire", 1, 0, "Tired", _tired.get() );
 
     // Use this object for main window position and size (in particular).
     qmlRegisterSingletonInstance( "Tire", 1, 0, "MainWindow", this );
-
-    setGeometry( traits->x, traits->y, traits->width, traits->height );
 
     // Remove native decoration.
     setWindowFlags( Qt::FramelessWindowHint );
@@ -52,11 +52,11 @@ TiredUI::TiredUI( vsg::ref_ptr<vsg::WindowTraits> traits, QObject *parent )
     setAttribute( Qt::WA_TranslucentBackground );
 
     // VSG initialization.
-    _vsgWindow = new Window( _tired->viewer(), traits );
+    _vsgWindow = new Window( _tired->viewer(), windowTraits );
     _vsgWindow->setTitle( "title" );
     _vsgWindow->initializeWindow();
 
-    _tired->init( _vsgWindow, traits->width, traits->height );
+    _tired->init( _vsgWindow, windowTraits->width, windowTraits->height );
 
     // Qt widgets initialization.
     _vsgWidget = QWidget::createWindowContainer( _vsgWindow, this );
@@ -78,6 +78,13 @@ TiredUI::TiredUI( vsg::ref_ptr<vsg::WindowTraits> traits, QObject *parent )
     _leftPanel->setClearColor( Qt::transparent );
     _bottomPanel->setClearColor( Qt::transparent );
     _rightPanel->setClearColor( Qt::transparent );
+
+    const auto topPanelHeight = _theme->getGap( "top_panel_height" );
+    const auto leftPanelWidth = _theme->getGap( "left_panel_width" );
+    const auto rightPanelWidth = 56;
+    const auto splitterBorderColor = _theme->getColor( "background" );
+    const auto splitterHandleWidth = _theme->getGap( "quarter" );
+    const auto clearColor = _theme->getColor( "clear_color" );
 
     auto centralWidget = new QWidget{ this };
     setCentralWidget( centralWidget );
@@ -120,17 +127,34 @@ TiredUI::TiredUI( vsg::ref_ptr<vsg::WindowTraits> traits, QObject *parent )
     this->show();
 }
 
+auto TiredUI::writeSettings() -> void {
+    _settings->beginGroup( "MainWindow" );
+    _settings->setValue( "geometry", saveGeometry() );
+    _settings->endGroup();
+
+    _settings->sync();
+}
+
+auto TiredUI::readSettings() -> void {
+    _settings->beginGroup( "MainWindow" );
+    const auto geometry = _settings->value( "geometry", QByteArray() ).toByteArray();
+    if ( geometry.isEmpty() ) {
+        setGeometry( 200, 200, 400, 800 );
+    } else {
+        restoreGeometry( geometry );
+    }
+
+    _settings->endGroup();
+}
+
 void TiredUI::quitApplication() {
     QApplication::quit();
 }
 
 void TiredUI::closeEvent( QCloseEvent *event ) {
+    writeSettings();
+
     log::info()( "close event handled!" );
-    // if (maybeSave()) {
-    //     event->accept();
-    // } else {
-    //     event->ignore();
-    // }
 }
 
 void TiredUI::onGlobalMouseMove( const QPointF &pos ) {
