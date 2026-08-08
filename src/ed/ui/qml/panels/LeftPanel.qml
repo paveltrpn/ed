@@ -70,13 +70,40 @@ Rectangle {
             }
 
             NpButton {
-                id: addBoxBtn
+                id: addSceneObjBtn
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-                icon.source: "image://TiredImageProvider/square-medical.svg"
+                icon.source: "image://TiredImageProvider/shapes-svgrepo-com.svg"
                 onClicked: {
-                    addBoxBtn.checked = !addBoxBtn.checked;
-                    if (addBoxBtn.checked) {
-                        showInfoBtn.checked = false;
+                    addSceneObjBtn.checked = !addSceneObjBtn.checked;
+                    if (addSceneObjBtn.checked) {
+                        showSceneInfoBtn.checked = false;
+                        settingsBtn.checked = false;
+                    }
+                }
+            }
+
+            NpButton {
+                id: editSceneObjBtn
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+                icon.source: "image://TiredImageProvider/wand-magic-svgrepo-com.svg"
+                onClicked: {
+                    editSceneObjBtn.checked = !editSceneObjBtn.checked;
+                    if (editSceneObjBtn.checked) {
+                        addSceneObjBtn.checked = false;
+                        settingsBtn.checked = false;
+                    }
+                }
+            }
+
+            NpButton {
+                id: showSceneInfoBtn
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
+                icon.source: "image://TiredImageProvider/info.svg"
+                onClicked: {
+                    showSceneInfoBtn.checked = !showSceneInfoBtn.checked;
+
+                    if (showSceneInfoBtn.checked) {
+                        addSceneObjBtn.checked = false;
                         settingsBtn.checked = false;
                     }
                 }
@@ -95,22 +122,8 @@ Rectangle {
                     settingsBtn.checked = !settingsBtn.checked;
 
                     if (settingsBtn.checked) {
-                        addBoxBtn.checked = false;
-                        showInfoBtn.checked = false;
-                    }
-                }
-            }
-
-            NpButton {
-                id: showInfoBtn
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
-                icon.source: "image://TiredImageProvider/info.svg"
-                onClicked: {
-                    showInfoBtn.checked = !showInfoBtn.checked;
-
-                    if (showInfoBtn.checked) {
-                        addBoxBtn.checked = false;
-                        settingsBtn.checked = false;
+                        addSceneObjBtn.checked = false;
+                        showSceneInfoBtn.checked = false;
                     }
                 }
             }
@@ -145,7 +158,7 @@ Rectangle {
             rightMargin: leftPanelMainComponent._gaps.half
         }
 
-        visible: showInfoBtn.checked
+        visible: showSceneInfoBtn.checked
     }
 
     AddBox {
@@ -158,6 +171,6 @@ Rectangle {
             rightMargin: leftPanelMainComponent._gaps.half
         }
 
-        visible: addBoxBtn.checked
+        visible: addSceneObjBtn.checked
     }
 }
