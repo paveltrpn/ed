@@ -1,4 +1,3 @@
-module;
 
 #include <string>
 #include <string_view>
@@ -10,20 +9,13 @@ module;
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vk_enum_string_helper.h>
 
+#include "bytecodesource.h"
+#include "config/config.h"
 #include "log/log.h"
-
-import config;
-
-export module program : bytecodesource;
-
-import : definitions;
-import : programsource;
 
 namespace tire {
 
-export struct BytecodeProgramSource final : ProgramSource {
-public:
-    BytecodeProgramSource( std::string programName )
+    BytecodeProgramSource::BytecodeProgramSource( std::string programName )
         : ProgramSource{ programName } {
         const auto basePath = Config::instance().basePath();
         const auto spirvPath = basePath / "shaders" / "spirv";
@@ -72,13 +64,10 @@ public:
     };
 
     [[nodiscard]]
-    auto sources() const -> const std::vector<std::pair<ShaderStageType, std::vector<uint32_t>>>& {
+    auto BytecodeProgramSource::sources() const -> const std::vector<std::pair<ShaderStageType, std::vector<uint32_t>>>& {
         //
         return _sources;
     }
 
-private:
-    std::vector<std::pair<ShaderStageType, std::vector<uint32_t>>> _sources{};
-};
 
 }  // namespace tire

@@ -1,4 +1,4 @@
-module;
+#pragma once
 
 #include <string>
 #include <unordered_map>
@@ -6,11 +6,9 @@ module;
 #include <glslang/Include/glslang_c_interface.h>
 #include <glslang/Public/resource_limits_c.h>
 
-export module program : definitions;
-
 namespace tire {
 
-export enum class ShaderStageType {
+enum class ShaderStageType {
     UNKNOWN,
     VERTEX,
     FRAGMENT,
@@ -30,24 +28,24 @@ export enum class ShaderStageType {
     CLUSTERCULLING,
 };
 
-export constexpr std::string vertex_stage_suffix{ "VERTEX" };
-export constexpr std::string tessctrl_stage_suffix{ "TESSCTRL" };
-export constexpr std::string tesseval_stage_suffix{ "TESSEVAL" };
-export constexpr std::string geometry_stage_suffix{ "GEOMETRY" };
-export constexpr std::string fragment_stage_suffix{ "FRAGMENT" };
-export constexpr std::string compute_stage_suffix{ "COMPUTE" };
-export constexpr std::string raygen_stage_suffix{ "RAYGEN" };
-export constexpr std::string anyhit_stage_suffix{ "ANYHIT" };
-export constexpr std::string closeshit_stage_suffix{ "CLOSESTHIT" };
-export constexpr std::string miss_stage_suffix{ "MISS" };
-export constexpr std::string intersection_stage_suffix{ "INTERSECTION" };
-export constexpr std::string callable_stage_suffix{ "CALLABLE" };
-export constexpr std::string task_stage_suffix{ "TASK" };
-export constexpr std::string mesh_stage_suffix{ "MESH" };
-export constexpr std::string subpassshading_stage_suffix{ "SUBPASSSHADING" };
-export constexpr std::string clusterculling_stage_suffix{ "CLUSTERCULLING" };
+constexpr std::string vertex_stage_suffix{ "VERTEX" };
+constexpr std::string tessctrl_stage_suffix{ "TESSCTRL" };
+constexpr std::string tesseval_stage_suffix{ "TESSEVAL" };
+constexpr std::string geometry_stage_suffix{ "GEOMETRY" };
+constexpr std::string fragment_stage_suffix{ "FRAGMENT" };
+constexpr std::string compute_stage_suffix{ "COMPUTE" };
+constexpr std::string raygen_stage_suffix{ "RAYGEN" };
+constexpr std::string anyhit_stage_suffix{ "ANYHIT" };
+constexpr std::string closeshit_stage_suffix{ "CLOSESTHIT" };
+constexpr std::string miss_stage_suffix{ "MISS" };
+constexpr std::string intersection_stage_suffix{ "INTERSECTION" };
+constexpr std::string callable_stage_suffix{ "CALLABLE" };
+constexpr std::string task_stage_suffix{ "TASK" };
+constexpr std::string mesh_stage_suffix{ "MESH" };
+constexpr std::string subpassshading_stage_suffix{ "SUBPASSSHADING" };
+constexpr std::string clusterculling_stage_suffix{ "CLUSTERCULLING" };
 
-export template <ShaderStageType Stage>
+template <ShaderStageType Stage>
 concept ShaderStage =
     ( Stage == ShaderStageType::VERTEX ) || ( Stage == ShaderStageType::FRAGMENT ) ||
     ( Stage == ShaderStageType::TESSELATION_EVAL ) || ( Stage == ShaderStageType::TESSELATION_CTRL ) ||

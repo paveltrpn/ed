@@ -46,7 +46,7 @@ Config::Config( const std::filesystem::path &fname )
     }
 }
 
-auto Config::getBasePath() const -> const std::filesystem::path & {
+auto Config::basePath() const -> const std::filesystem::path & {
     //
     return basePath_;
 };

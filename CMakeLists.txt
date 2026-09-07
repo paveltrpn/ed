@@ -138,29 +138,24 @@ target_link_libraries(event
 # ================================
 # Module program
 # ================================
-# file(GLOB MOD_PROGRAM_SRC  src/program/*.cpp )
-# add_library(program)
-# target_sources(program
-#   PUBLIC
-#     FILE_SET CXX_MODULES FILES
-#     ${MOD_PROGRAM_SRC}
-# )
-# target_compile_features(program PUBLIC cxx_std_26)
-# target_link_libraries(program
-#     config
-#     context
-#     log
-#     vulkan
-#     glslang
-#     glslang-default-resource-limits
-#     SPIRV-Tools-opt
-#     SPIRV-Tools
-#     SPIRV-Tools-diff
-#     SPIRV-Tools-link
-#     SPIRV-Tools-lint
-#     SPIRV-Tools-reduce
-#     SPIRV
-# )
+file(GLOB MOD_PROGRAM_SRC  src/program/*.cpp )
+add_library(program ${MOD_PROGRAM_SRC})
+target_compile_features(program PUBLIC cxx_std_26)
+target_link_libraries(program
+    config
+    context
+    log
+    vulkan
+    glslang
+    glslang-default-resource-limits
+    SPIRV-Tools-opt
+    SPIRV-Tools
+    SPIRV-Tools-diff
+    SPIRV-Tools-link
+    SPIRV-Tools-lint
+    SPIRV-Tools-reduce
+    SPIRV
+)
 
 # ================================
 # Module tired
