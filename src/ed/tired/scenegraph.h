@@ -26,6 +26,8 @@ public:
     auto initSubgraphs() -> void;
 
     auto root() const -> vsg::ref_ptr<vsg::Group>;
+
+    auto testbox() const -> Testbox*;
     auto grid() const -> Grid*;
     auto bounding() const -> Bounding*;
 
@@ -33,8 +35,8 @@ private:
     vsg::ref_ptr<vsg::Group> _root{};
     vsg::Viewer* _viewer;
 
-    Grid* _grid{};
     Testbox* _testbox{};
+    Grid* _grid{};
     Bounding* _bounding{};
 
     Gizmo* _gizmo{};

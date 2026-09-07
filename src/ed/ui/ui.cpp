@@ -16,7 +16,7 @@ namespace tire {
 // ====================================================================
 
 TiredUI::TiredUI( QObject *parent )
-    : _tired{ std::make_unique<tire::Tired>() }
+    : _tired{ new tire::Tired{ this } }
     , _settings{ new QSettings{ this } }
     , _engine{ new QQmlEngine{ this } }
     , _context{ _engine->rootContext() }
@@ -41,7 +41,7 @@ TiredUI::TiredUI( QObject *parent )
     // windowTraits->fullscreen = true;
 
     qmlRegisterSingletonInstance( "Tire", 1, 0, "Appearence", _theme );
-    qmlRegisterSingletonInstance( "Tire", 1, 0, "Tired", _tired.get() );
+    qmlRegisterSingletonInstance( "Tire", 1, 0, "Tired", _tired );
 
     // Use this object for main window position and size (in particular).
     qmlRegisterSingletonInstance( "Tire", 1, 0, "MainWindow", this );

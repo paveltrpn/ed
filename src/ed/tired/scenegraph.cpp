@@ -32,6 +32,10 @@ auto Scenegraph::root() const -> vsg::ref_ptr<vsg::Group> {
     return _root;
 }
 
+auto Scenegraph::testbox() const -> Testbox* {
+    return _testbox;
+}
+
 auto Scenegraph::grid() const -> Grid* {
     return _grid;
 }

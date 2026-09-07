@@ -38,7 +38,7 @@ private:
     auto reigsterTypes() -> void;
 
 private:
-    std::unique_ptr<tire::Tired> _tired{};
+    tire::Tired *_tired{};
 
     QSettings *_settings{};
 
