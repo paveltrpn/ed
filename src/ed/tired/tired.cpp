@@ -33,10 +33,6 @@ QObject* Tired::scenegraph() const {
     return _scenegraph;
 }
 
-QObject* Tired::grid() const {
-    return _scenegraph->grid();
-}
-
 auto Tired::init( Window* window, uint32_t width, uint32_t height ) -> void {
     // Setup the camera.
     {

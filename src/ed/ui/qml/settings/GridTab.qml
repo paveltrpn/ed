@@ -46,13 +46,13 @@ Rectangle {
 
             onLoaded: {
                 item.parameterlabel = "gridSize";
-                item.parameterValue = Tired.grid.gridSize;
+                item.parameterValue = Tired.scenegraph.grid.gridSize;
             }
 
             Connections {
                 target: gridSizeField.item
                 function onParamValueChanged(value) {
-                    Tired.grid.gridSize = value;
+                    Tired.scenegraph.grid.gridSize = value;
                 }
             }
         }
@@ -65,13 +65,13 @@ Rectangle {
 
             onLoaded: {
                 item.parameterlabel = "lineThickness";
-                item.parameterValue = Tired.grid.lineThickness;
+                item.parameterValue = Tired.scenegraph.grid.lineThickness;
             }
 
             Connections {
                 target: lineThicknessField.item
                 function onParamValueChanged(value) {
-                    Tired.grid.lineThickness = value;
+                    Tired.scenegraph.grid.lineThickness = value;
                 }
             }
         }
@@ -84,13 +84,13 @@ Rectangle {
 
             onLoaded: {
                 item.parameterlabel = "maxRange";
-                item.parameterValue = Tired.grid.maxRange;
+                item.parameterValue = Tired.scenegraph.grid.maxRange;
             }
 
             Connections {
                 target: maxRangeField.item
                 function onParamValueChanged(value) {
-                    Tired.grid.maxRange = value;
+                    Tired.scenegraph.grid.maxRange = value;
                 }
             }
         }
@@ -103,13 +103,13 @@ Rectangle {
 
             onLoaded: {
                 item.parameterlabel = "zoomSensitivity";
-                item.parameterValue = Tired.grid.zoomSensitivity;
+                item.parameterValue = Tired.scenegraph.grid.zoomSensitivity;
             }
 
             Connections {
                 target: zoomSensitivityField.item
                 function onParamValueChanged(value) {
-                    Tired.grid.zoomSensitivity = value;
+                    Tired.scenegraph.grid.zoomSensitivity = value;
                 }
             }
         }
@@ -122,13 +122,13 @@ Rectangle {
 
             onLoaded: {
                 item.parameterlabel = "majorDivisor";
-                item.parameterValue = Tired.grid.majorDivisor;
+                item.parameterValue = Tired.scenegraph.grid.majorDivisor;
             }
 
             Connections {
                 target: majorDivisorField.item
                 function onParamValueChanged(value) {
-                    Tired.grid.majorDivisor = value;
+                    Tired.scenegraph.grid.majorDivisor = value;
                 }
             }
         }
@@ -141,13 +141,13 @@ Rectangle {
 
             onLoaded: {
                 item.parameterlabel = "gridScale";
-                item.parameterValue = Tired.grid.gridScale;
+                item.parameterValue = Tired.scenegraph.grid.gridScale;
             }
 
             Connections {
                 target: gridScaleField.item
                 function onParamValueChanged(value) {
-                    Tired.grid.gridScale = value;
+                    Tired.scenegraph.grid.gridScale = value;
                 }
             }
         }
@@ -160,13 +160,13 @@ Rectangle {
 
             onLoaded: {
                 item.parameterlabel = "gridZOffset";
-                item.parameterValue = Tired.grid.gridZOffset;
+                item.parameterValue = Tired.scenegraph.grid.gridZOffset;
             }
 
             Connections {
                 target: gridZOffsetField.item
                 function onParamValueChanged(value) {
-                    Tired.grid.gridZOffset = value;
+                    Tired.scenegraph.grid.gridZOffset = value;
                 }
             }
         }

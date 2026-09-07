@@ -17,6 +17,10 @@ namespace tire {
 struct Scenegraph final : public QObject {
     Q_OBJECT
 
+    Q_PROPERTY( QObject* testbox READ testbox NOTIFY testboxChanged FINAL )
+    Q_PROPERTY( QObject* grid READ grid NOTIFY gridChanged FINAL )
+    Q_PROPERTY( QObject* bounding READ bounding NOTIFY boundingChanged FINAL )
+
 public:
     Scenegraph( vsg::Viewer* viewer, QObject* parent = nullptr );
 
@@ -27,9 +31,14 @@ public:
 
     auto root() const -> vsg::ref_ptr<vsg::Group>;
 
-    auto testbox() const -> Testbox*;
-    auto grid() const -> Grid*;
-    auto bounding() const -> Bounding*;
+    Testbox* testbox() const;
+    Grid* grid() const;
+    Bounding* bounding() const;
+
+signals:
+    void testboxChanged();
+    void gridChanged();
+    void boundingChanged();
 
 private:
     vsg::ref_ptr<vsg::Group> _root{};
