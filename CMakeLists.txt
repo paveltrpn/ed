@@ -82,30 +82,6 @@ target_link_libraries(config log)
 target_compile_options(config PRIVATE "${CXX_STANDART}")
 
 # ================================
-# Module context
-# ================================
-file(GLOB_RECURSE MOD_CONTEXT_SRC "src/r/context/*.cpp" "src/r/context/*.h")
-add_library(context ${MOD_CONTEXT_SRC})
-target_link_libraries(context vulkan config image)
-target_compile_options(context PRIVATE "${CXX_STANDART}")
-
-# ================================
-# Module r_ui
-# ================================
-file(GLOB MOD_R_UI_SRC "src/r/ui/*.cpp" "src/r/ui/*.h")
-add_library(r_ui ${MOD_R_UI_SRC})
-target_link_libraries(r_ui log algebra image)
-target_compile_options(r_ui PRIVATE "${CXX_STANDART}")
-
-# ================================
-# Module render
-# ================================
-file(GLOB_RECURSE MOD_RENDER_SRC "src/r/render/*.cpp" "src/r/render/*.h")
-add_library(render ${MOD_RENDER_SRC})
-target_link_libraries(render vulkan context r_ui config algebra)
-target_compile_options(render PRIVATE "${CXX_STANDART}")
-
-# ================================
 # Module algebra
 # ================================
 file(GLOB_RECURSE MOD_ALGEBRA_SRC "src/algebra/*.h")
@@ -281,37 +257,5 @@ target_link_libraries(${TIRE_EDITOR_EXE}
     tired
     qt_window
     mesh
-)
-
-# ================================
-# tire executable
-# ================================
-set(TIRE_EXE r)
-add_executable(${TIRE_EXE})
-file(GLOB_RECURSE EXE_R_SRC "apps/r/*.cpp" "apps/r/*.h")
-target_sources(${TIRE_EXE} PRIVATE ${EXE_R_SRC})
-set_target_properties(${TIRE_EXE} PROPERTIES AUTOMOC TRUE)
-target_compile_options(${TIRE_EXE} PRIVATE "${CXX_STANDART}")
-target_link_libraries(${TIRE_EXE}
-    event
-    context
-    log
-    algebra
-    config
-    render
-    glfw
-    Vulkan::Vulkan
-    GenericCodeGen
-    glslang
-    glslang-default-resource-limits
-    MachineIndependent
-    OSDependent
-    SPIRV-Tools-opt
-    SPIRV-Tools
-    SPIRV-Tools-diff
-    SPIRV-Tools-link
-    SPIRV-Tools-lint
-    SPIRV-Tools-reduce
-    SPIRV
 )
     
