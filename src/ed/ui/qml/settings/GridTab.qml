@@ -45,7 +45,7 @@ Rectangle {
             Layout.preferredHeight: 24
 
             onLoaded: {
-                item.parameterlabel = "gridSize";
+                item.parameterlabel = "Grid size";
                 item.parameterValue = Tired.scenegraph.grid.gridSize;
             }
 
@@ -64,7 +64,7 @@ Rectangle {
             Layout.preferredHeight: 24
 
             onLoaded: {
-                item.parameterlabel = "lineThickness";
+                item.parameterlabel = "Line thickness";
                 item.parameterValue = Tired.scenegraph.grid.lineThickness;
             }
 
@@ -83,7 +83,7 @@ Rectangle {
             Layout.preferredHeight: 24
 
             onLoaded: {
-                item.parameterlabel = "maxRange";
+                item.parameterlabel = "Max range";
                 item.parameterValue = Tired.scenegraph.grid.maxRange;
             }
 
@@ -102,7 +102,7 @@ Rectangle {
             Layout.preferredHeight: 24
 
             onLoaded: {
-                item.parameterlabel = "zoomSensitivity";
+                item.parameterlabel = "Zoom sensitivity";
                 item.parameterValue = Tired.scenegraph.grid.zoomSensitivity;
             }
 
@@ -121,7 +121,7 @@ Rectangle {
             Layout.preferredHeight: 24
 
             onLoaded: {
-                item.parameterlabel = "majorDivisor";
+                item.parameterlabel = "Major divisor";
                 item.parameterValue = Tired.scenegraph.grid.majorDivisor;
             }
 
@@ -140,7 +140,7 @@ Rectangle {
             Layout.preferredHeight: 24
 
             onLoaded: {
-                item.parameterlabel = "gridScale";
+                item.parameterlabel = "Grid scale";
                 item.parameterValue = Tired.scenegraph.grid.gridScale;
             }
 
@@ -159,7 +159,7 @@ Rectangle {
             Layout.preferredHeight: 24
 
             onLoaded: {
-                item.parameterlabel = "gridZOffset";
+                item.parameterlabel = "Z Offset";
                 item.parameterValue = Tired.scenegraph.grid.gridZOffset;
             }
 

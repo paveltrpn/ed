@@ -195,12 +195,12 @@ auto GridSubgraph::updateGridBufUniformValue() -> void {
 }
 
 auto GridSubgraph::updatePlaneBufUniformValue() -> void {
-    ( *_gridBufUniformValue )[0] = _gridScale;
-    ( *_gridBufUniformValue )[1] = _gridZOffset;
-    ( *_gridBufUniformValue )[2] = 1.0f;
-    ( *_gridBufUniformValue )[3] = 1.0f;
+    ( *_planeBufUniformValue )[0] = _gridScale;
+    ( *_planeBufUniformValue )[1] = _gridZOffset;
+    ( *_planeBufUniformValue )[2] = 1.0f;
+    ( *_planeBufUniformValue )[3] = 1.0f;
 
-    _gridBufUniformValue->dirty();
+    _planeBufUniformValue->dirty();
 }
 
 }  // namespace tire

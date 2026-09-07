@@ -88,7 +88,7 @@ private:
 
     float _majorDivisor{ 5.0f };
     float _gridScale{ 10.0 };
-    float _gridZOffset{ 0.0 };
+    float _gridZOffset{ 0.5 };
 
     vsg::ref_ptr<vsg::floatArray> _gridBufUniformValue{};
     vsg::ref_ptr<vsg::floatArray> _planeBufUniformValue{};
