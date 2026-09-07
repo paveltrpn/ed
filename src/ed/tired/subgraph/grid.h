@@ -9,6 +9,10 @@ namespace tire {
 
 struct GridSubgraph;
 
+// ======================================================================================
+// ==================== Grid ============================================================
+// ======================================================================================
+
 struct Grid final : public QObject {
     Q_OBJECT
 
@@ -61,7 +65,9 @@ private:
     vsg::ref_ptr<GridSubgraph> _node{};
 };
 
-// ===============================================================================
+// ======================================================================================
+// ==================== GridSubgraph ====================================================
+// ======================================================================================
 
 struct GridSubgraph final : public Subgraph {
     GridSubgraph( vsg::Viewer* viewer );
@@ -87,8 +93,8 @@ private:
     vsg::vec3 _colorMinor{ 0.2f, 0.2f, 0.5f };
 
     float _majorDivisor{ 5.0f };
-    float _gridScale{ 10.0 };
-    float _gridZOffset{ 0.5 };
+    float _gridScale{ 10.0f };
+    float _gridZOffset{ 0.0f };
 
     vsg::ref_ptr<vsg::floatArray> _gridBufUniformValue{};
     vsg::ref_ptr<vsg::floatArray> _planeBufUniformValue{};
