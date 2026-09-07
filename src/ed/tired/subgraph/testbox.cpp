@@ -42,6 +42,11 @@ void Testbox::setSize( float value ) {
     sizeChanged();
 }
 
+void Testbox::setColor( QVector3D value ) {
+    _node->_color = vsg::vec3{ value.x(), value.y(), value.z() };
+    colorChanged();
+}
+
 QVector3D Testbox::origin() {
     return QVector3D{ _node->_origin.x, _node->_origin.y, _node->_origin.z };
 }
@@ -56,6 +61,10 @@ float Testbox::angl() {
 
 float Testbox::size() {
     return _node->_size;
+}
+
+QVector3D Testbox::color() {
+    return QVector3D{ _node->_color.x, _node->_color.y, _node->_color.z };
 }
 
 // ======================================================================================

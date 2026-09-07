@@ -22,6 +22,7 @@ struct Testbox final : public QObject {
     Q_PROPERTY( QVector3D axis READ axis WRITE setAxis NOTIFY axisChanged FINAL )
     Q_PROPERTY( float angl READ angl WRITE setAngl NOTIFY anglChanged FINAL )
     Q_PROPERTY( float size READ size WRITE setSize NOTIFY sizeChanged FINAL )
+    Q_PROPERTY( QVector3D color READ color WRITE setColor NOTIFY colorChanged FINAL )
 
 public:
     Testbox( vsg::Viewer* viewer, QObject* parent = nullptr );
@@ -32,17 +33,20 @@ public:
     void setAxis( QVector3D value );
     void setAngl( float value );
     void setSize( float value );
+    void setColor( QVector3D value );
 
     QVector3D origin();
     QVector3D axis();
     float angl();
     float size();
+    QVector3D color();
 
 signals:
     void originChanged();
     void axisChanged();
     void anglChanged();
     void sizeChanged();
+    void colorChanged();
 
 private:
     vsg::ref_ptr<TestboxSubgraph> _node{};
@@ -65,6 +69,8 @@ private:
     vsg::vec3 _axis{ 0.0f, 0.0f, 0.0f };
     float _angl{ 0.0f };
     float _size{ 1.0f };
+
+    vsg::vec3 _color{ 0.0f, 0.0f, 0.0f };
 };
 
 }  // namespace tire
