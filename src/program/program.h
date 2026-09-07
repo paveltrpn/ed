@@ -34,16 +34,11 @@ struct Program final {
     Program( Program&& other ) = default;
     auto operator=( Program&& other ) -> Program& = default;
 
-    ~Program() {
-        for ( const auto& module : _modules ) {
-            auto [_, m] = module;
-            //vkDestroyShaderModule( Context::instance().device(), m, nullptr );
-        }
-    }
+    ~Program();
 
     template <typename ProgramSourceType>
-    requires std::derived_from<ProgramSourceType, ProgramSource> explicit Program( ProgramSourceType sources )
-        : _sources{ std::move( sources ) } {
+    requires std::derived_from<ProgramSourceType, ProgramSource> explicit Program( ProgramSourceType sources,VkDevice device )
+        : _sources{ std::move( sources ) },_device{ device } {
         // If ProgramSourceType is already bytecode simply initialize shader modules from
         // that bytecode...
         if constexpr ( std::is_same_v<ProgramSourceType, BytecodeProgramSource> ) {
@@ -94,10 +89,11 @@ private:
     auto compile( glslang_stage_t stage, const std::string& text ) -> std::optional<std::vector<uint32_t>> ;
 
     auto beginCompile() -> void ;
-
     auto endCompile() -> void ;
 
 private:
+    VkDevice _device{};
+
     std::variant<BytecodeProgramSource, TextProgramSource> _sources;
     std::unordered_map<ShaderStageType, VkShaderModule> _modules{};
 };

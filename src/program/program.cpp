@@ -1,7 +1,6 @@
 
 #include <optional>
 #include <print>
-#include <variant>
 #include <unordered_map>
 #include <vulkan/vulkan.h>
 #include <format>
@@ -20,6 +19,13 @@
 #include "program.h"
 
 namespace tire {
+
+Program::~Program() {
+    for ( const auto& module : _modules ) {
+        auto [_, m] = module;
+        vkDestroyShaderModule( _device, m, nullptr );
+    }
+}
 
 [[nodiscard]] auto Program::get( ShaderStageType stage ) const -> VkShaderModule const {
     try {
@@ -41,7 +47,7 @@ requires ShaderStage<stage> [[nodiscard]] auto Program::get() const -> VkShaderM
 auto Program::destroy( ShaderStageType stage ) -> void {
     try {
         auto module = _modules.at( stage );
-        // vkDestroyShaderModule( Context::instance().device(), module, nullptr );
+        vkDestroyShaderModule( _device, module, nullptr );
         _modules.erase( stage );
     } catch ( std::out_of_range& e ) {
         log::warning()( "Unable to destroy! Module \"{}\" not exist!", StageTypeToSuffixMap.at( stage ) );
@@ -56,13 +62,12 @@ auto Program::push( ShaderStageType stage, const std::vector<uint32_t> bytecode 
     createInfo.pCode = bytecode.data();
 
     VkShaderModule module{};
-    // if ( const auto err = vkCreateShaderModule( Context::instance().device(), &createInfo, nullptr, &module );
-    //      err != VK_SUCCESS ) {
-    //     throw std::runtime_error( std::format( "Failed to create shader module \"{}\" with code {}!",
-    //                                            StageTypeToSuffixMap.at( stage ), string_VkResult( err ) ) );
-    // } else {
-    //     log::debug()( "Shader module \"{}\" created!", StageTypeToSuffixMap.at( stage ) );
-    // }
+    if ( const auto err = vkCreateShaderModule( _device, &createInfo, nullptr, &module ); err != VK_SUCCESS ) {
+        throw std::runtime_error( std::format( "Failed to create shader module \"{}\" with code {}!",
+                                               StageTypeToSuffixMap.at( stage ), string_VkResult( err ) ) );
+    } else {
+        log::debug()( "Shader module \"{}\" created!", StageTypeToSuffixMap.at( stage ) );
+    }
 
     _modules[stage] = module;
 }
