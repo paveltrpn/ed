@@ -1,12 +1,12 @@
 #version 450
 
-layout( location = 0 ) out vec3 fragColor;
-layout( location = 1 ) out vec3 vLighting;
-
 layout(push_constant) uniform PushConstants {
     mat4 projection;
     mat4 modelview;
 } pc;
+
+layout( location = 0 ) out vec3 fragColor;
+layout( location = 1 ) out vec3 vLighting;
 
 vec3 positions[36] = vec3[](
         vec3( -0.5, 0.5, -0.5 ), vec3( 0.5, 0.5, 0.5 ), vec3( 0.5, 0.5, -0.5 ),

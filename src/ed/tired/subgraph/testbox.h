@@ -12,6 +12,9 @@ struct TestboxSubgraph;
 struct Testbox final : public QObject {
     Q_OBJECT
 
+    Q_PROPERTY( float origin READ gridSize WRITE setSize NOTIFY sizeChanged FINAL )
+    Q_PROPERTY( float axis READ gridSize WRITE setSize NOTIFY sizeChanged FINAL )
+    Q_PROPERTY( float angl READ gridSize WRITE setSize NOTIFY sizeChanged FINAL )
     Q_PROPERTY( float size READ gridSize WRITE setSize NOTIFY sizeChanged FINAL )
 
 public:
@@ -41,6 +44,9 @@ struct TestboxSubgraph final : Subgraph {
     friend Testbox;
 
 private:
+    vsg::vec3 _origin{ 0.0f, 0.0f, 0.0f };
+    vsg::vec3 _axis{ 0.0f, 0.0f, 0.0f };
+    float _angl{ 0.0f };
     float _size{ 1.0f };
 };
 
