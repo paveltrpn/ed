@@ -14,62 +14,12 @@
 
 #include <shaderc/shaderc.hpp>
 
-#include "log/log.h"
-
 #include "program.h"
 
 namespace tire {
 
-Program::~Program() {
-    for ( const auto& module : _modules ) {
-        auto [_, m] = module;
-        vkDestroyShaderModule( _device, m, nullptr );
-    }
-}
-
-[[nodiscard]] auto Program::get( ShaderStageType stage ) const -> VkShaderModule const {
-    try {
-        return _modules.at( stage );
-    } catch ( std::out_of_range& e ) {
-        return VK_NULL_HANDLE;
-    }
-}
-
-template <ShaderStageType stage>
-requires ShaderStage<stage> [[nodiscard]] auto Program::get() const -> VkShaderModule {
-    try {
-        return _modules.at( stage );
-    } catch ( std::out_of_range& e ) {
-        return VK_NULL_HANDLE;
-    }
-}
-
-auto Program::destroy( ShaderStageType stage ) -> void {
-    try {
-        auto module = _modules.at( stage );
-        vkDestroyShaderModule( _device, module, nullptr );
-        _modules.erase( stage );
-    } catch ( std::out_of_range& e ) {
-        log::warning()( "Unable to destroy! Module \"{}\" not exist!", StageTypeToSuffixMap.at( stage ) );
-        return;
-    }
-}
-
 auto Program::push( ShaderStageType stage, const std::vector<uint32_t> bytecode ) -> void {
-    VkShaderModuleCreateInfo createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.codeSize = bytecode.size() * sizeof( uint32_t );
-    createInfo.pCode = bytecode.data();
-
-    VkShaderModule module{};
-    if ( const auto err = vkCreateShaderModule( _device, &createInfo, nullptr, &module ); err != VK_SUCCESS ) {
-        throw std::runtime_error( std::format( "Failed to create shader module \"{}\" with code {}!",
-                                               StageTypeToSuffixMap.at( stage ), string_VkResult( err ) ) );
-    } else {
-        log::debug()( "Shader module \"{}\" created!", StageTypeToSuffixMap.at( stage ) );
-    }
-
-    _modules[stage] = module;
+    _modules[stage] = bytecode;
 }
 
 auto Program::compile( glslang_stage_t stage, const std::string& text ) -> std::optional<std::vector<uint32_t>> {
@@ -161,6 +111,14 @@ auto Program::compile( glslang_stage_t stage, const std::string& text ) -> std::
     glslang_shader_delete( shader );
 
     return result;
+}
+
+auto Program::spirv( ShaderStageType stage ) const -> std::vector<uint32_t> const {
+    try {
+        return _modules.at( stage );
+    } catch ( std::out_of_range& e ) {
+        return {};
+    }
 }
 
 auto Program::beginCompile() -> void {

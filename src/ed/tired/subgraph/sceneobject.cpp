@@ -1,10 +1,11 @@
 
 #include <vsg/all.h>
 
-#include "program/program.h"
 #include "image/tga.h"
 #include "log/log.h"
 #include "sceneobject.h"
+
+#include "program/program.h"
 
 namespace tire {
 
@@ -13,9 +14,9 @@ SceneObjectSubgraph::SceneObjectSubgraph( vsg::Viewer* viewer )
 }
 
 auto SceneObjectSubgraph::initPipeline() -> void {
-    auto sceneobjectSource = TextProgramSource{ "sceneobject" };
-    auto vSource = sceneobjectSource.stageSource( ShaderStageType::VERTEX );
-    auto fSource = sceneobjectSource.stageSource( ShaderStageType::FRAGMENT );
+    auto sceneobjectProgram = Program{ TextProgramSource{ "sceneobject" } };
+    auto vSource = sceneobjectProgram.spirv( ShaderStageType::VERTEX );
+    auto fSource = sceneobjectProgram.spirv( ShaderStageType::FRAGMENT );
     auto vertexShader = vsg::ShaderStage::create( VK_SHADER_STAGE_VERTEX_BIT, "main", vSource );
     auto fragmentShader = vsg::ShaderStage::create( VK_SHADER_STAGE_FRAGMENT_BIT, "main", fSource );
 

@@ -22,9 +22,6 @@
 
 namespace tire {
 
-// Each program must contain at least two shader stages - VERTEX and FRAGMENT (despite
-// of the vulkan specification demands at least one shader stage - VERTEX for graphics
-// pipeline or it can be COMPUTE shader for compute pipeline).
 struct Program final {
     Program() = delete;
 
@@ -34,11 +31,11 @@ struct Program final {
     Program( Program&& other ) = default;
     auto operator=( Program&& other ) -> Program& = default;
 
-    ~Program();
+    ~Program() = default;
 
     template <typename ProgramSourceType>
-    requires std::derived_from<ProgramSourceType, ProgramSource> explicit Program( ProgramSourceType sources,VkDevice device )
-        : _sources{ std::move( sources ) },_device{ device } {
+    requires std::derived_from<ProgramSourceType, ProgramSource> explicit Program( ProgramSourceType sources )
+        : _sources{ std::move( sources ) } {
         // If ProgramSourceType is already bytecode simply initialize shader modules from
         // that bytecode...
         if constexpr ( std::is_same_v<ProgramSourceType, BytecodeProgramSource> ) {
@@ -76,12 +73,7 @@ struct Program final {
     };
 
     [[nodiscard]]
-    auto get( ShaderStageType stage ) const -> VkShaderModule const ;
-
-    template <ShaderStageType stage>
-    requires ShaderStage<stage> [[nodiscard]] auto get() const -> VkShaderModule ;
-
-    auto destroy( ShaderStageType stage ) -> void ;
+    auto spirv( ShaderStageType stage ) const -> std::vector<uint32_t> const ;
 
 private:
     // Create vulkan shader module.
@@ -92,10 +84,8 @@ private:
     auto endCompile() -> void ;
 
 private:
-    VkDevice _device{};
-
     std::variant<BytecodeProgramSource, TextProgramSource> _sources;
-    std::unordered_map<ShaderStageType, VkShaderModule> _modules{};
+    std::unordered_map<ShaderStageType, std::vector<uint32_t>> _modules{};
 };
 
 }  // namespace tire
