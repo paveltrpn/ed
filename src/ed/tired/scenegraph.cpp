@@ -22,9 +22,9 @@ auto Scenegraph::initSubgraphs() -> void {
     _sceneObjectSubgraph->initPipeline();
 
     _root->addChild( _sceneObjectSubgraph );
-    _root->addChild( _bounding->bounding() );
-    _root->addChild( _grid->grid() );
-    _root->addChild( _testbox->testbox() );
+    _root->addChild( _bounding->node() );
+    _root->addChild( _grid->node() );
+    _root->addChild( _testbox->node() );
     _root->addChild( _markerSubgraph );
 }
 

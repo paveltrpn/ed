@@ -25,7 +25,7 @@ struct Grid final : public QObject {
 public:
     Grid( vsg::Viewer* viewer, QObject* parent = nullptr );
 
-    auto grid() const -> vsg::ref_ptr<GridSubgraph>;
+    auto node() const -> vsg::ref_ptr<GridSubgraph>;
 
     void setGridSize( float value );
     void setLineThickness( float value );
@@ -58,7 +58,7 @@ signals:
     void gridZOffsetChanged();
 
 private:
-    vsg::ref_ptr<GridSubgraph> _grid{};
+    vsg::ref_ptr<GridSubgraph> _node{};
 };
 
 // ===============================================================================

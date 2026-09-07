@@ -17,7 +17,7 @@ struct Testbox final : public QObject {
 public:
     Testbox( vsg::Viewer* viewer, QObject* parent = nullptr );
 
-    auto testbox() const -> vsg::ref_ptr<TestboxSubgraph>;
+    auto node() const -> vsg::ref_ptr<TestboxSubgraph>;
 
     void setSize( float value );
 
@@ -27,7 +27,7 @@ signals:
     void sizeChanged();
 
 private:
-    vsg::ref_ptr<TestboxSubgraph> _testbox{};
+    vsg::ref_ptr<TestboxSubgraph> _node{};
 };
 
 // ===============================================================================

@@ -16,12 +16,12 @@ struct Bounding final : public QObject {
 public:
     Bounding( vsg::Viewer* viewer, QObject* parent = nullptr );
 
-    auto bounding() const -> vsg::ref_ptr<BoundingSubgraph>;
+    auto node() const -> vsg::ref_ptr<BoundingSubgraph>;
 
     void setTransformMat( vsg::mat4 value );
 
 private:
-    vsg::ref_ptr<BoundingSubgraph> _bounding{};
+    vsg::ref_ptr<BoundingSubgraph> _node{};
 };
 
 // ===============================================================================

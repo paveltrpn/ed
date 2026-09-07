@@ -8,22 +8,22 @@ namespace tire {
 
 Testbox::Testbox( vsg::Viewer* viewer, QObject* parent )
     : QObject{ parent }
-    , _testbox{ new TestboxSubgraph{ viewer } } {
+    , _node{ new TestboxSubgraph{ viewer } } {
     //
-    _testbox->initPipeline();
-    _testbox->initDrawCommand();
+    _node->initPipeline();
+    _node->initDrawCommand();
 }
 
-auto Testbox::testbox() const -> vsg::ref_ptr<TestboxSubgraph> {
-    return _testbox;
+auto Testbox::node() const -> vsg::ref_ptr<TestboxSubgraph> {
+    return _node;
 }
 
 void Testbox::setSize( float value ) {
-    _testbox->_size = value;
+    _node->_size = value;
 }
 
 float Testbox::gridSize() {
-    return _testbox->_size;
+    return _node->_size;
 }
 
 // ===============================================================================

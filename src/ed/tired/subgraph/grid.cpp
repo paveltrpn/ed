@@ -8,91 +8,91 @@ namespace tire {
 
 Grid::Grid( vsg::Viewer* viewer, QObject* parent )
     : QObject{ parent }
-    , _grid{ new GridSubgraph{ viewer } } {
+    , _node{ new GridSubgraph{ viewer } } {
     //
-    _grid->initPipeline();
-    _grid->initDrawCommand();
+    _node->initPipeline();
+    _node->initDrawCommand();
 }
 
-auto Grid::grid() const -> vsg::ref_ptr<GridSubgraph> {
-    return _grid;
+auto Grid::node() const -> vsg::ref_ptr<GridSubgraph> {
+    return _node;
 }
 
 float Grid::gridSize() {
-    return _grid->_gridSize;
+    return _node->_gridSize;
 };
 
 float Grid::lineThickness() {
-    return _grid->_lineThickness;
+    return _node->_lineThickness;
 };
 
 float Grid::maxRange() {
-    return _grid->_maxRange;
+    return _node->_maxRange;
 };
 
 float Grid::zoomSensitivity() {
-    return _grid->_zoomSensitivity;
+    return _node->_zoomSensitivity;
 };
 
 float Grid::majorDivisor() {
-    return _grid->_majorDivisor;
+    return _node->_majorDivisor;
 };
 
 float Grid::gridScale() {
-    return _grid->_gridScale;
+    return _node->_gridScale;
 };
 
 float Grid::gridZOffset() {
-    return _grid->_gridZOffset;
+    return _node->_gridZOffset;
 };
 
 void Grid::setGridSize( float value ) {
-    _grid->_gridSize = value;
-    _grid->updateGridBufUniformValue();
+    _node->_gridSize = value;
+    _node->updateGridBufUniformValue();
 }
 
 void Grid::setLineThickness( float value ) {
-    _grid->_lineThickness = value;
-    _grid->updateGridBufUniformValue();
+    _node->_lineThickness = value;
+    _node->updateGridBufUniformValue();
 }
 
 void Grid::setMaxRange( float value ) {
-    _grid->_maxRange = value;
-    _grid->updateGridBufUniformValue();
+    _node->_maxRange = value;
+    _node->updateGridBufUniformValue();
 }
 
 void Grid::setZoomSensitivity( float value ) {
-    _grid->_zoomSensitivity = value;
-    _grid->updateGridBufUniformValue();
+    _node->_zoomSensitivity = value;
+    _node->updateGridBufUniformValue();
 }
 
 void Grid::setColorMajor( float r, float g, float b ) {
-    _grid->_colorMajor.r = r;
-    _grid->_colorMajor.g = g;
-    _grid->_colorMajor.b = b;
-    _grid->updateGridBufUniformValue();
+    _node->_colorMajor.r = r;
+    _node->_colorMajor.g = g;
+    _node->_colorMajor.b = b;
+    _node->updateGridBufUniformValue();
 }
 
 void Grid::setColorMinor( float r, float g, float b ) {
-    _grid->_colorMinor.r = r;
-    _grid->_colorMinor.g = g;
-    _grid->_colorMinor.b = b;
-    _grid->updateGridBufUniformValue();
+    _node->_colorMinor.r = r;
+    _node->_colorMinor.g = g;
+    _node->_colorMinor.b = b;
+    _node->updateGridBufUniformValue();
 }
 
 void Grid::setMajorDivisor( float value ) {
-    _grid->_majorDivisor = value;
-    _grid->updateGridBufUniformValue();
+    _node->_majorDivisor = value;
+    _node->updateGridBufUniformValue();
 }
 
 void Grid::setGridScale( float value ) {
-    _grid->_gridScale = value;
-    _grid->updatePlaneBufUniformValue();
+    _node->_gridScale = value;
+    _node->updatePlaneBufUniformValue();
 }
 
 void Grid::setGridZOffset( float value ) {
-    _grid->_gridZOffset = value;
-    _grid->updatePlaneBufUniformValue();
+    _node->_gridZOffset = value;
+    _node->updatePlaneBufUniformValue();
 }
 
 // ===============================================================================

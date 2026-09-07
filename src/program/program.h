@@ -80,8 +80,8 @@ private:
     auto push( ShaderStageType stage, const std::vector<uint32_t> bytecode ) -> void ;
     auto compile( glslang_stage_t stage, const std::string& text ) -> std::optional<std::vector<uint32_t>> ;
 
-    auto beginCompile() -> void ;
-    auto endCompile() -> void ;
+    auto beginCompile() -> void;
+    auto endCompile() -> void;
 
 private:
     std::variant<BytecodeProgramSource, TextProgramSource> _sources;

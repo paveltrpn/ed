@@ -24,6 +24,7 @@ public:
                                float sz );
 
     auto initSubgraphs() -> void;
+
     auto root() const -> vsg::ref_ptr<vsg::Group>;
     auto grid() const -> Grid*;
     auto bounding() const -> Bounding*;
@@ -34,14 +35,14 @@ private:
 
     Grid* _grid{};
     Testbox* _testbox{};
-
     Bounding* _bounding{};
+
     Gizmo* _gizmo{};
 
     vsg::ref_ptr<SceneObjectSubgraph> _sceneObjectSubgraph{};
-    vsg::ref_ptr<MarkerSubgraph> _markerSubgraph{};
-
     std::vector<std::shared_ptr<SceneObjectBase>> _objectsList{};
+
+    vsg::ref_ptr<MarkerSubgraph> _markerSubgraph{};
 };
 
 }  // namespace tire

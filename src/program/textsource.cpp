@@ -14,9 +14,9 @@ namespace tire {
 TextProgramSource::TextProgramSource( std::string programName )
     : ProgramSource{ programName } {
     const auto basePath = Config::instance().basePath();
-    const auto spirvPath = basePath / "shaders";
+    const auto glslPath = basePath / "shaders";
 
-    const auto glslShadersList = listDirectory( spirvPath, programName, ".glsl" );
+    const auto glslShadersList = listDirectory( glslPath, programName, ".glsl" );
 
     if ( glslShadersList.size() < 2 ) {
         const auto msg = std::format( "Not enough source files for program: {}", programName );
@@ -31,7 +31,7 @@ TextProgramSource::TextProgramSource( std::string programName )
             throw std::runtime_error( msg );
         }
 
-        auto file = std::ifstream{ item };
+        const auto file = std::ifstream{ item };
 
         if ( !file.is_open() ) {
             const auto msg = std::format( "Failed to open file: {}", item );

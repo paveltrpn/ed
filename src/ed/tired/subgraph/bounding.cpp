@@ -6,19 +6,19 @@ namespace tire {
 
 Bounding::Bounding( vsg::Viewer* viewer, QObject* parent )
     : QObject{ parent }
-    , _bounding{ new BoundingSubgraph{ viewer } } {
+    , _node{ new BoundingSubgraph{ viewer } } {
     //
-    _bounding->initPipeline();
-    _bounding->initDrawCommand();
+    _node->initPipeline();
+    _node->initDrawCommand();
 }
 
-auto Bounding::bounding() const -> vsg::ref_ptr<BoundingSubgraph> {
-    return _bounding;
+auto Bounding::node() const -> vsg::ref_ptr<BoundingSubgraph> {
+    return _node;
 }
 
 void Bounding::setTransformMat( vsg::mat4 value ) {
-    _bounding->_transformMat = value * _bounding->_initialScale;
-    _bounding->updateTransformMatUniform();
+    _node->_transformMat = value * _node->_initialScale;
+    _node->updateTransformMatUniform();
 }
 
 // ===============================================================================

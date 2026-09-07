@@ -15,10 +15,10 @@ SceneObjectSubgraph::SceneObjectSubgraph( vsg::Viewer* viewer )
 
 auto SceneObjectSubgraph::initPipeline() -> void {
     auto sceneobjectProgram = Program{ TextProgramSource{ "sceneobject" } };
-    auto vSource = sceneobjectProgram.spirv( ShaderStageType::VERTEX );
-    auto fSource = sceneobjectProgram.spirv( ShaderStageType::FRAGMENT );
-    auto vertexShader = vsg::ShaderStage::create( VK_SHADER_STAGE_VERTEX_BIT, "main", vSource );
-    auto fragmentShader = vsg::ShaderStage::create( VK_SHADER_STAGE_FRAGMENT_BIT, "main", fSource );
+    auto vertexShader = vsg::ShaderStage::create( VK_SHADER_STAGE_VERTEX_BIT, "main",
+                                                  sceneobjectProgram.spirv( ShaderStageType::VERTEX ) );
+    auto fragmentShader = vsg::ShaderStage::create( VK_SHADER_STAGE_FRAGMENT_BIT, "main",
+                                                    sceneobjectProgram.spirv( ShaderStageType::FRAGMENT ) );
 
     if ( !vertexShader || !fragmentShader ) {
         log::fatal()( "Could not create shaders." );
