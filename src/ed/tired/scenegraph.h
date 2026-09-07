@@ -23,6 +23,7 @@ public:
     Q_INVOKABLE void addExBox( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy,
                                float sz );
 
+    auto initSubgraphs() -> void;
     auto root() const -> vsg::ref_ptr<vsg::Group>;
     auto grid() const -> Grid*;
     auto bounding() const -> Bounding*;

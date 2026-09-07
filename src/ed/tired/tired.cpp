@@ -84,9 +84,10 @@ auto Tired::init( Window* window, uint32_t width, uint32_t height ) -> void {
         const auto device = wa->getDevice()->vk();
         const auto surface = wa->getSurface()->vk();
         const auto rp = wa->getRenderPass()->vk();
-
-        _context = std::make_shared<vk::Context>( instance, physicalDevice, device, surface, rp, 0, 0 );
+        vk::Context::init( instance, physicalDevice, device, surface, rp, 0, 0 );
     }
+
+    _scenegraph->initSubgraphs();
 
     // Viewer compile.
     {

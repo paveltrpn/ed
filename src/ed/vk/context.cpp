@@ -30,6 +30,35 @@ Context::Context( VkInstance instance, VkPhysicalDevice pDevice, VkDevice device
     vkGetDeviceQueue( device_, graphicsFamilyQueueId_, graphicsQueueId_, &graphicsQueue_ );
 }
 
+void Context::init( VkInstance instance, VkPhysicalDevice pDevice, VkDevice device, VkSurfaceKHR surface,
+                    VkRenderPass rp, uint32_t graphicsFamilyQueueId, uint32_t graphicsQueueId ) {
+    if ( _initSuccess ) {
+        log::error()( "Warning: Singleton already initialized. Ignoring new arguments." );
+    }
+
+    std::call_once( _initFlag, [&]() -> void {
+        // We deliberately use 'new' and do not delete.
+        // This is intentional. It solves the Static Destruction Order Fiasco.
+        // If your Singleton is destroyed during program shutdown, and another static
+        // object's destructor tries to use it, your program crashes. By leaking
+        // the pointer, the Singleton survives past the end of the program, and the OS automatically
+        // reclaims the memory when the process exits anyway.
+        _instance.store(
+            new Context( instance, pDevice, device, surface, rp, graphicsFamilyQueueId, graphicsQueueId ) );
+        _initSuccess = true;
+    } );
+}
+
+auto Context::instance() -> Context& {
+    // memory_order_acquire ensures we see the fully constructed object
+    Context* ptr = _instance.load();
+
+    if ( !ptr ) {
+        throw std::logic_error( "Singleton must be initialized via init() before calling getInstance()." );
+    }
+    return *ptr;
+}
+
 auto Context::queryDeviceInfo() -> void {
     // Collect physical devices and its properties
     vkGetPhysicalDeviceProperties( pDevice_, &pDeviceProperties_ );
@@ -120,7 +149,7 @@ auto Context::memoryRequirements( uint32_t typeFilter, VkMemoryPropertyFlags pro
     return {};
 }
 
-auto Context::findSupportedFormat( const std::vector<VkFormat> &candidates, VkImageTiling tiling,
+auto Context::findSupportedFormat( const std::vector<VkFormat>& candidates, VkImageTiling tiling,
                                    VkFormatFeatureFlags features ) const -> VkFormat {
     for ( VkFormat format : candidates ) {
         VkFormatProperties props;

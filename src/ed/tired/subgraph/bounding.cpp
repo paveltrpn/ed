@@ -1,4 +1,5 @@
 
+#include "program/program.h"
 #include "bounding.h"
 
 namespace tire {
@@ -28,14 +29,12 @@ BoundingSubgraph::BoundingSubgraph( vsg::Viewer* viewer )
 }
 
 auto BoundingSubgraph::initPipeline() -> void {
-    // load shaders
-    vsg::Paths searchPaths = std::vector<vsg::Path>{ std::format( "{}{}", PREFIX_PATH_ONE, "/shaders/spirv" ),
-                                                     std::format( "{}{}", PREFIX_PATH_ONE, "/assets" ) };
+    auto bboxcornerSource = TextProgramSource{ "bboxcorner" };
+    auto vSource = bboxcornerSource.stageSource( ShaderStageType::VERTEX );
+    auto fSource = bboxcornerSource.stageSource( ShaderStageType::FRAGMENT );
+    auto vertexShader = vsg::ShaderStage::create( VK_SHADER_STAGE_VERTEX_BIT, "main", vSource );
+    auto fragmentShader = vsg::ShaderStage::create( VK_SHADER_STAGE_FRAGMENT_BIT, "main", fSource );
 
-    vsg::ref_ptr<vsg::ShaderStage> vertexShader = vsg::ShaderStage::read(
-        VK_SHADER_STAGE_VERTEX_BIT, "main", vsg::findFile( "vert_bbox_corner.spv", searchPaths ) );
-    vsg::ref_ptr<vsg::ShaderStage> fragmentShader = vsg::ShaderStage::read(
-        VK_SHADER_STAGE_FRAGMENT_BIT, "main", vsg::findFile( "frag_bbox_corner.spv", searchPaths ) );
     if ( !vertexShader || !fragmentShader ) {
         std::println( "Could not create shaders." );
         std::terminate();

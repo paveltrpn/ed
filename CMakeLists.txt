@@ -143,7 +143,6 @@ add_library(program ${MOD_PROGRAM_SRC})
 target_compile_features(program PUBLIC cxx_std_26)
 target_link_libraries(program
     config
-    context
     log
     vulkan
     glslang
@@ -195,6 +194,7 @@ target_link_libraries(tired
     event
     vsg
     mesh
+    program
 )
 
 # ================================

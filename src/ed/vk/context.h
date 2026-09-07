@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <atomic>
+#include <mutex>
 #include <print>
 #include <vector>
 #include <expected>
@@ -11,20 +13,20 @@
 namespace tire::vk {
 
 struct Context final {
-    Context( VkInstance instance, VkPhysicalDevice pDevice, VkDevice device, VkSurfaceKHR surface, VkRenderPass rp,
-             uint32_t graphicsFamilyQueueId, uint32_t graphicsQueueId );
-
-    ~Context() = default;
-
     Context( const Context& other ) = delete;
     Context( Context&& other ) = delete;
     Context& operator=( const Context& other ) = delete;
     Context& operator=( Context&& other ) = delete;
 
+    static void init( VkInstance instance, VkPhysicalDevice pDevice, VkDevice device, VkSurfaceKHR surface,
+                      VkRenderPass rp, uint32_t graphicsFamilyQueueId, uint32_t graphicsQueueId );
+
+    [[nodiscard]] static auto instance() -> Context&;
+
     auto queryDeviceInfo() -> void;
     auto querySurface() -> void;
 
-    [[nodiscard]] auto instance() const -> VkInstance {
+    [[nodiscard]] auto vkinstance() const -> VkInstance {
         //
         return instance_;
     };
@@ -82,6 +84,16 @@ struct Context final {
                             VK_VERSION_MINOR( pDeviceProperties_.apiVersion ),
                             VK_VERSION_PATCH( pDeviceProperties_.apiVersion ) );
     }
+
+private:
+    Context( VkInstance instance, VkPhysicalDevice pDevice, VkDevice device, VkSurfaceKHR surface, VkRenderPass rp,
+             uint32_t graphicsFamilyQueueId, uint32_t graphicsQueueId );
+
+    ~Context() = default;
+
+    inline static std::atomic<Context*> _instance{ nullptr };
+    inline static std::once_flag _initFlag;
+    inline static bool _initSuccess{ false };
 
 private:
     // Instance

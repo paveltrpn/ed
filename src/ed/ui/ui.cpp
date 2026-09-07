@@ -7,6 +7,7 @@
 
 #include "ui.h"
 #include "log/log.h"
+#include "config/config.h"
 
 namespace tire {
 
@@ -25,6 +26,7 @@ TiredUI::TiredUI( QObject *parent )
     , _rightPanel{ new QQuickWidget{ _engine, this } }
     , _theme{ new Appearance{ this } } {
     //
+    Config::init( "assets/config.json" );
 
     readSettings();
 

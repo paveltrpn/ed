@@ -1,6 +1,7 @@
 
 #include <print>
 
+#include "program/program.h"
 #include "testbox.h"
 
 namespace tire {
@@ -32,14 +33,12 @@ TestboxSubgraph::TestboxSubgraph( vsg::Viewer* viewer )
 }
 
 auto TestboxSubgraph::initPipeline() -> void {
-    // load shaders
-    vsg::Paths searchPaths = std::vector<vsg::Path>{ std::format( "{}{}", PREFIX_PATH_ONE, "/shaders/spirv" ),
-                                                     std::format( "{}{}", PREFIX_PATH_ONE, "/assets" ) };
+    auto testboxSource = TextProgramSource{ "testbox" };
+    auto vSource = testboxSource.stageSource( ShaderStageType::VERTEX );
+    auto fSource = testboxSource.stageSource( ShaderStageType::FRAGMENT );
+    auto vertexShader = vsg::ShaderStage::create( VK_SHADER_STAGE_VERTEX_BIT, "main", vSource );
+    auto fragmentShader = vsg::ShaderStage::create( VK_SHADER_STAGE_FRAGMENT_BIT, "main", fSource );
 
-    vsg::ref_ptr<vsg::ShaderStage> vertexShader =
-        vsg::ShaderStage::read( VK_SHADER_STAGE_VERTEX_BIT, "main", vsg::findFile( "vert_testbox.spv", searchPaths ) );
-    vsg::ref_ptr<vsg::ShaderStage> fragmentShader = vsg::ShaderStage::read(
-        VK_SHADER_STAGE_FRAGMENT_BIT, "main", vsg::findFile( "frag_testbox.spv", searchPaths ) );
     if ( !vertexShader || !fragmentShader ) {
         std::println( "Could not create shaders." );
         std::terminate();

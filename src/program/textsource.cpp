@@ -1,9 +1,9 @@
 
-#include <print>
 #include <string>
 #include <vector>
 #include <filesystem>
 #include <fstream>
+#include <algorithm>
 
 #include "textsource.h"
 #include "config/config.h"
@@ -45,9 +45,24 @@ TextProgramSource::TextProgramSource( std::string programName )
     }
 };
 
-[[nodiscard]] auto TextProgramSource::sources() const -> const std::vector<std::pair<ShaderStageType, std::string>>& {
+auto TextProgramSource::sources() const -> const std::vector<std::pair<ShaderStageType, std::string>>& {
     //
     return _sources;
+}
+
+auto TextProgramSource::stageSource( ShaderStageType stage ) -> std::string {
+    auto it = std::find_if( _sources.begin(), _sources.end(), [stage]( const auto item ) {
+        //
+        const auto [s, _] = item;
+        return stage == s;
+    } );
+
+    if ( it != _sources.end() ) {
+        auto [_, t] = ( *it );
+        return t;
+    }
+
+    return {};
 }
 
 }  // namespace tire

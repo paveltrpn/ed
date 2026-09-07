@@ -20,6 +20,8 @@ public:
     [[nodiscard]]
     auto sources() const -> const std::vector<std::pair<ShaderStageType, std::string>>& ;
 
+    auto stageSource(ShaderStageType stage) -> std::string;
+
 private:
     std::vector<std::pair<ShaderStageType, std::string>> _sources{};
 };

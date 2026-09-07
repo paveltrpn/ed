@@ -8,22 +8,23 @@ namespace tire {
 Scenegraph::Scenegraph( vsg::Viewer* viewer, QObject* parent )
     : QObject{ parent }
     , _root{ new vsg::Group{} }
-    , _viewer{ viewer }
-    , _grid{ new Grid{ viewer, this } }
-    , _testbox{ new Testbox{ viewer, this } }
-    , _bounding{ new Bounding{ viewer, this } }
-    , _sceneObjectSubgraph{ new SceneObjectSubgraph{ viewer } }
-    , _markerSubgraph{ new MarkerSubgraph{ viewer } } {
-    //
+    , _viewer{ viewer } {
+}
 
-    _root->addChild( _grid->grid() );
-    _root->addChild( _testbox->testbox() );
-    _root->addChild( _bounding->bounding() );
+auto Scenegraph::initSubgraphs() -> void {
+    _grid = new Grid{ _viewer, this };
+    _testbox = new Testbox{ _viewer, this };
+    _bounding = new Bounding{ _viewer, this };
+    _markerSubgraph = new MarkerSubgraph{ _viewer };
+    _sceneObjectSubgraph = new SceneObjectSubgraph{ _viewer };
 
-    _sceneObjectSubgraph->initPipeline();
     _markerSubgraph->initPipeline();
+    _sceneObjectSubgraph->initPipeline();
 
     _root->addChild( _sceneObjectSubgraph );
+    _root->addChild( _bounding->bounding() );
+    _root->addChild( _grid->grid() );
+    _root->addChild( _testbox->testbox() );
     _root->addChild( _markerSubgraph );
 }
 

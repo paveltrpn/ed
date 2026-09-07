@@ -1,6 +1,7 @@
 
 #include <print>
 
+#include "program/program.h"
 #include "grid.h"
 
 namespace tire {
@@ -101,14 +102,12 @@ GridSubgraph::GridSubgraph( vsg::Viewer* viewer )
 }
 
 auto GridSubgraph::initPipeline() -> void {
-    // load shaders
-    vsg::Paths searchPaths = std::vector<vsg::Path>{ std::format( "{}{}", PREFIX_PATH_ONE, "/shaders/spirv" ),
-                                                     std::format( "{}{}", PREFIX_PATH_ONE, "/assets" ) };
+    auto gridSource = TextProgramSource{ "grid" };
+    auto vSource = gridSource.stageSource( ShaderStageType::VERTEX );
+    auto fSource = gridSource.stageSource( ShaderStageType::FRAGMENT );
+    auto vertexShader = vsg::ShaderStage::create( VK_SHADER_STAGE_VERTEX_BIT, "main", vSource );
+    auto fragmentShader = vsg::ShaderStage::create( VK_SHADER_STAGE_FRAGMENT_BIT, "main", fSource );
 
-    vsg::ref_ptr<vsg::ShaderStage> vertexShader =
-        vsg::ShaderStage::read( VK_SHADER_STAGE_VERTEX_BIT, "main", vsg::findFile( "vert_grid.spv", searchPaths ) );
-    vsg::ref_ptr<vsg::ShaderStage> fragmentShader =
-        vsg::ShaderStage::read( VK_SHADER_STAGE_FRAGMENT_BIT, "main", vsg::findFile( "frag_grid.spv", searchPaths ) );
     if ( !vertexShader || !fragmentShader ) {
         std::println( "Could not create shaders." );
         std::terminate();

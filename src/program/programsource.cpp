@@ -88,7 +88,7 @@ auto ProgramSource::split( const std::string& string, const char* sep ) -> std::
     return list;
 };
 
-auto isValidName( const std::string& name ) -> bool {
+auto ProgramSource::isValidName( const std::string& name ) -> bool {
     const auto end = StageTypeToSuffixMap.cend();
     const auto it = std::find_if( StageTypeToSuffixMap.cbegin(), end,
                                   [name]( std::pair<ShaderStageType, std::string> item ) -> bool {
