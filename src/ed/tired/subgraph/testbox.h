@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <QVector3D>
+
 #include <vsg/all.h>
 
 #include "subgraph.h"
@@ -16,21 +18,30 @@ struct TestboxSubgraph;
 struct Testbox final : public QObject {
     Q_OBJECT
 
-    Q_PROPERTY( float origin READ gridSize WRITE setSize NOTIFY sizeChanged FINAL )
-    Q_PROPERTY( float axis READ gridSize WRITE setSize NOTIFY sizeChanged FINAL )
-    Q_PROPERTY( float angl READ gridSize WRITE setSize NOTIFY sizeChanged FINAL )
-    Q_PROPERTY( float size READ gridSize WRITE setSize NOTIFY sizeChanged FINAL )
+    Q_PROPERTY( QVector3D origin READ origin WRITE setOrigin NOTIFY originChanged FINAL )
+    Q_PROPERTY( QVector3D axis READ axis WRITE setAxis NOTIFY axisChanged FINAL )
+    Q_PROPERTY( float angl READ angl WRITE setAngl NOTIFY anglChanged FINAL )
+    Q_PROPERTY( float size READ size WRITE setSize NOTIFY sizeChanged FINAL )
 
 public:
     Testbox( vsg::Viewer* viewer, QObject* parent = nullptr );
 
     auto node() const -> vsg::ref_ptr<TestboxSubgraph>;
 
+    void setOrigin( QVector3D value );
+    void setAxis( QVector3D value );
+    void setAngl( float value );
     void setSize( float value );
 
-    float gridSize();
+    QVector3D origin();
+    QVector3D axis();
+    float angl();
+    float size();
 
 signals:
+    void originChanged();
+    void axisChanged();
+    void anglChanged();
     void sizeChanged();
 
 private:

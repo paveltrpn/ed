@@ -22,11 +22,39 @@ auto Testbox::node() const -> vsg::ref_ptr<TestboxSubgraph> {
     return _node;
 }
 
-void Testbox::setSize( float value ) {
-    _node->_size = value;
+void Testbox::setOrigin( QVector3D value ) {
+    _node->_origin = vsg::vec3{ value.x(), value.y(), value.z() };
+    originChanged();
 }
 
-float Testbox::gridSize() {
+void Testbox::setAxis( QVector3D value ) {
+    _node->_axis = vsg::vec3{ value.x(), value.y(), value.z() };
+    axisChanged();
+}
+
+void Testbox::setAngl( float value ) {
+    _node->_angl = value;
+    anglChanged();
+}
+
+void Testbox::setSize( float value ) {
+    _node->_size = value;
+    sizeChanged();
+}
+
+QVector3D Testbox::origin() {
+    return QVector3D{ _node->_origin.x, _node->_origin.y, _node->_origin.z };
+}
+
+QVector3D Testbox::axis() {
+    return QVector3D{ _node->_axis.x, _node->_axis.y, _node->_axis.z };
+}
+
+float Testbox::angl() {
+    return _node->_angl;
+}
+
+float Testbox::size() {
     return _node->_size;
 }
 
