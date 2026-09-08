@@ -15,10 +15,9 @@ Rectangle {
     readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
 
-    bottomLeftRadius: _radius.quarter
-    bottomRightRadius: _radius.quarter
+    color: _color.popup_background
 
-    color: _color.background_overlay_60
+    radius: 2
 
     implicitHeight: gridSettingsLayout.implicitHeight + _gaps.full
 
@@ -175,11 +174,10 @@ Rectangle {
     Component {
         id: gridParameter
 
-        Rectangle {
+        Item {
             id: gridParameterWrapper
 
             anchors.fill: parent
-            color: _color.background_overlay_60
 
             property string parameterlabel
             property real parameterValue
@@ -200,7 +198,7 @@ Rectangle {
 
                 verticalAlignment: Text.AlignVCenter
 
-                color: _color.main_contrast
+                color: _color.text_contrast
                 font: _fonts.label
 
                 elide: Text.ElideRight

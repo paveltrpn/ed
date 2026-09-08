@@ -15,10 +15,10 @@ Rectangle {
     readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
 
-    bottomLeftRadius: _radius.half
-    bottomRightRadius: _radius.half
+    bottomLeftRadius: 2
+    bottomRightRadius: 2
 
-    color: _color.background_overlay_60
+    color: _color.popup_background
 
     implicitHeight: currentGroupInfoLayout.implicitHeight + _gaps.full
 
@@ -57,11 +57,10 @@ Rectangle {
     Component {
         id: numericParameter
 
-        Rectangle {
+        Item {
             id: numericParameterWrapper
 
             anchors.fill: parent
-            color: _color.background_overlay_60
 
             property string parameterlabel
             property real parameterValue
@@ -81,7 +80,7 @@ Rectangle {
 
                 verticalAlignment: Text.AlignVCenter
 
-                color: _color.main_contrast
+                color: _color.text_contrast
                 font: _fonts.label
             }
 

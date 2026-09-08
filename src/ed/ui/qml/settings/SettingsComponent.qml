@@ -13,11 +13,16 @@ Rectangle {
     readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
 
-    height: settingsTabBar.height + settingsTabLayout.implicitHeight
+    height: visible ? settingsTabBar.height + settingsTabLayout.implicitHeight : 0
 
-    radius: _radius.quarter
+    radius: 2
 
-    color: _color.background_overlay_60
+    color: _color.popup_background
+
+    border {
+        width: 2
+        color: _color.popup_header
+    }
 
     Behavior on height {
         NumberAnimation {
@@ -39,7 +44,7 @@ Rectangle {
             anchors.top: parent.top
             height: parent.height
 
-            topLeftRadius: _radius.quarter
+            topLeftRadius: 2
 
             font: _fonts.label_accent
         }
@@ -50,7 +55,7 @@ Rectangle {
             anchors.top: parent.top
             height: parent.height
 
-            topRightRadius: _radius.quarter
+            topRightRadius: 2
 
             font: _fonts.label_accent
         }

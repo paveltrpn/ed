@@ -16,40 +16,51 @@ QuickTemplates.Button {
     readonly property var _color: Appearence.colors
 
     property bool isBorderEnabled: false
-    property color backgroundColor: _color.background_overlay_light_20
+    property color backgroundColor: _color.popup_background
 
     property alias topLeftRadius: backgroundItem.topLeftRadius
     property alias topRightRadius: backgroundItem.topRightRadius
     property alias bottomLeftRadius: backgroundItem.bottomLeftRadius
     property alias bottomRightRadius: backgroundItem.bottomRightRadius
 
+    spacing: _gaps.half
+
     states: [
         State {
             when: control.down
             PropertyChanges {
                 target: control
-                backgroundColor: _color.additional_contrast_80
+                backgroundColor: _color.popup_header
+            }
+            PropertyChanges {
+                target: control
+                textColor: _color.text_active
             }
         },
         State {
             when: control.hovered && !control.checked
             PropertyChanges {
                 target: control
-                backgroundColor: _color.background_overlay_light_60
+                backgroundColor: _color.background_overlay_40
             }
         },
         State {
             when: control.checked
             PropertyChanges {
                 target: control
-                backgroundColor: _color.additional_contrast_80
+                backgroundColor: _color.popup_background
+            }
+            PropertyChanges {
+                target: control
+                textColor: _color.text_active
             }
         }
     ]
 
-    property color textColor: _color.main_contrast
+    property color textColor: _color.text_contrast
 
-    // icon.color: textColor
+    icon.color: textColor
+
     // implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
     // implicitContentWidth + leftPadding + rightPadding)
     // implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,

@@ -13,11 +13,11 @@ Rectangle {
     readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
 
-    height: sceneInfoTabBar.height + sceneInfoTabLayout.implicitHeight
+    height: visible ? (sceneInfoTabBar.height + sceneInfoTabLayout.implicitHeight) : 0
 
-    radius: _radius.half
+    radius: 2
 
-    color: _color.background_overlay_60
+    color: _color.popup_background
 
     Behavior on height {
         NumberAnimation {
@@ -39,7 +39,7 @@ Rectangle {
             anchors.top: parent.top
             height: parent.height
 
-            topLeftRadius: _radius.half
+            topLeftRadius: 2
 
             font: _fonts.label_accent
         }
@@ -50,7 +50,7 @@ Rectangle {
             anchors.top: parent.top
             height: parent.height
 
-            topRightRadius: _radius.half
+            topRightRadius: 2
 
             font: _fonts.label_accent
         }

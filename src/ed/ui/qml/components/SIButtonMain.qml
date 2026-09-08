@@ -27,7 +27,7 @@ QuickTemplates.Button {
             when: control.down
             PropertyChanges {
                 target: control
-                backgroundColor: "#192591"
+                backgroundColor: _color.mode_model
             }
             PropertyChanges {
                 target: pressAreaRect
@@ -36,29 +36,29 @@ QuickTemplates.Button {
             }
             PropertyChanges {
                 target: buttonLabel
-                color: txtColorOn
+                color: _color.text_active
             }
         },
         State {
             when: control.hovered && !control.checked
             PropertyChanges {
                 target: control
-                backgroundColor: "#192591"
+                backgroundColor: _color.mode_model
             }
             PropertyChanges {
                 target: buttonLabel
-                color: txtColorOff
+                color: _color.text_inactive
             }
         },
         State {
             when: control.checked
             PropertyChanges {
                 target: control
-                backgroundColor: "#192591"
+                backgroundColor: _color.mode_model
             }
             PropertyChanges {
                 target: buttonLabel
-                color: txtColorOn
+                color: _color.text_active
             }
         }
     ]
@@ -74,7 +74,7 @@ QuickTemplates.Button {
 
         Rectangle {
             id: shadowRect
-            color: "#2b2c23"
+            color: _color.button_shadow
             anchors {
                 fill: parent
                 topMargin: 10
@@ -84,7 +84,7 @@ QuickTemplates.Button {
             }
             Rectangle {
                 id: pressAreaRect
-                color: "#111210"
+                color: _color.button_press_area
 
                 width: shadowRect.width
                 height: shadowRect.height

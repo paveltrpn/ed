@@ -13,7 +13,7 @@ TextInput {
     readonly property var _color: Appearence.colors
 
     height: 24
-    color: _color.main_contrast
+    color: _color.text_contrast
     font: _fonts.label
     verticalAlignment: Text.AlignVCenter
 
@@ -24,11 +24,11 @@ TextInput {
     Rectangle {
         z: -1
         anchors.fill: parent
-        color: inputArea.containsMouse ? _color.background_overlay_light_40 : _color.background_overlay_40
+        color: inputArea.containsMouse ? _color.background_overlay_light_40 : _color.popup_background
 
-        border.color: _color.main_contrast_20
+        border.color: _color.popup_header
         border.width: 2
-        radius: _radius.quarter
+        radius: 2
 
         MouseArea {
             id: inputArea

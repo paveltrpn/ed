@@ -15,10 +15,16 @@ Rectangle {
     readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
 
-    height: addItemsButtonsLayout.implicitHeight
+    height: visible ? addItemsButtonsLayout.implicitHeight : 0
 
-    radius: _radius.quarter
-    color: _color.background_overlay_60
+    Behavior on height {
+        NumberAnimation {
+            duration: 200
+        }
+    }
+
+    radius: 2
+    color: _color.popup_background
 
     ColumnLayout {
         id: addItemsButtonsLayout
@@ -39,8 +45,8 @@ Rectangle {
             text: "Box"
             enabled: true
 
-            topLeftRadius: _radius.quarter
-            topRightRadius: _radius.quarter
+            topLeftRadius: 2
+            topRightRadius: 2
 
             font: _fonts.label_accent
         }
@@ -127,8 +133,8 @@ Rectangle {
 
             font: _fonts.label_accent
 
-            bottomLeftRadius: _radius.quarter
-            bottomRightRadius: _radius.quarter
+            bottomLeftRadius: 2
+            bottomRightRadius: 2
         }
     }
 }

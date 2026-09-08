@@ -11,7 +11,7 @@ TabButton {
     readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
 
-    property color backgroundColor: _color.background_overlay_40
+    property color backgroundColor: _color.popup_background_faded
 
     property alias topLeftRadius: backgroundItem.topLeftRadius
     property alias topRightRadius: backgroundItem.topRightRadius
@@ -21,26 +21,26 @@ TabButton {
             when: control.down
             PropertyChanges {
                 target: control
-                backgroundColor: _color.additional_contrast_80
+                backgroundColor: _color.popup_background
             }
         },
         State {
             when: control.hovered && !control.checked
             PropertyChanges {
                 target: control
-                backgroundColor: _color.background_overlay_light_60
+                backgroundColor: _color.popup_background_faded
             }
         },
         State {
             when: control.checked
             PropertyChanges {
                 target: control
-                backgroundColor: _color.additional_contrast_80
+                backgroundColor: _color.popup_background
             }
         }
     ]
 
-    property color textColor: _color.main_contrast
+    property color textColor: _color.text_contrast
 
     contentItem: Text {
         text: control.text
