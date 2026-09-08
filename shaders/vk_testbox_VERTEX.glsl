@@ -5,6 +5,21 @@ layout(push_constant) uniform PushConstants {
     mat4 modelview;
 } pc;
 
+layout(set = 0, binding = 0) uniform BoxParamsBuffer {
+    vec3 origin;
+    float scale;
+    vec3 axis;
+    float angl;
+    vec4 color;
+} boxParams;
+
+layout(set = 0, binding = 1) uniform LightParamsBuffer {
+    vec3 origin;
+    float _p1;
+    vec3 color;
+    float _p2;
+} lightParams;
+
 layout( location = 0 ) out vec3 fragColor;
 layout( location = 1 ) out vec3 vLighting;
 

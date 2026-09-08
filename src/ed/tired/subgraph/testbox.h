@@ -18,35 +18,47 @@ struct TestboxSubgraph;
 struct Testbox final : public QObject {
     Q_OBJECT
 
-    Q_PROPERTY( QVector3D origin READ origin WRITE setOrigin NOTIFY originChanged FINAL )
-    Q_PROPERTY( QVector3D axis READ axis WRITE setAxis NOTIFY axisChanged FINAL )
-    Q_PROPERTY( float angl READ angl WRITE setAngl NOTIFY anglChanged FINAL )
-    Q_PROPERTY( float size READ size WRITE setSize NOTIFY sizeChanged FINAL )
-    Q_PROPERTY( QVector3D color READ color WRITE setColor NOTIFY colorChanged FINAL )
+    Q_PROPERTY( QVector3D boxOrigin READ boxOrigin WRITE setBoxOrigin NOTIFY boxOriginChanged FINAL )
+    Q_PROPERTY( QVector3D boxAxis READ boxAxis WRITE setBoxAxis NOTIFY boxAxisChanged FINAL )
+    Q_PROPERTY( float boxAngl READ boxAngl WRITE setBoxAngl NOTIFY boxAnglChanged FINAL )
+    Q_PROPERTY( float boxSize READ boxSize WRITE setBoxSize NOTIFY boxSizeChanged FINAL )
+    Q_PROPERTY( QVector3D boxColor READ boxColor WRITE setBoxColor NOTIFY boxColorChanged FINAL )
+
+    Q_PROPERTY( QVector3D lightOrigin READ lightOrigin WRITE setLightOrigin NOTIFY lightOriginChanged FINAL )
+    Q_PROPERTY( QVector3D lightColor READ lightColor WRITE setLightColor NOTIFY lightColorChanged FINAL )
 
 public:
     Testbox( vsg::Viewer* viewer, QObject* parent = nullptr );
 
     auto node() const -> vsg::ref_ptr<TestboxSubgraph>;
 
-    void setOrigin( QVector3D value );
-    void setAxis( QVector3D value );
-    void setAngl( float value );
-    void setSize( float value );
-    void setColor( QVector3D value );
+    void setBoxOrigin( QVector3D value );
+    void setBoxAxis( QVector3D value );
+    void setBoxAngl( float value );
+    void setBoxSize( float value );
+    void setBoxColor( QVector3D value );
 
-    QVector3D origin();
-    QVector3D axis();
-    float angl();
-    float size();
-    QVector3D color();
+    void setLightOrigin( QVector3D value );
+    void setLightColor( QVector3D value );
+
+    QVector3D boxOrigin();
+    QVector3D boxAxis();
+    float boxAngl();
+    float boxSize();
+    QVector3D boxColor();
+
+    QVector3D lightOrigin();
+    QVector3D lightColor();
 
 signals:
-    void originChanged();
-    void axisChanged();
-    void anglChanged();
-    void sizeChanged();
-    void colorChanged();
+    void boxOriginChanged();
+    void boxAxisChanged();
+    void boxAnglChanged();
+    void boxSizeChanged();
+    void boxColorChanged();
+
+    void lightOriginChanged();
+    void lightColorChanged();
 
 private:
     vsg::ref_ptr<TestboxSubgraph> _node{};
@@ -65,12 +77,17 @@ struct TestboxSubgraph final : Subgraph {
     friend Testbox;
 
 private:
-    vsg::vec3 _origin{ 0.0f, 0.0f, 0.0f };
-    vsg::vec3 _axis{ 0.0f, 0.0f, 0.0f };
-    float _angl{ 0.0f };
-    float _size{ 1.0f };
+    vsg::vec3 _boxOrigin{ 0.0f, 0.0f, 0.0f };
+    vsg::vec3 _boxAxis{ 0.0f, 0.0f, 0.0f };
+    float _boxAngl{ 0.0f };
+    float _boxSize{ 1.0f };
+    vsg::vec3 _boxColor{ 0.0f, 0.0f, 0.0f };
 
-    vsg::vec3 _color{ 0.0f, 0.0f, 0.0f };
+    vsg::vec3 _lightOrigin{ 0.0f, 0.0f, 0.0f };
+    vsg::vec3 _lightColor{ 0.0f, 0.0f, 0.0f };
+
+    vsg::ref_ptr<vsg::floatArray> _boxUniformValue{};
+    vsg::ref_ptr<vsg::floatArray> _lightUniformValue{};
 };
 
 }  // namespace tire

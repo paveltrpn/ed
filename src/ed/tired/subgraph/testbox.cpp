@@ -22,49 +22,65 @@ auto Testbox::node() const -> vsg::ref_ptr<TestboxSubgraph> {
     return _node;
 }
 
-void Testbox::setOrigin( QVector3D value ) {
-    _node->_origin = vsg::vec3{ value.x(), value.y(), value.z() };
-    originChanged();
+void Testbox::setBoxOrigin( QVector3D value ) {
+    _node->_boxOrigin = vsg::vec3{ value.x(), value.y(), value.z() };
+    boxOriginChanged();
 }
 
-void Testbox::setAxis( QVector3D value ) {
-    _node->_axis = vsg::vec3{ value.x(), value.y(), value.z() };
-    axisChanged();
+void Testbox::setBoxAxis( QVector3D value ) {
+    _node->_boxAxis = vsg::vec3{ value.x(), value.y(), value.z() };
+    boxAxisChanged();
 }
 
-void Testbox::setAngl( float value ) {
-    _node->_angl = value;
-    anglChanged();
+void Testbox::setBoxAngl( float value ) {
+    _node->_boxAngl = value;
+    boxAnglChanged();
 }
 
-void Testbox::setSize( float value ) {
-    _node->_size = value;
-    sizeChanged();
+void Testbox::setBoxSize( float value ) {
+    _node->_boxSize = value;
+    boxSizeChanged();
 }
 
-void Testbox::setColor( QVector3D value ) {
-    _node->_color = vsg::vec3{ value.x(), value.y(), value.z() };
-    colorChanged();
+void Testbox::setBoxColor( QVector3D value ) {
+    _node->_boxColor = vsg::vec3{ value.x(), value.y(), value.z() };
+    boxColorChanged();
 }
 
-QVector3D Testbox::origin() {
-    return QVector3D{ _node->_origin.x, _node->_origin.y, _node->_origin.z };
+void Testbox::setLightOrigin( QVector3D value ) {
+    _node->_lightOrigin = vsg::vec3{ value.x(), value.y(), value.z() };
 }
 
-QVector3D Testbox::axis() {
-    return QVector3D{ _node->_axis.x, _node->_axis.y, _node->_axis.z };
+void Testbox::setLightColor( QVector3D value ) {
+    _node->_lightColor = vsg::vec3{ value.x(), value.y(), value.z() };
 }
 
-float Testbox::angl() {
-    return _node->_angl;
+QVector3D Testbox::boxOrigin() {
+    return QVector3D{ _node->_boxOrigin.x, _node->_boxOrigin.y, _node->_boxOrigin.z };
 }
 
-float Testbox::size() {
-    return _node->_size;
+QVector3D Testbox::boxAxis() {
+    return QVector3D{ _node->_boxAxis.x, _node->_boxAxis.y, _node->_boxAxis.z };
 }
 
-QVector3D Testbox::color() {
-    return QVector3D{ _node->_color.x, _node->_color.y, _node->_color.z };
+float Testbox::boxAngl() {
+    return _node->_boxAngl;
+}
+
+float Testbox::boxSize() {
+    return _node->_boxSize;
+}
+
+QVector3D Testbox::boxColor() {
+    return QVector3D{ _node->_boxColor.x, _node->_boxColor.y, _node->_boxColor.z };
+}
+
+QVector3D Testbox::lightOrigin() {
+    return QVector3D{ _node->_lightOrigin.x, _node->_lightOrigin.y, _node->_lightOrigin.z };
+}
+
+QVector3D Testbox::lightColor() {
+    return QVector3D{ _node->_lightColor.x, _node->_lightColor.y, _node->_lightColor.z };
 }
 
 // ======================================================================================
