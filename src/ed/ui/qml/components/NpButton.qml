@@ -18,28 +18,30 @@ QuickTemplates.Button {
     property alias backgroundRadius: backgroundItem.radius
 
     property bool isBorderEnabled: false
-    property color backgroundColor: _color.background_overlay_light_40
+    property color backgroundColor: _color.background_overlay_light_20
+
+    opacity: enabled ? 1.0 : 0.3
 
     states: [
         State {
             when: control.down
             PropertyChanges {
                 target: control
-                backgroundColor: _color.additional_contrast_80
+                backgroundColor: _color.background_overlay_light_80
             }
         },
         State {
-            when: control.hovered && !control.checked
+            when: control.hovered && !control.checked && control.enabled
             PropertyChanges {
                 target: control
-                backgroundColor: _color.background_overlay_light_80
+                backgroundColor: _color.background_overlay_light_60
             }
         },
         State {
             when: control.checked
             PropertyChanges {
                 target: control
-                backgroundColor: _color.additional_contrast_80
+                backgroundColor: _color.background_overlay_light_80
             }
         }
     ]
@@ -64,7 +66,7 @@ QuickTemplates.Button {
         anchors.fill: parent
         color: control.backgroundColor
         opacity: control.enabled ? 1.0 : 0.3
-        radius: _radius.quarter
+        radius: _radius.eight
     }
 
     contentItem: IconLabel {

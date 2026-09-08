@@ -49,6 +49,7 @@
         "top_panel_height": 72
     },
     "radius":{
+        "eight": 2,
         "quarter": 4,
         "half": 8,
         "full": 16

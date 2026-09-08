@@ -294,67 +294,71 @@ Rectangle {
             }
         }
 
-        // Item {
-        //     id: mainWindowDecorationWrapper
+        Item {
+            id: mainWindowDecorationWrapper
 
-        //     anchors {
-        //         right: parent.right
-        //         rightMargin: _gaps.full
-        //         top: parent.top
-        //         bottom: parent.bottom
-        //     }
+            anchors {
+                right: parent.right
+                rightMargin: _gaps.full
+                top: parent.top
+                bottom: parent.bottom
+            }
 
-        //     width: 128
+            width: 128
 
-        //     NpButton {
-        //         id: maximizeWindowButton
+            NpButton {
+                id: maximizeWindowButton
 
-        //         anchors {
-        //             right: foldWindowButton.left
-        //             rightMargin: 4
-        //             top: parent.top
-        //         }
+                anchors {
+                    right: foldWindowButton.left
+                    rightMargin: 4
+                    top: parent.top
+                }
 
-        //         width: 24
-        //         height: 24
+                width: 24
+                height: 24
 
-        //         icon.source: "image://TiredImageProvider/arrow-up-right-from-square.svg"
-        //         onClicked: {}
-        //     }
+                icon.source: "image://TiredImageProvider/arrow-up-right-from-square.svg"
+                onClicked: {}
 
-        //     NpButton {
-        //         id: foldWindowButton
+                enabled: false
+            }
 
-        //         anchors {
-        //             right: closeAppButton.left
-        //             rightMargin: 4
-        //             top: parent.top
-        //         }
+            NpButton {
+                id: foldWindowButton
 
-        //         width: 24
-        //         height: 24
+                anchors {
+                    right: closeAppButton.left
+                    rightMargin: 4
+                    top: parent.top
+                }
 
-        //         icon.source: "image://TiredImageProvider/square-minus.svg"
-        //         onClicked: {}
-        //     }
+                width: 24
+                height: 24
 
-        //     NpButton {
-        //         id: closeAppButton
+                icon.source: "image://TiredImageProvider/square-minus.svg"
+                onClicked: {}
 
-        //         anchors {
-        //             right: parent.right
-        //             top: parent.top
-        //         }
+                enabled: false
+            }
 
-        //         width: 24
-        //         height: 24
+            NpButton {
+                id: closeAppButton
 
-        //         icon.source: "image://TiredImageProvider/xmark-large.svg"
-        //         onClicked: {
-        //             MainWindow.quitApplication();
-        //         }
-        //     }
-        // }
+                anchors {
+                    right: parent.right
+                    top: parent.top
+                }
+
+                width: 24
+                height: 24
+
+                icon.source: "image://TiredImageProvider/xmark-large.svg"
+                onClicked: {
+                    MainWindow.quitApplication();
+                }
+            }
+        }
         // }
     }
 }
