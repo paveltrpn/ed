@@ -19,9 +19,9 @@ struct Testbox final : public QObject {
     Q_OBJECT
 
     Q_PROPERTY( QVector3D boxOrigin READ boxOrigin WRITE setBoxOrigin NOTIFY boxOriginChanged FINAL )
+    Q_PROPERTY( float boxSize READ boxSize WRITE setBoxSize NOTIFY boxSizeChanged FINAL )
     Q_PROPERTY( QVector3D boxAxis READ boxAxis WRITE setBoxAxis NOTIFY boxAxisChanged FINAL )
     Q_PROPERTY( float boxAngl READ boxAngl WRITE setBoxAngl NOTIFY boxAnglChanged FINAL )
-    Q_PROPERTY( float boxSize READ boxSize WRITE setBoxSize NOTIFY boxSizeChanged FINAL )
     Q_PROPERTY( QVector3D boxColor READ boxColor WRITE setBoxColor NOTIFY boxColorChanged FINAL )
 
     Q_PROPERTY( QVector3D lightOrigin READ lightOrigin WRITE setLightOrigin NOTIFY lightOriginChanged FINAL )
@@ -33,18 +33,18 @@ public:
     auto node() const -> vsg::ref_ptr<TestboxSubgraph>;
 
     void setBoxOrigin( QVector3D value );
+    void setBoxSize( float value );
     void setBoxAxis( QVector3D value );
     void setBoxAngl( float value );
-    void setBoxSize( float value );
     void setBoxColor( QVector3D value );
 
     void setLightOrigin( QVector3D value );
     void setLightColor( QVector3D value );
 
     QVector3D boxOrigin();
+    float boxSize();
     QVector3D boxAxis();
     float boxAngl();
-    float boxSize();
     QVector3D boxColor();
 
     QVector3D lightOrigin();

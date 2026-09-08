@@ -27,6 +27,11 @@ void Testbox::setBoxOrigin( QVector3D value ) {
     _node->updateBoxUniformValue();
 }
 
+void Testbox::setBoxSize( float value ) {
+    _node->_boxSize = value;
+    _node->updateBoxUniformValue();
+}
+
 void Testbox::setBoxAxis( QVector3D value ) {
     _node->_boxAxis = vsg::vec3{ value.x(), value.y(), value.z() };
     _node->updateBoxUniformValue();
@@ -34,11 +39,6 @@ void Testbox::setBoxAxis( QVector3D value ) {
 
 void Testbox::setBoxAngl( float value ) {
     _node->_boxAngl = value;
-    _node->updateBoxUniformValue();
-}
-
-void Testbox::setBoxSize( float value ) {
-    _node->_boxSize = value;
     _node->updateBoxUniformValue();
 }
 
@@ -61,16 +61,16 @@ QVector3D Testbox::boxOrigin() {
     return QVector3D{ _node->_boxOrigin.x, _node->_boxOrigin.y, _node->_boxOrigin.z };
 }
 
+float Testbox::boxSize() {
+    return _node->_boxSize;
+}
+
 QVector3D Testbox::boxAxis() {
     return QVector3D{ _node->_boxAxis.x, _node->_boxAxis.y, _node->_boxAxis.z };
 }
 
 float Testbox::boxAngl() {
     return _node->_boxAngl;
-}
-
-float Testbox::boxSize() {
-    return _node->_boxSize;
 }
 
 QVector3D Testbox::boxColor() {

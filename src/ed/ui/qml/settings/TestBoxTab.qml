@@ -52,9 +52,9 @@ Rectangle {
             }
 
             Connections {
-                target: boxSizeField.item
+                target: boxOriginField.item
                 function onParamValueChanged(valueX, valueY, valueZ) {
-                    Tired.scenegraph.testbox.boxOrigin = [valueX, valueY, valueZ];
+                    Tired.scenegraph.testbox.boxOrigin = Qt.vector3d(valueX, valueY, valueZ);
                 }
             }
         }
@@ -74,6 +74,27 @@ Rectangle {
                 target: boxSizeField.item
                 function onParamValueChanged(value) {
                     Tired.scenegraph.testbox.boxSize = value;
+                }
+            }
+        }
+
+        Loader {
+            id: boxAxisField
+            sourceComponent: testBox3ComponentParameter
+            Layout.preferredWidth: parent.width
+            Layout.preferredHeight: 24
+
+            onLoaded: {
+                item.parameterlabel = "Box axis";
+                item.parameterValueX = Tired.scenegraph.testbox.boxAxis.x;
+                item.parameterValueY = Tired.scenegraph.testbox.boxAxis.y;
+                item.parameterValueZ = Tired.scenegraph.testbox.boxAxis.z;
+            }
+
+            Connections {
+                target: boxAxisField.item
+                function onParamValueChanged(valueX, valueY, valueZ) {
+                    Tired.scenegraph.testbox.boxAxis = Qt.vector3d(valueX, valueY, valueZ);
                 }
             }
         }
