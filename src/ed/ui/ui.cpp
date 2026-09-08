@@ -28,7 +28,7 @@ TiredUI::TiredUI( QObject *parent )
     //
     Config::init( "assets/config.json" );
 
-    readSettings();
+    const auto [windowWidth, windowHeight] = readSettings();
 
     _tired->registerTypes();
 
@@ -81,9 +81,6 @@ TiredUI::TiredUI( QObject *parent )
     _bottomPanel->setClearColor( Qt::transparent );
     _rightPanel->setClearColor( Qt::transparent );
 
-    const auto topPanelHeight = _theme->getGap( "top_panel_height" );
-    const auto leftPanelWidth = _theme->getGap( "left_panel_width" );
-    const auto rightPanelWidth = 56;
     const auto splitterBorderColor = _theme->getColor( "background" );
     const auto splitterHandleWidth = _theme->getGap( "quarter" );
     const auto clearColor = _theme->getColor( "clear_color" );
@@ -110,7 +107,11 @@ TiredUI::TiredUI( QObject *parent )
     mainColumnSplitter->addWidget( _topPanel );
     mainColumnSplitter->addWidget( middleElementsWidget );
     mainColumnSplitter->addWidget( _bottomPanel );
-    mainColumnSplitter->setSizes( { topPanelHeight, 1080 - topPanelHeight * 2, topPanelHeight } );
+
+    const auto topPanelHeight = static_cast<int>( windowHeight * 0.08f );
+    const auto bottomPanelHeight = static_cast<int>( windowHeight * 0.08f );
+    mainColumnSplitter->setSizes(
+        { topPanelHeight, windowHeight - ( topPanelHeight + bottomPanelHeight ), bottomPanelHeight } );
 
     mainColumnLayout->addWidget( mainColumnSplitter );
 
@@ -122,7 +123,10 @@ TiredUI::TiredUI( QObject *parent )
     hSplitter->addWidget( _leftPanel );
     hSplitter->addWidget( _vsgWidget );
     hSplitter->addWidget( _rightPanel );
-    hSplitter->setSizes( { leftPanelWidth, 1920 - leftPanelWidth - rightPanelWidth, rightPanelWidth } );
+
+    const auto leftPanelWidth = static_cast<int>( windowWidth * 0.16f );
+    const auto rightPanelWidth = static_cast<int>( windowWidth * 0.16f );
+    hSplitter->setSizes( { leftPanelWidth, windowWidth - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
 
     hLayout->addWidget( hSplitter );
 
@@ -137,16 +141,24 @@ auto TiredUI::writeSettings() -> void {
     _settings->sync();
 }
 
-auto TiredUI::readSettings() -> void {
+auto TiredUI::readSettings() -> std::pair<int, int> {
     _settings->beginGroup( "MainWindow" );
+
+    std::pair<int, int> result{};
+
     const auto geometry = _settings->value( "geometry", QByteArray() ).toByteArray();
     if ( geometry.isEmpty() ) {
-        setGeometry( 200, 200, 400, 800 );
+        setGeometry( 200, 200, 1280, 720 );
+        result = std::make_pair( 1280, 720 );
     } else {
         restoreGeometry( geometry );
+        const auto g = this->geometry();
+        result = std::make_pair( g.width(), g.height() );
     }
 
     _settings->endGroup();
+
+    return result;
 }
 
 void TiredUI::quitApplication() {

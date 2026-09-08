@@ -25,8 +25,9 @@ public:
 
     void onGlobalMouseMove( const QPointF &pos );
 
-    void writeSettings();
-    void readSettings();
+    auto writeSettings() -> void;
+
+    [[maybe_unused]] auto readSettings() -> std::pair<int, int>;
 
     Q_INVOKABLE void moveWindow();
     Q_INVOKABLE void resizeWindow( int edge );
