@@ -37,6 +37,6 @@ Rectangle {
     Rectangle {
         id: rightPanelMainComponentWrapper
         anchors.fill: parent
-        color: _color.background_overlay_60
+        color: _color.button_shadow
     }
 }

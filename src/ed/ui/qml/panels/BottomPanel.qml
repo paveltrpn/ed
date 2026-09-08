@@ -40,7 +40,7 @@ Rectangle {
     Rectangle {
         id: bottomPanelMainComponentWrapper
         anchors.fill: parent
-        color: _color.background_overlay_60
+        color: _color.button_shadow
         bottomLeftRadius: _radius.half
         bottomRightRadius: _radius.half
     }

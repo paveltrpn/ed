@@ -38,7 +38,7 @@ QuickTemplates.Button {
             }
         },
         State {
-            when: control.hovered && !control.checked
+            when: control.hovered && !control.checked && control.enabled
             PropertyChanges {
                 target: control
                 backgroundColor: _color.background_overlay_40
@@ -67,7 +67,7 @@ QuickTemplates.Button {
     // implicitContentHeight + topPadding + bottomPadding)
 
     width: 32
-    height: 128
+    height: 32
 
     topPadding: 2
     bottomPadding: 2

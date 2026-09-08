@@ -21,143 +21,149 @@ Rectangle {
 
     color: _color.background
 
-    MouseArea {
-        id: leftEdgeMoveArea
-        anchors {
-            top: parent.top
-            bottom: parent.bottom
-            left: parent.left
-        }
-        width: 4
-        cursorShape: Qt.SizeHorCursor
-        onPressed: {
-            MainWindow.resizeWindow(Qt.LeftEdge);
-        }
-    }
+    Rectangle {
+        id: leftPanelMainComponentWrapper
+        anchors.fill: parent
+        color: _color.button_shadow
 
-    SIButtonMain {
-        id: addObjectButton
-
-        anchors {
-            top: parent.top
-            topMargin: leftPanelMainComponent._gaps.half
-            left: parent.left
-            leftMargin: leftPanelMainComponent._gaps.half
-            right: parent.right
-            rightMargin: leftPanelMainComponent._gaps.half
+        MouseArea {
+            id: leftEdgeMoveArea
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                left: parent.left
+            }
+            width: 4
+            cursorShape: Qt.SizeHorCursor
+            onPressed: {
+                MainWindow.resizeWindow(Qt.LeftEdge);
+            }
         }
 
-        height: 56
+        SIButtonMain {
+            id: addObjectButton
 
-        buttonLabel: "Add object"
+            anchors {
+                top: parent.top
+                topMargin: leftPanelMainComponent._gaps.half
+                left: parent.left
+                leftMargin: leftPanelMainComponent._gaps.half
+                right: parent.right
+                rightMargin: leftPanelMainComponent._gaps.half
+            }
 
-        onClicked: {
-            addObjectButton.checked = !addObjectButton.checked;
-        }
-    }
+            height: 56
 
-    AddPrimitivesPopup {
-        id: addPrimitivesPopupItem
+            buttonLabel: "Add object"
 
-        anchors {
-            top: addObjectButton.bottom
-            topMargin: visible ? leftPanelMainComponent._gaps.half : 0
-            left: parent.left
-            leftMargin: leftPanelMainComponent._gaps.half
-            right: parent.right
-            rightMargin: leftPanelMainComponent._gaps.half
-        }
-
-        visible: addObjectButton.checked
-    }
-
-    SIButtonMain {
-        id: editObjectButton
-
-        anchors {
-            top: addPrimitivesPopupItem.bottom
-            topMargin: leftPanelMainComponent._gaps.half
-            left: parent.left
-            leftMargin: leftPanelMainComponent._gaps.half
-            right: parent.right
-            rightMargin: leftPanelMainComponent._gaps.half
+            onClicked: {
+                addObjectButton.checked = !addObjectButton.checked;
+            }
         }
 
-        height: 56
+        AddPrimitivesPopup {
+            id: addPrimitivesPopupItem
 
-        buttonLabel: "Edit object"
+            anchors {
+                top: addObjectButton.bottom
+                topMargin: visible ? leftPanelMainComponent._gaps.half : 0
+                left: parent.left
+                leftMargin: leftPanelMainComponent._gaps.half
+                right: parent.right
+                rightMargin: leftPanelMainComponent._gaps.half
+            }
 
-        onClicked: {
-            editObjectButton.checked = !editObjectButton.checked;
-        }
-    }
-
-    SIButtonMain {
-        id: infoButton
-
-        anchors {
-            top: editObjectButton.bottom
-            topMargin: leftPanelMainComponent._gaps.half
-            left: parent.left
-            leftMargin: leftPanelMainComponent._gaps.half
-            right: parent.right
-            rightMargin: leftPanelMainComponent._gaps.half
+            visible: addObjectButton.checked
         }
 
-        height: 56
+        SIButtonMain {
+            id: editObjectButton
 
-        buttonLabel: "Info"
+            anchors {
+                top: addPrimitivesPopupItem.bottom
+                topMargin: leftPanelMainComponent._gaps.half
+                left: parent.left
+                leftMargin: leftPanelMainComponent._gaps.half
+                right: parent.right
+                rightMargin: leftPanelMainComponent._gaps.half
+            }
 
-        onClicked: {
-            infoButton.checked = !infoButton.checked;
-        }
-    }
+            height: 56
 
-    SceneInfoComponent {
-        id: sceneInfoWidget
-        anchors {
-            top: infoButton.bottom
-            topMargin: _gaps.half
-            left: parent.left
-            leftMargin: leftPanelMainComponent._gaps.half
-            right: parent.right
-            rightMargin: leftPanelMainComponent._gaps.half
-        }
+            buttonLabel: "Edit object"
 
-        visible: infoButton.checked
-    }
-
-    SIButtonMain {
-        id: settingsButton
-
-        anchors {
-            bottom: parent.bottom
-            left: parent.left
-            leftMargin: leftPanelMainComponent._gaps.half
-            right: parent.right
-            rightMargin: leftPanelMainComponent._gaps.half
+            onClicked: {
+                editObjectButton.checked = !editObjectButton.checked;
+            }
         }
 
-        height: 56
+        SIButtonMain {
+            id: infoButton
 
-        buttonLabel: "Settings"
+            anchors {
+                top: editObjectButton.bottom
+                topMargin: leftPanelMainComponent._gaps.half
+                left: parent.left
+                leftMargin: leftPanelMainComponent._gaps.half
+                right: parent.right
+                rightMargin: leftPanelMainComponent._gaps.half
+            }
 
-        onClicked: {
-            settingsButton.checked = !settingsButton.checked;
+            height: 56
+
+            buttonLabel: "Info"
+
+            onClicked: {
+                infoButton.checked = !infoButton.checked;
+            }
         }
-    }
 
-    SettingsComponent {
-        id: settingsWidget
-        anchors {
-            bottom: settingsButton.top
-            bottomMargin: _gaps.half
-            left: parent.left
-            leftMargin: leftPanelMainComponent._gaps.half
-            right: parent.right
-            rightMargin: leftPanelMainComponent._gaps.half
+        SceneInfoComponent {
+            id: sceneInfoWidget
+            anchors {
+                top: infoButton.bottom
+                topMargin: _gaps.half
+                left: parent.left
+                leftMargin: leftPanelMainComponent._gaps.half
+                right: parent.right
+                rightMargin: leftPanelMainComponent._gaps.half
+            }
+
+            visible: infoButton.checked
         }
 
-        visible: settingsButton.checked
+        SIButtonMain {
+            id: settingsButton
+
+            anchors {
+                bottom: parent.bottom
+                left: parent.left
+                leftMargin: leftPanelMainComponent._gaps.half
+                right: parent.right
+                rightMargin: leftPanelMainComponent._gaps.half
+            }
+
+            height: 56
+
+            buttonLabel: "Settings"
+
+            onClicked: {
+                settingsButton.checked = !settingsButton.checked;
+            }
+        }
+
+        SettingsComponent {
+            id: settingsWidget
+            anchors {
+                bottom: settingsButton.top
+                bottomMargin: _gaps.half
+                left: parent.left
+                leftMargin: leftPanelMainComponent._gaps.half
+                right: parent.right
+                rightMargin: leftPanelMainComponent._gaps.half
+            }
+
+            visible: settingsButton.checked
+        }
     }
 }
