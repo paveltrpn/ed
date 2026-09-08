@@ -20,8 +20,8 @@ Rectangle {
 
     color: _color.background
 
-    topLeftRadius: _radius.half
-    topRightRadius: _radius.half
+    topLeftRadius: _radius.eight
+    topRightRadius: _radius.eight
 
     MouseArea {
         id: topEdgeMoveArea
@@ -58,8 +58,8 @@ Rectangle {
         id: topPanelMainComponentWrapper
         anchors.fill: parent
         color: _color.button_shadow
-        topLeftRadius: _radius.half
-        topRightRadius: _radius.half
+        topLeftRadius: _radius.eight
+        topRightRadius: _radius.eight
 
         // Item {
         //     id: menuBarWrapper

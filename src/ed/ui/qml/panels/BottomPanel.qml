@@ -20,8 +20,8 @@ Rectangle {
 
     color: _color.background
 
-    bottomLeftRadius: _radius.half
-    bottomRightRadius: _radius.half
+    bottomLeftRadius: _radius.eight
+    bottomRightRadius: _radius.eight
 
     MouseArea {
         id: bottomEdgeMoveArea
@@ -41,7 +41,7 @@ Rectangle {
         id: bottomPanelMainComponentWrapper
         anchors.fill: parent
         color: _color.button_shadow
-        bottomLeftRadius: _radius.half
-        bottomRightRadius: _radius.half
+        bottomLeftRadius: _radius.eight
+        bottomRightRadius: _radius.eight
     }
 }
