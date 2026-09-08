@@ -20,6 +20,22 @@ auto Bounding::node() const -> vsg::ref_ptr<BoundingSubgraph> {
     return _node;
 }
 
+void Bounding::setScale( float value ) {
+    _node->_scale = value;
+}
+
+void Bounding::setLineLength( float value ) {
+    _node->_lineLength = value;
+}
+
+float Bounding::scale() {
+    return _node->_scale;
+}
+
+float Bounding::lineLength() {
+    return _node->_lineLength;
+}
+
 void Bounding::setTransformMat( vsg::mat4 value ) {
     _node->_transformMat = value * _node->_initialScale;
     _node->updateTransformMatUniform();

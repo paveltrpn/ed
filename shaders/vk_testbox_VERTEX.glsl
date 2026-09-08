@@ -92,7 +92,7 @@ void main() {
     vec4 worldPos = boxRot * boxScale * boxOffset * vec4( positions[gl_VertexIndex], 1.0 );
     gl_Position             = pc.projection * pc.modelview * worldPos;
 
-    vec3 nrmRotated = ( inverse(boxRot) * vec4( normals[gl_VertexIndex], 0.0 ) ).xyz;
+    vec3 nrmRotated = ( inverse(transpose(boxRot)) * vec4( normals[gl_VertexIndex], 0.0 ) ).xyz;
     vec4 nrmTransformed     = inverse(transpose( pc.modelview )) * vec4( nrmRotated, 0.0 );
 
     float directional       = max( dot( nrmTransformed.xyz, lightpos ), 0.0 );

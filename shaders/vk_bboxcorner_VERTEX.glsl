@@ -77,7 +77,7 @@ void main() {
     // vec3 scaleFactors = vec3(2.0, 2.0, 2.0);
     // mat4 scaleMatrix = getScaleMatrix(scaleFactors);
 
-    vec4 vertex = boxTrnasformToObject.matrix* vec4(lineVerts[gl_VertexIndex], 1.0);
+    vec4 vertex = boxTrnasformToObject.matrix * vec4(lineVerts[gl_VertexIndex], 1.0);
     gl_Position = pc.projection * pc.modelview * vertex;
 
     fragColor = colors[gl_VertexIndex / 6];
