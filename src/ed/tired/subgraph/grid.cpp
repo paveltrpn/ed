@@ -119,24 +119,24 @@ auto GridSubgraph::initPipeline() -> void {
         std::terminate();
     }
 
-    // set up graphics pipeline
-    auto descriptorBindings = vsg::DescriptorSetLayoutBindings{
+    // Set up graphics pipeline.
+    const auto descriptorBindings = vsg::DescriptorSetLayoutBindings{
         { /* binding */ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, /* count */ 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr },
         { /* binding */ 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, /* count */ 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr } };
-    auto descriptorSetLayout = vsg::DescriptorSetLayout::create( descriptorBindings );
+    const auto descriptorSetLayout = vsg::DescriptorSetLayout::create( descriptorBindings );
 
     _planeBufUniformValue = vsg::floatArray::create( { _gridScale, _gridZOffset, 1.0f, 1.0f } );
     _planeBufUniformValue->properties.dataVariance = vsg::DYNAMIC_DATA;
 
-    auto planeBufUniformDescriptor = vsg::DescriptorBuffer::create( _planeBufUniformValue, /* dstBinding */ 0, 0,
-                                                                    VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER );
+    const auto planeBufUniformDescriptor = vsg::DescriptorBuffer::create( _planeBufUniformValue, /* dstBinding */ 0, 0,
+                                                                          VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER );
 
     _gridBufUniformValue =
         vsg::floatArray::create( { _gridSize, _lineThickness, _maxRange, _zoomSensitivity, _colorMajor.r, _colorMajor.g,
                                    _colorMajor.b, 1.0, _colorMinor.r, _colorMinor.g, _colorMinor.b, _majorDivisor } );
     _gridBufUniformValue->properties.dataVariance = vsg::DYNAMIC_DATA;
 
-    auto gridBufUniformDescriptor =
+    const auto gridBufUniformDescriptor =
         vsg::DescriptorBuffer::create( _gridBufUniformValue, /* dstBinding */ 1, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER );
 
     auto rasterizerInfo = vsg::RasterizationState::create();

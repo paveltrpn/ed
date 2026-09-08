@@ -77,10 +77,14 @@ struct TestboxSubgraph final : Subgraph {
     friend Testbox;
 
 private:
+    auto updateBoxUniformValue() -> void;
+    auto updateLightBufUniformValue() -> void;
+
+private:
     vsg::vec3 _boxOrigin{ 0.0f, 0.0f, 0.0f };
+    float _boxSize{ 1.0f };
     vsg::vec3 _boxAxis{ 0.0f, 0.0f, 0.0f };
     float _boxAngl{ 0.0f };
-    float _boxSize{ 1.0f };
     vsg::vec3 _boxColor{ 0.0f, 0.0f, 0.0f };
 
     vsg::vec3 _lightOrigin{ 0.0f, 0.0f, 0.0f };
