@@ -162,6 +162,88 @@ Rectangle {
         }
     }
 
+    SIButtonMain {
+        id: addObjectButton
+
+        anchors {
+            top: mainLeftPanel.top
+            left: mainLeftPanel.right
+            leftMargin: leftPanelMainComponent._gaps.half
+            right: parent.right
+            rightMargin: leftPanelMainComponent._gaps.half
+        }
+
+        height: 56
+
+        buttonLabel: "Add object"
+
+        onClicked: {
+            addObjectButton.checked = !addObjectButton.checked;
+        }
+    }
+
+    SIButtonMain {
+        id: editObjectButton
+
+        anchors {
+            top: addObjectButton.bottom
+            topMargin: leftPanelMainComponent._gaps.half
+            left: mainLeftPanel.right
+            leftMargin: leftPanelMainComponent._gaps.half
+            right: parent.right
+            rightMargin: leftPanelMainComponent._gaps.half
+        }
+
+        height: 56
+
+        buttonLabel: "Edit object"
+
+        onClicked: {
+            editObjectButton.checked = !editObjectButton.checked;
+        }
+    }
+
+    SIButtonMain {
+        id: infoButton
+
+        anchors {
+            top: editObjectButton.bottom
+            topMargin: leftPanelMainComponent._gaps.half
+            left: mainLeftPanel.right
+            leftMargin: leftPanelMainComponent._gaps.half
+            right: parent.right
+            rightMargin: leftPanelMainComponent._gaps.half
+        }
+
+        height: 56
+
+        buttonLabel: "Info"
+
+        onClicked: {
+            infoButton.checked = !infoButton.checked;
+        }
+    }
+
+    SIButtonMain {
+        id: settingsButton
+
+        anchors {
+            bottom: mainLeftPanel.bottom
+            left: mainLeftPanel.right
+            leftMargin: leftPanelMainComponent._gaps.half
+            right: parent.right
+            rightMargin: leftPanelMainComponent._gaps.half
+        }
+
+        height: 56
+
+        buttonLabel: "Settings"
+
+        onClicked: {
+            settingsButton.checked = !settingsButton.checked;
+        }
+    }
+
     SettingsComponent {
         id: settingsWidget
         anchors {

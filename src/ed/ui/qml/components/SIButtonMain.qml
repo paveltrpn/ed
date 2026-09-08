@@ -15,67 +15,99 @@ QuickTemplates.Button {
     readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
 
-    property alias backgroundRadius: backgroundItem.radius
+    property color backgroundColor: "#90917e"
 
-    property bool isBorderEnabled: false
-    property color backgroundColor: _color.background_overlay_light_40
+    readonly property string txtColorOff: "#5d5d5b"
+    readonly property string txtColorOn: "white"
+
+    property alias buttonLabel: buttonLabel.text
 
     states: [
         State {
             when: control.down
             PropertyChanges {
                 target: control
-                backgroundColor: _color.additional_contrast_80
+                backgroundColor: "#192591"
+            }
+            PropertyChanges {
+                target: pressAreaRect
+                x: 0
+                y: 0
+            }
+            PropertyChanges {
+                target: buttonLabel
+                color: txtColorOn
             }
         },
         State {
             when: control.hovered && !control.checked
             PropertyChanges {
                 target: control
-                backgroundColor: _color.background_overlay_light_80
+                backgroundColor: "#192591"
+            }
+            PropertyChanges {
+                target: buttonLabel
+                color: txtColorOff
             }
         },
         State {
             when: control.checked
             PropertyChanges {
                 target: control
-                backgroundColor: _color.additional_contrast_80
+                backgroundColor: "#192591"
+            }
+            PropertyChanges {
+                target: buttonLabel
+                color: txtColorOn
             }
         }
     ]
 
     property color textColor: _color.main_contrast
 
-    // icon.color: textColor
-    // implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
-    // implicitContentWidth + leftPadding + rightPadding)
-    // implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
-    // implicitContentHeight + topPadding + bottomPadding)
-    width: 32
-    height: 32
+    Rectangle {
+        id: bottomRect
+        color: backgroundColor
+        anchors {
+            fill: control
+        }
 
-    topPadding: 2
-    bottomPadding: 2
-    leftPadding: 2
-    rightPadding: 2
+        Rectangle {
+            id: shadowRect
+            color: "#2b2c23"
+            anchors {
+                fill: parent
+                topMargin: 10
+                bottomMargin: 6
+                leftMargin: 6
+                rightMargin: 10
+            }
+            Rectangle {
+                id: pressAreaRect
+                color: "#111210"
 
-    background: Rectangle {
-        id: backgroundItem
-        anchors.fill: parent
-        color: control.backgroundColor
-        opacity: control.enabled ? 1.0 : 0.3
-        radius: _radius.quarter
-    }
+                width: shadowRect.width
+                height: shadowRect.height
 
-    contentItem: IconLabel {
-        spacing: control.spacing
-        mirrored: control.mirrored
-        display: control.display
-        icon: control.icon
-        text: control.text
-        font: control.font
-        color: control.textColor
-        opacity: control.enabled ? 1.0 : 0.3
+                x: 4
+                y: -4
+
+                Text {
+                    id: buttonLabel
+                    anchors {
+                        fill: parent
+                        margins: 2
+                    }
+
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+
+                    color: txtColorOff
+                    font: _fonts.text_body_accent
+
+                    elide: Text.ElideRight
+                }
+            }
+        }
     }
 }
-
