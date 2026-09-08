@@ -15,7 +15,7 @@ Rectangle {
 
     height: settingsTabBar.height + settingsTabLayout.implicitHeight
 
-    radius: _radius.half
+    radius: _radius.quarter
 
     color: _color.background_overlay_60
 
@@ -39,7 +39,7 @@ Rectangle {
             anchors.top: parent.top
             height: parent.height
 
-            topLeftRadius: _radius.half
+            topLeftRadius: _radius.quarter
 
             font: _fonts.label_accent
         }
@@ -50,7 +50,7 @@ Rectangle {
             anchors.top: parent.top
             height: parent.height
 
-            topRightRadius: _radius.half
+            topRightRadius: _radius.quarter
 
             font: _fonts.label_accent
         }

@@ -15,8 +15,8 @@ Rectangle {
     readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
 
-    bottomLeftRadius: _radius.half
-    bottomRightRadius: _radius.half
+    bottomLeftRadius: _radius.quarter
+    bottomRightRadius: _radius.quarter
 
     color: _color.background_overlay_60
 
@@ -100,39 +100,41 @@ Rectangle {
         }
 
         Loader {
-            id: lineThicknessField
+            id: boxAnglField
             sourceComponent: testBoxParameter
             Layout.preferredWidth: parent.width
             Layout.preferredHeight: 24
 
             onLoaded: {
-                item.parameterlabel = "lineThickness";
-                item.parameterValue = Tired.scenegraph.grid.lineThickness;
+                item.parameterlabel = "Box angle";
+                item.parameterValue = Tired.scenegraph.testbox.boxAngl;
             }
 
             Connections {
-                target: lineThicknessField.item
+                target: boxAnglField.item
                 function onParamValueChanged(value) {
-                    Tired.scenegraph.grid.lineThickness = value;
+                    Tired.scenegraph.testbox.boxAngl = value;
                 }
             }
         }
 
         Loader {
-            id: maxRangeField
-            sourceComponent: testBoxParameter
+            id: lightOriginField
+            sourceComponent: testBox3ComponentParameter
             Layout.preferredWidth: parent.width
             Layout.preferredHeight: 24
 
             onLoaded: {
-                item.parameterlabel = "maxRange";
-                item.parameterValue = Tired.scenegraph.grid.maxRange;
+                item.parameterlabel = "Light origin";
+                item.parameterValueX = Tired.scenegraph.testbox.lightOrigin.x;
+                item.parameterValueY = Tired.scenegraph.testbox.lightOrigin.y;
+                item.parameterValueZ = Tired.scenegraph.testbox.lightOrigin.z;
             }
 
             Connections {
-                target: maxRangeField.item
-                function onParamValueChanged(value) {
-                    Tired.scenegraph.grid.maxRange = value;
+                target: lightOriginField.item
+                function onParamValueChanged(valueX, valueY, valueZ) {
+                    Tired.scenegraph.testbox.lightOrigin = Qt.vector3d(valueX, valueY, valueZ);
                 }
             }
         }
@@ -159,6 +161,7 @@ Rectangle {
                     bottom: parent.bottom
                     left: parent.left
                     leftMargin: 8
+                    right: paramValue.left
                 }
 
                 text: textBoxParameterWrapper.parameterlabel
@@ -167,6 +170,8 @@ Rectangle {
 
                 color: _color.main_contrast
                 font: _fonts.label
+
+                elide: Text.ElideRight
             }
 
             TiredTextInput {
@@ -179,7 +184,7 @@ Rectangle {
                     rightMargin: 8
                 }
 
-                width: 92
+                width: 80
 
                 text: textBoxParameterWrapper.parameterValue.toFixed(3)
 
@@ -213,6 +218,7 @@ Rectangle {
                     bottom: parent.bottom
                     left: parent.left
                     leftMargin: 8
+                    right: paramValueX.left
                 }
 
                 text: textBox3ComponentParameterWrapper.parameterlabel
@@ -221,6 +227,8 @@ Rectangle {
 
                 color: _color.main_contrast
                 font: _fonts.label
+
+                elide: Text.ElideRight
             }
 
             TiredTextInput {

@@ -15,8 +15,8 @@ Rectangle {
     readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
 
-    bottomLeftRadius: _radius.half
-    bottomRightRadius: _radius.half
+    bottomLeftRadius: _radius.quarter
+    bottomRightRadius: _radius.quarter
 
     color: _color.background_overlay_60
 
@@ -193,6 +193,7 @@ Rectangle {
                     bottom: parent.bottom
                     left: parent.left
                     leftMargin: 8
+                    right: paramValue.left
                 }
 
                 text: gridParameterWrapper.parameterlabel
@@ -201,6 +202,8 @@ Rectangle {
 
                 color: _color.main_contrast
                 font: _fonts.label
+
+                elide: Text.ElideRight
             }
 
             TiredTextInput {
@@ -213,7 +216,7 @@ Rectangle {
                     rightMargin: 8
                 }
 
-                width: 92
+                width: 80
 
                 text: gridParameterWrapper.parameterValue.toFixed(3)
 
