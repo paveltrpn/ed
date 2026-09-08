@@ -43,5 +43,20 @@ Rectangle {
         color: _color.background_overlay_60
         bottomLeftRadius: _radius.half
         bottomRightRadius: _radius.half
+
+        SIButtonMain {
+            id: siTestButton
+
+            anchors {
+                left: parent.left
+                leftMargin: 64
+                verticalCenter: parent.verticalCenter
+            }
+
+            icon.source: "image://TiredImageProvider/shapes-svgrepo-com.svg"
+
+            onClicked: {
+            }
+        }
     }
 }
