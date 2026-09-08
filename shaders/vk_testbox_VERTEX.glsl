@@ -53,17 +53,32 @@ vec3 normals[36] = vec3[](
         vec3( 1.0, -0.0, -0.0 ), vec3( -0.0, -0.0, -1.0 ), vec3( -0.0, -0.0, -1.0 ),
         vec3( -0.0, -0.0, -1.0 ) );
 
-vec3 color = vec3( 0.4, 0.9, 0.7 );
-
 vec3 ambientLight   = vec3( 0.3, 0.3, 0.3 );
-vec3 lightcolor     = vec3( 1.0, 1.0, 1.0 );
-vec3 lightpos       = normalize( vec3( 10.0, 0.0, 10.0 ) );
+vec3 lightpos       = normalize( lightParams.origin );
 
 void main() {
+    mat4 boxOffset= mat4(0.0f);
+    boxOffset[3][0] = boxParams.origin.x;
+    boxOffset[3][1] = boxParams.origin.y;
+    boxOffset[3][2] = boxParams.origin.z;
+
+    boxOffset[0][0] = 1.0f;
+    boxOffset[1][1] = 1.0f;
+    boxOffset[2][2] = 1.0f;
+    boxOffset[3][3] = 1.0f;
+
+    mat4 boxScale= mat4(0.0f);
+    boxScale[0][0] = boxParams.size;
+    boxScale[1][1] = boxParams.size;
+    boxScale[2][2] = boxParams.size;
+    boxScale[3][3] = 1.0f;
+
+    vec4 worldPos = boxScale * boxOffset * vec4( positions[gl_VertexIndex], 1.0 );
+
     vec4 nrmTransformed     = inverse(transpose( pc.modelview )) * vec4( normals[gl_VertexIndex], 0.0 );
     float directional       = max( dot( nrmTransformed.xyz, lightpos ), 0.0 );
-    vLighting               = ambientLight + ( lightcolor * directional );
-    gl_Position             = pc.projection * pc.modelview * vec4( positions[gl_VertexIndex], 1.0 );
-    fragColor               = color;
+    vLighting               = ambientLight + ( lightParams.color * directional );
+    gl_Position             = pc.projection * pc.modelview * worldPos;
+    fragColor               = boxParams.color.rgb;
 }
 

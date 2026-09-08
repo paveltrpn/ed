@@ -83,12 +83,12 @@ private:
 private:
     vsg::vec3 _boxOrigin{ 0.0f, 0.0f, 0.0f };
     float _boxSize{ 1.0f };
-    vsg::vec3 _boxAxis{ 0.0f, 0.0f, 0.0f };
+    vsg::vec3 _boxAxis{ 0.0f, 0.0f, 1.0f };
     float _boxAngl{ 0.0f };
-    vsg::vec3 _boxColor{ 0.0f, 0.0f, 0.0f };
+    vsg::vec3 _boxColor{ 0.3f, 0.7f, 1.0f };
 
-    vsg::vec3 _lightOrigin{ 0.0f, 0.0f, 0.0f };
-    vsg::vec3 _lightColor{ 0.0f, 0.0f, 0.0f };
+    vsg::vec3 _lightOrigin{ 1.0f, 1.0f, 0.0f };
+    vsg::vec3 _lightColor{ 1.0f, 1.0f, 1.0f };
 
     vsg::ref_ptr<vsg::floatArray> _boxUniformValue{};
     vsg::ref_ptr<vsg::floatArray> _lightUniformValue{};
