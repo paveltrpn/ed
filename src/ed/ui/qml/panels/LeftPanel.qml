@@ -21,6 +21,17 @@ Rectangle {
 
     color: _color.background
 
+    property var buttonsList: []
+
+    function deselectOthers(exceptItem) {
+        for (let i in leftPanelMainComponent.buttonsList) {
+            const btn = leftPanelMainComponent.buttonsList[i];
+            if (btn !== exceptItem) {
+                btn.checked = false;
+            }
+        }
+    }
+
     Rectangle {
         id: leftPanelMainComponentWrapper
         anchors.fill: parent
@@ -58,6 +69,14 @@ Rectangle {
 
             onClicked: {
                 addObjectButton.checked = !addObjectButton.checked;
+
+                if (addObjectButton.checked) {
+                    leftPanelMainComponent.deselectOthers(addObjectButton);
+                }
+            }
+
+            Component.onCompleted: {
+                leftPanelMainComponent.buttonsList.push(addObjectButton);
             }
         }
 
@@ -94,6 +113,14 @@ Rectangle {
 
             onClicked: {
                 editObjectButton.checked = !editObjectButton.checked;
+
+                if (editObjectButton.checked) {
+                    leftPanelMainComponent.deselectOthers(editObjectButton);
+                }
+            }
+
+            Component.onCompleted: {
+                leftPanelMainComponent.buttonsList.push(editObjectButton);
             }
         }
 
@@ -115,6 +142,14 @@ Rectangle {
 
             onClicked: {
                 infoButton.checked = !infoButton.checked;
+
+                if (infoButton.checked) {
+                    leftPanelMainComponent.deselectOthers(infoButton);
+                }
+            }
+
+            Component.onCompleted: {
+                leftPanelMainComponent.buttonsList.push(infoButton);
             }
         }
 
@@ -149,6 +184,14 @@ Rectangle {
 
             onClicked: {
                 settingsButton.checked = !settingsButton.checked;
+
+                if (settingsButton.checked) {
+                    leftPanelMainComponent.deselectOthers(settingsButton);
+                }
+            }
+
+            Component.onCompleted: {
+                leftPanelMainComponent.buttonsList.push(settingsButton);
             }
         }
 
