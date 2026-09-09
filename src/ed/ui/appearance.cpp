@@ -15,10 +15,6 @@ TiredImageProvider::TiredImageProvider()
     : QQuickImageProvider( QQuickImageProvider::Image ) {
 }
 
-// ======================================================================================
-// ==================== Appearance ======================================================
-// ======================================================================================
-
 QImage TiredImageProvider::requestImage( const QString &id, QSize *size, const QSize &requestedSize ) {
     QImage requestedImg{ QString{ "/mnt/main/code/ed/src/ed/ui/qml/icons/%1" }.arg( id ) };
 
@@ -30,7 +26,9 @@ QImage TiredImageProvider::requestImage( const QString &id, QSize *size, const Q
     return requestedImg;
 }
 
-// =============================================================================
+// ======================================================================================
+// ==================== Appearance ======================================================
+// ======================================================================================
 
 Appearance::Appearance( QObject *parent )
     : QObject{ parent } {
@@ -184,15 +182,20 @@ QJsonObject Appearance::colors() {
     return _colors;
 };
 
-void Appearance::setColors( QJsonObject &value ) {
-    //
-    _colors = value;
-};
-
 QVariantMap Appearance::fonts() {
     //
     return _fonts;
 }
+
+QVariantMap Appearance::units() {
+    //
+    return _units;
+}
+
+void Appearance::setColors( QJsonObject &value ) {
+    //
+    _colors = value;
+};
 
 QJsonObject Appearance::gaps() {
     //

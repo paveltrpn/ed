@@ -13,15 +13,14 @@ import "../components/filedialog"
 Rectangle {
     id: bottomPanelMainComponent
 
-    readonly property var _fonts: Appearence.fonts
-    readonly property var _gaps: Appearence.gaps
-    readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
+    readonly property var _fonts: Appearence.fonts
+    readonly property var _units: Appearence.units
 
     color: _color.background
 
-    bottomLeftRadius: _radius.eight
-    bottomRightRadius: _radius.eight
+    bottomLeftRadius:  _units.radiusEight
+    bottomRightRadius: _units.radiusEight
 
     MouseArea {
         id: bottomEdgeMoveArea
@@ -30,7 +29,7 @@ Rectangle {
             right: parent.right
             bottom: parent.bottom
         }
-        height: 4
+        height: _units.scaled_4
         cursorShape: Qt.SizeVerCursor
         onPressed: {
             MainWindow.resizeWindow(Qt.BottomEdge);
@@ -41,7 +40,7 @@ Rectangle {
         id: bottomPanelMainComponentWrapper
         anchors.fill: parent
         color: _color.button_shadow
-        bottomLeftRadius: _radius.eight
-        bottomRightRadius: _radius.eight
+        bottomLeftRadius: _units.radiusEight
+        bottomRightRadius: _units.radiusEight
     }
 }
