@@ -8,6 +8,10 @@
 
 namespace tire {
 
+// ======================================================================================
+// ==================== TiredImageProvider ==============================================
+// ======================================================================================
+
 // Application-wide image provide.
 struct TiredImageProvider : QQuickImageProvider {
 public:
@@ -18,16 +22,18 @@ public:
 private:
 };
 
-// =============================================================================
+// ======================================================================================
+// ==================== Appearance ======================================================
+// ======================================================================================
 
 // Colors and other theme related provider. Instance of
 // this object available in qml.
 struct Appearance : QObject {
     Q_OBJECT
-    Q_PROPERTY( QJsonObject colors READ colors WRITE setColors MEMBER colors_ NOTIFY colorsChanged )
-    Q_PROPERTY( QJsonObject gaps READ gaps MEMBER gaps_ NOTIFY gapsChanged )
-    Q_PROPERTY( QJsonObject radius READ radius MEMBER radius_ NOTIFY radiusChanged )
-    Q_PROPERTY( QVariantMap fonts READ fonts MEMBER fonts_ NOTIFY colorsChanged )
+    Q_PROPERTY( QJsonObject colors READ colors WRITE setColors MEMBER _colors NOTIFY colorsChanged )
+    Q_PROPERTY( QJsonObject gaps READ gaps MEMBER _gaps NOTIFY gapsChanged )
+    Q_PROPERTY( QJsonObject radius READ radius MEMBER _radius NOTIFY radiusChanged )
+    Q_PROPERTY( QVariantMap fonts READ fonts MEMBER _fonts NOTIFY colorsChanged )
 
 public:
     Appearance( QObject *parent = nullptr );
@@ -42,6 +48,10 @@ public:
     auto getGap( const QString &value ) -> int;
     auto getRadius( const QString &value ) -> int;
 
+private:
+    auto buildFonts() -> void;
+    auto buildUnits() -> void;
+
 signals:
     void colorsChanged();
     void fontsChanged();
@@ -49,10 +59,13 @@ signals:
     void radiusChanged();
 
 private:
-    QJsonObject colors_{};
-    QJsonObject gaps_{};
-    QJsonObject radius_{};
-    QVariantMap fonts_{};
+    QJsonObject _colors{};
+    QJsonObject _gaps{};
+    QJsonObject _radius{};
+
+    float _scale{ 1.0f };
+    QVariantMap _fonts{};
+    QVariantMap _units{};
 };
 
 }  // namespace tire

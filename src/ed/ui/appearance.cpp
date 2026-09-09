@@ -7,9 +7,17 @@
 
 namespace tire {
 
+// ======================================================================================
+// ==================== TiredImageProvider ==============================================
+// ======================================================================================
+
 TiredImageProvider::TiredImageProvider()
     : QQuickImageProvider( QQuickImageProvider::Image ) {
 }
+
+// ======================================================================================
+// ==================== Appearance ======================================================
+// ======================================================================================
 
 QImage TiredImageProvider::requestImage( const QString &id, QSize *size, const QSize &requestedSize ) {
     QImage requestedImg{ QString{ "/mnt/main/code/ed/src/ed/ui/qml/icons/%1" }.arg( id ) };
@@ -48,65 +56,167 @@ Appearance::Appearance( QObject *parent )
     }
 
     const auto object = doc.object();
-    colors_ = object["colors"].toObject();
-    gaps_ = object["gaps"].toObject();
-    radius_ = object["radius"].toObject();
+    _colors = object["colors"].toObject();
+    _gaps = object["gaps"].toObject();
+    _radius = object["radius"].toObject();
 
-    const auto fontName = object["main_font"].toString();
-    const auto baseFontSize = object["base_font_size"].toInt();
+    buildFonts();
+    buildUnits();
+}
 
-    // Build fonts map
-    fonts_["title_big"] = QFont{ fontName, baseFontSize + 12, QFont::ExtraBold };
-    fonts_["title_accent"] = QFont{ fontName, baseFontSize + 8, QFont::ExtraBold };
-    fonts_["title"] = QFont{ fontName, baseFontSize + 8, QFont::Medium };
-    fonts_["subtitle_accent"] = QFont{ fontName, baseFontSize + 8, QFont::ExtraBold };
-    fonts_["subtitle"] = QFont{ fontName, baseFontSize + 8, QFont::Medium };
-    fonts_["text_body_accent"] = QFont{ fontName, baseFontSize + 4, QFont::ExtraBold };
-    fonts_["text_body"] = QFont{ fontName, baseFontSize + 4, QFont::Medium };
-    fonts_["label_accent"] = QFont{ fontName, baseFontSize + 2, QFont::ExtraBold };
-    fonts_["label"] = QFont{ fontName, baseFontSize + 2, QFont::Medium };
-    fonts_["subtext_accent"] = QFont{ fontName, baseFontSize, QFont::ExtraBold };
-    fonts_["subtext"] = QFont{ fontName, baseFontSize, QFont::Medium };
+auto Appearance::buildFonts() -> void {
+    const auto fontName = "Monospace";
+    const auto baseFontSize = 8;
+
+    _fonts["title_big"] = QFont{ fontName, baseFontSize + 12, QFont::ExtraBold };
+    _fonts["title_accent"] = QFont{ fontName, baseFontSize + 8, QFont::ExtraBold };
+    _fonts["title"] = QFont{ fontName, baseFontSize + 8, QFont::Medium };
+    _fonts["subtitle_accent"] = QFont{ fontName, baseFontSize + 8, QFont::ExtraBold };
+    _fonts["subtitle"] = QFont{ fontName, baseFontSize + 8, QFont::Medium };
+    _fonts["text_body_accent"] = QFont{ fontName, baseFontSize + 4, QFont::ExtraBold };
+    _fonts["text_body"] = QFont{ fontName, baseFontSize + 4, QFont::Medium };
+    _fonts["label_accent"] = QFont{ fontName, baseFontSize + 2, QFont::ExtraBold };
+    _fonts["label"] = QFont{ fontName, baseFontSize + 2, QFont::Medium };
+    _fonts["subtext_accent"] = QFont{ fontName, baseFontSize, QFont::ExtraBold };
+    _fonts["subtext"] = QFont{ fontName, baseFontSize, QFont::Medium };
+}
+
+auto Appearance::buildUnits() -> void {
+    _units["eight"] = 2.0f;
+    _units["quarter"] = 4.0f;
+    _units["half"] = 8.0f;
+    _units["full"] = 16.0f;
+
+    _units["fixed_1"] = 1.0f;
+    _units["fixed_2"] = 2.0f;
+    _units["fixed_4"] = 4.0f;
+    _units["fixed_6"] = 6.0f;
+    _units["fixed_8"] = 8.0f;
+
+    _units["fixed_10"] = 10.0f;
+    _units["fixed_12"] = 12.0f;
+    _units["fixed_14"] = 14.0f;
+    _units["fixed_16"] = 16.0f;
+    _units["fixed_18"] = 18.0f;
+
+    _units["fixed_20"] = 20.0f;
+    _units["fixed_22"] = 22.0f;
+    _units["fixed_24"] = 24.0f;
+    _units["fixed_26"] = 26.0f;
+    _units["fixed_28"] = 28.0f;
+
+    _units["fixed_32"] = 32.0f;
+    _units["fixed_34"] = 34.0f;
+    _units["fixed_36"] = 36.0f;
+    _units["fixed_38"] = 38.0f;
+
+    _units["fixed_40"] = 40.0f;
+    _units["fixed_44"] = 44.0f;
+    _units["fixed_46"] = 46.0f;
+    _units["fixed_48"] = 48.0f;
+
+    _units["fixed_52"] = 52.0f;
+    _units["fixed_54"] = 54.0f;
+    _units["fixed_56"] = 56.0f;
+    _units["fixed_58"] = 58.0f;
+
+    _units["fixed_64"] = 64.0f;
+
+    _units["fixed_72"] = 72.0f;
+
+    _units["fixed_80"] = 80.0f;
+    _units["fixed_86"] = 86.0f;
+    _units["fixed_88"] = 88.0f;
+
+    _units["fixed_96"] = 96.0f;
+
+    _units["scaled_1"] = 1.0f * _scale;
+    _units["scaled_2"] = 2.0f * _scale;
+    _units["scaled_4"] = 4.0f * _scale;
+    _units["scaled_6"] = 6.0f * _scale;
+    _units["scaled_8"] = 8.0f * _scale;
+
+    _units["scaled_10"] = 10.0f * _scale;
+    _units["scaled_12"] = 12.0f * _scale;
+    _units["scaled_14"] = 14.0f * _scale;
+    _units["scaled_16"] = 16.0f * _scale;
+    _units["scaled_18"] = 18.0f * _scale;
+
+    _units["scaled_20"] = 20.0f * _scale;
+    _units["scaled_22"] = 22.0f * _scale;
+    _units["scaled_24"] = 24.0f * _scale;
+    _units["scaled_26"] = 26.0f * _scale;
+    _units["scaled_28"] = 28.0f * _scale;
+
+    _units["scaled_32"] = 32.0f * _scale;
+    _units["scaled_34"] = 34.0f * _scale;
+    _units["scaled_36"] = 36.0f * _scale;
+    _units["scaled_38"] = 38.0f * _scale;
+
+    _units["scaled_40"] = 40.0f * _scale;
+    _units["scaled_44"] = 44.0f * _scale;
+    _units["scaled_46"] = 46.0f * _scale;
+    _units["scaled_48"] = 48.0f * _scale;
+
+    _units["scaled_52"] = 52.0f * _scale;
+    _units["scaled_54"] = 54.0f * _scale;
+    _units["scaled_56"] = 56.0f * _scale;
+    _units["scaled_58"] = 58.0f * _scale;
+
+    _units["scaled_64"] = 64.0f * _scale;
+
+    _units["scaled_72"] = 72.0f * _scale;
+
+    _units["scaled_80"] = 80.0f * _scale;
+    _units["scaled_86"] = 86.0f * _scale;
+    _units["scaled_88"] = 88.0f * _scale;
+
+    _units["scaled_96"] = 96.0f * _scale;
+
+    _units["radiusEight"] = 2.0f;
+    _units["radiusQuarter"] = 4.0f;
+    _units["radiusHalf"] = 8.0f;
+    _units["radiusFull"] = 16.0f;
 }
 
 QJsonObject Appearance::colors() {
     //
-    return colors_;
+    return _colors;
 };
 
 void Appearance::setColors( QJsonObject &value ) {
     //
-    colors_ = value;
+    _colors = value;
 };
 
 QVariantMap Appearance::fonts() {
     //
-    return fonts_;
+    return _fonts;
 }
 
 QJsonObject Appearance::gaps() {
     //
-    return gaps_;
+    return _gaps;
 }
 
 QJsonObject Appearance::radius() {
     //
-    return radius_;
+    return _radius;
 }
 
 auto Appearance::getColor( const QString &value ) const -> QString {
     //
-    return colors_.value( value ).toString();
+    return _colors.value( value ).toString();
 }
 
 auto Appearance::getGap( const QString &value ) -> int {
     //
-    return gaps_.value( value ).toInt();
+    return _gaps.value( value ).toInt();
 }
 
 auto Appearance::getRadius( const QString &value ) -> int {
     //
-    return radius_.value( value ).toInt();
+    return _radius.value( value ).toInt();
 }
 
 }  // namespace tire

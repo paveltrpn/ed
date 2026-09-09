@@ -55,8 +55,9 @@ vec3 normals[36] = vec3[](
 
 mat4 rotationMatrix( vec3 axis, float angle ) {
     axis = normalize( axis );
-    float s = sin( angle );
-    float c = cos( angle );
+    float ra = degrees(angle);
+    float s = sin( ra );
+    float c = cos( ra );
     float oc = 1.0 - c;
     
     return mat4(
