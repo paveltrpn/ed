@@ -56,4 +56,12 @@ void Scenegraph::addExBox( float px, float py, float pz, float rx, float ry, flo
     _objectsList.push_back( std::move( exbox ) );
 }
 
+void Scenegraph::setGizmoMode( int value ) {
+    _gizmoMode = static_cast<GizmoModes>( value );
+}
+
+int Scenegraph::gizmoMode() {
+    return static_cast<int>( _gizmoMode );
+}
+
 }  // namespace tire

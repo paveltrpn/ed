@@ -14,12 +14,16 @@
 
 namespace tire {
 
+enum class GizmoModes { LOCAL, GLOBAL };
+
 struct Scenegraph final : public QObject {
     Q_OBJECT
 
     Q_PROPERTY( QObject* testbox READ testbox NOTIFY testboxChanged FINAL )
     Q_PROPERTY( QObject* grid READ grid NOTIFY gridChanged FINAL )
     Q_PROPERTY( QObject* bounding READ bounding NOTIFY boundingChanged FINAL )
+
+    Q_PROPERTY( int gizmoMode READ gizmoMode WRITE setGizmoMode NOTIFY gizmoModeChanged FINAL )
 
 public:
     Scenegraph( vsg::Viewer* viewer, QObject* parent = nullptr );
@@ -35,10 +39,15 @@ public:
     Grid* grid() const;
     Bounding* bounding() const;
 
+    void setGizmoMode( int value );
+    int gizmoMode();
+
 signals:
     void testboxChanged();
     void gridChanged();
     void boundingChanged();
+
+    void gizmoModeChanged();
 
 private:
     vsg::ref_ptr<vsg::Group> _root{};
@@ -49,6 +58,7 @@ private:
     Bounding* _bounding{};
 
     Gizmo* _gizmo{};
+    GizmoModes _gizmoMode{};
 
     vsg::ref_ptr<SceneObjectSubgraph> _sceneObjectSubgraph{};
     std::vector<std::shared_ptr<SceneObjectBase>> _objectsList{};

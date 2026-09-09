@@ -126,8 +126,8 @@ TiredUI::TiredUI( QObject *parent )
     hSplitter->addWidget( _vsgWidget );
     hSplitter->addWidget( _rightPanel );
 
-    const auto leftPanelWidth = static_cast<int>( windowWidth * 0.16f );
-    const auto rightPanelWidth = static_cast<int>( windowWidth * 0.16f );
+    const auto leftPanelWidth = static_cast<int>( windowWidth * 0.08f );
+    const auto rightPanelWidth = static_cast<int>( windowWidth * 0.08f );
     hSplitter->setSizes( { leftPanelWidth, windowWidth - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
 
     hLayout->addWidget( hSplitter );
