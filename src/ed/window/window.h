@@ -35,6 +35,8 @@ public:
     /// Initialize the Vulkan integration using VulkanSceneGraph VkInstance/VkSurface support
     virtual void initializeWindow();
 
+    vsg::ref_ptr<vsg::Window> getWindowAdapter() { return windowAdapter; }
+
 protected:
     void cleanup();
 
@@ -64,6 +66,6 @@ private:
     bool _initialized = false;
 };
 
-}  // namespace tired
+}  // namespace tire
 
 EVSG_type_name( tire::Window );

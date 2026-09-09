@@ -89,8 +89,8 @@ private:
     float _maxRange{ 100.0f };
     float _zoomSensitivity{ 0.05f };
 
-    vsg::vec3 _colorMajor{ 0.7f, 0.2f, 0.2f };
-    vsg::vec3 _colorMinor{ 0.2f, 0.2f, 0.5f };
+    vsg::vec3 _colorMajor{ 19.0f / 255.0f, 19.0f / 255.0f, 17.0f / 255.0f };
+    vsg::vec3 _colorMinor{ 53.0f / 255.0f, 53.0f / 255.0f, 51.0f / 255.0f };
 
     float _majorDivisor{ 5.0f };
     float _gridScale{ 10.0f };

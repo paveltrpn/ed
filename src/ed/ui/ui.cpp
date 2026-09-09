@@ -37,7 +37,6 @@ TiredUI::TiredUI( QObject *parent )
     auto windowTraits = vsg::WindowTraits::create();
     windowTraits->windowTitle = "ed";
     windowTraits->vulkanVersion = VK_MAKE_API_VERSION( 0, 1, 4, 0 );
-    // windowTraits->clearColor = vsg::vec4{ 55.0f / 255.0f, 55.0f / 255.0f, 55.0f / 255.0f, 1.0f };
     // windowTraits->fullscreen = true;
 
     qmlRegisterSingletonInstance( "Tire", 1, 0, "Appearence", _theme );
@@ -57,6 +56,10 @@ TiredUI::TiredUI( QObject *parent )
     _vsgWindow = new Window( _tired->viewer(), windowTraits );
     _vsgWindow->setTitle( "title" );
     _vsgWindow->initializeWindow();
+
+    const auto clearColor = QColor{ _theme->getColor( "clear_color" ) };
+    _vsgWindow->getWindowAdapter()->clearColor().set( clearColor.redF(), clearColor.greenF(), clearColor.blueF(),
+                                                      1.0f );
 
     _tired->init( _vsgWindow, windowTraits->width, windowTraits->height );
 
@@ -83,7 +86,6 @@ TiredUI::TiredUI( QObject *parent )
 
     const auto splitterBorderColor = _theme->getColor( "background" );
     const auto splitterHandleWidth = _theme->getUnit( "quarter" );
-    const auto clearColor = _theme->getColor( "clear_color" );
 
     auto centralWidget = new QWidget{ this };
     setCentralWidget( centralWidget );
