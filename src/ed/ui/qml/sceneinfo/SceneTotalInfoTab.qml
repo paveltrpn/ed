@@ -39,7 +39,7 @@ Rectangle {
             id: dummyField
             sourceComponent: numericParameter
             Layout.preferredWidth: parent.width
-            Layout.preferredHeight: 24
+            Layout.preferredHeight: _units.scaled_24
 
             onLoaded: {
                 item.parameterlabel = "some dummy param";

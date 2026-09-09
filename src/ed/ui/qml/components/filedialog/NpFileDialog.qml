@@ -11,10 +11,9 @@ Window {
 
     title: "File"
 
-    readonly property var _fonts: Appearence.fonts
-    readonly property var _gaps: Appearence.gaps
-    readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
+    readonly property var _fonts: Appearence.fonts
+    readonly property var _units: Appearence.units
 
     visible: true
 
@@ -32,7 +31,7 @@ Window {
         id: background
         anchors.fill: parent
         color: _color.background
-        radius: _radius.half
+        radius: _units.radiusHalf
 
         Rectangle {
             id: titleBar
@@ -63,7 +62,7 @@ Window {
                     bottom: parent.bottom
                 }
 
-                spacing: _gaps.half
+                spacing: _units.radiusHalf
 
                 NpButton {
                     text: "X"

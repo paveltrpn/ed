@@ -10,10 +10,9 @@ import "../components"
 Rectangle {
     id: addPrimitivesPopupComponent
 
-    readonly property var _fonts: Appearence.fonts
-    readonly property var _gaps: Appearence.gaps
-    readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
+    readonly property var _fonts: Appearence.fonts
+    readonly property var _units: Appearence.units
 
     height: visible ? addItemsButtonsLayout.implicitHeight : 0
 
@@ -23,7 +22,7 @@ Rectangle {
         }
     }
 
-    radius: 2
+    radius: _units.radiusEight
     color: _color.popup_background
 
     ColumnLayout {
@@ -45,8 +44,8 @@ Rectangle {
             text: "Box"
             enabled: true
 
-            topLeftRadius: 2
-            topRightRadius: 2
+            topLeftRadius: _units.radiusEight
+            topRightRadius: _units.radiusEight
 
             font: _fonts.label_accent
         }
@@ -133,8 +132,8 @@ Rectangle {
 
             font: _fonts.label_accent
 
-            bottomLeftRadius: 2
-            bottomRightRadius: 2
+            bottomLeftRadius: _units.radiusEight
+            bottomRightRadius: _units.radiusEight
         }
     }
 }

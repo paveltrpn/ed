@@ -9,27 +9,26 @@ import "../components"
 Rectangle {
     id: addBoxCmponent
 
-    readonly property var _fonts: Appearence.fonts
-    readonly property var _gaps: Appearence.gaps
-    readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
+    readonly property var _fonts: Appearence.fonts
+    readonly property var _units: Appearence.units
 
     height: 216
 
     z: parent.z
 
-    radius: _radius.half
+    radius: _units.radiusEight
     color: _color.background_overlay_60
 
     Text {
         id: posLabel
         anchors {
             top: parent.top
-            topMargin: _gaps.full
+            topMargin: _units.full
             left: parent.left
-            leftMargin: _gaps.half
+            leftMargin: _units.half
             right: parent.right
-            rightMargin: _gaps.half
+            rightMargin: _units.half
         }
 
         height: 20
@@ -43,11 +42,11 @@ Rectangle {
         id: posInputRow
         anchors {
             top: posLabel.bottom
-            topMargin: _gaps.half
+            topMargin: _units.half
             left: parent.left
-            leftMargin: _gaps.half
+            leftMargin: _units.half
             right: parent.right
-            rightMargin: _gaps.half
+            rightMargin: _units.half
         }
 
         height: 24
@@ -76,11 +75,11 @@ Rectangle {
         id: rotLabel
         anchors {
             top: posInputRow.bottom
-            topMargin: _gaps.full
+            topMargin: _units.full
             left: parent.left
-            leftMargin: _gaps.half
+            leftMargin: _units.half
             right: parent.right
-            rightMargin: _gaps.half
+            rightMargin: _units.half
         }
 
         height: 20
@@ -94,11 +93,11 @@ Rectangle {
         id: rotInputRow
         anchors {
             top: rotLabel.bottom
-            topMargin: _gaps.half
+            topMargin: _units.half
             left: parent.left
-            leftMargin: _gaps.half
+            leftMargin: _units.half
             right: parent.right
-            rightMargin: _gaps.half
+            rightMargin: _units.half
         }
         height: 24
 
@@ -126,11 +125,11 @@ Rectangle {
         id: sclLabel
         anchors {
             top: rotInputRow.bottom
-            topMargin: _gaps.full
+            topMargin: _units.full
             left: parent.left
-            leftMargin: _gaps.half
+            leftMargin: _units.half
             right: parent.right
-            rightMargin: _gaps.half
+            rightMargin: _units.half
         }
 
         height: 20
@@ -144,11 +143,11 @@ Rectangle {
         id: sclInputRow
         anchors {
             top: sclLabel.bottom
-            topMargin: _gaps.half
+            topMargin: _units.half
             left: parent.left
-            leftMargin: _gaps.half
+            leftMargin: _units.half
             right: parent.right
-            rightMargin: _gaps.half
+            rightMargin: _units.half
         }
         height: 24
 
@@ -176,7 +175,7 @@ Rectangle {
         id: saveBoxButton
         anchors {
             bottom: parent.bottom
-            bottomMargin: _gaps.full
+            bottomMargin: _units.full
             horizontalCenter: parent.horizontalCenter
         }
         width: 128

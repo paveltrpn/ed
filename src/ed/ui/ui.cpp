@@ -82,7 +82,7 @@ TiredUI::TiredUI( QObject *parent )
     _rightPanel->setClearColor( Qt::transparent );
 
     const auto splitterBorderColor = _theme->getColor( "background" );
-    const auto splitterHandleWidth = _theme->getGap( "quarter" );
+    const auto splitterHandleWidth = _theme->getUnit( "quarter" );
     const auto clearColor = _theme->getColor( "clear_color" );
 
     auto centralWidget = new QWidget{ this };

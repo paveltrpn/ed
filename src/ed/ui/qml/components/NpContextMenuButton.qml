@@ -10,10 +10,9 @@ import Tire 1.0
 QuickTemplates.Button {
     id: control
 
-    readonly property var _fonts: Appearence.fonts
-    readonly property var _gaps: Appearence.gaps
-    readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
+    readonly property var _fonts: Appearence.fonts
+    readonly property var _units: Appearence.units
 
     property bool isBorderEnabled: false
     property color backgroundColor: _color.popup_background
@@ -23,7 +22,7 @@ QuickTemplates.Button {
     property alias bottomLeftRadius: backgroundItem.bottomLeftRadius
     property alias bottomRightRadius: backgroundItem.bottomRightRadius
 
-    spacing: _gaps.half
+    spacing: _units.half
 
     states: [
         State {

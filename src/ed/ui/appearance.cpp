@@ -1,6 +1,7 @@
 
 #include <print>
 
+#include <QStringView>
 #include <QFont>
 
 #include "appearance.h"
@@ -37,7 +38,7 @@ Appearance::Appearance( QObject *parent )
     wp.cdUp();
 
     // Load color scheme.
-    QFile file( wp.path() + QDir::separator() + "src/ed/ui/qml/appearence/default.json" );
+    QFile file( wp.path() + QDir::separator() + "src/ed/ui/qml/colorscheme.json" );
 
     if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
         std::println( "appearence file not exist : {}", file.fileName().toStdString() );
@@ -53,10 +54,7 @@ Appearance::Appearance( QObject *parent )
         std::terminate();
     }
 
-    const auto object = doc.object();
-    _colors = object["colors"].toObject();
-    _gaps = object["gaps"].toObject();
-    _radius = object["radius"].toObject();
+    _colors = doc.object();
 
     buildFonts();
     buildUnits();
@@ -201,29 +199,13 @@ void Appearance::setColors( QJsonObject &value ) {
     _colors = value;
 };
 
-QJsonObject Appearance::gaps() {
-    //
-    return _gaps;
-}
-
-QJsonObject Appearance::radius() {
-    //
-    return _radius;
-}
-
 auto Appearance::getColor( const QString &value ) const -> QString {
     //
     return _colors.value( value ).toString();
 }
 
-auto Appearance::getGap( const QString &value ) -> int {
-    //
-    return _gaps.value( value ).toInt();
-}
-
-auto Appearance::getRadius( const QString &value ) -> int {
-    //
-    return _radius.value( value ).toInt();
+auto Appearance::getUnit( const QString &value ) const -> float {
+    return _units.value( value ).toFloat();
 }
 
 }  // namespace tire

@@ -7,17 +7,16 @@ import Tire 1.0
 TextInput {
     id: textInputComponent
 
-    readonly property var _fonts: Appearence.fonts
-    readonly property var _gaps: Appearence.gaps
-    readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
+    readonly property var _fonts: Appearence.fonts
+    readonly property var _units: Appearence.units
 
-    height: 24
+    height: _units.scaled_24
     color: _color.text_contrast
     font: _fonts.label
     verticalAlignment: Text.AlignVCenter
 
-    leftPadding: _gaps.full
+    leftPadding: _units.full
 
     clip: true
 
@@ -27,8 +26,8 @@ TextInput {
         color: inputArea.containsMouse ? _color.background_overlay_light_40 : _color.popup_background
 
         border.color: _color.popup_header
-        border.width: 2
-        radius: 2
+        border.width: _units.scaled_2
+        radius: _units.radiusEight
 
         MouseArea {
             id: inputArea

@@ -6,10 +6,9 @@ import Tire 1.0
 TabButton {
     id: control
 
-    readonly property var _fonts: Appearence.fonts
-    readonly property var _gaps: Appearence.gaps
-    readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
+    readonly property var _fonts: Appearence.fonts
+    readonly property var _units: Appearence.units
 
     property color backgroundColor: _color.popup_background_faded
 
