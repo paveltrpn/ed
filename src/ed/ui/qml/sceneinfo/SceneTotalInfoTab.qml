@@ -8,22 +8,21 @@ import "../components"
 Rectangle {
     id: sceneTotalInfoComponent
 
-    readonly property var _fonts: Appearence.fonts
-    readonly property var _gaps: Appearence.gaps
-    readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
+    readonly property var _fonts: Appearence.fonts
+    readonly property var _units: Appearence.units
 
-    bottomLeftRadius: _radius.half
-    bottomRightRadius: _radius.half
+    bottomLeftRadius: _units.radiusEight
+    bottomRightRadius: _units.radiusEight
 
     color: _color.popup_background
 
-    implicitHeight: sceneTotalInfoLayout.implicitHeight + _gaps.full
+    implicitHeight: sceneTotalInfoLayout.implicitHeight + _units.full
 
     ColumnLayout {
         id: sceneTotalInfoLayout
 
-        spacing: _gaps.half
+        spacing: _units.half
 
         anchors {
             left: parent.left
@@ -33,7 +32,7 @@ Rectangle {
         Item {
             id: spacer1
             Layout.preferredWidth: parent.width
-            Layout.preferredHeight: _gaps.half
+            Layout.preferredHeight: _units.half
         }
 
         Loader {

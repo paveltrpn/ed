@@ -8,19 +8,18 @@ import "../components"
 Rectangle {
     id: settingsComponent
 
-    readonly property var _fonts: Appearence.fonts
-    readonly property var _gaps: Appearence.gaps
-    readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
+    readonly property var _fonts: Appearence.fonts
+    readonly property var _units: Appearence.units
 
     height: visible ? settingsTabBar.height + settingsTabLayout.implicitHeight : 0
 
-    radius: 2
+    radius: _units.radiusEight
 
     color: _color.popup_background
 
     border {
-        width: 2
+        width: _units.radiusEight
         color: _color.popup_header
     }
 
@@ -35,7 +34,7 @@ Rectangle {
     TabBar {
         id: settingsTabBar
 
-        height: 24
+        height: _units.scaled_24
         width: parent.width
 
         NpTabButton {
@@ -44,7 +43,7 @@ Rectangle {
             anchors.top: parent.top
             height: parent.height
 
-            topLeftRadius: 2
+            topLeftRadius: _units.radiusEight
 
             font: _fonts.label_accent
         }
@@ -55,7 +54,7 @@ Rectangle {
             anchors.top: parent.top
             height: parent.height
 
-            topRightRadius: 2
+            topRightRadius: _units.radiusEight
 
             font: _fonts.label_accent
         }

@@ -10,21 +10,20 @@ import "../components"
 Rectangle {
     id: gridComponent
 
-    readonly property var _fonts: Appearence.fonts
-    readonly property var _gaps: Appearence.gaps
-    readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
+    readonly property var _fonts: Appearence.fonts
+    readonly property var _units: Appearence.units
 
     color: _color.popup_background
 
-    radius: 2
+    radius: _units.radiusEight
 
-    implicitHeight: gridSettingsLayout.implicitHeight + _gaps.full
+    implicitHeight: gridSettingsLayout.implicitHeight + _units.full
 
     ColumnLayout {
         id: gridSettingsLayout
 
-        spacing: _gaps.half
+        spacing: _units.half
 
         anchors {
             left: parent.left
@@ -34,14 +33,14 @@ Rectangle {
         Item {
             id: spacer1
             Layout.preferredWidth: parent.width
-            Layout.preferredHeight: _gaps.half
+            Layout.preferredHeight: _units.half
         }
 
         Loader {
             id: gridSizeField
             sourceComponent: gridParameter
             Layout.preferredWidth: parent.width
-            Layout.preferredHeight: 24
+            Layout.preferredHeight: _units.scaled_24
 
             onLoaded: {
                 item.parameterlabel = "Grid size";
@@ -60,7 +59,7 @@ Rectangle {
             id: lineThicknessField
             sourceComponent: gridParameter
             Layout.preferredWidth: parent.width
-            Layout.preferredHeight: 24
+            Layout.preferredHeight: _units.scaled_24
 
             onLoaded: {
                 item.parameterlabel = "Line thickness";
@@ -79,7 +78,7 @@ Rectangle {
             id: maxRangeField
             sourceComponent: gridParameter
             Layout.preferredWidth: parent.width
-            Layout.preferredHeight: 24
+            Layout.preferredHeight: _units.scaled_24
 
             onLoaded: {
                 item.parameterlabel = "Max range";
@@ -98,7 +97,7 @@ Rectangle {
             id: zoomSensitivityField
             sourceComponent: gridParameter
             Layout.preferredWidth: parent.width
-            Layout.preferredHeight: 24
+            Layout.preferredHeight: _units.scaled_24
 
             onLoaded: {
                 item.parameterlabel = "Zoom sensitivity";
@@ -117,7 +116,7 @@ Rectangle {
             id: majorDivisorField
             sourceComponent: gridParameter
             Layout.preferredWidth: parent.width
-            Layout.preferredHeight: 24
+            Layout.preferredHeight: _units.scaled_24
 
             onLoaded: {
                 item.parameterlabel = "Major divisor";
@@ -136,7 +135,7 @@ Rectangle {
             id: gridScaleField
             sourceComponent: gridParameter
             Layout.preferredWidth: parent.width
-            Layout.preferredHeight: 24
+            Layout.preferredHeight: _units.scaled_24
 
             onLoaded: {
                 item.parameterlabel = "Grid scale";
@@ -155,7 +154,7 @@ Rectangle {
             id: gridZOffsetField
             sourceComponent: gridParameter
             Layout.preferredWidth: parent.width
-            Layout.preferredHeight: 24
+            Layout.preferredHeight: _units.scaled_24
 
             onLoaded: {
                 item.parameterlabel = "Z Offset";
@@ -190,7 +189,7 @@ Rectangle {
                     top: parent.top
                     bottom: parent.bottom
                     left: parent.left
-                    leftMargin: 8
+                    leftMargin: _units.half
                     right: paramValue.left
                 }
 
@@ -214,7 +213,7 @@ Rectangle {
                     rightMargin: 8
                 }
 
-                width: 80
+                width: _units.scaled_80
 
                 text: gridParameterWrapper.parameterValue.toFixed(3)
 

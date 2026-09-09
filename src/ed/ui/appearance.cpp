@@ -171,6 +171,10 @@ auto Appearance::buildUnits() -> void {
 
     _units["scaled_96"] = 96.0f * _scale;
 
+    _units["scaled_128"] = 128.0f * _scale;
+
+    _units["scaled_256"] = 256.0f * _scale;
+
     _units["radiusEight"] = 2.0f;
     _units["radiusQuarter"] = 4.0f;
     _units["radiusHalf"] = 8.0f;

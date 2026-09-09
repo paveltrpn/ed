@@ -14,10 +14,9 @@ import "../settings"
 Rectangle {
     id: leftPanelMainComponent
 
-    readonly property var _fonts: Appearence.fonts
-    readonly property var _gaps: Appearence.gaps
-    readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
+    readonly property var _fonts: Appearence.fonts
+    readonly property var _units: Appearence.units
 
     color: _color.background
 
@@ -56,14 +55,14 @@ Rectangle {
 
             anchors {
                 top: parent.top
-                topMargin: leftPanelMainComponent._gaps.half
+                topMargin: leftPanelMainComponent._units.half
                 left: parent.left
-                leftMargin: leftPanelMainComponent._gaps.half
+                leftMargin: leftPanelMainComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelMainComponent._gaps.half
+                rightMargin: leftPanelMainComponent._units.half
             }
 
-            height: 56
+            height: _units.scaled_56
 
             buttonLabel: "Add object"
 
@@ -85,11 +84,11 @@ Rectangle {
 
             anchors {
                 top: addObjectButton.bottom
-                topMargin: visible ? leftPanelMainComponent._gaps.half : 0
+                topMargin: visible ? leftPanelMainComponent._units.half : 0
                 left: parent.left
-                leftMargin: leftPanelMainComponent._gaps.half
+                leftMargin: leftPanelMainComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelMainComponent._gaps.half
+                rightMargin: leftPanelMainComponent._units.half
             }
 
             visible: addObjectButton.checked
@@ -100,14 +99,14 @@ Rectangle {
 
             anchors {
                 top: addPrimitivesPopupItem.bottom
-                topMargin: leftPanelMainComponent._gaps.half
+                topMargin: leftPanelMainComponent._units.half
                 left: parent.left
-                leftMargin: leftPanelMainComponent._gaps.half
+                leftMargin: leftPanelMainComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelMainComponent._gaps.half
+                rightMargin: leftPanelMainComponent._units.half
             }
 
-            height: 56
+            height: _units.scaled_56
 
             buttonLabel: "Edit object"
 
@@ -129,14 +128,14 @@ Rectangle {
 
             anchors {
                 top: editObjectButton.bottom
-                topMargin: leftPanelMainComponent._gaps.half
+                topMargin: leftPanelMainComponent._units.half
                 left: parent.left
-                leftMargin: leftPanelMainComponent._gaps.half
+                leftMargin: leftPanelMainComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelMainComponent._gaps.half
+                rightMargin: leftPanelMainComponent._units.half
             }
 
-            height: 56
+            height: _units.scaled_56
 
             buttonLabel: "Info"
 
@@ -157,11 +156,11 @@ Rectangle {
             id: sceneInfoWidget
             anchors {
                 top: infoButton.bottom
-                topMargin: _gaps.half
+                topMargin: _units.half
                 left: parent.left
-                leftMargin: leftPanelMainComponent._gaps.half
+                leftMargin: leftPanelMainComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelMainComponent._gaps.half
+                rightMargin: leftPanelMainComponent._units.half
             }
 
             visible: infoButton.checked
@@ -173,12 +172,12 @@ Rectangle {
             anchors {
                 bottom: parent.bottom
                 left: parent.left
-                leftMargin: leftPanelMainComponent._gaps.half
+                leftMargin: leftPanelMainComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelMainComponent._gaps.half
+                rightMargin: leftPanelMainComponent._units.half
             }
 
-            height: 56
+            height: _units.scaled_56
 
             buttonLabel: "Settings"
 
@@ -199,11 +198,11 @@ Rectangle {
             id: settingsWidget
             anchors {
                 bottom: settingsButton.top
-                bottomMargin: _gaps.half
+                bottomMargin: _units.half
                 left: parent.left
-                leftMargin: leftPanelMainComponent._gaps.half
+                leftMargin: leftPanelMainComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelMainComponent._gaps.half
+                rightMargin: leftPanelMainComponent._units.half
             }
 
             visible: settingsButton.checked

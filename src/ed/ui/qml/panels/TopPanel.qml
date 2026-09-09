@@ -13,15 +13,14 @@ import "../components/filedialog"
 Rectangle {
     id: topPanelMainComponent
 
-    readonly property var _fonts: Appearence.fonts
-    readonly property var _gaps: Appearence.gaps
-    readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
+    readonly property var _fonts: Appearence.fonts
+    readonly property var _units: Appearence.units
 
     color: _color.background
 
-    topLeftRadius: _radius.eight
-    topRightRadius: _radius.eight
+    topLeftRadius:  _units.radiusEight
+    topRightRadius: _units.radiusEight
 
     MouseArea {
         id: topEdgeMoveArea
@@ -30,7 +29,7 @@ Rectangle {
             right: parent.right
             top: parent.top
         }
-        height: 4
+        height: _units.scaled_4
         cursorShape: Qt.SizeVerCursor
         onPressed: {
             MainWindow.resizeWindow(Qt.TopEdge);
@@ -58,8 +57,8 @@ Rectangle {
         id: topPanelMainComponentWrapper
         anchors.fill: parent
         color: _color.button_shadow
-        topLeftRadius: _radius.eight
-        topRightRadius: _radius.eight
+        topLeftRadius: _units.radiusEight
+        topRightRadius: _units.radiusEight
 
         // Item {
         //     id: menuBarWrapper
@@ -99,7 +98,7 @@ Rectangle {
 
         //         anchors {
         //             left: parent.left
-        //             leftMargin: _gaps.full
+        //             leftMargin: _units.full
         //             top: parent.top
         //             bottom: parent.bottom
         //             right: mainWindowDecorationWrapper.left
@@ -281,15 +280,15 @@ Rectangle {
             anchors {
                 top: parent.top
                 left: parent.left
-                leftMargin: 256
+                leftMargin: _units.scaled_256
                 right: parent.right
-                rightMargin: 256
+                rightMargin: _units.scaled_256
             }
             height: parent.height * 0.8
             color: _color.mode_system
 
             border {
-                width: 2
+                width: _units.scaled_2
                 color: _color.popup_header
             }
         }
@@ -299,24 +298,24 @@ Rectangle {
 
             anchors {
                 right: parent.right
-                rightMargin: _gaps.full
+                rightMargin: _units.full
                 top: parent.top
                 bottom: parent.bottom
             }
 
-            width: 128
+            width: _units.scaled_128
 
             NpButton {
                 id: maximizeWindowButton
 
                 anchors {
                     right: foldWindowButton.left
-                    rightMargin: 4
+                    rightMargin: _units.scaled_4
                     top: parent.top
                 }
 
-                width: 24
-                height: 24
+                width: _units.scaled_24
+                height: _units.scaled_24
 
                 icon.source: "image://TiredImageProvider/arrow-up-right-from-square.svg"
                 onClicked: {}
@@ -333,8 +332,8 @@ Rectangle {
                     top: parent.top
                 }
 
-                width: 24
-                height: 24
+                width: _units.scaled_24
+                height: _units.scaled_24
 
                 icon.source: "image://TiredImageProvider/square-minus.svg"
                 onClicked: {}
@@ -350,8 +349,8 @@ Rectangle {
                     top: parent.top
                 }
 
-                width: 24
-                height: 24
+                width: _units.scaled_24
+                height: _units.scaled_24
 
                 icon.source: "image://TiredImageProvider/xmark-large.svg"
                 onClicked: {

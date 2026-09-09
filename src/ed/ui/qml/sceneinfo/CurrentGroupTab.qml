@@ -10,22 +10,21 @@ import "../components"
 Rectangle {
     id: currentGroupComponent
 
-    readonly property var _fonts: Appearence.fonts
-    readonly property var _gaps: Appearence.gaps
-    readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
+    readonly property var _fonts: Appearence.fonts
+    readonly property var _units: Appearence.units
 
-    bottomLeftRadius: 2
-    bottomRightRadius: 2
+    bottomLeftRadius: _units.radiusEight
+    bottomRightRadius: _units.radiusEight
 
     color: _color.popup_background
 
-    implicitHeight: currentGroupInfoLayout.implicitHeight + _gaps.full
+    implicitHeight: currentGroupInfoLayout.implicitHeight + _units.full
 
     ColumnLayout {
         id: currentGroupInfoLayout
 
-        spacing: _gaps.half
+        spacing: _units.half
 
         anchors {
             left: parent.left
@@ -35,7 +34,7 @@ Rectangle {
         Item {
             id: spacer1
             Layout.preferredWidth: parent.width
-            Layout.preferredHeight: _gaps.half
+            Layout.preferredHeight: _units.half
         }
 
         Loader {

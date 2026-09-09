@@ -13,10 +13,9 @@ import "../components/filedialog"
 Rectangle {
     id: rightPanelMainComponent
 
-    readonly property var _fonts: Appearence.fonts
-    readonly property var _gaps: Appearence.gaps
-    readonly property var _radius: Appearence.radius
     readonly property var _color: Appearence.colors
+    readonly property var _fonts: Appearence.fonts
+    readonly property var _units: Appearence.units
 
     color: _color.background
 
@@ -27,7 +26,7 @@ Rectangle {
             right: parent.right
             bottom: parent.bottom
         }
-        width: 6
+        width: _units.scaled_6
         cursorShape: Qt.SizeHorCursor
         onPressed: {
             MainWindow.resizeWindow(Qt.RightEdge);
