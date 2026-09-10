@@ -16,7 +16,7 @@ Rectangle {
 
     radius: _units.radiusEight
 
-    color: _color.popup_background
+    color: _color.si_background_light
 
     Behavior on height {
         NumberAnimation {

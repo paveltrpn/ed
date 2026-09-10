@@ -17,7 +17,7 @@ Rectangle {
     bottomLeftRadius: _units.radiusEight
     bottomRightRadius: _units.radiusEight
 
-    color: _color.popup_background
+    color: _color.si_background_light
 
     implicitHeight: testBoxSettingsLayout.implicitHeight + _units.full
 
@@ -166,7 +166,7 @@ Rectangle {
 
                 verticalAlignment: Text.AlignVCenter
 
-                color: _color.text_contrast
+                color: _color.si_text_dark
                 font: _fonts.label
 
                 elide: Text.ElideRight
@@ -222,7 +222,7 @@ Rectangle {
 
                 verticalAlignment: Text.AlignVCenter
 
-                color: _color.text_contrast
+                color: _color.si_text_dark
                 font: _fonts.label
 
                 elide: Text.ElideRight

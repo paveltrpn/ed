@@ -15,7 +15,7 @@ QuickTemplates.Button {
     readonly property var _units: Appearence.units
 
     property bool isBorderEnabled: false
-    property color backgroundColor: _color.popup_background
+    property color backgroundColor: _color.si_background_light
 
     property alias topLeftRadius: backgroundItem.topLeftRadius
     property alias topRightRadius: backgroundItem.topRightRadius
@@ -29,11 +29,11 @@ QuickTemplates.Button {
             when: control.down
             PropertyChanges {
                 target: control
-                backgroundColor: _color.popup_header
+                backgroundColor: _color.si_background_dark
             }
             PropertyChanges {
                 target: control
-                textColor: _color.text_active
+                textColor: _color.si_text_light
             }
         },
         State {
@@ -47,16 +47,16 @@ QuickTemplates.Button {
             when: control.checked
             PropertyChanges {
                 target: control
-                backgroundColor: _color.popup_background
+                backgroundColor: _color.si_background_light
             }
             PropertyChanges {
                 target: control
-                textColor: _color.text_active
+                textColor: _color.si_text_light
             }
         }
     ]
 
-    property color textColor: _color.text_contrast
+    property color textColor: _color.si_text_dark
 
     icon.color: textColor
 

@@ -14,7 +14,7 @@ Rectangle {
     readonly property var _fonts: Appearence.fonts
     readonly property var _units: Appearence.units
 
-    color: _color.popup_background
+    color: _color.si_background_light
 
     radius: _units.radiusEight
 
@@ -197,7 +197,7 @@ Rectangle {
 
                 verticalAlignment: Text.AlignVCenter
 
-                color: _color.text_contrast
+                color: _color.si_text_dark
                 font: _fonts.label
 
                 elide: Text.ElideRight

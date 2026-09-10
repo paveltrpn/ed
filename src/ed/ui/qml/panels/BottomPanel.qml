@@ -39,7 +39,7 @@ Rectangle {
     Rectangle {
         id: bottomPanelMainComponentWrapper
         anchors.fill: parent
-        color: _color.button_shadow
+        color: _color.si_button_shadow
         bottomLeftRadius: _units.radiusEight
         bottomRightRadius: _units.radiusEight
     }

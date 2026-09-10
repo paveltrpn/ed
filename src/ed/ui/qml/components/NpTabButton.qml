@@ -10,7 +10,7 @@ TabButton {
     readonly property var _fonts: Appearence.fonts
     readonly property var _units: Appearence.units
 
-    property color backgroundColor: _color.popup_background_faded
+    property color backgroundColor: _color.si_background_light_faded
 
     property alias topLeftRadius: backgroundItem.topLeftRadius
     property alias topRightRadius: backgroundItem.topRightRadius
@@ -20,26 +20,26 @@ TabButton {
             when: control.down
             PropertyChanges {
                 target: control
-                backgroundColor: _color.popup_background
+                backgroundColor: _color.si_background_light
             }
         },
         State {
             when: control.hovered && !control.checked
             PropertyChanges {
                 target: control
-                backgroundColor: _color.popup_background_faded
+                backgroundColor: _color.si_background_light_faded
             }
         },
         State {
             when: control.checked
             PropertyChanges {
                 target: control
-                backgroundColor: _color.popup_background
+                backgroundColor: _color.si_background_light
             }
         }
     ]
 
-    property color textColor: _color.text_contrast
+    property color textColor: _color.si_text_dark
 
     contentItem: Text {
         text: control.text

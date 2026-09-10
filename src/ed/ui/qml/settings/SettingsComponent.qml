@@ -16,11 +16,11 @@ Rectangle {
 
     radius: _units.radiusEight
 
-    color: _color.popup_background
+    color: _color.si_background_light
 
     border {
         width: _units.radiusEight
-        color: _color.popup_header
+        color: _color.si_background_dark
     }
 
     Behavior on height {

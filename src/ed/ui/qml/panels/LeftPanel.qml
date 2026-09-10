@@ -34,7 +34,7 @@ Rectangle {
     Rectangle {
         id: leftPanelMainComponentWrapper
         anchors.fill: parent
-        color: _color.button_shadow
+        color: _color.si_button_shadow
 
         MouseArea {
             id: leftEdgeMoveArea

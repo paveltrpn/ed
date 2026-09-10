@@ -83,95 +83,15 @@ auto Appearance::buildUnits() -> void {
     _units["half"] = 8.0f;
     _units["full"] = 16.0f;
 
-    _units["fixed_1"] = 1.0f;
-    _units["fixed_2"] = 2.0f;
-    _units["fixed_4"] = 4.0f;
-    _units["fixed_6"] = 6.0f;
-    _units["fixed_8"] = 8.0f;
+    for ( auto i{ 1 }; i < 1024; ++i ) {
+        const auto keyString = QString{ "%1_%2" }.arg( "fixed" ).arg( i );
+        _units.insert( keyString, static_cast<float>( i ) );
+    }
 
-    _units["fixed_10"] = 10.0f;
-    _units["fixed_12"] = 12.0f;
-    _units["fixed_14"] = 14.0f;
-    _units["fixed_16"] = 16.0f;
-    _units["fixed_18"] = 18.0f;
-
-    _units["fixed_20"] = 20.0f;
-    _units["fixed_22"] = 22.0f;
-    _units["fixed_24"] = 24.0f;
-    _units["fixed_26"] = 26.0f;
-    _units["fixed_28"] = 28.0f;
-
-    _units["fixed_32"] = 32.0f;
-    _units["fixed_34"] = 34.0f;
-    _units["fixed_36"] = 36.0f;
-    _units["fixed_38"] = 38.0f;
-
-    _units["fixed_40"] = 40.0f;
-    _units["fixed_44"] = 44.0f;
-    _units["fixed_46"] = 46.0f;
-    _units["fixed_48"] = 48.0f;
-
-    _units["fixed_52"] = 52.0f;
-    _units["fixed_54"] = 54.0f;
-    _units["fixed_56"] = 56.0f;
-    _units["fixed_58"] = 58.0f;
-
-    _units["fixed_64"] = 64.0f;
-
-    _units["fixed_72"] = 72.0f;
-
-    _units["fixed_80"] = 80.0f;
-    _units["fixed_86"] = 86.0f;
-    _units["fixed_88"] = 88.0f;
-
-    _units["fixed_96"] = 96.0f;
-
-    _units["scaled_1"] = 1.0f * _scale;
-    _units["scaled_2"] = 2.0f * _scale;
-    _units["scaled_4"] = 4.0f * _scale;
-    _units["scaled_6"] = 6.0f * _scale;
-    _units["scaled_8"] = 8.0f * _scale;
-
-    _units["scaled_10"] = 10.0f * _scale;
-    _units["scaled_12"] = 12.0f * _scale;
-    _units["scaled_14"] = 14.0f * _scale;
-    _units["scaled_16"] = 16.0f * _scale;
-    _units["scaled_18"] = 18.0f * _scale;
-
-    _units["scaled_20"] = 20.0f * _scale;
-    _units["scaled_22"] = 22.0f * _scale;
-    _units["scaled_24"] = 24.0f * _scale;
-    _units["scaled_26"] = 26.0f * _scale;
-    _units["scaled_28"] = 28.0f * _scale;
-
-    _units["scaled_32"] = 32.0f * _scale;
-    _units["scaled_34"] = 34.0f * _scale;
-    _units["scaled_36"] = 36.0f * _scale;
-    _units["scaled_38"] = 38.0f * _scale;
-
-    _units["scaled_40"] = 40.0f * _scale;
-    _units["scaled_44"] = 44.0f * _scale;
-    _units["scaled_46"] = 46.0f * _scale;
-    _units["scaled_48"] = 48.0f * _scale;
-
-    _units["scaled_52"] = 52.0f * _scale;
-    _units["scaled_54"] = 54.0f * _scale;
-    _units["scaled_56"] = 56.0f * _scale;
-    _units["scaled_58"] = 58.0f * _scale;
-
-    _units["scaled_64"] = 64.0f * _scale;
-
-    _units["scaled_72"] = 72.0f * _scale;
-
-    _units["scaled_80"] = 80.0f * _scale;
-    _units["scaled_86"] = 86.0f * _scale;
-    _units["scaled_88"] = 88.0f * _scale;
-
-    _units["scaled_96"] = 96.0f * _scale;
-
-    _units["scaled_128"] = 128.0f * _scale;
-
-    _units["scaled_256"] = 256.0f * _scale;
+    for ( auto i{ 1 }; i < 1024; ++i ) {
+        const auto keyString = QString{ "%1_%2" }.arg( "scaled" ).arg( i );
+        _units.insert( keyString, static_cast<float>( i ) * _scale );
+    }
 
     _units["radiusEight"] = 2.0f;
     _units["radiusQuarter"] = 4.0f;

@@ -19,7 +19,7 @@ Rectangle {
 
     color: _color.background
 
-    topLeftRadius:  _units.radiusEight
+    topLeftRadius: _units.radiusEight
     topRightRadius: _units.radiusEight
 
     MouseArea {
@@ -56,7 +56,7 @@ Rectangle {
     Rectangle {
         id: topPanelMainComponentWrapper
         anchors.fill: parent
-        color: _color.button_shadow
+        color: _color.si_button_shadow
         topLeftRadius: _units.radiusEight
         topRightRadius: _units.radiusEight
 
@@ -285,11 +285,39 @@ Rectangle {
                 rightMargin: _units.scaled_256
             }
             height: parent.height * 0.8
-            color: _color.mode_system
+            color: _color.si_mode_system
 
             border {
                 width: _units.scaled_2
-                color: _color.popup_header
+                color: _color.si_background_dark
+            }
+
+            ModeSelectButton {
+                id: sceneModeButton
+                anchors {
+                    right: systemModeButton.left
+                    rightMargin: _units.scaled_8
+                    top: parent.top
+                    bottom: parent.bottom
+                }
+
+                width: _units.scaled_96
+
+                buttonLabel: "Scene"
+            }
+
+            ModeSelectButton {
+                id: systemModeButton
+                anchors {
+                    right: parent.right
+                    rightMargin: _units.scaled_8
+                    top: parent.top
+                    bottom: parent.bottom
+                }
+
+                width: _units.scaled_96
+
+                buttonLabel: "System"
             }
         }
 

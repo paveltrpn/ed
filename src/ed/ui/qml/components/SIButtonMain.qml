@@ -16,9 +16,6 @@ QuickTemplates.Button {
 
     property color backgroundColor: "#90917e"
 
-    readonly property string txtColorOff: "#5d5d5b"
-    readonly property string txtColorOn: "white"
-
     property alias buttonLabel: buttonLabel.text
 
     states: [
@@ -26,7 +23,7 @@ QuickTemplates.Button {
             when: control.down
             PropertyChanges {
                 target: control
-                backgroundColor: _color.mode_model
+                backgroundColor: _color.si_mode_model
             }
             PropertyChanges {
                 target: pressAreaRect
@@ -35,29 +32,29 @@ QuickTemplates.Button {
             }
             PropertyChanges {
                 target: buttonLabel
-                color: _color.text_active
+                color: _color.si_text_light
             }
         },
         State {
             when: control.hovered && !control.checked
             PropertyChanges {
                 target: control
-                backgroundColor: _color.mode_model
+                backgroundColor: _color.si_mode_model
             }
             PropertyChanges {
                 target: buttonLabel
-                color: _color.text_inactive
+                color: _color.si_text_light_faded
             }
         },
         State {
             when: control.checked
             PropertyChanges {
                 target: control
-                backgroundColor: _color.mode_model
+                backgroundColor: _color.si_mode_model
             }
             PropertyChanges {
                 target: buttonLabel
-                color: _color.text_active
+                color: _color.si_text_light
             }
         }
     ]
@@ -73,7 +70,7 @@ QuickTemplates.Button {
 
         Rectangle {
             id: shadowRect
-            color: _color.button_shadow
+            color: _color.si_button_shadow
             anchors {
                 fill: parent
                 topMargin: 10
@@ -83,7 +80,7 @@ QuickTemplates.Button {
             }
             Rectangle {
                 id: pressAreaRect
-                color: _color.button_press_area
+                color: _color.si_button_press_area
 
                 width: shadowRect.width
                 height: shadowRect.height
@@ -101,7 +98,8 @@ QuickTemplates.Button {
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
 
-                    color: txtColorOff
+                    color: _color.si_text_light_faded
+
                     font: _fonts.text_body_accent
 
                     elide: Text.ElideRight
