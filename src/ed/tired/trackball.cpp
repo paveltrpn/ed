@@ -5,6 +5,7 @@ namespace tire {
 
 Trackball::Trackball( vsg::ref_ptr<vsg::Camera> camera, vsg::ref_ptr<vsg::EllipsoidModel> ellipsoidModel )
     : vsg::Trackball{ camera, ellipsoidModel } {
+    this->supportsThrow = false;
 }
 
 void Trackball::apply( vsg::MoveEvent& moveEvent ) {
