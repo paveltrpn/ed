@@ -110,8 +110,8 @@ TiredUI::TiredUI( QObject *parent )
     mainColumnSplitter->addWidget( middleElementsWidget );
     mainColumnSplitter->addWidget( _bottomPanel );
 
-    const auto topPanelHeight = static_cast<int>( windowHeight * 0.08f );
-    const auto bottomPanelHeight = static_cast<int>( windowHeight * 0.08f );
+    const auto topPanelHeight = static_cast<int>( windowHeight * 0.06f );
+    const auto bottomPanelHeight = static_cast<int>( windowHeight * 0.06f );
     mainColumnSplitter->setSizes(
         { topPanelHeight, windowHeight - ( topPanelHeight + bottomPanelHeight ), bottomPanelHeight } );
 
@@ -150,8 +150,8 @@ auto TiredUI::readSettings() -> std::pair<int, int> {
 
     const auto geometry = _settings->value( "geometry", QByteArray() ).toByteArray();
     if ( geometry.isEmpty() ) {
-        setGeometry( 200, 200, 1280, 720 );
-        result = std::make_pair( 1280, 720 );
+        setGeometry( 200, 200, 1024, 768 );
+        result = std::make_pair( 1024, 768 );
     } else {
         restoreGeometry( geometry );
         const auto g = this->geometry();
