@@ -29,8 +29,7 @@ auto SceneObjectSubgraph::initPipeline() -> void {
     }
 
     // read texture image
-    const auto rawData =
-        std::make_unique<Tga>( std::format( "{}{}", PREFIX_PATH_ONE, "/assets/textures/Onyx006_color.tga" ) );
+    const auto rawData = std::make_unique<Tga>( std::format( "{}{}", PREFIX_PATH_ONE, "/assets/textures/glitch.tga" ) );
     auto rawDataSize = rawData->width() * rawData->height() * rawData->components();
 
     auto textureData = vsg::ubvec4Array2D::create( rawData->width(), rawData->height() );
