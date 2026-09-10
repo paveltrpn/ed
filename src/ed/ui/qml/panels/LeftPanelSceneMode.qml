@@ -60,8 +60,8 @@ Item {
                 rightMargin: leftPanelSceneComponent._units.half
             }
 
+            modeRelatedBgColor: _color.si_mode_scene
             height: _units.scaled_56
-
             buttonLabel: "Add object"
 
             onClicked: {
@@ -104,8 +104,8 @@ Item {
                 rightMargin: leftPanelSceneComponent._units.half
             }
 
+            modeRelatedBgColor: _color.si_mode_scene
             height: _units.scaled_56
-
             buttonLabel: "Edit object"
 
             onClicked: {
@@ -133,8 +133,8 @@ Item {
                 rightMargin: leftPanelSceneComponent._units.half
             }
 
+            modeRelatedBgColor: _color.si_mode_scene
             height: _units.scaled_56
-
             buttonLabel: "Info"
 
             onClicked: {
@@ -175,8 +175,8 @@ Item {
                 rightMargin: leftPanelSceneComponent._units.half
             }
 
+            modeRelatedBgColor: _color.si_mode_scene
             height: _units.scaled_56
-
             buttonLabel: "Settings"
 
             onClicked: {

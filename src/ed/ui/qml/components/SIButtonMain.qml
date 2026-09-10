@@ -18,12 +18,14 @@ QuickTemplates.Button {
 
     property alias buttonLabel: buttonLabel.text
 
+    property string modeRelatedBgColor
+
     states: [
         State {
             when: control.down
             PropertyChanges {
                 target: control
-                backgroundColor: _color.si_mode_model
+                backgroundColor: control.modeRelatedBgColor
             }
             PropertyChanges {
                 target: pressAreaRect
@@ -39,7 +41,7 @@ QuickTemplates.Button {
             when: control.hovered && !control.checked
             PropertyChanges {
                 target: control
-                backgroundColor: _color.si_mode_model
+                backgroundColor: control.modeRelatedBgColor
             }
             PropertyChanges {
                 target: buttonLabel
@@ -50,7 +52,7 @@ QuickTemplates.Button {
             when: control.checked
             PropertyChanges {
                 target: control
-                backgroundColor: _color.si_mode_model
+                backgroundColor: control.modeRelatedBgColor
             }
             PropertyChanges {
                 target: buttonLabel

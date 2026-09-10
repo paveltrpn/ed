@@ -284,6 +284,7 @@ Rectangle {
                 right: parent.right
                 rightMargin: _units.scaled_256
             }
+
             height: parent.height * 0.8
             color: _color.si_mode_system
 
@@ -291,6 +292,26 @@ Rectangle {
                 width: _units.scaled_2
                 color: _color.si_background_dark
             }
+
+            states: [
+                State {
+                    name: "scene_mode"
+                    when: Tired.controlMode == 0
+                    PropertyChanges {
+                        target: hatArea
+                        color: _color.si_mode_scene
+                    }
+                },
+
+                State {
+                    name: "system_mode"
+                    when: Tired.controlMode == 1
+                    PropertyChanges {
+                        target: hatArea
+                        color: _color.si_mode_system
+                    }
+                }
+            ]
 
             property var buttonsList: []
 

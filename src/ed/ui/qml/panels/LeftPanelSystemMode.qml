@@ -46,8 +46,8 @@ Item {
                 rightMargin: leftPanelSystemComponent._units.half
             }
 
+            modeRelatedBgColor: _color.si_mode_system
             height: _units.scaled_56
-
             buttonLabel: "About"
 
             onClicked: {
@@ -74,8 +74,8 @@ Item {
                 rightMargin: leftPanelSystemComponent._units.half
             }
 
+            modeRelatedBgColor: _color.si_mode_system
             height: _units.scaled_56
-
             buttonLabel: "Exit"
 
             onClicked: {
