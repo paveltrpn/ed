@@ -15,6 +15,12 @@
 
 namespace tire {
 
+enum class ControlModes {
+    //
+    SCENE,
+    SYSTEM
+};
+
 struct Tired final : QObject {
     Q_OBJECT
 
@@ -24,6 +30,8 @@ struct Tired final : QObject {
 
     Q_PROPERTY( float globalMousePosX READ globalMousePosX WRITE setGlobalMousePosX NOTIFY globalMousePosChanged FINAL )
     Q_PROPERTY( float globalMousePosY READ globalMousePosY WRITE setGlobalMousePosY NOTIFY globalMousePosChanged FINAL )
+
+    Q_PROPERTY( int controlMode READ controlMode WRITE setControlMode NOTIFY controlModeChanged FINAL )
 
 public:
     Tired( QObject* parent = nullptr );
@@ -46,12 +54,17 @@ public:
     auto globalMousePosX() -> float;
     auto globalMousePosY() -> float;
 
+    void setControlMode( int value );
+    int controlMode();
+
 signals:
     void manipulatorChanged();
     void inputHandlerChanged();
     void scenegraphChanged();
 
     void globalMousePosChanged( float x, float y );
+
+    void controlModeChanged( int );
 
 private:
     std::shared_ptr<vk::Context> _context{};
@@ -65,6 +78,8 @@ private:
 
     float _globalMousePosX{};
     float _globalMousePosY{};
+
+    ControlModes _controlMode{};
 };
 
 }  // namespace tire

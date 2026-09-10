@@ -124,4 +124,12 @@ auto Tired::globalMousePosY() -> float {
     return _globalMousePosY;
 }
 
+void Tired::setControlMode( int value ) {
+    _controlMode = static_cast<ControlModes>( value );
+}
+
+int Tired::controlMode() {
+    return static_cast<int>( _controlMode );
+}
+
 }  // namespace tire

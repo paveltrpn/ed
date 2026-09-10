@@ -14,7 +14,11 @@
 
 namespace tire {
 
-enum class GizmoModes { LOCAL, GLOBAL };
+enum class GizmoModes {
+    //
+    LOCAL,
+    GLOBAL
+};
 
 struct Scenegraph final : public QObject {
     Q_OBJECT
