@@ -63,11 +63,25 @@ Item {
             }
         }
 
+        AboutPanel {
+            id: aboutPanelItem
+            anchors {
+                top: aboutButton.bottom
+                topMargin: visible ? _units.half : 0
+                left: parent.left
+                leftMargin: leftPanelSystemComponent._units.half
+                right: parent.right
+                rightMargin: leftPanelSystemComponent._units.half
+            }
+
+            visible: aboutButton.checked
+        }
+
         SIButtonMain {
             id: exitButton
 
             anchors {
-                bottom: parent.bottom
+                bottom: exitPanelItem.top
                 left: parent.left
                 leftMargin: leftPanelSystemComponent._units.half
                 right: parent.right
@@ -88,6 +102,28 @@ Item {
 
             Component.onCompleted: {
                 leftPanelSystemComponent.buttonsList.push(exitButton);
+            }
+        }
+
+        ExitPanel {
+            id: exitPanelItem
+            anchors {
+                bottom: parent.bottom
+                bottomMargin: visible ? _units.half : 0
+                left: parent.left
+                leftMargin: leftPanelSystemComponent._units.half
+                right: parent.right
+                rightMargin: leftPanelSystemComponent._units.half
+            }
+
+            visible: exitButton.checked
+
+            onAccept: {
+                MainWindow.quitApplication();
+            }
+
+            onDecline: {
+                exitButton.checked = false
             }
         }
     }
