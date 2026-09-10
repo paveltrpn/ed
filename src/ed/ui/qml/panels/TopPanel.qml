@@ -292,11 +292,24 @@ Rectangle {
                 color: _color.si_background_dark
             }
 
+            property var buttonsList: []
+
+            function deselectOthers(exceptItem) {
+                for (let i in hatArea.buttonsList) {
+                    const btn = hatArea.buttonsList[i];
+                    if (btn !== exceptItem) {
+                        btn.checked = false;
+                    }
+                }
+            }
+
             ModeSelectButton {
                 id: sceneModeButton
+
+                checked: true
+
                 anchors {
                     right: systemModeButton.left
-                    rightMargin: _units.scaled_8
                     top: parent.top
                     bottom: parent.bottom
                 }
@@ -304,6 +317,21 @@ Rectangle {
                 width: _units.scaled_96
 
                 buttonLabel: "Scene"
+
+                onClicked: {
+                    sceneModeButton.checked = !sceneModeButton.checked;
+
+                    if (sceneModeButton.checked) {
+                        hatArea.deselectOthers(sceneModeButton);
+                    }
+
+                    // ControlModes::SCENE
+                    Tired.controlMode = 0
+                }
+
+                Component.onCompleted: {
+                    hatArea.buttonsList.push(sceneModeButton);
+                }
             }
 
             ModeSelectButton {
@@ -318,6 +346,21 @@ Rectangle {
                 width: _units.scaled_96
 
                 buttonLabel: "System"
+
+                onClicked: {
+                    systemModeButton.checked = !systemModeButton.checked;
+
+                    if (systemModeButton.checked) {
+                        hatArea.deselectOthers(systemModeButton);
+                    }
+
+                    // ControlModes::SYSTEM
+                    Tired.controlMode = 1
+                }
+
+                Component.onCompleted: {
+                    hatArea.buttonsList.push(systemModeButton);
+                }
             }
         }
 

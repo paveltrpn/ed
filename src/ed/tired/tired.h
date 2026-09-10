@@ -79,7 +79,7 @@ private:
     float _globalMousePosX{};
     float _globalMousePosY{};
 
-    ControlModes _controlMode{};
+    ControlModes _controlMode{ ControlModes::SCENE };
 };
 
 }  // namespace tire

@@ -126,6 +126,7 @@ auto Tired::globalMousePosY() -> float {
 
 void Tired::setControlMode( int value ) {
     _controlMode = static_cast<ControlModes>( value );
+    emit controlModeChanged( value );
 }
 
 int Tired::controlMode() {

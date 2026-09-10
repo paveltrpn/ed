@@ -1,0 +1,209 @@
+// qmllint disable unqualified
+// qmllint disable Quick.property-changes-parsed
+
+import QtQuick
+import QtQuick.Layouts
+
+import Tire 1.0
+
+import "../components"
+import "../sceneinfo"
+import "../addforms"
+import "../settings"
+
+Item {
+    id: leftPanelSceneComponent
+
+    readonly property var _color: Appearence.colors
+    readonly property var _fonts: Appearence.fonts
+    readonly property var _units: Appearence.units
+
+    property var buttonsList: []
+
+    function deselectOthers(exceptItem) {
+        for (let i in leftPanelSceneComponent.buttonsList) {
+            const btn = leftPanelSceneComponent.buttonsList[i];
+            if (btn !== exceptItem) {
+                btn.checked = false;
+            }
+        }
+    }
+
+    Rectangle {
+        id: leftPanelMainComponentWrapper
+        anchors.fill: parent
+        color: _color.si_button_shadow
+
+        MouseArea {
+            id: leftEdgeMoveArea
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                left: parent.left
+            }
+            width: 4
+            cursorShape: Qt.SizeHorCursor
+            onPressed: {
+                MainWindow.resizeWindow(Qt.LeftEdge);
+            }
+        }
+
+        SIButtonMain {
+            id: addObjectButton
+
+            anchors {
+                top: parent.top
+                topMargin: leftPanelSceneComponent._units.half
+                left: parent.left
+                leftMargin: leftPanelSceneComponent._units.half
+                right: parent.right
+                rightMargin: leftPanelSceneComponent._units.half
+            }
+
+            height: _units.scaled_56
+
+            buttonLabel: "Add object"
+
+            onClicked: {
+                addObjectButton.checked = !addObjectButton.checked;
+
+                if (addObjectButton.checked) {
+                    leftPanelSceneComponent.deselectOthers(addObjectButton);
+                }
+            }
+
+            Component.onCompleted: {
+                leftPanelSceneComponent.buttonsList.push(addObjectButton);
+            }
+        }
+
+        AddPrimitivesPopup {
+            id: addPrimitivesPopupItem
+
+            anchors {
+                top: addObjectButton.bottom
+                topMargin: visible ? leftPanelSceneComponent._units.half : 0
+                left: parent.left
+                leftMargin: leftPanelSceneComponent._units.half
+                right: parent.right
+                rightMargin: leftPanelSceneComponent._units.half
+            }
+
+            visible: addObjectButton.checked
+        }
+
+        SIButtonMain {
+            id: editObjectButton
+
+            anchors {
+                top: addPrimitivesPopupItem.bottom
+                topMargin: leftPanelSceneComponent._units.half
+                left: parent.left
+                leftMargin: leftPanelSceneComponent._units.half
+                right: parent.right
+                rightMargin: leftPanelSceneComponent._units.half
+            }
+
+            height: _units.scaled_56
+
+            buttonLabel: "Edit object"
+
+            onClicked: {
+                editObjectButton.checked = !editObjectButton.checked;
+
+                if (editObjectButton.checked) {
+                    leftPanelSceneComponent.deselectOthers(editObjectButton);
+                }
+            }
+
+            Component.onCompleted: {
+                leftPanelSceneComponent.buttonsList.push(editObjectButton);
+            }
+        }
+
+        SIButtonMain {
+            id: infoButton
+
+            anchors {
+                top: editObjectButton.bottom
+                topMargin: leftPanelSceneComponent._units.half
+                left: parent.left
+                leftMargin: leftPanelSceneComponent._units.half
+                right: parent.right
+                rightMargin: leftPanelSceneComponent._units.half
+            }
+
+            height: _units.scaled_56
+
+            buttonLabel: "Info"
+
+            onClicked: {
+                infoButton.checked = !infoButton.checked;
+
+                if (infoButton.checked) {
+                    leftPanelSceneComponent.deselectOthers(infoButton);
+                }
+            }
+
+            Component.onCompleted: {
+                leftPanelSceneComponent.buttonsList.push(infoButton);
+            }
+        }
+
+        SceneInfoComponent {
+            id: sceneInfoWidget
+            anchors {
+                top: infoButton.bottom
+                topMargin: _units.half
+                left: parent.left
+                leftMargin: leftPanelSceneComponent._units.half
+                right: parent.right
+                rightMargin: leftPanelSceneComponent._units.half
+            }
+
+            visible: infoButton.checked
+        }
+
+        SIButtonMain {
+            id: settingsButton
+
+            anchors {
+                bottom: parent.bottom
+                left: parent.left
+                leftMargin: leftPanelSceneComponent._units.half
+                right: parent.right
+                rightMargin: leftPanelSceneComponent._units.half
+            }
+
+            height: _units.scaled_56
+
+            buttonLabel: "Settings"
+
+            onClicked: {
+                settingsButton.checked = !settingsButton.checked;
+
+                if (settingsButton.checked) {
+                    leftPanelSceneComponent.deselectOthers(settingsButton);
+                }
+            }
+
+            Component.onCompleted: {
+                leftPanelSceneComponent.buttonsList.push(settingsButton);
+            }
+        }
+
+        SettingsComponent {
+            id: settingsWidget
+            anchors {
+                bottom: settingsButton.top
+                bottomMargin: _units.half
+                left: parent.left
+                leftMargin: leftPanelSceneComponent._units.half
+                right: parent.right
+                rightMargin: leftPanelSceneComponent._units.half
+            }
+
+            visible: settingsButton.checked
+        }
+    }
+}
