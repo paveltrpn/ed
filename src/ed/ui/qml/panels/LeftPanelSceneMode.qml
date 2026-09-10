@@ -11,12 +11,14 @@ import "../sceneinfo"
 import "../addforms"
 import "../settings"
 
-Item {
+Rectangle {
     id: leftPanelSceneComponent
 
     readonly property var _color: Appearence.colors
     readonly property var _fonts: Appearence.fonts
     readonly property var _units: Appearence.units
+
+    color: _color.si_button_shadow
 
     property var buttonsList: []
 
@@ -29,10 +31,13 @@ Item {
         }
     }
 
-    Rectangle {
+    Item {
         id: leftPanelMainComponentWrapper
-        anchors.fill: parent
-        color: _color.si_button_shadow
+        anchors {
+            fill: parent
+            leftMargin: leftPanelSceneComponent._units.scaled_2
+            rightMargin: leftPanelSceneComponent._units.scaled_2
+        }
 
         MouseArea {
             id: leftEdgeMoveArea
@@ -55,9 +60,7 @@ Item {
                 top: parent.top
                 topMargin: leftPanelSceneComponent._units.half
                 left: parent.left
-                leftMargin: leftPanelSceneComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelSceneComponent._units.half
             }
 
             modeRelatedBgColor: _color.si_mode_scene
@@ -84,9 +87,7 @@ Item {
                 top: addObjectButton.bottom
                 topMargin: visible ? leftPanelSceneComponent._units.half : 0
                 left: parent.left
-                leftMargin: leftPanelSceneComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelSceneComponent._units.half
             }
 
             visible: addObjectButton.checked
@@ -99,9 +100,7 @@ Item {
                 top: addPrimitivesPopupItem.bottom
                 topMargin: leftPanelSceneComponent._units.half
                 left: parent.left
-                leftMargin: leftPanelSceneComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelSceneComponent._units.half
             }
 
             modeRelatedBgColor: _color.si_mode_scene
@@ -128,9 +127,7 @@ Item {
                 top: editObjectButton.bottom
                 topMargin: leftPanelSceneComponent._units.half
                 left: parent.left
-                leftMargin: leftPanelSceneComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelSceneComponent._units.half
             }
 
             modeRelatedBgColor: _color.si_mode_scene
@@ -156,9 +153,7 @@ Item {
                 top: infoButton.bottom
                 topMargin: _units.half
                 left: parent.left
-                leftMargin: leftPanelSceneComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelSceneComponent._units.half
             }
 
             visible: infoButton.checked
@@ -170,9 +165,7 @@ Item {
             anchors {
                 bottom: parent.bottom
                 left: parent.left
-                leftMargin: leftPanelSceneComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelSceneComponent._units.half
             }
 
             modeRelatedBgColor: _color.si_mode_scene
@@ -198,9 +191,7 @@ Item {
                 bottom: settingsButton.top
                 bottomMargin: _units.half
                 left: parent.left
-                leftMargin: leftPanelSceneComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelSceneComponent._units.half
             }
 
             visible: settingsButton.checked

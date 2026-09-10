@@ -11,12 +11,14 @@ import "../sceneinfo"
 import "../addforms"
 import "../settings"
 
-Item {
+Rectangle {
     id: leftPanelSystemComponent
 
     readonly property var _color: Appearence.colors
     readonly property var _fonts: Appearence.fonts
     readonly property var _units: Appearence.units
+
+    color: _color.si_button_shadow
 
     property var buttonsList: []
 
@@ -29,10 +31,13 @@ Item {
         }
     }
 
-    Rectangle {
+    Item {
         id: leftPanelMainComponentWrapper
-        anchors.fill: parent
-        color: _color.si_button_shadow
+        anchors {
+            fill: parent
+            leftMargin: leftPanelSystemComponent._units.scaled_2
+            rightMargin: leftPanelSystemComponent._units.scaled_2
+        }
 
         SIButtonMain {
             id: aboutButton
@@ -41,9 +46,7 @@ Item {
                 top: parent.top
                 topMargin: leftPanelSystemComponent._units.half
                 left: parent.left
-                leftMargin: leftPanelSystemComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelSystemComponent._units.half
             }
 
             modeRelatedBgColor: _color.si_mode_system
@@ -69,9 +72,7 @@ Item {
                 top: aboutButton.bottom
                 topMargin: visible ? _units.half : 0
                 left: parent.left
-                leftMargin: leftPanelSystemComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelSystemComponent._units.half
             }
 
             visible: aboutButton.checked
@@ -83,9 +84,7 @@ Item {
             anchors {
                 bottom: exitPanelItem.top
                 left: parent.left
-                leftMargin: leftPanelSystemComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelSystemComponent._units.half
             }
 
             modeRelatedBgColor: _color.si_mode_system
@@ -111,9 +110,7 @@ Item {
                 bottom: parent.bottom
                 bottomMargin: visible ? _units.half : 0
                 left: parent.left
-                leftMargin: leftPanelSystemComponent._units.half
                 right: parent.right
-                rightMargin: leftPanelSystemComponent._units.half
             }
 
             visible: exitButton.checked
@@ -123,7 +120,7 @@ Item {
             }
 
             onDecline: {
-                exitButton.checked = false
+                exitButton.checked = false;
             }
         }
     }
