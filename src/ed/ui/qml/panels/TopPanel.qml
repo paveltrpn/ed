@@ -22,32 +22,32 @@ Rectangle {
     // topLeftRadius: _units.radiusEight
     // topRightRadius: _units.radiusEight
 
-    MouseArea {
-        id: topEdgeMoveArea
-        anchors {
-            left: parent.left
-            right: parent.right
-            top: parent.top
-        }
-        height: _units.scaled_4
-        cursorShape: Qt.SizeVerCursor
-        onPressed: {
-            MainWindow.resizeWindow(Qt.TopEdge);
-        }
-    }
+    // MouseArea {
+    //     id: topEdgeMoveArea
+    //     anchors {
+    //         left: parent.left
+    //         right: parent.right
+    //         top: parent.top
+    //     }
+    //     height: _units.scaled_4
+    //     cursorShape: Qt.SizeVerCursor
+    //     onPressed: {
+    //         MainWindow.resizeWindow(Qt.TopEdge);
+    //     }
+    // }
 
-    MouseArea {
-        id: windowMoveArea
-        anchors {
-            left: parent.left
-            right: parent.right
-            top: topEdgeMoveArea.bottom
-            bottom: parent.bottom
-        }
-        onPressed: {
-            MainWindow.moveWindow();
-        }
-    }
+    // MouseArea {
+    //     id: windowMoveArea
+    //     anchors {
+    //         left: parent.left
+    //         right: parent.right
+    //         top: topEdgeMoveArea.bottom
+    //         bottom: parent.bottom
+    //     }
+    //     onPressed: {
+    //         MainWindow.moveWindow();
+    //     }
+    // }
 
     NpFileDialog {
         id: fileDialog
@@ -276,6 +276,7 @@ Rectangle {
             id: hatArea
             anchors {
                 top: parent.top
+                topMargin: -border.width
                 left: parent.left
                 leftMargin: _units.scaled_256
                 right: parent.right
@@ -382,71 +383,71 @@ Rectangle {
             }
         }
 
-        Item {
-            id: mainWindowDecorationWrapper
+        // Item {
+        //     id: mainWindowDecorationWrapper
 
-            anchors {
-                right: parent.right
-                rightMargin: _units.full
-                top: parent.top
-                bottom: parent.bottom
-            }
+        //     anchors {
+        //         right: parent.right
+        //         rightMargin: _units.full
+        //         top: parent.top
+        //         bottom: parent.bottom
+        //     }
 
-            width: _units.scaled_128
+        //     width: _units.scaled_128
 
-            NpButton {
-                id: maximizeWindowButton
+        //     NpButton {
+        //         id: maximizeWindowButton
 
-                anchors {
-                    right: foldWindowButton.left
-                    rightMargin: _units.scaled_4
-                    top: parent.top
-                }
+        //         anchors {
+        //             right: foldWindowButton.left
+        //             rightMargin: _units.scaled_4
+        //             top: parent.top
+        //         }
 
-                width: _units.scaled_24
-                height: _units.scaled_24
+        //         width: _units.scaled_24
+        //         height: _units.scaled_24
 
-                icon.source: "image://TiredImageProvider/arrow-up-right-from-square.svg"
-                onClicked: {}
+        //         icon.source: "image://TiredImageProvider/arrow-up-right-from-square.svg"
+        //         onClicked: {}
 
-                enabled: false
-            }
+        //         enabled: false
+        //     }
 
-            NpButton {
-                id: foldWindowButton
+        //     NpButton {
+        //         id: foldWindowButton
 
-                anchors {
-                    right: closeAppButton.left
-                    rightMargin: 4
-                    top: parent.top
-                }
+        //         anchors {
+        //             right: closeAppButton.left
+        //             rightMargin: 4
+        //             top: parent.top
+        //         }
 
-                width: _units.scaled_24
-                height: _units.scaled_24
+        //         width: _units.scaled_24
+        //         height: _units.scaled_24
 
-                icon.source: "image://TiredImageProvider/square-minus.svg"
-                onClicked: {}
+        //         icon.source: "image://TiredImageProvider/square-minus.svg"
+        //         onClicked: {}
 
-                enabled: false
-            }
+        //         enabled: false
+        //     }
 
-            NpButton {
-                id: closeAppButton
+        //     NpButton {
+        //         id: closeAppButton
 
-                anchors {
-                    right: parent.right
-                    top: parent.top
-                }
+        //         anchors {
+        //             right: parent.right
+        //             top: parent.top
+        //         }
 
-                width: _units.scaled_24
-                height: _units.scaled_24
+        //         width: _units.scaled_24
+        //         height: _units.scaled_24
 
-                icon.source: "image://TiredImageProvider/xmark-large.svg"
-                onClicked: {
-                    MainWindow.quitApplication();
-                }
-            }
-        }
+        //         icon.source: "image://TiredImageProvider/xmark-large.svg"
+        //         onClicked: {
+        //             MainWindow.quitApplication();
+        //         }
+        //     }
+        // }
         // }
     }
 }

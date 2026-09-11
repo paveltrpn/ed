@@ -22,10 +22,7 @@ struct TiredUI final : QMainWindow {
 public:
     TiredUI( QObject *parent = nullptr );
 
-    void onGlobalMouseMove( const QPointF &pos );
-
     auto writeSettings() -> void;
-
     [[maybe_unused]] auto readSettings() -> std::pair<int, int>;
 
     Q_INVOKABLE void moveWindow();

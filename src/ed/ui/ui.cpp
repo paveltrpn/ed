@@ -35,7 +35,7 @@ TiredUI::TiredUI( QObject* parent )
     _engine->addImageProvider( "TiredImageProvider", new TiredImageProvider{} );
 
     auto windowTraits = vsg::WindowTraits::create();
-    windowTraits->windowTitle = "ed";
+    // windowTraits->windowTitle = "ed";
     windowTraits->vulkanVersion = VK_MAKE_API_VERSION( 0, 1, 4, 0 );
     // windowTraits->fullscreen = true;
 
@@ -46,7 +46,7 @@ TiredUI::TiredUI( QObject* parent )
     qmlRegisterSingletonInstance( "Tire", 1, 0, "MainWindow", this );
 
     // Remove native decoration.
-    setWindowFlags( Qt::FramelessWindowHint );
+    // setWindowFlags( Qt::FramelessWindowHint );
 
     // Set transparent main window to use qml defined application
     // specific decoration.
@@ -81,7 +81,6 @@ TiredUI::TiredUI( QObject* parent )
     _rightPanel->setClearColor( Qt::transparent );
 
     const auto splitterBorderColor = _theme->getColor( "background" );
-    const auto splitterHandleWidth = _theme->getUnit( "quarter" );
 
     auto centralWidget = new QWidget{ this };
     setCentralWidget( centralWidget );
@@ -94,7 +93,7 @@ TiredUI::TiredUI( QObject* parent )
     mainColumnSplitter->setOrientation( Qt::Vertical );
     mainColumnSplitter->setStyleSheet(
         QString{ "QSplitter::handle { background-color:  %1; }" }.arg( splitterBorderColor ) );
-    mainColumnSplitter->setHandleWidth( splitterHandleWidth );
+    mainColumnSplitter->setHandleWidth( 1 );
 
     auto* hLayout = new QHBoxLayout{};
     hLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -116,7 +115,7 @@ TiredUI::TiredUI( QObject* parent )
     auto* hSplitter = new QSplitter{ this };
     hSplitter->setOrientation( Qt::Horizontal );
     hSplitter->setStyleSheet( QString{ "QSplitter::handle { background-color:  %1; }" }.arg( splitterBorderColor ) );
-    hSplitter->setHandleWidth( splitterHandleWidth );
+    hSplitter->setHandleWidth( 1 );
 
     hSplitter->addWidget( _leftPanel );
     hSplitter->addWidget( _vsgWidget );
@@ -169,18 +168,13 @@ void TiredUI::closeEvent( QCloseEvent* event ) {
     log::info()( "close event handled!" );
 }
 
-void TiredUI::onGlobalMouseMove( const QPointF& pos ) {
-    _tired->setGlobalMousePosX( pos.x() );
-    _tired->setGlobalMousePosY( pos.y() );
-}
-
 void TiredUI::moveWindow() {
-    this->windowHandle()->startSystemMove();
+    // this->windowHandle()->startSystemMove();
 }
 
 void TiredUI::resizeWindow( int edge ) {
-    const auto e = static_cast<Qt::Edge>( edge );
-    this->windowHandle()->startSystemResize( e );
+    // const auto e = static_cast<Qt::Edge>( edge );
+    // this->windowHandle()->startSystemResize( e );
 }
 
 }  // namespace tire

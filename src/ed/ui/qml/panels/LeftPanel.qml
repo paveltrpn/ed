@@ -20,19 +20,19 @@ Rectangle {
 
     color: _color.background
 
-    MouseArea {
-        id: leftEdgeMoveArea
-        anchors {
-            top: parent.top
-            bottom: parent.bottom
-            left: parent.left
-        }
-        width: 4
-        cursorShape: Qt.SizeHorCursor
-        onPressed: {
-            MainWindow.resizeWindow(Qt.LeftEdge);
-        }
-    }
+    // MouseArea {
+    //     id: leftEdgeMoveArea
+    //     anchors {
+    //         top: parent.top
+    //         bottom: parent.bottom
+    //         left: parent.left
+    //     }
+    //     width: 4
+    //     cursorShape: Qt.SizeHorCursor
+    //     onPressed: {
+    //         MainWindow.resizeWindow(Qt.LeftEdge);
+    //     }
+    // }
 
     states: [
         State {

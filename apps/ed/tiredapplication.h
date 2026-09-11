@@ -21,19 +21,8 @@ public:
 
     bool notify( QObject *receiver, QEvent *event ) override;
 
-    int exec() {
-        installEventFilter( this );
-        return QApplication::exec();
-    }
-
-signals:
-    void gobalMousePostionChanged( const QPointF &pos );
-
 protected:
-    bool eventFilter( QObject *watched, QEvent *event ) override {
-        //
-        return QApplication::eventFilter( watched, event );
-    }
+    bool eventFilter( QObject *watched, QEvent *event ) override;
 
 private:
     tire::TiredUI *_tiredUI{};
