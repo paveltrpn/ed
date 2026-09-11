@@ -10,7 +10,7 @@
 namespace tire {
 
 // forward declare
-class Window;
+class VsgWidget;
 
 class Viewer : public vsg::Inherit<vsg::Viewer, Viewer> {
 public:

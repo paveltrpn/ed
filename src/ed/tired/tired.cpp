@@ -33,7 +33,7 @@ QObject* Tired::scenegraph() const {
     return _scenegraph;
 }
 
-auto Tired::init( Window* window, uint32_t width, uint32_t height ) -> void {
+auto Tired::init( VsgWidget* window, uint32_t width, uint32_t height ) -> void {
     // Setup the camera.
     {
         auto lookAt = vsg::LookAt::create( vsg::dvec3( 3.0, -8.0, 5.0 ), vsg::dvec3{ 0.0, 0.0, 0.0 },

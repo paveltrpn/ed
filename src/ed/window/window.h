@@ -3,26 +3,21 @@
 // Portions of this code are derived from vsgQt, licensed under the MIT License.
 // See: https:/https://github.com/vsg-dev/vsgQt/LICENSE
 
-#include <QWindow>
+#include <QWidget>
 
 #include <vsg/app/Window.h>
+#include <vsg/all.h>
 
 #include "keyboard_map.h"
 #include "viewer.h"
 
 namespace tire {
 
-class Window : public QWindow {
+class VsgWidget : public QWidget {
 public:
-    Window( QScreen* targetScreen = nullptr );
-    Window( QWindow* parent );
-    Window( vsg::ref_ptr<vsg::WindowTraits> in_traits, QScreen* targetScreen = nullptr );
-    Window( vsg::ref_ptr<vsg::WindowTraits> in_traits, QWindow* parent );
-    Window( vsg::ref_ptr<Viewer> in_viewer, vsg::ref_ptr<vsg::WindowTraits> in_traits,
-            QScreen* targetScreen = nullptr );
-    Window( vsg::ref_ptr<Viewer> in_viewer, vsg::ref_ptr<vsg::WindowTraits> in_traits, QWindow* parent );
+    VsgWidget( vsg::ref_ptr<Viewer> in_viewer, vsg::ref_ptr<vsg::WindowTraits> in_traits );
 
-    virtual ~Window();
+    virtual ~VsgWidget();
 
     vsg::ref_ptr<vsg::WindowTraits> traits;
     vsg::ref_ptr<Viewer> viewer;
@@ -40,9 +35,9 @@ public:
 protected:
     void cleanup();
 
-    bool event( QEvent* e ) override;
+    // void exposeEvent( QExposeEvent* ) override;
 
-    void exposeEvent( QExposeEvent* ) override;
+    bool event( QEvent* e ) override;
     void hideEvent( QHideEvent* ev ) override;
 
     void keyPressEvent( QKeyEvent* ) override;
@@ -68,4 +63,4 @@ private:
 
 }  // namespace tire
 
-EVSG_type_name( tire::Window );
+EVSG_type_name( tire::VsgWidget );

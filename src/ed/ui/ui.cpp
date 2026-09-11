@@ -15,7 +15,7 @@ namespace tire {
 // ========== TiredUi =================================================
 // ====================================================================
 
-TiredUI::TiredUI( QObject *parent )
+TiredUI::TiredUI( QObject* parent )
     : _tired{ new tire::Tired{ this } }
     , _settings{ new QSettings{ this } }
     , _engine{ new QQmlEngine{ this } }
@@ -53,8 +53,8 @@ TiredUI::TiredUI( QObject *parent )
     setAttribute( Qt::WA_TranslucentBackground );
 
     // VSG initialization.
-    _vsgWindow = new Window( _tired->viewer(), windowTraits );
-    _vsgWindow->setTitle( "title" );
+    _vsgWindow = new VsgWidget( _tired->viewer(), windowTraits );
+    // _vsgWindow->setTitle( "title" );
     _vsgWindow->initializeWindow();
 
     const auto clearColor = QColor{ _theme->getColor( "clear_color" ) };
@@ -62,9 +62,6 @@ TiredUI::TiredUI( QObject *parent )
                                                       1.0f );
 
     _tired->init( _vsgWindow, windowTraits->width, windowTraits->height );
-
-    // Qt widgets initialization.
-    _vsgWidget = QWidget::createWindowContainer( _vsgWindow, this );
 
     _topPanel->setSource( QUrl::fromLocalFile( "../src/ed/ui/qml/panels/TopPanel.qml" ) );
     _topPanel->setResizeMode( QQuickWidget::SizeRootObjectToView );
@@ -90,17 +87,17 @@ TiredUI::TiredUI( QObject *parent )
     auto centralWidget = new QWidget{ this };
     setCentralWidget( centralWidget );
 
-    auto *mainColumnLayout = new QVBoxLayout{};
+    auto* mainColumnLayout = new QVBoxLayout{};
     mainColumnLayout->setContentsMargins( 0, 0, 0, 0 );
     centralWidget->setLayout( mainColumnLayout );
 
-    auto *mainColumnSplitter = new QSplitter{ this };
+    auto* mainColumnSplitter = new QSplitter{ this };
     mainColumnSplitter->setOrientation( Qt::Vertical );
     mainColumnSplitter->setStyleSheet(
         QString{ "QSplitter::handle { background-color:  %1; }" }.arg( splitterBorderColor ) );
     mainColumnSplitter->setHandleWidth( splitterHandleWidth );
 
-    auto *hLayout = new QHBoxLayout{};
+    auto* hLayout = new QHBoxLayout{};
     hLayout->setContentsMargins( 0, 0, 0, 0 );
 
     auto middleElementsWidget = new QWidget{ this };
@@ -117,13 +114,13 @@ TiredUI::TiredUI( QObject *parent )
 
     mainColumnLayout->addWidget( mainColumnSplitter );
 
-    auto *hSplitter = new QSplitter{ this };
+    auto* hSplitter = new QSplitter{ this };
     hSplitter->setOrientation( Qt::Horizontal );
     hSplitter->setStyleSheet( QString{ "QSplitter::handle { background-color:  %1; }" }.arg( splitterBorderColor ) );
     hSplitter->setHandleWidth( splitterHandleWidth );
 
     hSplitter->addWidget( _leftPanel );
-    hSplitter->addWidget( _vsgWidget );
+    hSplitter->addWidget( _vsgWindow );
     hSplitter->addWidget( _rightPanel );
 
     const auto leftPanelWidth = static_cast<int>( windowWidth * 0.08f );
@@ -167,13 +164,13 @@ void TiredUI::quitApplication() {
     QApplication::quit();
 }
 
-void TiredUI::closeEvent( QCloseEvent *event ) {
+void TiredUI::closeEvent( QCloseEvent* event ) {
     writeSettings();
 
     log::info()( "close event handled!" );
 }
 
-void TiredUI::onGlobalMouseMove( const QPointF &pos ) {
+void TiredUI::onGlobalMouseMove( const QPointF& pos ) {
     _tired->setGlobalMousePosX( pos.x() );
     _tired->setGlobalMousePosY( pos.y() );
 }

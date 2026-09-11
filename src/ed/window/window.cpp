@@ -29,58 +29,8 @@
 
 namespace tire {
 
-Window::Window( QScreen* targetScreen )
-    : QWindow( targetScreen )
-    , traits( vsg::WindowTraits::create() )
-    , keyboardMap( KeyboardMap::create() ) {
-    traits->x = x();
-    traits->y = y();
-    traits->width = width();
-    traits->height = height();
-}
-
-Window::Window( QWindow* parent )
-    : QWindow( parent )
-    , traits( vsg::WindowTraits::create() )
-    , keyboardMap( KeyboardMap::create() ) {
-    traits->x = x();
-    traits->y = y();
-    traits->width = width();
-    traits->height = height();
-}
-
-Window::Window( vsg::ref_ptr<vsg::WindowTraits> in_traits, QScreen* targetScreen )
-    : QWindow( targetScreen )
-    , keyboardMap( KeyboardMap::create() ) {
-    if ( in_traits ) {
-        traits = vsg::WindowTraits::create( *in_traits );
-        setGeometry( traits->x, traits->y, traits->width, traits->height );
-    } else {
-        traits = vsg::WindowTraits::create();
-        traits->x = x();
-        traits->y = y();
-        traits->width = width();
-        traits->height = height();
-    }
-}
-
-Window::Window( vsg::ref_ptr<vsg::WindowTraits> in_traits, QWindow* parent )
-    : QWindow( parent )
-    , keyboardMap( KeyboardMap::create() ) {
-    if ( in_traits ) {
-        traits = vsg::WindowTraits::create( *in_traits );
-        setGeometry( traits->x, traits->y, traits->width, traits->height );
-    } else {
-        traits = vsg::WindowTraits::create();
-        traits->x = x();
-        traits->y = y();
-        traits->width = width();
-        traits->height = height();
-    }
-}
-
-Window::Window( vsg::ref_ptr<Viewer> in_viewer, vsg::ref_ptr<vsg::WindowTraits> in_traits, QScreen* targetScreen )
-    : QWindow( targetScreen )
+VsgWidget::VsgWidget( vsg::ref_ptr<Viewer> in_viewer, vsg::ref_ptr<vsg::WindowTraits> in_traits )
+    : QWidget()
     , viewer( in_viewer )
     , keyboardMap( KeyboardMap::create() ) {
     if ( in_traits ) {
@@ -95,27 +45,11 @@ Window::Window( vsg::ref_ptr<Viewer> in_viewer, vsg::ref_ptr<vsg::WindowTraits> 
     }
 }
 
-Window::Window( vsg::ref_ptr<Viewer> in_viewer, vsg::ref_ptr<vsg::WindowTraits> in_traits, QWindow* parent )
-    : QWindow( parent )
-    , viewer( in_viewer )
-    , keyboardMap( KeyboardMap::create() ) {
-    if ( in_traits ) {
-        traits = vsg::WindowTraits::create( *in_traits );
-        setGeometry( traits->x, traits->y, traits->width, traits->height );
-    } else {
-        traits = vsg::WindowTraits::create();
-        traits->x = x();
-        traits->y = y();
-        traits->width = width();
-        traits->height = height();
-    }
-}
-
-Window::~Window() {
+VsgWidget::~VsgWidget() {
     cleanup();
 }
 
-void Window::initializeWindow() {
+void VsgWidget::initializeWindow() {
     if ( windowAdapter ) {
         return;
     }
@@ -146,7 +80,7 @@ void Window::initializeWindow() {
     _initialized = true;
 }
 
-void Window::cleanup() {
+void VsgWidget::cleanup() {
     // remove links to all the VSG related classes.
     if ( windowAdapter ) {
         // wait for all rendering to be completed before we start cleaning up resources.
@@ -162,7 +96,15 @@ void Window::cleanup() {
     viewer = {};
 }
 
-bool Window::event( QEvent* e ) {
+// void Window::exposeEvent( QExposeEvent* /*e*/ ) {
+//     if ( !_initialized && isExposed() ) {
+//         initializeWindow();
+//     }
+
+//     if ( viewer ) viewer->request();
+// }
+
+bool VsgWidget::event( QEvent* e ) {
     switch ( e->type() ) {
         case QEvent::PlatformSurface: {
             auto surfaceEvent = dynamic_cast<QPlatformSurfaceEvent*>( e );
@@ -179,21 +121,13 @@ bool Window::event( QEvent* e ) {
             break;
     }
 
-    return QWindow::event( e );
+    return QWidget::event( e );
 }
 
-void Window::exposeEvent( QExposeEvent* /*e*/ ) {
-    if ( !_initialized && isExposed() ) {
-        initializeWindow();
-    }
-
-    if ( viewer ) viewer->request();
+void VsgWidget::hideEvent( QHideEvent* /*e*/ ) {
 }
 
-void Window::hideEvent( QHideEvent* /*e*/ ) {
-}
-
-void Window::resizeEvent( QResizeEvent* /*e*/ ) {
+void VsgWidget::resizeEvent( QResizeEvent* /*e*/ ) {
     if ( !windowAdapter ) return;
 
     vsg::clock::time_point event_time = vsg::clock::now();
@@ -206,7 +140,7 @@ void Window::resizeEvent( QResizeEvent* /*e*/ ) {
     if ( viewer ) viewer->request();
 }
 
-void Window::keyPressEvent( QKeyEvent* e ) {
+void VsgWidget::keyPressEvent( QKeyEvent* e ) {
     if ( !windowAdapter ) return;
 
     vsg::KeySymbol keySymbol, modifiedKeySymbol;
@@ -221,7 +155,7 @@ void Window::keyPressEvent( QKeyEvent* e ) {
     if ( viewer ) viewer->request();
 }
 
-void Window::keyReleaseEvent( QKeyEvent* e ) {
+void VsgWidget::keyReleaseEvent( QKeyEvent* e ) {
     if ( !windowAdapter ) return;
 
     vsg::KeySymbol keySymbol, modifiedKeySymbol;
@@ -236,7 +170,7 @@ void Window::keyReleaseEvent( QKeyEvent* e ) {
     if ( viewer ) viewer->request();
 }
 
-void Window::mouseMoveEvent( QMouseEvent* e ) {
+void VsgWidget::mouseMoveEvent( QMouseEvent* e ) {
     if ( !windowAdapter ) return;
 
     vsg::clock::time_point event_time = vsg::clock::now();
@@ -249,7 +183,7 @@ void Window::mouseMoveEvent( QMouseEvent* e ) {
     if ( viewer ) viewer->request();
 }
 
-void Window::mousePressEvent( QMouseEvent* e ) {
+void VsgWidget::mousePressEvent( QMouseEvent* e ) {
     if ( !windowAdapter ) return;
 
     vsg::clock::time_point event_time = vsg::clock::now();
@@ -263,7 +197,7 @@ void Window::mousePressEvent( QMouseEvent* e ) {
     if ( viewer ) viewer->request();
 }
 
-void Window::mouseReleaseEvent( QMouseEvent* e ) {
+void VsgWidget::mouseReleaseEvent( QMouseEvent* e ) {
     if ( !windowAdapter ) return;
 
     vsg::clock::time_point event_time = vsg::clock::now();
@@ -277,7 +211,7 @@ void Window::mouseReleaseEvent( QMouseEvent* e ) {
     if ( viewer ) viewer->request();
 }
 
-void Window::wheelEvent( QWheelEvent* e ) {
+void VsgWidget::wheelEvent( QWheelEvent* e ) {
     if ( !windowAdapter ) return;
 
     vsg::clock::time_point event_time = vsg::clock::now();
@@ -288,7 +222,7 @@ void Window::wheelEvent( QWheelEvent* e ) {
     if ( viewer ) viewer->request();
 }
 
-std::pair<vsg::ButtonMask, uint32_t> Window::convertMouseButtons( QMouseEvent* e ) const {
+std::pair<vsg::ButtonMask, uint32_t> VsgWidget::convertMouseButtons( QMouseEvent* e ) const {
     uint16_t mask{ 0 };
     uint32_t button = 0;
 
@@ -313,7 +247,7 @@ std::pair<vsg::ButtonMask, uint32_t> Window::convertMouseButtons( QMouseEvent* e
     return { static_cast<vsg::ButtonMask>( mask ), button };
 }
 
-std::pair<int32_t, int32_t> Window::convertMousePosition( QMouseEvent* e ) const {
+std::pair<int32_t, int32_t> VsgWidget::convertMousePosition( QMouseEvent* e ) const {
 #if QT_VERSION_MAJOR == 6
     return { convert_coord( e->position().x() ), convert_coord( e->position().y() ) };
 #else

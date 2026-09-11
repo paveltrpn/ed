@@ -46,7 +46,7 @@ private:
     QQmlEngine *_engine{};
     QQmlContext *_context{};
 
-    Window *_vsgWindow{};
+    VsgWidget *_vsgWindow{};
     QWidget *_vsgWidget{};
 
     QQuickWidget *_topPanel{};
@@ -55,6 +55,8 @@ private:
     QQuickWidget *_rightPanel{};
 
     Appearance *_theme;
+
+    vsg::ref_ptr<KeyboardMap> keyboardMap;
 };
 
 }  // namespace tire
