@@ -32,6 +32,7 @@
     "si_text_light": "white",
     "si_text_light_faded": "#5d5d5b",
     "si_text_dark": "#090806",
+    "si_button_underlying": "#90917e",
     "si_button_shadow": "#2b2c23",
     "si_button_press_area": "#111210",
     "si_mode_system": "#3e265b",

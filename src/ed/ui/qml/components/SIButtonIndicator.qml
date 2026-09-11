@@ -14,57 +14,35 @@ Item {
     readonly property var _fonts: Appearence.fonts
     readonly property var _units: Appearence.units
 
-    property color backgroundColor: "#90917e"
-
     property alias buttonLabel: buttonLabel.text
     property alias text: textInputComponent.text
 
     property string modeRelatedBgColor
 
-    // states: [
-    //     State {
-    //         when: control.down
-    //         PropertyChanges {
-    //             target: control
-    //             backgroundColor: control.modeRelatedBgColor
-    //         }
-    //         PropertyChanges {
-    //             target: pressAreaRect
-    //             x: 0
-    //             y: 0
-    //         }
-    //         PropertyChanges {
-    //             target: buttonLabel
-    //             color: _color.si_text_light
-    //         }
-    //     },
-    //     State {
-    //         when: control.hovered && !control.checked
-    //         PropertyChanges {
-    //             target: control
-    //             backgroundColor: control.modeRelatedBgColor
-    //         }
-    //         PropertyChanges {
-    //             target: buttonLabel
-    //             color: _color.si_text_light_faded
-    //         }
-    //     },
-    //     State {
-    //         when: control.checked
-    //         PropertyChanges {
-    //             target: control
-    //             backgroundColor: control.modeRelatedBgColor
-    //         }
-    //         PropertyChanges {
-    //             target: buttonLabel
-    //             color: _color.si_text_light
-    //         }
-    //     }
-    // ]
+    // "0" - from left to right.
+    // "1" - from right to left.
+    property int pressAreaAlignment: 0
+
+    states: [
+        State {
+            when: indicatorArea.containsMouse || textInputComponent.focus
+            PropertyChanges {
+                target: buttonLabel
+                color: _color.si_text_light
+            }
+        },
+        State {
+            when: !indicatorArea.containsMouse
+            PropertyChanges {
+                target: buttonLabel
+                color: _color.si_text_light_faded
+            }
+        }
+    ]
 
     Rectangle {
         id: bottomRect
-        color: backgroundColor
+        color: _color.si_button_underlying
         anchors {
             fill: control
         }
@@ -76,8 +54,8 @@ Item {
                 fill: parent
                 topMargin: 10
                 bottomMargin: 6
-                leftMargin: 6
-                rightMargin: 10
+                leftMargin: (pressAreaAlignment === 0) ? 6 : 10
+                rightMargin: (pressAreaAlignment === 0) ? 10 : 6
             }
             Rectangle {
                 id: pressAreaRect
@@ -86,8 +64,18 @@ Item {
                 width: shadowRect.width
                 height: shadowRect.height
 
-                x: 4
+                x: (pressAreaAlignment === 0) ? 4 : -4
                 y: -4
+
+                MouseArea {
+                    id: indicatorArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+
+                    onClicked: {
+                        textInputComponent.focus = true
+                    }
+                }
 
                 Text {
                     id: buttonLabel
@@ -122,7 +110,7 @@ Item {
                         topMargin: _units.scaled_20
                     }
 
-                    color: backgroundColor
+                    color: _color.si_button_underlying
                     font: _fonts.label
                     verticalAlignment: Text.AlignVCenter
 
@@ -131,11 +119,15 @@ Item {
                     clip: true
 
                     Rectangle {
+                        id: borderRect
                         z: -1
-                        anchors.fill: parent
+                        anchors {
+                            fill: parent
+                            bottomMargin: -borderRect.border.width
+                        }
                         color: _color.si_button_press_area
 
-                        border.color: backgroundColor
+                        border.color: _color.si_button_underlying
                         border.width: _units.scaled_1
                         radius: 0
 
@@ -147,7 +139,6 @@ Item {
                     }
                 }
             }
-
         }
     }
 }

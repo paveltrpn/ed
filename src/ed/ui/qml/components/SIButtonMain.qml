@@ -14,11 +14,15 @@ QuickTemplates.Button {
     readonly property var _fonts: Appearence.fonts
     readonly property var _units: Appearence.units
 
-    property color backgroundColor: "#90917e"
+    property color backgroundColor: _color.si_button_underlying
 
     property alias buttonLabel: buttonLabel.text
 
     property string modeRelatedBgColor
+
+    // "0" - from left to right.
+    // "1" - from right to left.
+    property int pressAreaAlignment: 0
 
     states: [
         State {
@@ -75,8 +79,8 @@ QuickTemplates.Button {
                 fill: parent
                 topMargin: 10
                 bottomMargin: 6
-                leftMargin: 6
-                rightMargin: 10
+                leftMargin: (pressAreaAlignment === 0) ? 6 : 10
+                rightMargin: (pressAreaAlignment === 0) ? 10 : 6
             }
             Rectangle {
                 id: pressAreaRect
@@ -85,7 +89,7 @@ QuickTemplates.Button {
                 width: shadowRect.width
                 height: shadowRect.height
 
-                x: 4
+                x: pressAreaAlignment === 0 ? 4 : -4
                 y: -4
 
                 Text {

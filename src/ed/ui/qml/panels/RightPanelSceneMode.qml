@@ -56,6 +56,8 @@ Rectangle {
             SIButtonIndicator {
                 id: scaleXButton
 
+                pressAreaAlignment: 1
+
                 anchors {
                     top: parent.top
 
@@ -72,6 +74,8 @@ Rectangle {
             SIButtonIndicator {
                 id: scaleYButton
 
+                pressAreaAlignment: 1
+
                 anchors {
                     top: scaleXButton.bottom
                     left: parent.left
@@ -86,6 +90,8 @@ Rectangle {
 
             SIButtonIndicator {
                 id: scaleZButton
+
+                pressAreaAlignment: 1
 
                 anchors {
                     top: scaleYButton.bottom
@@ -115,6 +121,8 @@ Rectangle {
             SIButtonIndicator {
                 id: rotXButton
 
+                pressAreaAlignment: 1
+
                 anchors {
                     top: parent.top
 
@@ -131,6 +139,8 @@ Rectangle {
             SIButtonIndicator {
                 id: rotYButton
 
+                pressAreaAlignment: 1
+
                 anchors {
                     top: rotXButton.bottom
                     left: parent.left
@@ -145,6 +155,8 @@ Rectangle {
 
             SIButtonIndicator {
                 id: rotZButton
+
+                pressAreaAlignment: 1
 
                 anchors {
                     top: rotYButton.bottom
@@ -174,6 +186,8 @@ Rectangle {
             SIButtonIndicator {
                 id: transXButton
 
+                pressAreaAlignment: 1
+
                 anchors {
                     top: parent.top
 
@@ -190,6 +204,8 @@ Rectangle {
             SIButtonIndicator {
                 id: transYButton
 
+                pressAreaAlignment: 1
+
                 anchors {
                     top: transXButton.bottom
                     left: parent.left
@@ -204,6 +220,8 @@ Rectangle {
 
             SIButtonIndicator {
                 id: transZButton
+
+                pressAreaAlignment: 1
 
                 anchors {
                     top: transYButton.bottom

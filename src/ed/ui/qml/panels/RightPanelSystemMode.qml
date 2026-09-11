@@ -41,20 +41,5 @@ Rectangle {
                 MainWindow.resizeWindow(Qt.LeftEdge);
             }
         }
-
-        SIButtonIndicator {
-            id: dummyButton
-
-            anchors {
-                top: parent.top
-                topMargin: rightPanelSystemComponent._units.half
-                left: parent.left
-                right: parent.right
-            }
-
-            modeRelatedBgColor: _color.si_mode_scene
-            height: _units.scaled_56
-            buttonLabel: "DUMMY SYSTEM"
-        }
     }
 }
