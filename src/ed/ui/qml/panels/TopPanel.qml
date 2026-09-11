@@ -401,6 +401,8 @@ Rectangle {
                 color: _color.si_background_dark
             }
 
+            clip: true
+
             Text {
                 id: eyePosLabel
                 anchors {
