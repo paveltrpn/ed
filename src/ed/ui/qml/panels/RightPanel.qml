@@ -33,9 +33,41 @@ Rectangle {
         }
     }
 
-    Rectangle {
-        id: rightPanelMainComponentWrapper
+    states: [
+        State {
+            name: "scene_mode"
+            when: Tired.controlMode == 0
+            PropertyChanges {
+                target: rightPanelSceneModeItem
+                visible: true
+            }
+            PropertyChanges {
+                target: rightPanelSystemModeItem
+                visible: false
+            }
+        },
+
+        State {
+            name: "system_mode"
+            when: Tired.controlMode == 1
+            PropertyChanges {
+                target: rightPanelSceneModeItem
+                visible: false
+            }
+            PropertyChanges {
+                target: rightPanelSystemModeItem
+                visible: true
+            }
+        }
+    ]
+
+    RightPanelSceneMode {
+        id: rightPanelSceneModeItem
         anchors.fill: parent
-        color: _color.si_button_shadow
+    }
+
+    RightPanelSystemMode {
+        id: rightPanelSystemModeItem
+        anchors.fill: parent
     }
 }
