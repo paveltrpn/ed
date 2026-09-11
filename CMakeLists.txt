@@ -220,25 +220,6 @@ target_link_libraries(ed_ui
 )
 
 # ================================
-# Module qt_window
-# ================================
-file(GLOB MOD_QT_WINDOW_SRC "src/ed/window/*.cpp" "src/ed/window/*.h")
-add_library(qt_window ${MOD_QT_WINDOW_SRC})
-set_target_properties(qt_window PROPERTIES AUTOMOC TRUE)
-target_link_libraries(qt_window
-    vsg
-    xcb
-    Qt::Core
-    Qt::Gui
-    Qt::Quick
-    Qt::Qml
-    Qt::QuickWidgets
-    Qt::QuickControls2
-    Qt::QuickLayouts
-    vsg
-)
-
-# ================================
 # tire editor executable
 # ================================
 set(TIRE_EDITOR_EXE ed)
@@ -271,13 +252,11 @@ target_link_libraries(${TIRE_EDITOR_EXE}
     Qt::QuickControls2
     Qt::QuickLayouts
     tired
-    qt_window
     ed_ui
     tired
     vsg
     ed_ui
     tired
-    qt_window
     mesh
 )
     

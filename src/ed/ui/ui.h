@@ -7,7 +7,7 @@
 #include <QMainWindow>
 #include <QSettings>
 
-#include "ed/window/window.h"
+#include "window.h"
 
 #include "appearance.h"
 #include "ed/tired/tired.h"
