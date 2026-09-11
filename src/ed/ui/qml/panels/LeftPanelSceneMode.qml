@@ -39,20 +39,6 @@ Rectangle {
             rightMargin: leftPanelSceneComponent._units.scaled_2
         }
 
-        MouseArea {
-            id: leftEdgeMoveArea
-            anchors {
-                top: parent.top
-                bottom: parent.bottom
-                left: parent.left
-            }
-            width: 4
-            cursorShape: Qt.SizeHorCursor
-            onPressed: {
-                MainWindow.resizeWindow(Qt.LeftEdge);
-            }
-        }
-
         SIButtonMain {
             id: addObjectButton
 
