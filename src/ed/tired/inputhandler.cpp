@@ -9,6 +9,48 @@
 
 namespace tire {
 
+// ======================================================================================
+// ==================== InputHandler ====================================================
+// ======================================================================================
+
+InputHandler::InputHandler( vsg::ref_ptr<vsg::Camera> camera, vsg::ref_ptr<vsg::Viewer> viwer, Scenegraph* scenegraph,
+                            QObject* parent )
+    : QObject{ parent }
+    , _handler{ new Handler{ this } }
+    , _camera{ camera }
+    , _viewer{ viwer }
+    , _scenegraph{ scenegraph } {
+}
+
+auto InputHandler::handler() -> const vsg::ref_ptr<Handler> {
+    return _handler;
+}
+
+auto InputHandler::camera() -> vsg::ref_ptr<vsg::Camera> {
+    return _camera;
+}
+
+auto InputHandler::viewer() -> const vsg::ref_ptr<vsg::Viewer> {
+    return _viewer;
+};
+
+auto InputHandler::scenegraph() -> const Scenegraph* {
+    return _scenegraph;
+}
+
+void InputHandler::setMousePos( QPoint value ) {
+    mousePos_ = value;
+    emit mousePosUpdated();
+}
+
+QPoint InputHandler::mousePos() {
+    return mousePos_;
+}
+
+// ======================================================================================
+// ==================== Handler =========================================================
+// ======================================================================================
+
 Handler::Handler( InputHandler* inputHandler )
     : vsg::Visitor{}
     , _inputHandler{ inputHandler } {
@@ -113,42 +155,6 @@ void Handler::lineSegmentIntersector( vsg::PointerEvent& pointerEvent ) {
             }
         }
     }
-}
-
-// =======================================================================
-
-InputHandler::InputHandler( vsg::ref_ptr<vsg::Camera> camera, vsg::ref_ptr<vsg::Viewer> viwer, Scenegraph* scenegraph,
-                            QObject* parent )
-    : QObject{ parent }
-    , _handler{ new Handler{ this } }
-    , _camera{ camera }
-    , _viewer{ viwer }
-    , _scenegraph{ scenegraph } {
-}
-
-auto InputHandler::handler() -> const vsg::ref_ptr<Handler> {
-    return _handler;
-}
-
-auto InputHandler::camera() -> vsg::ref_ptr<vsg::Camera> {
-    return _camera;
-}
-
-auto InputHandler::viewer() -> const vsg::ref_ptr<vsg::Viewer> {
-    return _viewer;
-};
-
-auto InputHandler::scenegraph() -> const Scenegraph* {
-    return _scenegraph;
-}
-
-void InputHandler::setMousePos( QPoint value ) {
-    mousePos_ = value;
-    emit mousePosUpdated();
-}
-
-QPoint InputHandler::mousePos() {
-    return mousePos_;
 }
 
 }  // namespace tire

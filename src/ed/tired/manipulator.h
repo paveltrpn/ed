@@ -11,10 +11,15 @@
 #include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/ui/TouchEvent.h>
 
-#include "trackball.h"
 #include "inputhandler.h"
 
 namespace tire {
+
+struct Trackball;
+
+// ======================================================================================
+// ==================== Manipulator =======================================================
+// ======================================================================================
 
 struct Manipulator final : QObject {
     Q_OBJECT
@@ -29,6 +34,18 @@ private:
     vsg::ref_ptr<Trackball> _trackball{};
 
     QPoint mousePos_{};
+};
+
+// ======================================================================================
+// ==================== Trackball =======================================================
+// ======================================================================================
+
+struct Trackball final : public vsg::Trackball {
+    Trackball( vsg::ref_ptr<vsg::Camera> camera, vsg::ref_ptr<vsg::EllipsoidModel> ellipsoidModel = {} );
+
+    void apply( vsg::MoveEvent& moveEvent ) override;
+
+private:
 };
 
 }  // namespace tire

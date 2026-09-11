@@ -15,37 +15,11 @@
 
 namespace tire {
 
-struct InputHandler;
+struct Handler;
 
-struct Handler final : vsg::Visitor {
-    vsg::KeySymbol closeKey = vsg::KEY_Escape;
-
-    Handler( InputHandler* inputHandler );
-
-    void apply( vsg::KeyPressEvent& keyPress ) override;
-    void apply( vsg::KeyReleaseEvent& keyRelease ) override;
-    void apply( vsg::FocusInEvent& focusIn ) override;
-    void apply( vsg::FocusOutEvent& focusOut ) override;
-    void apply( vsg::ButtonPressEvent& buttonPress ) override;
-    void apply( vsg::ButtonReleaseEvent& buttonRelease ) override;
-    void apply( vsg::MoveEvent& moveEvent ) override;
-    void apply( vsg::ScrollWheelEvent& scrollWheel ) override;
-    void apply( vsg::TouchDownEvent& touchDown ) override;
-    void apply( vsg::TouchUpEvent& touchUp ) override;
-    void apply( vsg::TouchMoveEvent& touchMove ) override;
-    void apply( vsg::FrameEvent& frame ) override;
-    void apply( vsg::CloseWindowEvent& ) override;
-    void apply( vsg::TerminateEvent& ) override;
-
-private:
-    void close();
-    void lineSegmentIntersector( vsg::PointerEvent& pointerEvent );
-
-private:
-    InputHandler* _inputHandler{};
-};
-
-// =======================================================================
+// ======================================================================================
+// ==================== InputHandler ====================================================
+// ======================================================================================
 
 struct InputHandler final : QObject {
     Q_OBJECT
@@ -79,6 +53,38 @@ private:
     Scenegraph* _scenegraph{};
 
     QPoint mousePos_{};
+};
+
+// ======================================================================================
+// ==================== Handler =========================================================
+// ======================================================================================
+
+struct Handler final : vsg::Visitor {
+    vsg::KeySymbol closeKey = vsg::KEY_Escape;
+
+    Handler( InputHandler* inputHandler );
+
+    void apply( vsg::KeyPressEvent& keyPress ) override;
+    void apply( vsg::KeyReleaseEvent& keyRelease ) override;
+    void apply( vsg::FocusInEvent& focusIn ) override;
+    void apply( vsg::FocusOutEvent& focusOut ) override;
+    void apply( vsg::ButtonPressEvent& buttonPress ) override;
+    void apply( vsg::ButtonReleaseEvent& buttonRelease ) override;
+    void apply( vsg::MoveEvent& moveEvent ) override;
+    void apply( vsg::ScrollWheelEvent& scrollWheel ) override;
+    void apply( vsg::TouchDownEvent& touchDown ) override;
+    void apply( vsg::TouchUpEvent& touchUp ) override;
+    void apply( vsg::TouchMoveEvent& touchMove ) override;
+    void apply( vsg::FrameEvent& frame ) override;
+    void apply( vsg::CloseWindowEvent& ) override;
+    void apply( vsg::TerminateEvent& ) override;
+
+private:
+    void close();
+    void lineSegmentIntersector( vsg::PointerEvent& pointerEvent );
+
+private:
+    InputHandler* _inputHandler{};
 };
 
 }  // namespace tire
