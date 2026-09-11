@@ -61,8 +61,6 @@ QuickTemplates.Button {
         }
     ]
 
-    property color textColor: _color.main_contrast
-
     Rectangle {
         id: bottomRect
         color: backgroundColor

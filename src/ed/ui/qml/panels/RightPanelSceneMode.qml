@@ -42,8 +42,8 @@ Rectangle {
             }
         }
 
-        SIButtonIndicator {
-            id: dummyButton
+        Item {
+            id: scaleButtonsWrapper
 
             anchors {
                 top: parent.top
@@ -52,13 +52,170 @@ Rectangle {
                 right: parent.right
             }
 
-            modeRelatedBgColor: _color.si_mode_scene
-            height: _units.scaled_56
-            buttonLabel: "DUMMY SCENE"
+            height: scaleXButton.height + scaleYButton.height + scaleZButton.height
+            SIButtonIndicator {
+                id: scaleXButton
 
-            onClicked: {}
+                anchors {
+                    top: parent.top
 
-            Component.onCompleted: {}
+                    left: parent.left
+                    right: parent.right
+                }
+
+                modeRelatedBgColor: _color.si_mode_scene
+                height: _units.scaled_56
+                buttonLabel: "ScaleX"
+                text: " ... "
+            }
+
+            SIButtonIndicator {
+                id: scaleYButton
+
+                anchors {
+                    top: scaleXButton.bottom
+                    left: parent.left
+                    right: parent.right
+                }
+
+                modeRelatedBgColor: _color.si_mode_scene
+                height: _units.scaled_56
+                buttonLabel: "ScaleY"
+                text: " ... "
+            }
+
+            SIButtonIndicator {
+                id: scaleZButton
+
+                anchors {
+                    top: scaleYButton.bottom
+                    left: parent.left
+                    right: parent.right
+                }
+
+                modeRelatedBgColor: _color.si_mode_scene
+                height: _units.scaled_56
+                buttonLabel: "ScaleZ"
+                text: " ... "
+            }
+        }
+
+        Item {
+            id: rotButtonsWrapper
+
+            anchors {
+                top: scaleButtonsWrapper.bottom
+                topMargin: rightPanelSceneComponent._units.half
+                left: parent.left
+                right: parent.right
+            }
+
+            height: rotXButton.height + rotYButton.height + rotZButton.height
+
+            SIButtonIndicator {
+                id: rotXButton
+
+                anchors {
+                    top: parent.top
+
+                    left: parent.left
+                    right: parent.right
+                }
+
+                modeRelatedBgColor: _color.si_mode_scene
+                height: _units.scaled_56
+                buttonLabel: "RotX"
+                text: " ... "
+            }
+
+            SIButtonIndicator {
+                id: rotYButton
+
+                anchors {
+                    top: rotXButton.bottom
+                    left: parent.left
+                    right: parent.right
+                }
+
+                modeRelatedBgColor: _color.si_mode_scene
+                height: _units.scaled_56
+                buttonLabel: "RotY"
+                text: " ... "
+            }
+
+            SIButtonIndicator {
+                id: rotZButton
+
+                anchors {
+                    top: rotYButton.bottom
+                    left: parent.left
+                    right: parent.right
+                }
+
+                modeRelatedBgColor: _color.si_mode_scene
+                height: _units.scaled_56
+                buttonLabel: "RotZ"
+                text: " ... "
+            }
+        }
+
+        Item {
+            id: transButtonsWrapper
+
+            anchors {
+                top: rotButtonsWrapper.bottom
+                topMargin: rightPanelSceneComponent._units.half
+                left: parent.left
+                right: parent.right
+            }
+
+            height: transXButton.height + transYButton.height + transZButton.height
+
+            SIButtonIndicator {
+                id: transXButton
+
+                anchors {
+                    top: parent.top
+
+                    left: parent.left
+                    right: parent.right
+                }
+
+                modeRelatedBgColor: _color.si_mode_scene
+                height: _units.scaled_56
+                buttonLabel: "TransX"
+                text: " ... "
+            }
+
+            SIButtonIndicator {
+                id: transYButton
+
+                anchors {
+                    top: transXButton.bottom
+                    left: parent.left
+                    right: parent.right
+                }
+
+                modeRelatedBgColor: _color.si_mode_scene
+                height: _units.scaled_56
+                buttonLabel: "TransY"
+                text: " ... "
+            }
+
+            SIButtonIndicator {
+                id: transZButton
+
+                anchors {
+                    top: transYButton.bottom
+                    left: parent.left
+                    right: parent.right
+                }
+
+                modeRelatedBgColor: _color.si_mode_scene
+                height: _units.scaled_56
+                buttonLabel: "TransZ"
+                text: " ... "
+            }
         }
     }
 }

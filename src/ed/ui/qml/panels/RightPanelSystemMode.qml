@@ -55,10 +55,6 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             height: _units.scaled_56
             buttonLabel: "DUMMY SYSTEM"
-
-            onClicked: {}
-
-            Component.onCompleted: {}
         }
     }
 }
