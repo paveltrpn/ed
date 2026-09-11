@@ -19,8 +19,8 @@ Rectangle {
 
     color: _color.background
 
-    bottomLeftRadius:  _units.radiusEight
-    bottomRightRadius: _units.radiusEight
+    // bottomLeftRadius:  _units.radiusEight
+    // bottomRightRadius: _units.radiusEight
 
     MouseArea {
         id: bottomEdgeMoveArea

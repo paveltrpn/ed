@@ -50,7 +50,7 @@ TiredUI::TiredUI( QObject* parent )
 
     // Set transparent main window to use qml defined application
     // specific decoration.
-    setAttribute( Qt::WA_TranslucentBackground );
+    // setAttribute( Qt::WA_TranslucentBackground );
 
     // VSG initialization.
     _vsgWidget = new VsgWidget( _tired->viewer(), windowTraits );

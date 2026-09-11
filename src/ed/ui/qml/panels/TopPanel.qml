@@ -17,10 +17,10 @@ Rectangle {
     readonly property var _fonts: Appearence.fonts
     readonly property var _units: Appearence.units
 
-    color: _color.background
+    color: _color.si_button_shadow
 
-    topLeftRadius: _units.radiusEight
-    topRightRadius: _units.radiusEight
+    // topLeftRadius: _units.radiusEight
+    // topRightRadius: _units.radiusEight
 
     MouseArea {
         id: topEdgeMoveArea
@@ -53,12 +53,9 @@ Rectangle {
         id: fileDialog
     }
 
-    Rectangle {
+    Item {
         id: topPanelMainComponentWrapper
         anchors.fill: parent
-        color: _color.si_button_shadow
-        topLeftRadius: _units.radiusEight
-        topRightRadius: _units.radiusEight
 
         // Item {
         //     id: menuBarWrapper
