@@ -25,7 +25,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include "window.h"
+#include "vsgwidget.h"
 
 namespace tire {
 

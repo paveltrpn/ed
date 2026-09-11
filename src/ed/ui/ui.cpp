@@ -53,15 +53,14 @@ TiredUI::TiredUI( QObject* parent )
     setAttribute( Qt::WA_TranslucentBackground );
 
     // VSG initialization.
-    _vsgWindow = new VsgWidget( _tired->viewer(), windowTraits );
-    // _vsgWindow->setTitle( "title" );
-    _vsgWindow->initializeWindow();
+    _vsgWidget = new VsgWidget( _tired->viewer(), windowTraits );
+    _vsgWidget->initializeWindow();
 
     const auto clearColor = QColor{ _theme->getColor( "clear_color" ) };
-    _vsgWindow->getWindowAdapter()->clearColor().set( clearColor.redF(), clearColor.greenF(), clearColor.blueF(),
+    _vsgWidget->getWindowAdapter()->clearColor().set( clearColor.redF(), clearColor.greenF(), clearColor.blueF(),
                                                       1.0f );
 
-    _tired->init( _vsgWindow, windowTraits->width, windowTraits->height );
+    _tired->init( _vsgWidget, windowTraits->width, windowTraits->height );
 
     _topPanel->setSource( QUrl::fromLocalFile( "../src/ed/ui/qml/panels/TopPanel.qml" ) );
     _topPanel->setResizeMode( QQuickWidget::SizeRootObjectToView );
@@ -120,7 +119,7 @@ TiredUI::TiredUI( QObject* parent )
     hSplitter->setHandleWidth( splitterHandleWidth );
 
     hSplitter->addWidget( _leftPanel );
-    hSplitter->addWidget( _vsgWindow );
+    hSplitter->addWidget( _vsgWidget );
     hSplitter->addWidget( _rightPanel );
 
     const auto leftPanelWidth = static_cast<int>( windowWidth * 0.08f );

@@ -8,7 +8,7 @@
 #include <vsg/all.h>
 
 #include "ed/vk/context.h"
-#include "ed/ui/window.h"
+#include "ed/ui/vsgwidget.h"
 #include "manipulator.h"
 #include "inputhandler.h"
 #include "scenegraph.h"

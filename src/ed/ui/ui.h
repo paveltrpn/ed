@@ -7,8 +7,7 @@
 #include <QMainWindow>
 #include <QSettings>
 
-#include "window.h"
-
+#include "vsgwidget.h"
 #include "appearance.h"
 #include "ed/tired/tired.h"
 
@@ -46,9 +45,7 @@ private:
     QQmlEngine *_engine{};
     QQmlContext *_context{};
 
-    VsgWidget *_vsgWindow{};
-    QWidget *_vsgWidget{};
-
+    VsgWidget *_vsgWidget{};
     QQuickWidget *_topPanel{};
     QQuickWidget *_leftPanel{};
     QQuickWidget *_bottomPanel{};
