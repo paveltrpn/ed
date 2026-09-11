@@ -386,7 +386,7 @@ Rectangle {
             id: trackBallInfoArea
             anchors {
                 bottom: parent.bottom
-                topMargin: -border.width
+                bottomMargin: -border.width
                 left: parent.left
                 leftMargin: _units.scaled_256
                 right: parent.right
@@ -415,7 +415,7 @@ Rectangle {
                 width: implicitWidth
 
                 font: _fonts.label
-                color: _color.main_contrast
+                color: _color.additional_contrast_60
                 text: {
                     const eye = Tired.manipulator.eye;
                     return `eye: ${eye.x.toFixed(3)}  ${eye.y.toFixed(3)}  ${eye.z.toFixed(3)}`;
@@ -436,7 +436,7 @@ Rectangle {
                 width: implicitWidth
 
                 font: _fonts.label
-                color: _color.main_contrast
+                color: _color.additional_contrast_60
                 text: {
                     const center = Tired.manipulator.center;
                     return `cnt: ${center.x.toFixed(3)}  ${center.y.toFixed(3)}  ${center.z.toFixed(3)}`;
