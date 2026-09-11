@@ -283,7 +283,7 @@ Rectangle {
                 rightMargin: _units.scaled_256
             }
 
-            height: parent.height * 0.8
+            height: parent.height * 0.7
             color: _color.si_mode_system
 
             border {
@@ -300,7 +300,6 @@ Rectangle {
                         color: _color.si_mode_scene
                     }
                 },
-
                 State {
                     name: "system_mode"
                     when: Tired.controlMode == 1
@@ -345,7 +344,7 @@ Rectangle {
                     }
 
                     // ControlModes::SCENE
-                    Tired.controlMode = 0
+                    Tired.controlMode = 0;
                 }
 
                 Component.onCompleted: {
@@ -374,7 +373,7 @@ Rectangle {
                     }
 
                     // ControlModes::SYSTEM
-                    Tired.controlMode = 1
+                    Tired.controlMode = 1;
                 }
 
                 Component.onCompleted: {
@@ -383,6 +382,67 @@ Rectangle {
             }
         }
 
+        Rectangle {
+            id: trackBallInfoArea
+            anchors {
+                bottom: parent.bottom
+                topMargin: -border.width
+                left: parent.left
+                leftMargin: _units.scaled_256
+                right: parent.right
+                rightMargin: _units.scaled_256
+            }
+
+            height: parent.height * 0.25
+            color: "transparent"
+
+            border {
+                width: _units.scaled_2
+                color: _color.si_background_dark
+            }
+
+            Text {
+                id: eyePosLabel
+                anchors {
+                    top: parent.top
+                    bottom: parent.bottom
+                    right: centerPosLabel.left
+                    rightMargin: _units.scaled_8
+                }
+
+                verticalAlignment: Text.AlignVCenter
+
+                width: implicitWidth
+
+                font: _fonts.label
+                color: _color.main_contrast
+                text: {
+                    const eye = Tired.manipulator.eye;
+                    return `eye: ${eye.x.toFixed(3)}  ${eye.y.toFixed(3)}  ${eye.z.toFixed(3)}`;
+                }
+            }
+
+            Text {
+                id: centerPosLabel
+                anchors {
+                    top: parent.top
+                    bottom: parent.bottom
+                    right: parent.right
+                    rightMargin: _units.scaled_8
+                }
+
+                verticalAlignment: Text.AlignVCenter
+
+                width: implicitWidth
+
+                font: _fonts.label
+                color: _color.main_contrast
+                text: {
+                    const center = Tired.manipulator.center;
+                    return `cnt: ${center.x.toFixed(3)}  ${center.y.toFixed(3)}  ${center.z.toFixed(3)}`;
+                }
+            }
+        }
         // Item {
         //     id: mainWindowDecorationWrapper
 

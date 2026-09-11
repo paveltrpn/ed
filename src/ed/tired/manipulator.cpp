@@ -8,13 +8,13 @@
 namespace tire {
 
 // ======================================================================================
-// ==================== Manipulator =======================================================
+// ==================== Manipulator =====================================================
 // ======================================================================================
 
 Manipulator::Manipulator( vsg::ref_ptr<vsg::Camera> camera, vsg::ref_ptr<vsg::EllipsoidModel> ellipsoidModel,
                           QObject* parent )
     : QObject{ parent }
-    , _trackball{ new Trackball{ camera, ellipsoidModel } } {
+    , _trackball{ new Trackball{ this, camera, ellipsoidModel } } {
 }
 
 auto Manipulator::trackball() -> const vsg::ref_ptr<Trackball> {
@@ -40,13 +40,21 @@ QVector3D Manipulator::up() const {
 // ==================== Trackball =======================================================
 // ======================================================================================
 
-Trackball::Trackball( vsg::ref_ptr<vsg::Camera> camera, vsg::ref_ptr<vsg::EllipsoidModel> ellipsoidModel )
-    : vsg::Trackball{ camera, ellipsoidModel } {
+Trackball::Trackball( Manipulator* owner, vsg::ref_ptr<vsg::Camera> camera,
+                      vsg::ref_ptr<vsg::EllipsoidModel> ellipsoidModel )
+    : vsg::Trackball{ camera, ellipsoidModel }
+    , _owner{ owner } {
     this->supportsThrow = false;
 }
 
 void Trackball::apply( vsg::MoveEvent& moveEvent ) {
+    _owner->lookAtChanged();
     vsg::Trackball::apply( moveEvent );
+}
+
+void Trackball::apply( vsg::ScrollWheelEvent& scrollWheel ) {
+    _owner->lookAtChanged();
+    vsg::Trackball::apply( scrollWheel );
 }
 
 auto Trackball::eye() const -> vsg::dvec3 {
