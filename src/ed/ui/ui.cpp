@@ -25,7 +25,9 @@ TiredUI::TiredUI( QObject* parent )
     , _bottomPanel{ new QQuickWidget{ _engine, this } }
     , _rightPanel{ new QQuickWidget{ _engine, this } }
     , _theme{ new Appearance{ this } } {
-    //
+    // Set empty window title displayed on native decoration.
+    setWindowTitle( " " );
+
     Config::init( "assets/config.json" );
 
     const auto [windowWidth, windowHeight] = readSettings();
