@@ -25,6 +25,12 @@ Rectangle {
     function deselectOthers(exceptItem) {
         for (let i in leftPanelSystemComponent.buttonsList) {
             const btn = leftPanelSystemComponent.buttonsList[i];
+
+            if (exceptItem === null) {
+                btn.checked = false;
+                continue
+            }
+
             if (btn !== exceptItem) {
                 btn.checked = false;
             }
@@ -76,6 +82,22 @@ Rectangle {
             }
 
             visible: aboutButton.checked
+
+            onClose: {
+                aboutWindow.show()
+                leftPanelSystemComponent.deselectOthers(null)
+            }
+
+            SIWindow {
+                id: aboutWindow
+
+
+                width: 640
+                height: 480
+
+                x: parent.x + 100
+                y: parent.y + 100
+            }
         }
 
         SIButtonMain {
