@@ -34,6 +34,33 @@ QVector3D Manipulator::up() const {
                       static_cast<float>( _trackball->up().z ) };
 }
 
+auto Manipulator::lookMatrix() const -> vsg::dmat4 {
+    auto eye = _trackball->eye();
+    auto center = _trackball->center();
+    auto up = _trackball->up();
+
+    // Handle degenerate case (looking straight up/down)
+    // if (std::abs(glm::dot(glm::normalize(lookVector), worldUp)) > 0.999f)
+    //     worldUp = glm::vec3(0.0f, 0.0f, 1.0f);
+
+    auto forward = vsg::normalize( center - eye );
+    auto right = vsg::normalize( vsg::cross( forward, up ) );
+
+    // Orthonormal basis, transposed (inverse rotation) — no translation
+    vsg::dmat4 view( 1.0f );
+    view[0][0] = right.x;
+    view[1][0] = right.y;
+    view[2][0] = right.z;
+    view[0][1] = up.x;
+    view[1][1] = up.y;
+    view[2][1] = up.z;
+    view[0][2] = -forward.x;
+    view[1][2] = -forward.y;
+    view[2][2] = -forward.z;
+
+    return view;
+}
+
 // ======================================================================================
 // ==================== Trackball =======================================================
 // ======================================================================================
@@ -65,6 +92,10 @@ auto Trackball::center() const -> vsg::dvec3 {
 
 auto Trackball::up() const -> vsg::dvec3 {
     return vsg::Trackball::_lookAt->up;
+}
+
+auto Trackball::projection() const -> vsg::dmat4 {
+    return vsg::Trackball::_camera->projectionMatrix->transform();
 }
 
 }  // namespace tire

@@ -38,6 +38,8 @@ public:
     QVector3D center() const;
     QVector3D up() const;
 
+    auto lookMatrix() const -> vsg::dmat4;
+
     friend Trackball;
 
 signals:
@@ -61,6 +63,7 @@ struct Trackball final : public vsg::Trackball {
     auto eye() const -> vsg::dvec3;
     auto center() const -> vsg::dvec3;
     auto up() const -> vsg::dvec3;
+    auto projection() const -> vsg::dmat4;
 
 private:
     // Mayby some little observer for this?
