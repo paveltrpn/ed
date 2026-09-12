@@ -16,74 +16,58 @@ Rectangle {
 
     color: _color.si_background_light
     radius: _units.radiusEight
-    height: visible ? settingsPanelPopupComponent.height : 0
+    height: visible ? settingsPanelButtonsLayout.implicitHeight : 0
 
     signal close
 
     Behavior on height {
         NumberAnimation {
-            duration: 200
+            duration: 50
         }
     }
-    Item {
-        id: settingsPanelPopupComponent
 
-        readonly property var _color: Appearence.colors
-        readonly property var _fonts: Appearence.fonts
-        readonly property var _units: Appearence.units
+    ColumnLayout {
+        id: settingsPanelButtonsLayout
+        spacing: 0
 
-        width: parent.width
-        height: settingsPanelButtonsLayout.implicitHeight
+        anchors {
+            top: parent.top
+            left: parent.left
+            right: parent.right
+        }
 
-        Behavior on height {
-            NumberAnimation {
-                duration: 200
+        readonly property int itemsHeight: _units.scaled_32
+
+        NpContextMenuButton {
+            id: serviceObjectsSettingsButton
+            Layout.fillWidth: true
+            Layout.preferredHeight: settingsPanelButtonsLayout.itemsHeight
+            text: "Service objects"
+            enabled: true
+
+            topLeftRadius: _units.radiusEight
+            topRightRadius: _units.radiusEight
+
+            font: _fonts.label_accent
+
+            onClicked: {
+                settingsPanelComponent.close()
             }
         }
 
-        ColumnLayout {
-            id: settingsPanelButtonsLayout
-            spacing: 0
+        // NpContextMenuButton {
+        //     id: showcaseButton
+        //     Layout.fillWidth: true
+        //     Layout.preferredHeight: settingsPanelButtonsLayout.itemsHeight
+        //     text: "Settings"
+        //     enabled: false
 
-            anchors {
-                top: parent.top
-                left: parent.left
-                right: parent.right
-            }
+        //     font: _fonts.label_accent
 
-            readonly property int itemsHeight: _units.scaled_32
-
-            NpContextMenuButton {
-                id: serviceObjectsSettingsButton
-                Layout.fillWidth: true
-                Layout.preferredHeight: settingsPanelButtonsLayout.itemsHeight
-                text: "Service objects"
-                enabled: true
-
-                topLeftRadius: _units.radiusEight
-                topRightRadius: _units.radiusEight
-
-                font: _fonts.label_accent
-
-                onClicked: {
-                    settingsPanelComponent.close()
-                }
-            }
-
-            // NpContextMenuButton {
-            //     id: showcaseButton
-            //     Layout.fillWidth: true
-            //     Layout.preferredHeight: settingsPanelButtonsLayout.itemsHeight
-            //     text: "Settings"
-            //     enabled: false
-
-            //     font: _fonts.label_accent
-
-            //     onClicked: {
-            //         settingsPanelComponent.close()
-            //     }
-            // }
-        }
+        //     onClicked: {
+        //         settingsPanelComponent.close()
+        //     }
+        // }
     }
 }
 

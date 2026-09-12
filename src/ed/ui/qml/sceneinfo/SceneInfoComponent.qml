@@ -20,7 +20,7 @@ Rectangle {
 
     Behavior on height {
         NumberAnimation {
-            duration: 200
+            duration: 50
         }
     }
 

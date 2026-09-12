@@ -16,89 +16,73 @@ Rectangle {
 
     color: _color.si_background_light
     radius: _units.radiusEight
-    height: visible ? aboutPanelPopupComponent.height : 0
+    height: visible ? aboutPanelButtonsLayout.implicitHeight : 0
 
     signal close
 
     Behavior on height {
         NumberAnimation {
-            duration: 200
+            duration: 50
         }
     }
-    Item {
-        id: aboutPanelPopupComponent
 
-        readonly property var _color: Appearence.colors
-        readonly property var _fonts: Appearence.fonts
-        readonly property var _units: Appearence.units
+    ColumnLayout {
+        id: aboutPanelButtonsLayout
+        spacing: 0
 
-        width: parent.width
-        height: aboutPanelButtonsLayout.implicitHeight
+        anchors {
+            top: parent.top
+            left: parent.left
+            right: parent.right
+        }
 
-        Behavior on height {
-            NumberAnimation {
-                duration: 200
+        readonly property int itemsHeight: _units.scaled_32
+
+        NpContextMenuButton {
+            id: aboutButton
+            Layout.fillWidth: true
+            Layout.preferredHeight: aboutPanelButtonsLayout.itemsHeight
+            text: "About"
+            enabled: true
+
+            topLeftRadius: _units.radiusEight
+            topRightRadius: _units.radiusEight
+
+            font: _fonts.label_accent
+
+            onClicked: {
+                if (!aboutWindow.visible) {
+                    aboutWindow.show();
+                }
+                aboutPanelComponent.close();
+            }
+
+            SIWindow {
+                id: aboutWindow
+
+                width: 640
+                height: 480
             }
         }
 
-        ColumnLayout {
-            id: aboutPanelButtonsLayout
-            spacing: 0
+        NpContextMenuButton {
+            id: showcaseButton
+            Layout.fillWidth: true
+            Layout.preferredHeight: aboutPanelButtonsLayout.itemsHeight
+            text: "Showcase"
+            enabled: false
 
-            anchors {
-                top: parent.top
-                left: parent.left
-                right: parent.right
-            }
+            font: _fonts.label_accent
+        }
 
-            readonly property int itemsHeight: _units.scaled_32
+        NpContextMenuButton {
+            id: vulkanInfoButton
+            Layout.fillWidth: true
+            Layout.preferredHeight: aboutPanelButtonsLayout.itemsHeight
+            text: "Vulkan info"
+            enabled: false
 
-            NpContextMenuButton {
-                id: aboutButton
-                Layout.fillWidth: true
-                Layout.preferredHeight: aboutPanelButtonsLayout.itemsHeight
-                text: "About"
-                enabled: true
-
-                topLeftRadius: _units.radiusEight
-                topRightRadius: _units.radiusEight
-
-                font: _fonts.label_accent
-
-                onClicked: {
-                    if (!aboutWindow.visible) {
-                        aboutWindow.show();
-                    }
-                    aboutPanelComponent.close();
-                }
-
-                SIWindow {
-                    id: aboutWindow
-
-                    width: 640
-                    height: 480
-                }
-            }
-
-            NpContextMenuButton {
-                id: showcaseButton
-                Layout.fillWidth: true
-                Layout.preferredHeight: aboutPanelButtonsLayout.itemsHeight
-                text: "Showcase"
-                enabled: false
-
-                font: _fonts.label_accent
-            }
-
-            NpContextMenuButton {
-                id: vulkanInfoButton
-                Layout.fillWidth: true
-                Layout.preferredHeight: aboutPanelButtonsLayout.itemsHeight
-                text: "Vulkan info"
-                enabled: false
-
-                font: _fonts.label_accent
-            }
+            font: _fonts.label_accent
         }
     }
 }
