@@ -24,7 +24,7 @@
 namespace tire {
 
 Viewer::Viewer( int msecTimerInterval ) {
-    // set the default timer as 8ms.
+    // Set the default timer as 8ms.
     if ( msecTimerInterval > 0 ) {
         setInterval( msecTimerInterval );
     }
