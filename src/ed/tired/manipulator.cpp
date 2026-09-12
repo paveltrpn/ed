@@ -1,6 +1,4 @@
 
-#include <print>
-
 #include <QPoint>
 
 #include "manipulator.h"

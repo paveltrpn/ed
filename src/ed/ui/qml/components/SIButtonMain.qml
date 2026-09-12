@@ -62,6 +62,11 @@ QuickTemplates.Button {
                 target: buttonLabel
                 color: _color.si_text_light
             }
+            PropertyChanges {
+                target: pressAreaRect
+                x: 0
+                y: 0
+            }
         }
     ]
 
