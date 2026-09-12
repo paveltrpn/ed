@@ -5,57 +5,46 @@ import Tire 1.0
 
 import "../components"
 
-Rectangle {
+Item {
     id: settingsComponent
 
     readonly property var _color: Appearence.colors
     readonly property var _fonts: Appearence.fonts
     readonly property var _units: Appearence.units
 
-    height: visible ? settingsTabBar.height + settingsTabLayout.implicitHeight : 0
-
-    radius: _units.radiusEight
-
-    color: _color.si_background_light
-
-    border {
-        width: _units.radiusEight
-        color: _color.si_background_dark
+    anchors {
+        top: parent.top
+        left: parent.left
+        leftMargin: _units.scaled_1
+        right: parent.right
+        rightMargin: _units.scaled_1
     }
 
-    Behavior on height {
-        NumberAnimation {
-            duration: 200
-        }
-    }
-
+    height: settingsTabBar.height + settingsTabLayout.implicitHeight
     clip: true
 
     TabBar {
         id: settingsTabBar
 
+        anchors {
+            top: parent.top
+            left: parent.left
+            right: parent.right
+        }
+
         height: _units.scaled_24
-        width: parent.width
 
         NpTabButton {
             text: qsTr("Grid")
-
             anchors.top: parent.top
             height: parent.height
-
-            topLeftRadius: _units.radiusEight
-
             font: _fonts.label_accent
         }
 
         NpTabButton {
             text: qsTr("Test box")
-
             anchors.top: parent.top
             height: parent.height
-
-            topRightRadius: _units.radiusEight
-
             font: _fonts.label_accent
         }
     }

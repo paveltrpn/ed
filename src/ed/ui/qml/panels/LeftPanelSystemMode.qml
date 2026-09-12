@@ -84,15 +84,7 @@ Rectangle {
             visible: aboutButton.checked
 
             onClose: {
-                aboutWindow.show();
                 leftPanelSystemComponent.deselectOthers(null);
-            }
-
-            SIWindow {
-                id: aboutWindow
-
-                width: 640
-                height: 480
             }
         }
 

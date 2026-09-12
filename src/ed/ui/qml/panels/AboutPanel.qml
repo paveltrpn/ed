@@ -66,7 +66,17 @@ Rectangle {
                 font: _fonts.label_accent
 
                 onClicked: {
-                    aboutPanelComponent.close()
+                    if (!aboutWindow.visible) {
+                        aboutWindow.show();
+                    }
+                    aboutPanelComponent.close();
+                }
+
+                SIWindow {
+                    id: aboutWindow
+
+                    width: 640
+                    height: 480
                 }
             }
 

@@ -189,15 +189,19 @@ Rectangle {
             visible: settingsButton.checked
 
             onClose: {
-                settingsWindow.show();
+                if (!settingsWindow.visible) {
+                    settingsWindow.show();
+                }
                 leftPanelSceneComponent.deselectOthers(null);
             }
 
             SIWindow {
                 id: settingsWindow
 
-                width: 640
-                height: 480
+                width: 410
+                height: 320
+
+                contentSource: "../settings/SettingsComponent.qml"
             }
         }
 
