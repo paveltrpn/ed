@@ -53,6 +53,9 @@ signals:
 
     void gizmoModeChanged();
 
+public slots:
+    void lookMatrixChanged( const vsg::mat4& mtrx );
+
 private:
     vsg::ref_ptr<vsg::Group> _root{};
     vsg::Viewer* _viewer;

@@ -64,4 +64,8 @@ int Scenegraph::gizmoMode() {
     return static_cast<int>( _gizmoMode );
 }
 
+void Scenegraph::lookMatrixChanged( const vsg::mat4& mtrx ) {
+    _testbox->updateViewMatrix( mtrx );
+}
+
 }  // namespace tire

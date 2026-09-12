@@ -85,6 +85,11 @@ QVector3D Testbox::lightColor() {
     return QVector3D{ _node->_lightColor.x, _node->_lightColor.y, _node->_lightColor.z };
 }
 
+void Testbox::updateViewMatrix( const vsg::mat4& mtrx ) {
+    _node->_viewm = mtrx;
+    _node->updateViewMatrixBufUniformValue();
+}
+
 // ======================================================================================
 // ==================== TestboxSubgraph =================================================
 // ======================================================================================
@@ -108,7 +113,8 @@ auto TestboxSubgraph::initPipeline() -> void {
     // Set up graphics pipeline.
     const auto descriptorBindings = vsg::DescriptorSetLayoutBindings{
         { /* binding */ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, /* count */ 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr },
-        { /* binding */ 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, /* count */ 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr } };
+        { /* binding */ 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, /* count */ 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr },
+        { /* binding */ 2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, /* count */ 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr } };
     const auto descriptorSetLayout = vsg::DescriptorSetLayout::create( descriptorBindings );
 
     _boxUniformValue =
@@ -134,6 +140,13 @@ auto TestboxSubgraph::initPipeline() -> void {
     const auto lightUniformDescriptor =
         vsg::DescriptorBuffer::create( _lightUniformValue, /* dstBinding */ 1, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER );
 
+    _viewmUniformValue = vsg::mat4Array::create( 1 );
+    _viewmUniformValue->set( 0, _viewm );
+    _viewmUniformValue->properties.dataVariance = vsg::DYNAMIC_DATA;
+
+    const auto viewmUniformDescriptor =
+        vsg::DescriptorBuffer::create( _viewmUniformValue, /* dstBinding */ 2, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER );
+
     vsg::PushConstantRanges pushConstantRanges{
         { VK_SHADER_STAGE_VERTEX_BIT, 0,
           128 }  // projection, view, and model matrices, actual push constant calls automatically provided by the VSG's RecordTraversal
@@ -157,8 +170,8 @@ auto TestboxSubgraph::initPipeline() -> void {
         pipelineLayout, vsg::ShaderStages{ vertexShader, fragmentShader }, pipelineStates );
     auto bindGraphicsPipeline = vsg::BindGraphicsPipeline::create( graphicsPipeline );
 
-    auto descriptorSet = vsg::DescriptorSet::create( descriptorSetLayout,
-                                                     vsg::Descriptors{ boxUniformDescriptor, lightUniformDescriptor } );
+    auto descriptorSet = vsg::DescriptorSet::create(
+        descriptorSetLayout, vsg::Descriptors{ boxUniformDescriptor, lightUniformDescriptor, viewmUniformDescriptor } );
 
     auto bindDescriptorSet = vsg::BindDescriptorSet::create( VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
                                                              /* in_firstSet */ 0, descriptorSet );
@@ -206,6 +219,11 @@ auto TestboxSubgraph::updateLightBufUniformValue() -> void {
     ( *_lightUniformValue )[7] = 0.0f;
 
     _lightUniformValue->dirty();
+}
+
+auto TestboxSubgraph::updateViewMatrixBufUniformValue() -> void {
+    _viewmUniformValue->set( 0, _viewm );
+    _viewmUniformValue->dirty();
 }
 
 }  // namespace tire

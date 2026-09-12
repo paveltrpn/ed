@@ -85,6 +85,8 @@ auto Tired::init( VsgWidget* window, uint32_t width, uint32_t height ) -> void {
 
     _scenegraph->initSubgraphs();
 
+    connect( _manipulator, &Manipulator::lookChanged, _scenegraph, &Scenegraph::lookMatrixChanged );
+
     // Viewer compile.
     {
         //

@@ -11,6 +11,7 @@ layout(set = 0, binding = 0) uniform BoxParamsBuffer {
     vec3 axis;
     float angl;
     vec4 color;
+
 } boxParams;
 
 layout(set = 0, binding = 1) uniform LightParamsBuffer {
@@ -19,6 +20,10 @@ layout(set = 0, binding = 1) uniform LightParamsBuffer {
     vec3 color;
     float _p2;
 } lightParams;
+
+layout(set = 0, binding = 2) uniform ViewMatrix {
+    mat4 m;
+} viewMatrix;
 
 layout( location = 0 ) out vec3 fragColor;
 layout( location = 1 ) out vec3 vLighting;
@@ -91,10 +96,10 @@ void main() {
     mat4 boxRot = rotationMatrix( boxParams.axis, boxParams.angl );
 
     vec4 worldPos = boxRot * boxScale * boxOffset * vec4( positions[gl_VertexIndex], 1.0 );
-    gl_Position             = pc.projection * pc.modelview * worldPos;
+    gl_Position             = pc.projection * pc.modelview * viewMatrix.m * worldPos;
 
     vec3 nrmRotated = ( inverse(transpose(boxRot)) * vec4( normals[gl_VertexIndex], 0.0 ) ).xyz;
-    vec4 nrmTransformed     = inverse(transpose( pc.modelview )) * vec4( nrmRotated, 0.0 );
+    vec4 nrmTransformed     = inverse(transpose( pc.modelview * viewMatrix.m)) * vec4( nrmRotated, 0.0 );
 
     float directional       = max( dot( nrmTransformed.xyz, lightpos ), 0.0 );
     vLighting               = ambientLight + ( lightParams.color * directional );

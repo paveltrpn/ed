@@ -50,6 +50,8 @@ public:
     QVector3D lightOrigin();
     QVector3D lightColor();
 
+    void updateViewMatrix( const vsg::mat4& mtrx );
+
 signals:
     void boxOriginChanged();
     void boxAxisChanged();
@@ -79,8 +81,11 @@ struct TestboxSubgraph final : Subgraph {
 private:
     auto updateBoxUniformValue() -> void;
     auto updateLightBufUniformValue() -> void;
+    auto updateViewMatrixBufUniformValue() -> void;
 
 private:
+    vsg::mat4 _viewm{};
+
     vsg::vec3 _boxOrigin{ 0.0f, 0.0f, 0.0f };
     float _boxSize{ 1.0f };
     vsg::vec3 _boxAxis{ 0.0f, 0.0f, 1.0f };
@@ -92,6 +97,7 @@ private:
 
     vsg::ref_ptr<vsg::floatArray> _boxUniformValue{};
     vsg::ref_ptr<vsg::floatArray> _lightUniformValue{};
+    vsg::ref_ptr<vsg::mat4Array> _viewmUniformValue{};
 };
 
 }  // namespace tire
