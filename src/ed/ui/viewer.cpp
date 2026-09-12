@@ -25,11 +25,16 @@ namespace tire {
 
 Viewer::Viewer( int msecTimerInterval ) {
     // set the default timer as 8ms.
-    if ( msecTimerInterval > 0 ) setInterval( msecTimerInterval );
+    if ( msecTimerInterval > 0 ) {
+        setInterval( msecTimerInterval );
+    }
 }
 
 bool Viewer::pollEvents( bool discardPreviousEvents ) {
-    if ( discardPreviousEvents ) _events.clear();
+    if ( discardPreviousEvents ) {
+        _events.clear();
+    }
+
     for ( auto& window : _windows ) {
         _events.splice( _events.end(), window->bufferedEvents );
         window->bufferedEvents.clear();
@@ -44,19 +49,20 @@ void Viewer::request() {
 
 void Viewer::render( double simulationTime ) {
     if ( !continuousUpdate && requests.load() == 0 ) {
-        //vsg::info("render() no render : requests = ", requests.load());
         return;
     }
 
     if ( advanceToNextFrame( simulationTime ) ) {
+        // Pass events to events handleres, associated with viewer.
         handleEvents();
+        // Update scene graph (add/remove objects etc.)
         update();
+        // Record commands in scene graph and send it to Vulkan.
         recordAndSubmit();
+        // Render and pass framebuffer to window.
         present();
-    } else {
-        if ( status->cancel() ) {
-            QCoreApplication::quit();
-        }
+    } else if ( status->cancel() ) {
+        QCoreApplication::quit();
     }
 
     requests = 0;
@@ -68,4 +74,4 @@ void Viewer::setInterval( int msecTimerInterval ) {
     timer.start();
 }
 
-}  // namespace tired
+}  // namespace tire
