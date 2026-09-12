@@ -42,7 +42,7 @@ Rectangle {
             id: serviceObjectsSettingsButton
             Layout.fillWidth: true
             Layout.preferredHeight: sceneinfoPanelButtonsLayout.itemsHeight
-            text: "Service objects"
+            text: "Scene info"
             enabled: true
 
             topLeftRadius: _units.radiusEight
@@ -51,7 +51,19 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
+                if (!sceneInfoWindow.visible) {
+                    sceneInfoWindow.show();
+                }
                 sceneinfoPanelComponent.close()
+            }
+
+            SIWindow {
+                id: sceneInfoWindow
+
+                width: 410
+                height: 320
+
+                contentSource: "../sceneinfo/SceneInfoComponent.qml"
             }
         }
 

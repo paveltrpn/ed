@@ -51,7 +51,20 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
+                if (!settingsWindow.visible) {
+                    settingsWindow.show();
+                }
+
                 settingsPanelComponent.close()
+            }
+
+            SIWindow {
+                id: settingsWindow
+
+                width: 410
+                height: 320
+
+                contentSource: "../settings/SettingsComponent.qml"
             }
         }
 

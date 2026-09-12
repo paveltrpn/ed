@@ -139,8 +139,8 @@ Rectangle {
             }
         }
 
-        SceneInfoComponent {
-            id: sceneInfoWidget
+        SceneInfoPanel {
+            id: sceneinfoPanelItem
             anchors {
                 top: infoButton.bottom
                 topMargin: _units.half
@@ -149,6 +149,10 @@ Rectangle {
             }
 
             visible: infoButton.checked
+
+            onClose: {
+                leftPanelSceneComponent.deselectOthers(null);
+            }
         }
 
         SIButtonMain {
@@ -189,19 +193,7 @@ Rectangle {
             visible: settingsButton.checked
 
             onClose: {
-                if (!settingsWindow.visible) {
-                    settingsWindow.show();
-                }
                 leftPanelSceneComponent.deselectOthers(null);
-            }
-
-            SIWindow {
-                id: settingsWindow
-
-                width: 410
-                height: 320
-
-                contentSource: "../settings/SettingsComponent.qml"
             }
         }
 

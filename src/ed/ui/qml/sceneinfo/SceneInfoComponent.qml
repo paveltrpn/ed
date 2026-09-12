@@ -5,25 +5,22 @@ import Tire 1.0
 
 import "../components"
 
-Rectangle {
+Item {
     id: sceneInfoComponent
 
     readonly property var _color: Appearence.colors
     readonly property var _fonts: Appearence.fonts
     readonly property var _units: Appearence.units
 
-    height: visible ? (sceneInfoTabBar.height + sceneInfoTabLayout.implicitHeight) : 0
-
-    radius: _units.radiusEight
-
-    color: _color.si_background_light
-
-    Behavior on height {
-        NumberAnimation {
-            duration: 50
-        }
+    anchors {
+        top: parent.top
+        left: parent.left
+        leftMargin: _units.scaled_1
+        right: parent.right
+        rightMargin: _units.scaled_1
     }
 
+    height: visible ? (sceneInfoTabBar.height + sceneInfoTabLayout.implicitHeight) : 0
     clip: true
 
     TabBar {
@@ -34,23 +31,15 @@ Rectangle {
 
         NpTabButton {
             text: qsTr("Scene total")
-
             anchors.top: parent.top
             height: parent.height
-
-            topLeftRadius: _units.radiusEight
-
             font: _fonts.label_accent
         }
 
         NpTabButton {
             text: qsTr("Current group")
-
             anchors.top: parent.top
             height: parent.height
-
-            topRightRadius: _units.radiusEight
-
             font: _fonts.label_accent
         }
     }
