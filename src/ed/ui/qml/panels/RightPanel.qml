@@ -19,20 +19,6 @@ Rectangle {
 
     color: _color.background
 
-    // MouseArea {
-    //     id: rightEdgeMoveArea
-    //     anchors {
-    //         top: parent.top
-    //         right: parent.right
-    //         bottom: parent.bottom
-    //     }
-    //     width: _units.scaled_6
-    //     cursorShape: Qt.SizeHorCursor
-    //     onPressed: {
-    //         MainWindow.resizeWindow(Qt.RightEdge);
-    //     }
-    // }
-
     states: [
         State {
             name: "scene_mode"

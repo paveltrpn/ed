@@ -20,20 +20,6 @@ Rectangle {
 
     color: _color.background
 
-    // MouseArea {
-    //     id: leftEdgeMoveArea
-    //     anchors {
-    //         top: parent.top
-    //         bottom: parent.bottom
-    //         left: parent.left
-    //     }
-    //     width: 4
-    //     cursorShape: Qt.SizeHorCursor
-    //     onPressed: {
-    //         MainWindow.resizeWindow(Qt.LeftEdge);
-    //     }
-    // }
-
     states: [
         State {
             name: "scene_mode"
@@ -47,7 +33,6 @@ Rectangle {
                 visible: false
             }
         },
-
         State {
             name: "system_mode"
             when: Tired.controlMode == 1

@@ -22,33 +22,6 @@ Rectangle {
     // topLeftRadius: _units.radiusEight
     // topRightRadius: _units.radiusEight
 
-    // MouseArea {
-    //     id: topEdgeMoveArea
-    //     anchors {
-    //         left: parent.left
-    //         right: parent.right
-    //         top: parent.top
-    //     }
-    //     height: _units.scaled_4
-    //     cursorShape: Qt.SizeVerCursor
-    //     onPressed: {
-    //         MainWindow.resizeWindow(Qt.TopEdge);
-    //     }
-    // }
-
-    // MouseArea {
-    //     id: windowMoveArea
-    //     anchors {
-    //         left: parent.left
-    //         right: parent.right
-    //         top: topEdgeMoveArea.bottom
-    //         bottom: parent.bottom
-    //     }
-    //     onPressed: {
-    //         MainWindow.moveWindow();
-    //     }
-    // }
-
     NpFileDialog {
         id: fileDialog
     }
