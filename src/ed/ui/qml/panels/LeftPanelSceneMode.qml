@@ -25,6 +25,12 @@ Rectangle {
     function deselectOthers(exceptItem) {
         for (let i in leftPanelSceneComponent.buttonsList) {
             const btn = leftPanelSceneComponent.buttonsList[i];
+
+            if (exceptItem === null) {
+                btn.checked = false;
+                continue;
+            }
+
             if (btn !== exceptItem) {
                 btn.checked = false;
             }
@@ -149,7 +155,7 @@ Rectangle {
             id: settingsButton
 
             anchors {
-                bottom: parent.bottom
+                bottom: settingsPanelItem.top
                 left: parent.left
                 right: parent.right
             }
@@ -171,16 +177,40 @@ Rectangle {
             }
         }
 
-        SettingsComponent {
-            id: settingsWidget
+        SettingsPanel {
+            id: settingsPanelItem
             anchors {
-                bottom: settingsButton.top
-                bottomMargin: _units.half
+                bottom: parent.bottom
+                bottomMargin: visible ? _units.half : 0
                 left: parent.left
                 right: parent.right
             }
 
             visible: settingsButton.checked
+
+            onClose: {
+                settingsWindow.show();
+                leftPanelSceneComponent.deselectOthers(null);
+            }
+
+            SIWindow {
+                id: settingsWindow
+
+                width: 640
+                height: 480
+            }
         }
+
+        // SettingsComponent {
+        //     id: settingsWidget
+        //     anchors {
+        //         bottom: settingsButton.top
+        //         bottomMargin: _units.half
+        //         left: parent.left
+        //         right: parent.right
+        //     }
+
+        //     visible: settingsButton.checked
+        // }
     }
 }

@@ -20,6 +20,8 @@ Window {
     flags: Qt.Window | Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint
     color: "transparent"
 
+    property alias contentSource: windowContentLoader.source
+
     onVisibleChanged: {
         if (siWindowComponent.visible) {
             const mainWndCenter = MainWindow.mainWindowCenter();
@@ -132,6 +134,16 @@ Window {
                     height: _units.scaled_24
                     onClicked: siWindowComponent.close()
                 }
+            }
+        }
+
+        Loader {
+            id: windowContentLoader
+            anchors {
+                top: titleBar.bottom
+                right: windowBody.right
+                bottom: windowBody.bottom
+                left: windowBody.left
             }
         }
     }

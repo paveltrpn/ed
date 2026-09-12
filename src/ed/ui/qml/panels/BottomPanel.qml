@@ -22,20 +22,6 @@ Rectangle {
     // bottomLeftRadius:  _units.radiusEight
     // bottomRightRadius: _units.radiusEight
 
-    // MouseArea {
-    //     id: bottomEdgeMoveArea
-    //     anchors {
-    //         left: parent.left
-    //         right: parent.right
-    //         bottom: parent.bottom
-    //     }
-    //     height: _units.scaled_4
-    //     cursorShape: Qt.SizeVerCursor
-    //     onPressed: {
-    //         MainWindow.resizeWindow(Qt.BottomEdge);
-    //     }
-    // }
-
     Rectangle {
         id: bottomPanelMainComponentWrapper
         anchors.fill: parent

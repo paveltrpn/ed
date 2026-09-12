@@ -8,7 +8,7 @@ import Tire 1.0
 import "../components"
 
 Rectangle {
-    id: aboutPanelComponent
+    id: settingsPanelComponent
 
     readonly property var _color: Appearence.colors
     readonly property var _fonts: Appearence.fonts
@@ -16,7 +16,7 @@ Rectangle {
 
     color: _color.si_background_light
     radius: _units.radiusEight
-    height: visible ? aboutPanelPopupComponent.height : 0
+    height: visible ? settingsPanelPopupComponent.height : 0
 
     signal close
 
@@ -26,14 +26,14 @@ Rectangle {
         }
     }
     Item {
-        id: aboutPanelPopupComponent
+        id: settingsPanelPopupComponent
 
         readonly property var _color: Appearence.colors
         readonly property var _fonts: Appearence.fonts
         readonly property var _units: Appearence.units
 
         width: parent.width
-        height: aboutPanelButtonsLayout.implicitHeight
+        height: settingsPanelButtonsLayout.implicitHeight
 
         Behavior on height {
             NumberAnimation {
@@ -42,7 +42,7 @@ Rectangle {
         }
 
         ColumnLayout {
-            id: aboutPanelButtonsLayout
+            id: settingsPanelButtonsLayout
             spacing: 0
 
             anchors {
@@ -54,10 +54,10 @@ Rectangle {
             readonly property int itemsHeight: _units.scaled_32
 
             NpContextMenuButton {
-                id: aboutButton
+                id: serviceObjectsSettingsButton
                 Layout.fillWidth: true
-                Layout.preferredHeight: aboutPanelButtonsLayout.itemsHeight
-                text: "About"
+                Layout.preferredHeight: settingsPanelButtonsLayout.itemsHeight
+                text: "Service objects"
                 enabled: true
 
                 topLeftRadius: _units.radiusEight
@@ -66,29 +66,24 @@ Rectangle {
                 font: _fonts.label_accent
 
                 onClicked: {
-                    aboutPanelComponent.close()
+                    settingsPanelComponent.close()
                 }
             }
 
-            NpContextMenuButton {
-                id: showcaseButton
-                Layout.fillWidth: true
-                Layout.preferredHeight: aboutPanelButtonsLayout.itemsHeight
-                text: "Showcase"
-                enabled: false
+            // NpContextMenuButton {
+            //     id: showcaseButton
+            //     Layout.fillWidth: true
+            //     Layout.preferredHeight: settingsPanelButtonsLayout.itemsHeight
+            //     text: "Settings"
+            //     enabled: false
 
-                font: _fonts.label_accent
-            }
+            //     font: _fonts.label_accent
 
-            NpContextMenuButton {
-                id: vulkanInfoButton
-                Layout.fillWidth: true
-                Layout.preferredHeight: aboutPanelButtonsLayout.itemsHeight
-                text: "Vulkan info"
-                enabled: false
-
-                font: _fonts.label_accent
-            }
+            //     onClicked: {
+            //         settingsPanelComponent.close()
+            //     }
+            // }
         }
     }
 }
+
