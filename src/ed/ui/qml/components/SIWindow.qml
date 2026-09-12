@@ -1,3 +1,6 @@
+// qmllint disable unqualified
+// qmllint disable Quick.property-changes-parsed
+
 import QtQuick
 import QtQuick.Window
 
@@ -20,10 +23,19 @@ Window {
 
     color: _color.si_background_light
 
+    onVisibleChanged: {
+        if (siWindowComponent.visible) {
+            const mainWndCenter = MainWindow.mainWindowCenter()
+            siWindowComponent.x = mainWndCenter.x - siWindowComponent.width / 2
+            siWindowComponent.y = mainWndCenter.y - siWindowComponent.height / 2
+        } else {
+        }
+    }
+
     Rectangle {
         id: titleBar
 
-        height: 32
+        height: _units.scaled_32
 
         color: _color.si_background_dark
 
@@ -36,12 +48,8 @@ Window {
         MouseArea {
             id: headerArea
             anchors.fill: parent
-
-            property point lastMousePos: Qt.point(0, 0)
-
             property bool dragActive
             propagateComposedEvents: true
-
             onPressed: {
                 siWindowComponent.startSystemMove();
             }
@@ -54,12 +62,11 @@ Window {
             height: parent.height
 
             NpButton {
-                text: "X"
-                width: 32
-                height: 32
+                icon.source: "image://TiredImageProvider/filled-triangle-down.svg"
+                width: _units.scaled_24
+                height: _units.scaled_24
                 onClicked: siWindowComponent.close()
             }
         }
     }
 }
-

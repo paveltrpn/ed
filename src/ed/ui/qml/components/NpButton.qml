@@ -52,6 +52,7 @@ QuickTemplates.Button {
     // implicitContentWidth + leftPadding + rightPadding)
     // implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
     // implicitContentHeight + topPadding + bottomPadding)
+
     width: 32
     height: 32
 

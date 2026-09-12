@@ -160,6 +160,11 @@ auto TiredUI::readSettings() -> std::pair<int, int> {
     return result;
 }
 
+QVector2D TiredUI::mainWindowCenter() const {
+    const auto g = this->geometry();
+    return { static_cast<float>( g.center().x() ), static_cast<float>( g.center().y() ) };
+}
+
 void TiredUI::quitApplication() {
     QApplication::quit();
 }

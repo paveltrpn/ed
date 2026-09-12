@@ -28,7 +28,7 @@ Rectangle {
 
             if (exceptItem === null) {
                 btn.checked = false;
-                continue
+                continue;
             }
 
             if (btn !== exceptItem) {
@@ -84,19 +84,15 @@ Rectangle {
             visible: aboutButton.checked
 
             onClose: {
-                aboutWindow.show()
-                leftPanelSystemComponent.deselectOthers(null)
+                aboutWindow.show();
+                leftPanelSystemComponent.deselectOthers(null);
             }
 
             SIWindow {
                 id: aboutWindow
 
-
                 width: 640
                 height: 480
-
-                x: parent.x + 100
-                y: parent.y + 100
             }
         }
 

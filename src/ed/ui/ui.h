@@ -27,6 +27,7 @@ public:
 
     Q_INVOKABLE void moveWindow();
     Q_INVOKABLE void resizeWindow( int edge );
+    Q_INVOKABLE QVector2D mainWindowCenter() const;
     Q_INVOKABLE void quitApplication();
 
     void closeEvent( QCloseEvent *event ) override;
