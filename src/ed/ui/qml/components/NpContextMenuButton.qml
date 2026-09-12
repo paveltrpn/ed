@@ -29,11 +29,7 @@ QuickTemplates.Button {
             when: control.down
             PropertyChanges {
                 target: control
-                backgroundColor: _color.si_background_dark
-            }
-            PropertyChanges {
-                target: control
-                textColor: _color.si_text_light
+                backgroundColor: _color.background_overlay_80
             }
         },
         State {
@@ -47,11 +43,7 @@ QuickTemplates.Button {
             when: control.checked
             PropertyChanges {
                 target: control
-                backgroundColor: _color.si_background_light
-            }
-            PropertyChanges {
-                target: control
-                textColor: _color.si_text_light
+                backgroundColor: _color.background_overlay_80
             }
         }
     ]
