@@ -78,9 +78,9 @@ vec3 lightpos       = normalize( lightParams.origin );
 
 void main() {
     mat4 viewOffset= mat4(0.0f);
-    viewOffset[3][0] = 2.6f;//boxParams.origin.x;
-    viewOffset[3][1] = 2.4f;//boxParams.origin.y;
-    viewOffset[3][2] = -10.f;//boxParams.origin.z;
+    viewOffset[3][0] = 0.0555f;//boxParams.origin.x;
+    viewOffset[3][1] = 0.0475f;//boxParams.origin.y;
+    viewOffset[3][2] = -0.200f;//boxParams.origin.z;
 
     viewOffset[0][0] = 1.0f;
     viewOffset[1][1] = 1.0f;
@@ -88,9 +88,9 @@ void main() {
     viewOffset[3][3] = 1.0f;
 
     mat4 boxOffset= mat4(0.0f);
-    boxOffset[3][0] = 0.0f;//boxParams.origin.x;
-    boxOffset[3][1] = 0.0f;//boxParams.origin.y;
-    boxOffset[3][2] = 0.0f;//boxParams.origin.z;
+    boxOffset[3][0] = boxParams.origin.x;
+    boxOffset[3][1] = boxParams.origin.y;
+    boxOffset[3][2] = boxParams.origin.z;
 
     boxOffset[0][0] = 1.0f;
     boxOffset[1][1] = 1.0f;
@@ -103,10 +103,14 @@ void main() {
     boxScale[2][2] = boxParams.size;
     boxScale[3][3] = 1.0f;
 
-    mat4 boxRot = rotationMatrix( boxParams.axis, boxParams.angl );
+    // mat4 boxRot = rotationMatrix( boxParams.axis, boxParams.angl );
+    mat4 boxRot = mat4(0.0f);
+    boxRot[0][0] = 1.0f;
+    boxRot[1][1] = 1.0f;
+    boxRot[2][2] = 1.0f;
+    boxRot[3][3] = 1.0f;
 
-    vec4 worldPos = /*boxRot **/ boxScale * /*boxOffset **/ vec4( positions[gl_VertexIndex], 1.0 );
-    gl_Position             = pc.projection * viewOffset * viewMatrix.m * worldPos;
+    gl_Position             = pc.projection * boxOffset * viewMatrix.m * boxScale * vec4( positions[gl_VertexIndex], 1.0 );
 
     vec3 nrmRotated = ( inverse(transpose(boxRot)) * vec4( normals[gl_VertexIndex], 0.0 ) ).xyz;
     vec4 nrmTransformed     = inverse(transpose( pc.modelview * viewMatrix.m)) * vec4( nrmRotated, 0.0 );

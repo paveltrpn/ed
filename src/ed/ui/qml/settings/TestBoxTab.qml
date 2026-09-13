@@ -44,10 +44,10 @@ Rectangle {
             Layout.preferredHeight: 24
 
             onLoaded: {
-                item.parameterlabel = "Box origin";
-                item.parameterValueX = Tired.scenegraph.testbox.boxOrigin.x;
-                item.parameterValueY = Tired.scenegraph.testbox.boxOrigin.y;
-                item.parameterValueZ = Tired.scenegraph.testbox.boxOrigin.z;
+                boxOriginField.item.parameterlabel = "Box origin";
+                boxOriginField.item.parameterValueX = Tired.scenegraph.testbox.boxOrigin.x;
+                boxOriginField.item.parameterValueY = Tired.scenegraph.testbox.boxOrigin.y;
+                boxOriginField.item.parameterValueZ = Tired.scenegraph.testbox.boxOrigin.z;
             }
 
             Connections {
@@ -65,8 +65,8 @@ Rectangle {
             Layout.preferredHeight: 24
 
             onLoaded: {
-                item.parameterlabel = "Box size";
-                item.parameterValue = Tired.scenegraph.testbox.boxSize;
+                boxSizeField.item.parameterlabel = "Box size";
+                boxSizeField.item.parameterValue = Tired.scenegraph.testbox.boxSize;
             }
 
             Connections {
@@ -84,10 +84,10 @@ Rectangle {
             Layout.preferredHeight: 24
 
             onLoaded: {
-                item.parameterlabel = "Box axis";
-                item.parameterValueX = Tired.scenegraph.testbox.boxAxis.x;
-                item.parameterValueY = Tired.scenegraph.testbox.boxAxis.y;
-                item.parameterValueZ = Tired.scenegraph.testbox.boxAxis.z;
+                boxAxisField.item.parameterlabel = "Box axis";
+                boxAxisField.item.parameterValueX = Tired.scenegraph.testbox.boxAxis.x;
+                boxAxisField.item.parameterValueY = Tired.scenegraph.testbox.boxAxis.y;
+                boxAxisField.item.parameterValueZ = Tired.scenegraph.testbox.boxAxis.z;
             }
 
             Connections {
