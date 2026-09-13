@@ -18,7 +18,7 @@ layout(set = 0, binding = 1) uniform GridBuffer {
 
 void main() {
     // Early Z-culling based on distance.
-    float distToCamera = length(vWorldPos - gridSettings.cameraPosition);
+    float distToCamera = distance(vWorldPos, gridSettings.cameraPosition);
     if (distToCamera > gridSettings.maxRange) {
         discard;
     }
@@ -34,7 +34,7 @@ void main() {
     float distToYLine = min(yLocal, gridSettings.gridSize - yLocal);
 
     // Determine if we are on a line.
-    float alpha = 0.0;
+    float alpha = 0.0f;
 
     // Check X-axis lines.
     if (distToXLine < gridSettings.lineThickness) {
@@ -43,7 +43,7 @@ void main() {
         float gridIndexX = round(vWorldPos.x / gridSettings.gridSize);
         bool isMajorX = (mod(gridIndexX, gridSettings.majorDivisor) == 0.0);
 
-        alpha = 1.0;
+        alpha = 1.0f;
 
         // Mix colors if it's a major line.
         if (isMajorX) {
@@ -57,7 +57,7 @@ void main() {
         float gridIndexY = round(vWorldPos.y / gridSettings.gridSize);
         bool isMajorY = (mod(gridIndexY, gridSettings.majorDivisor) == 0.0);
 
-        alpha = 1.0;
+        alpha = 1.0f;
 
         if (isMajorY) {
                 outFragColor = vec4(gridSettings.colorMajor, 1.0);
@@ -68,7 +68,7 @@ void main() {
 
     // Fade out lines based on distance (Atmospheric Perspective / Fog).
     // Calculate fade factor: 1.0 at camera, 0.0 at maxRange.
-    float fade = 1.0 - (distToCamera / gridSettings.maxRange);
+    float fade = 1.0f - (distToCamera / gridSettings.maxRange);
     // Apply a curve to the fade for smoother disappearance
     fade = clamp(pow(fade, 2.0), 0.0, 1.0);
 
@@ -80,11 +80,11 @@ void main() {
 
     // If the adjusted line is now too thin, fade it out gently
     float adjustedThickness = gridSettings.lineThickness * zoomScale;
-    if (adjustedThickness < 0.1) {
-        fade *= (adjustedThickness / 0.1);
+    if (adjustedThickness < 0.1f) {
+        fade *= (adjustedThickness / 0.1f);
     }
 
-    if (alpha < 0.5) {
+    if (alpha < 0.5f) {
         discard;
     }
 

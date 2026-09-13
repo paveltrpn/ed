@@ -89,7 +89,7 @@ private:
     float _gridSize{ 1.0f };
     float _lineThickness{ 0.0256f };
     float _maxRange{ 256.0f };
-    float _zoomSensitivity{ 4.0f };
+    float _zoomSensitivity{ 0.5f };
 
     vsg::vec3 _colorMajor{ 19.0f / 255.0f, 19.0f / 255.0f, 17.0f / 255.0f };
     vsg::vec3 _colorMinor{ 53.0f / 255.0f, 53.0f / 255.0f, 51.0f / 255.0f };
