@@ -9,9 +9,9 @@ Built with:
 
 ## Dependencies Installation
   
-### GLFW3, nlohmann-json and glslang tools
+### glslang tools
 ```bash
-apt install nlohmann-json3-dev libglfw3 libglfw3-dev glslang-dev glslang-tools
+apt install glslang-dev glslang-tools
 ```
 
 ### Qt 6.10+  
