@@ -52,16 +52,6 @@ find_package(Qt6 ${QT_VERSION} COMPONENTS
 )
 
 # ================================
-# Module lib/fast_obj
-# ================================
-add_subdirectory(lib/fast_obj)
-
-# ================================
-# Module lib/libtga
-# ================================
-add_subdirectory(lib/libtga)
-
-# ================================
 # Module config
 # ================================
 file(GLOB MOD_MESH_SRC "src/mesh/*.cpp" "src/mesh/*.h")
@@ -70,7 +60,6 @@ target_link_libraries(mesh log)
 target_compile_options(mesh PRIVATE "${CXX_STANDART}")
 target_link_libraries(mesh
    algebra
-   fast_obj
 )
 
 # ================================
@@ -121,7 +110,6 @@ set_target_properties(image PROPERTIES AUTOMOC TRUE)
 target_compile_options(image PRIVATE "${CXX_STANDART}")
 target_link_libraries(image
     log
-    libtga
 )
 
 # ================================
@@ -190,7 +178,6 @@ target_link_libraries(tired
     vk
     log
     image
-    fast_obj
     event
     vsg
     mesh
