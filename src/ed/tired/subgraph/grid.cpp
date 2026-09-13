@@ -53,21 +53,25 @@ auto Grid::gridZOffset() const -> float {
 auto Grid::setGridSize( float value ) -> void {
     _node->_gridSize = value;
     _node->updateGridBufUniformValue();
+    emit gridSizeChanged();
 }
 
 auto Grid::setLineThickness( float value ) -> void {
     _node->_lineThickness = value;
     _node->updateGridBufUniformValue();
+    emit lineThicknessChanged();
 }
 
 auto Grid::setMaxRange( float value ) -> void {
     _node->_maxRange = value;
     _node->updateGridBufUniformValue();
+    emit maxRangeChanged();
 }
 
 auto Grid::setZoomSensitivity( float value ) -> void {
     _node->_zoomSensitivity = value;
     _node->updateGridBufUniformValue();
+    emit zoomSensitivityChanged();
 }
 
 auto Grid::setColorMajor( float r, float g, float b ) -> void {
@@ -87,16 +91,19 @@ auto Grid::setColorMinor( float r, float g, float b ) -> void {
 auto Grid::setMajorDivisor( float value ) -> void {
     _node->_majorDivisor = value;
     _node->updateGridBufUniformValue();
+    emit majorDivisorChanged();
 }
 
 auto Grid::setGridScale( float value ) -> void {
     _node->_gridScale = value;
     _node->updatePlaneBufUniformValue();
+    emit gridScaleChanged();
 }
 
 auto Grid::setGridZOffset( float value ) -> void {
     _node->_gridZOffset = value;
     _node->updatePlaneBufUniformValue();
+    emit gridZOffsetChanged();
 }
 
 auto Grid::updateCameraPosition( const vsg::vec3& value ) -> void {
@@ -158,7 +165,7 @@ auto GridSubgraph::initPipeline() -> void {
         .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
         .dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
         .colorBlendOp = VK_BLEND_OP_ADD,
-        .srcAlphaBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
+        .srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
         .dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
         .alphaBlendOp = VK_BLEND_OP_ADD,
         .colorWriteMask =
@@ -166,13 +173,14 @@ auto GridSubgraph::initPipeline() -> void {
     };
 
     auto blendStateInfo = vsg::ColorBlendState::create();
-    blendStateInfo->logicOpEnable = VK_TRUE;
-    blendStateInfo->logicOp = VK_LOGIC_OP_COPY;
     blendStateInfo->attachments = { colorBlendAttachment };
 
-    auto pipelineStates = vsg::GraphicsPipelineStates{
-        vsg::VertexInputState::create(), vsg::InputAssemblyState::create(), rasterizerInfo,
-        vsg::MultisampleState::create(), vsg::ColorBlendState::create(),    vsg::DepthStencilState::create() };
+    auto pipelineStates = vsg::GraphicsPipelineStates{ vsg::VertexInputState::create(),
+                                                       vsg::InputAssemblyState::create(),
+                                                       rasterizerInfo,
+                                                       vsg::MultisampleState::create(),
+                                                       blendStateInfo,
+                                                       vsg::DepthStencilState::create() };
 
     // projection, view, and model matrices, actual push constant calls automatically provided by the VSG's RecordTraversal
     auto pushConstantRanges = vsg::PushConstantRanges{ { VK_SHADER_STAGE_VERTEX_BIT, 0, 128 } };
