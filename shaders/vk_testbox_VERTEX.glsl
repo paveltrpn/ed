@@ -77,16 +77,6 @@ vec3 ambientLight   = vec3( 0.3, 0.3, 0.3 );
 vec3 lightpos       = normalize( lightParams.origin );
 
 void main() {
-    mat4 viewOffset= mat4(0.0f);
-    viewOffset[3][0] = 0.0555f;//boxParams.origin.x;
-    viewOffset[3][1] = 0.0475f;//boxParams.origin.y;
-    viewOffset[3][2] = -0.200f;//boxParams.origin.z;
-
-    viewOffset[0][0] = 1.0f;
-    viewOffset[1][1] = 1.0f;
-    viewOffset[2][2] = 1.0f;
-    viewOffset[3][3] = 1.0f;
-
     mat4 boxOffset= mat4(0.0f);
     boxOffset[3][0] = boxParams.origin.x;
     boxOffset[3][1] = boxParams.origin.y;

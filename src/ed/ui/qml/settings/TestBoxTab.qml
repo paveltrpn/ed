@@ -45,9 +45,10 @@ Rectangle {
 
             onLoaded: {
                 boxOriginField.item.parameterlabel = "Box origin";
-                boxOriginField.item.parameterValueX = Tired.scenegraph.testbox.boxOrigin.x;
-                boxOriginField.item.parameterValueY = Tired.scenegraph.testbox.boxOrigin.y;
-                boxOriginField.item.parameterValueZ = Tired.scenegraph.testbox.boxOrigin.z;
+                const value = Tired.scenegraph.testbox.boxOrigin
+                boxOriginField.item.parameterValueX = value.x;
+                boxOriginField.item.parameterValueY = value.y;
+                boxOriginField.item.parameterValueZ = value.z;
             }
 
             Connections {
@@ -85,9 +86,10 @@ Rectangle {
 
             onLoaded: {
                 boxAxisField.item.parameterlabel = "Box axis";
-                boxAxisField.item.parameterValueX = Tired.scenegraph.testbox.boxAxis.x;
-                boxAxisField.item.parameterValueY = Tired.scenegraph.testbox.boxAxis.y;
-                boxAxisField.item.parameterValueZ = Tired.scenegraph.testbox.boxAxis.z;
+                const value = Tired.scenegraph.testbox.boxAxis
+                boxAxisField.item.parameterValueX = value.x;
+                boxAxisField.item.parameterValueY = value.y;
+                boxAxisField.item.parameterValueZ = value.z;
             }
 
             Connections {
@@ -125,9 +127,10 @@ Rectangle {
 
             onLoaded: {
                 item.parameterlabel = "Light origin";
-                item.parameterValueX = Tired.scenegraph.testbox.lightOrigin.x;
-                item.parameterValueY = Tired.scenegraph.testbox.lightOrigin.y;
-                item.parameterValueZ = Tired.scenegraph.testbox.lightOrigin.z;
+                const value = Tired.scenegraph.testbox.lightOrigin
+                item.parameterValueX = value.x;
+                item.parameterValueY = value.y;
+                item.parameterValueZ = value.z;
             }
 
             Connections {
