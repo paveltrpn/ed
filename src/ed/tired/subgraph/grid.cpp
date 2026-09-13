@@ -153,6 +153,23 @@ auto GridSubgraph::initPipeline() -> void {
     rasterizerInfo->depthBiasEnable = VK_FALSE;
     rasterizerInfo->lineWidth = 1.0f;
 
+    const VkPipelineColorBlendAttachmentState colorBlendAttachment{
+        .blendEnable = VK_TRUE,
+        .srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
+        .dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+        .colorBlendOp = VK_BLEND_OP_ADD,
+        .srcAlphaBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA,
+        .dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA,
+        .alphaBlendOp = VK_BLEND_OP_ADD,
+        .colorWriteMask =
+            VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT,
+    };
+
+    auto blendStateInfo = vsg::ColorBlendState::create();
+    blendStateInfo->logicOpEnable = VK_TRUE;
+    blendStateInfo->logicOp = VK_LOGIC_OP_COPY;
+    blendStateInfo->attachments = { colorBlendAttachment };
+
     auto pipelineStates = vsg::GraphicsPipelineStates{
         vsg::VertexInputState::create(), vsg::InputAssemblyState::create(), rasterizerInfo,
         vsg::MultisampleState::create(), vsg::ColorBlendState::create(),    vsg::DepthStencilState::create() };
