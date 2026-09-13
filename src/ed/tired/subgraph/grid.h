@@ -98,7 +98,7 @@ private:
     float _gridScale{ 512.0f };
     float _gridZOffset{ 0.0f };
 
-    vsg::vec3 _cameraPosition{ 0.0f, 0.0f, 0.0f };
+    vsg::vec3 _cameraPosition{ 0.0f, -16.0f, 8.0f };
 
     vsg::ref_ptr<vsg::floatArray> _gridBufUniformValue{};
     vsg::ref_ptr<vsg::floatArray> _planeBufUniformValue{};
