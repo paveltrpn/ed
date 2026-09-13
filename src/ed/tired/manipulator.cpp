@@ -46,14 +46,12 @@ Trackball::Trackball( Manipulator* owner, vsg::ref_ptr<vsg::Camera> camera,
 }
 
 void Trackball::apply( vsg::MoveEvent& moveEvent ) {
-    const auto lm = lookMatrix();
-    _owner->lookChanged( lm );
+    _owner->lookChanged( eye(), center(), up() );
     vsg::Trackball::apply( moveEvent );
 }
 
 void Trackball::apply( vsg::ScrollWheelEvent& scrollWheel ) {
-    const auto lm = lookMatrix();
-    _owner->lookChanged( lm );
+    _owner->lookChanged( eye(), center(), up() );
     vsg::Trackball::apply( scrollWheel );
 }
 
@@ -73,30 +71,4 @@ auto Trackball::projection() const -> vsg::dmat4 {
     return vsg::Trackball::_camera->projectionMatrix->transform();
 }
 
-auto Trackball::lookMatrix() const -> vsg::mat4 {
-    auto eyev = eye();
-    auto centerv = center();
-    auto upv = up();
-
-    // Handle degenerate case (looking straight up/down)
-    // if (std::abs(glm::dot(glm::normalize(lookVector), worldUp)) > 0.999f)
-    //     worldUp = glm::vec3(0.0f, 0.0f, 1.0f);
-
-    auto forward = vsg::normalize( centerv - eyev );
-    auto right = vsg::normalize( vsg::cross( forward, upv ) );
-
-    // Orthonormal basis, transposed (inverse rotation) — no translation.
-    vsg::mat4 view( 1.0f );
-    view[0][0] = right.x;
-    view[1][0] = right.y;
-    view[2][0] = right.z;
-    view[0][1] = upv.x;
-    view[1][1] = upv.y;
-    view[2][1] = upv.z;
-    view[0][2] = -forward.x;
-    view[1][2] = -forward.y;
-    view[2][2] = -forward.z;
-
-    return view;
-}
 }  // namespace tire

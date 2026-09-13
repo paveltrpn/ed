@@ -54,7 +54,7 @@ signals:
     void gizmoModeChanged();
 
 public slots:
-    void lookMatrixChanged( const vsg::mat4& mtrx );
+    void lookChanged( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up );
 
 private:
     vsg::ref_ptr<vsg::Group> _root{};

@@ -41,7 +41,7 @@ public:
     friend Trackball;
 
 signals:
-    void lookChanged( const vsg::mat4& mtrx );
+    void lookChanged( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up );
 
 private:
     vsg::ref_ptr<Trackball> _trackball{};
@@ -62,8 +62,6 @@ struct Trackball final : public vsg::Trackball {
     auto center() const -> vsg::dvec3;
     auto up() const -> vsg::dvec3;
     auto projection() const -> vsg::dmat4;
-
-    auto lookMatrix() const -> vsg::mat4;
 
 private:
     // Mayby some little observer for this?

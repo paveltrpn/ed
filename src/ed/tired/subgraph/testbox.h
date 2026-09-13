@@ -50,7 +50,7 @@ public:
     QVector3D lightOrigin();
     QVector3D lightColor();
 
-    void updateViewMatrix( const vsg::mat4& mtrx );
+    void updateViewMatrix( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up );
 
 signals:
     void boxOriginChanged();
@@ -61,6 +61,9 @@ signals:
 
     void lightOriginChanged();
     void lightColorChanged();
+
+private:
+    auto lookMatrix( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up ) const -> vsg::mat4;
 
 private:
     vsg::ref_ptr<TestboxSubgraph> _node{};

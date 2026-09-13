@@ -85,9 +85,32 @@ QVector3D Testbox::lightColor() {
     return QVector3D{ _node->_lightColor.x, _node->_lightColor.y, _node->_lightColor.z };
 }
 
-void Testbox::updateViewMatrix( const vsg::mat4& mtrx ) {
-    _node->_viewm = mtrx;
+void Testbox::updateViewMatrix( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up ) {
+    _node->_viewm = lookMatrix( eye, cnt, up );
     _node->updateViewMatrixBufUniformValue();
+}
+
+auto Testbox::lookMatrix( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up ) const -> vsg::mat4 {
+    // Handle degenerate case (looking straight up/down)
+    // if (std::abs(glm::dot(glm::normalize(lookVector), worldUp)) > 0.999f)
+    //     worldUp = glm::vec3(0.0f, 0.0f, 1.0f);
+
+    auto forward = vsg::normalize( cnt - eye );
+    auto right = vsg::normalize( vsg::cross( forward, up ) );
+
+    // Orthonormal basis, transposed (inverse rotation) — no translation.
+    vsg::mat4 view( 1.0f );
+    view[0][0] = right.x;
+    view[1][0] = right.y;
+    view[2][0] = right.z;
+    view[0][1] = up.x;
+    view[1][1] = up.y;
+    view[2][1] = up.z;
+    view[0][2] = -forward.x;
+    view[1][2] = -forward.y;
+    view[2][2] = -forward.z;
+
+    return view;
 }
 
 // ======================================================================================
