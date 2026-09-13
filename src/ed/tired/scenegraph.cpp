@@ -66,6 +66,7 @@ int Scenegraph::gizmoMode() {
 
 void Scenegraph::lookChanged( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up ) {
     _testbox->updateViewMatrix( eye, cnt, up );
+    _grid->updateCameraPosition( vsg::vec3{ eye } );
 }
 
 }  // namespace tire

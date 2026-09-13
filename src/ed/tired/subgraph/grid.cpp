@@ -22,81 +22,86 @@ auto Grid::node() const -> vsg::ref_ptr<GridSubgraph> {
     return _node;
 }
 
-float Grid::gridSize() {
+auto Grid::gridSize() const -> float {
     return _node->_gridSize;
 };
 
-float Grid::lineThickness() {
+auto Grid::lineThickness() const -> float {
     return _node->_lineThickness;
 };
 
-float Grid::maxRange() {
+auto Grid::maxRange() const -> float {
     return _node->_maxRange;
 };
 
-float Grid::zoomSensitivity() {
+auto Grid::zoomSensitivity() const -> float {
     return _node->_zoomSensitivity;
 };
 
-float Grid::majorDivisor() {
+auto Grid::majorDivisor() const -> float {
     return _node->_majorDivisor;
 };
 
-float Grid::gridScale() {
+auto Grid::gridScale() const -> float {
     return _node->_gridScale;
 };
 
-float Grid::gridZOffset() {
+auto Grid::gridZOffset() const -> float {
     return _node->_gridZOffset;
 };
 
-void Grid::setGridSize( float value ) {
+auto Grid::setGridSize( float value ) -> void {
     _node->_gridSize = value;
     _node->updateGridBufUniformValue();
 }
 
-void Grid::setLineThickness( float value ) {
+auto Grid::setLineThickness( float value ) -> void {
     _node->_lineThickness = value;
     _node->updateGridBufUniformValue();
 }
 
-void Grid::setMaxRange( float value ) {
+auto Grid::setMaxRange( float value ) -> void {
     _node->_maxRange = value;
     _node->updateGridBufUniformValue();
 }
 
-void Grid::setZoomSensitivity( float value ) {
+auto Grid::setZoomSensitivity( float value ) -> void {
     _node->_zoomSensitivity = value;
     _node->updateGridBufUniformValue();
 }
 
-void Grid::setColorMajor( float r, float g, float b ) {
+auto Grid::setColorMajor( float r, float g, float b ) -> void {
     _node->_colorMajor.r = r;
     _node->_colorMajor.g = g;
     _node->_colorMajor.b = b;
     _node->updateGridBufUniformValue();
 }
 
-void Grid::setColorMinor( float r, float g, float b ) {
+auto Grid::setColorMinor( float r, float g, float b ) -> void {
     _node->_colorMinor.r = r;
     _node->_colorMinor.g = g;
     _node->_colorMinor.b = b;
     _node->updateGridBufUniformValue();
 }
 
-void Grid::setMajorDivisor( float value ) {
+auto Grid::setMajorDivisor( float value ) -> void {
     _node->_majorDivisor = value;
     _node->updateGridBufUniformValue();
 }
 
-void Grid::setGridScale( float value ) {
+auto Grid::setGridScale( float value ) -> void {
     _node->_gridScale = value;
     _node->updatePlaneBufUniformValue();
 }
 
-void Grid::setGridZOffset( float value ) {
+auto Grid::setGridZOffset( float value ) -> void {
     _node->_gridZOffset = value;
     _node->updatePlaneBufUniformValue();
+}
+
+auto Grid::updateCameraPosition( const vsg::vec3& value ) -> void {
+    _node->_cameraPosition = value;
+    _node->updateGridBufUniformValue();
 }
 
 // ======================================================================================
@@ -125,7 +130,7 @@ auto GridSubgraph::initPipeline() -> void {
         { /* binding */ 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, /* count */ 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr } };
     const auto descriptorSetLayout = vsg::DescriptorSetLayout::create( descriptorBindings );
 
-    _planeBufUniformValue = vsg::floatArray::create( { _gridScale, _gridZOffset, 1.0f, 1.0f } );
+    _planeBufUniformValue = vsg::floatArray::create( { _gridScale, _gridZOffset, -0.0f, -0.0f } );
     _planeBufUniformValue->properties.dataVariance = vsg::DYNAMIC_DATA;
 
     const auto planeBufUniformDescriptor = vsg::DescriptorBuffer::create( _planeBufUniformValue, /* dstBinding */ 0, 0,
@@ -133,7 +138,8 @@ auto GridSubgraph::initPipeline() -> void {
 
     _gridBufUniformValue =
         vsg::floatArray::create( { _gridSize, _lineThickness, _maxRange, _zoomSensitivity, _colorMajor.r, _colorMajor.g,
-                                   _colorMajor.b, 1.0, _colorMinor.r, _colorMinor.g, _colorMinor.b, _majorDivisor } );
+                                   _colorMajor.b, -0.0f, _colorMinor.r, _colorMinor.g, _colorMinor.b, _majorDivisor,
+                                   _cameraPosition.x, _cameraPosition.y, _cameraPosition.z, -0.0f } );
     _gridBufUniformValue->properties.dataVariance = vsg::DYNAMIC_DATA;
 
     const auto gridBufUniformDescriptor =
@@ -191,11 +197,15 @@ auto GridSubgraph::updateGridBufUniformValue() -> void {
     ( *_gridBufUniformValue )[4] = _colorMajor.r;
     ( *_gridBufUniformValue )[5] = _colorMajor.g;
     ( *_gridBufUniformValue )[6] = _colorMajor.b;
-    ( *_gridBufUniformValue )[7] = 1.0;
+    ( *_gridBufUniformValue )[7] = -0.0f;
     ( *_gridBufUniformValue )[8] = _colorMinor.r;
     ( *_gridBufUniformValue )[9] = _colorMinor.g;
     ( *_gridBufUniformValue )[10] = _colorMinor.b;
     ( *_gridBufUniformValue )[11] = _majorDivisor;
+    ( *_gridBufUniformValue )[12] = _cameraPosition.x;
+    ( *_gridBufUniformValue )[13] = _cameraPosition.y;
+    ( *_gridBufUniformValue )[14] = _cameraPosition.z;
+    ( *_gridBufUniformValue )[15] = -0.0f;
 
     _gridBufUniformValue->dirty();
 }
@@ -203,8 +213,8 @@ auto GridSubgraph::updateGridBufUniformValue() -> void {
 auto GridSubgraph::updatePlaneBufUniformValue() -> void {
     ( *_planeBufUniformValue )[0] = _gridScale;
     ( *_planeBufUniformValue )[1] = _gridZOffset;
-    ( *_planeBufUniformValue )[2] = 1.0f;
-    ( *_planeBufUniformValue )[3] = 1.0f;
+    ( *_planeBufUniformValue )[2] = -0.0f;
+    ( *_planeBufUniformValue )[3] = -0.0f;
 
     _planeBufUniformValue->dirty();
 }

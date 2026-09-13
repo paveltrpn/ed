@@ -100,8 +100,8 @@ Rectangle {
             Layout.preferredHeight: _units.scaled_24
 
             onLoaded: {
-                item.parameterlabel = "Zoom sensitivity";
-                item.parameterValue = Tired.scenegraph.grid.zoomSensitivity;
+                zoomSensitivityField.item.parameterlabel = "Zoom sensitivity";
+                zoomSensitivityField.item.parameterValue = Tired.scenegraph.grid.zoomSensitivity;
             }
 
             Connections {

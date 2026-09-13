@@ -31,25 +31,27 @@ public:
 
     auto node() const -> vsg::ref_ptr<GridSubgraph>;
 
-    void setGridSize( float value );
-    void setLineThickness( float value );
-    void setMaxRange( float value );
-    void setZoomSensitivity( float value );
+    auto setGridSize( float value ) -> void;
+    auto setLineThickness( float value ) -> void;
+    auto setMaxRange( float value ) -> void;
+    auto setZoomSensitivity( float value ) -> void;
 
     Q_INVOKABLE void setColorMajor( float r, float g, float b );
     Q_INVOKABLE void setColorMinor( float r, float g, float b );
 
-    void setMajorDivisor( float value );
-    void setGridScale( float value );
-    void setGridZOffset( float value );
+    auto setMajorDivisor( float value ) -> void;
+    auto setGridScale( float value ) -> void;
+    auto setGridZOffset( float value ) -> void;
 
-    float gridSize();
-    float lineThickness();
-    float maxRange();
-    float zoomSensitivity();
-    float majorDivisor();
-    float gridScale();
-    float gridZOffset();
+    auto updateCameraPosition( const vsg::vec3& value ) -> void;
+
+    auto gridSize() const -> float;
+    auto lineThickness() const -> float;
+    auto maxRange() const -> float;
+    auto zoomSensitivity() const -> float;
+    auto majorDivisor() const -> float;
+    auto gridScale() const -> float;
+    auto gridZOffset() const -> float;
 
 signals:
     void gridSizeChanged();
@@ -84,17 +86,19 @@ private:
     auto updatePlaneBufUniformValue() -> void;
 
 private:
-    float _gridSize{ 0.8f };
-    float _lineThickness{ 0.015f };
-    float _maxRange{ 100.0f };
-    float _zoomSensitivity{ 0.05f };
+    float _gridSize{ 1.0f };
+    float _lineThickness{ 0.0256f };
+    float _maxRange{ 256.0f };
+    float _zoomSensitivity{ 4.0f };
 
     vsg::vec3 _colorMajor{ 19.0f / 255.0f, 19.0f / 255.0f, 17.0f / 255.0f };
     vsg::vec3 _colorMinor{ 53.0f / 255.0f, 53.0f / 255.0f, 51.0f / 255.0f };
 
     float _majorDivisor{ 5.0f };
-    float _gridScale{ 10.0f };
+    float _gridScale{ 512.0f };
     float _gridZOffset{ 0.0f };
+
+    vsg::vec3 _cameraPosition{ 0.0f, 0.0f, 0.0f };
 
     vsg::ref_ptr<vsg::floatArray> _gridBufUniformValue{};
     vsg::ref_ptr<vsg::floatArray> _planeBufUniformValue{};
