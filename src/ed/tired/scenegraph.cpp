@@ -13,7 +13,7 @@ Scenegraph::Scenegraph( vsg::Viewer* viewer, QObject* parent )
 
 auto Scenegraph::initSubgraphs() -> void {
     _grid = new Grid{ _viewer, this };
-    _testbox = new Testbox{ _viewer, this };
+    _navbox = new Navbox{ _viewer, this };
     _bounding = new Bounding{ _viewer, this };
     _markerSubgraph = new MarkerSubgraph{ _viewer };
     _sceneObjectSubgraph = new SceneObjectSubgraph{ _viewer };
@@ -24,7 +24,7 @@ auto Scenegraph::initSubgraphs() -> void {
     _root->addChild( _sceneObjectSubgraph );
     _root->addChild( _bounding->node() );
     _root->addChild( _grid->node() );
-    _root->addChild( _testbox->node() );
+    _root->addChild( _navbox->node() );
     _root->addChild( _markerSubgraph );
 }
 
@@ -32,8 +32,8 @@ auto Scenegraph::root() const -> vsg::ref_ptr<vsg::Group> {
     return _root;
 }
 
-auto Scenegraph::testbox() const -> Testbox* {
-    return _testbox;
+auto Scenegraph::navbox() const -> Navbox* {
+    return _navbox;
 }
 
 auto Scenegraph::grid() const -> Grid* {
@@ -65,7 +65,7 @@ int Scenegraph::gizmoMode() {
 }
 
 void Scenegraph::lookChanged( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up ) {
-    _testbox->updateViewMatrix( eye, cnt, up );
+    _navbox->updateViewMatrix( eye, cnt, up );
     _grid->updateCameraPosition( vsg::vec3{ eye } );
 }
 

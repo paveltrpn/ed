@@ -8,7 +8,7 @@ import Tire 1.0
 import "../components"
 
 Rectangle {
-    id: testBoxComponent
+    id: navboxComponent
 
     readonly property var _color: Appearence.colors
     readonly property var _fonts: Appearence.fonts
@@ -19,10 +19,10 @@ Rectangle {
 
     color: _color.si_background_light
 
-    implicitHeight: testBoxSettingsLayout.implicitHeight + _units.full
+    implicitHeight: navboxSettingsLayout.implicitHeight + _units.full
 
     ColumnLayout {
-        id: testBoxSettingsLayout
+        id: navboxSettingsLayout
 
         spacing: _units.half
 
@@ -39,13 +39,13 @@ Rectangle {
 
         Loader {
             id: boxOriginField
-            sourceComponent: testBox3ComponentParameter
+            sourceComponent: navbox3ComponentParameter
             Layout.preferredWidth: parent.width
             Layout.preferredHeight: 24
 
             onLoaded: {
                 boxOriginField.item.parameterlabel = "Box origin";
-                const value = Tired.scenegraph.testbox.boxOrigin
+                const value = Tired.scenegraph.navbox.boxOrigin
                 boxOriginField.item.parameterValueX = value.x;
                 boxOriginField.item.parameterValueY = value.y;
                 boxOriginField.item.parameterValueZ = value.z;
@@ -54,39 +54,39 @@ Rectangle {
             Connections {
                 target: boxOriginField.item
                 function onParamValueChanged(valueX, valueY, valueZ) {
-                    Tired.scenegraph.testbox.boxOrigin = Qt.vector3d(valueX, valueY, valueZ);
+                    Tired.scenegraph.navbox.boxOrigin = Qt.vector3d(valueX, valueY, valueZ);
                 }
             }
         }
 
         Loader {
             id: boxSizeField
-            sourceComponent: testBoxParameter
+            sourceComponent: navboxParameter
             Layout.preferredWidth: parent.width
             Layout.preferredHeight: 24
 
             onLoaded: {
                 boxSizeField.item.parameterlabel = "Box size";
-                boxSizeField.item.parameterValue = Tired.scenegraph.testbox.boxSize;
+                boxSizeField.item.parameterValue = Tired.scenegraph.navbox.boxSize;
             }
 
             Connections {
                 target: boxSizeField.item
                 function onParamValueChanged(value) {
-                    Tired.scenegraph.testbox.boxSize = value;
+                    Tired.scenegraph.navbox.boxSize = value;
                 }
             }
         }
 
         Loader {
             id: boxAxisField
-            sourceComponent: testBox3ComponentParameter
+            sourceComponent: navbox3ComponentParameter
             Layout.preferredWidth: parent.width
             Layout.preferredHeight: 24
 
             onLoaded: {
                 boxAxisField.item.parameterlabel = "Box axis";
-                const value = Tired.scenegraph.testbox.boxAxis
+                const value = Tired.scenegraph.navbox.boxAxis
                 boxAxisField.item.parameterValueX = value.x;
                 boxAxisField.item.parameterValueY = value.y;
                 boxAxisField.item.parameterValueZ = value.z;
@@ -95,39 +95,39 @@ Rectangle {
             Connections {
                 target: boxAxisField.item
                 function onParamValueChanged(valueX, valueY, valueZ) {
-                    Tired.scenegraph.testbox.boxAxis = Qt.vector3d(valueX, valueY, valueZ);
+                    Tired.scenegraph.navbox.boxAxis = Qt.vector3d(valueX, valueY, valueZ);
                 }
             }
         }
 
         Loader {
             id: boxAnglField
-            sourceComponent: testBoxParameter
+            sourceComponent: navboxParameter
             Layout.preferredWidth: parent.width
             Layout.preferredHeight: 24
 
             onLoaded: {
                 item.parameterlabel = "Box angle";
-                item.parameterValue = Tired.scenegraph.testbox.boxAngl;
+                item.parameterValue = Tired.scenegraph.navbox.boxAngl;
             }
 
             Connections {
                 target: boxAnglField.item
                 function onParamValueChanged(value) {
-                    Tired.scenegraph.testbox.boxAngl = value;
+                    Tired.scenegraph.navbox.boxAngl = value;
                 }
             }
         }
 
         Loader {
             id: lightOriginField
-            sourceComponent: testBox3ComponentParameter
+            sourceComponent: navbox3ComponentParameter
             Layout.preferredWidth: parent.width
             Layout.preferredHeight: 24
 
             onLoaded: {
                 item.parameterlabel = "Light origin";
-                const value = Tired.scenegraph.testbox.lightOrigin
+                const value = Tired.scenegraph.navbox.lightOrigin
                 item.parameterValueX = value.x;
                 item.parameterValueY = value.y;
                 item.parameterValueZ = value.z;
@@ -136,14 +136,14 @@ Rectangle {
             Connections {
                 target: lightOriginField.item
                 function onParamValueChanged(valueX, valueY, valueZ) {
-                    Tired.scenegraph.testbox.lightOrigin = Qt.vector3d(valueX, valueY, valueZ);
+                    Tired.scenegraph.navbox.lightOrigin = Qt.vector3d(valueX, valueY, valueZ);
                 }
             }
         }
     }
 
     Component {
-        id: testBoxParameter
+        id: navboxParameter
 
         Item {
             id: textBoxParameterWrapper
@@ -197,7 +197,7 @@ Rectangle {
     }
 
     Component {
-        id: testBox3ComponentParameter
+        id: navbox3ComponentParameter
 
         Item {
             id: textBox3ComponentParameterWrapper

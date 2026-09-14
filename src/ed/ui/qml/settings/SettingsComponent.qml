@@ -66,8 +66,8 @@ Item {
             Layout.fillWidth: true
         }
 
-        TestBoxTab {
-            id: testBoxTab
+        NavboxTab {
+            id: navboxTab
             Layout.fillWidth: true
         }
     }

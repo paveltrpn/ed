@@ -6,7 +6,7 @@
 #include <vsg/all.h>
 
 #include "subgraph/grid.h"
-#include "subgraph/testbox.h"
+#include "subgraph/navbox.h"
 #include "subgraph/sceneobject.h"
 #include "subgraph/marker.h"
 #include "subgraph/bounding.h"
@@ -23,7 +23,7 @@ enum class GizmoModes {
 struct Scenegraph final : public QObject {
     Q_OBJECT
 
-    Q_PROPERTY( QObject* testbox READ testbox NOTIFY testboxChanged FINAL )
+    Q_PROPERTY( QObject* navbox READ navbox NOTIFY navboxChanged FINAL )
     Q_PROPERTY( QObject* grid READ grid NOTIFY gridChanged FINAL )
     Q_PROPERTY( QObject* bounding READ bounding NOTIFY boundingChanged FINAL )
 
@@ -39,7 +39,7 @@ public:
 
     auto root() const -> vsg::ref_ptr<vsg::Group>;
 
-    Testbox* testbox() const;
+    Navbox* navbox() const;
     Grid* grid() const;
     Bounding* bounding() const;
 
@@ -47,7 +47,7 @@ public:
     int gizmoMode();
 
 signals:
-    void testboxChanged();
+    void navboxChanged();
     void gridChanged();
     void boundingChanged();
 
@@ -60,7 +60,7 @@ private:
     vsg::ref_ptr<vsg::Group> _root{};
     vsg::Viewer* _viewer;
 
-    Testbox* _testbox{};
+    Navbox* _navbox{};
     Grid* _grid{};
     Bounding* _bounding{};
 

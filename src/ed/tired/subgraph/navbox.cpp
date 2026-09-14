@@ -2,95 +2,95 @@
 #include <print>
 
 #include "program/program.h"
-#include "testbox.h"
+#include "navbox.h"
 
 namespace tire {
 
 // ======================================================================================
-// ==================== Testbox =========================================================
+// ==================== Navbox ==========================================================
 // ======================================================================================
 
-Testbox::Testbox( vsg::Viewer* viewer, QObject* parent )
+Navbox::Navbox( vsg::Viewer* viewer, QObject* parent )
     : QObject{ parent }
-    , _node{ new TestboxSubgraph{ viewer } } {
+    , _node{ new NavboxSubgraph{ viewer } } {
     //
     _node->initPipeline();
     _node->initDrawCommand();
 }
 
-auto Testbox::node() const -> vsg::ref_ptr<TestboxSubgraph> {
+auto Navbox::node() const -> vsg::ref_ptr<NavboxSubgraph> {
     return _node;
 }
 
-void Testbox::setBoxOrigin( QVector3D value ) {
+void Navbox::setBoxOrigin( QVector3D value ) {
     _node->_boxOrigin = vsg::vec3{ value.x(), value.y(), value.z() };
     _node->updateBoxUniformValue();
 }
 
-void Testbox::setBoxSize( float value ) {
+void Navbox::setBoxSize( float value ) {
     _node->_boxSize = value;
     _node->updateBoxUniformValue();
 }
 
-void Testbox::setBoxAxis( QVector3D value ) {
+void Navbox::setBoxAxis( QVector3D value ) {
     _node->_boxAxis = vsg::vec3{ value.x(), value.y(), value.z() };
     _node->updateBoxUniformValue();
 }
 
-void Testbox::setBoxAngl( float value ) {
+void Navbox::setBoxAngl( float value ) {
     _node->_boxAngl = value;
     _node->updateBoxUniformValue();
 }
 
-void Testbox::setBoxColor( QVector3D value ) {
+void Navbox::setBoxColor( QVector3D value ) {
     _node->_boxColor = vsg::vec3{ value.x(), value.y(), value.z() };
     _node->updateBoxUniformValue();
 }
 
-void Testbox::setLightOrigin( QVector3D value ) {
+void Navbox::setLightOrigin( QVector3D value ) {
     _node->_lightOrigin = vsg::vec3{ value.x(), value.y(), value.z() };
     _node->updateLightBufUniformValue();
 }
 
-void Testbox::setLightColor( QVector3D value ) {
+void Navbox::setLightColor( QVector3D value ) {
     _node->_lightColor = vsg::vec3{ value.x(), value.y(), value.z() };
     _node->updateLightBufUniformValue();
 }
 
-QVector3D Testbox::boxOrigin() {
+QVector3D Navbox::boxOrigin() {
     return QVector3D{ _node->_boxOrigin.x, _node->_boxOrigin.y, _node->_boxOrigin.z };
 }
 
-float Testbox::boxSize() {
+float Navbox::boxSize() {
     return _node->_boxSize;
 }
 
-QVector3D Testbox::boxAxis() {
+QVector3D Navbox::boxAxis() {
     return QVector3D{ _node->_boxAxis.x, _node->_boxAxis.y, _node->_boxAxis.z };
 }
 
-float Testbox::boxAngl() {
+float Navbox::boxAngl() {
     return _node->_boxAngl;
 }
 
-QVector3D Testbox::boxColor() {
+QVector3D Navbox::boxColor() {
     return QVector3D{ _node->_boxColor.x, _node->_boxColor.y, _node->_boxColor.z };
 }
 
-QVector3D Testbox::lightOrigin() {
+QVector3D Navbox::lightOrigin() {
     return QVector3D{ _node->_lightOrigin.x, _node->_lightOrigin.y, _node->_lightOrigin.z };
 }
 
-QVector3D Testbox::lightColor() {
+QVector3D Navbox::lightColor() {
     return QVector3D{ _node->_lightColor.x, _node->_lightColor.y, _node->_lightColor.z };
 }
 
-void Testbox::updateViewMatrix( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up ) {
+void Navbox::updateViewMatrix( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up ) {
     _node->_viewm = lookMatrix( eye, cnt, up );
     _node->updateViewMatrixBufUniformValue();
 }
 
-auto Testbox::lookMatrix( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up ) const -> vsg::mat4 {
+auto Navbox::lookMatrix( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up ) const -> vsg::mat4 {
     // Handle degenerate case (looking straight up/down)
     // if (std::abs(glm::dot(glm::normalize(lookVector), worldUp)) > 0.999f)
     //     worldUp = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -114,17 +114,17 @@ auto Testbox::lookMatrix( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vs
 }
 
 // ======================================================================================
-// ==================== TestboxSubgraph =================================================
+// ==================== NavboxSubgraph ==================================================
 // ======================================================================================
 
-TestboxSubgraph::TestboxSubgraph( vsg::Viewer* viewer )
+NavboxSubgraph::NavboxSubgraph( vsg::Viewer* viewer )
     : Subgraph{ viewer } {
 }
 
-auto TestboxSubgraph::initPipeline() -> void {
-    auto testboxSource = TextProgramSource{ "testbox" };
-    auto vSource = testboxSource.stageSource( ShaderStageType::VERTEX );
-    auto fSource = testboxSource.stageSource( ShaderStageType::FRAGMENT );
+auto NavboxSubgraph::initPipeline() -> void {
+    auto navboxSource = TextProgramSource{ "navbox" };
+    auto vSource = navboxSource.stageSource( ShaderStageType::VERTEX );
+    auto fSource = navboxSource.stageSource( ShaderStageType::FRAGMENT );
     auto vertexShader = vsg::ShaderStage::create( VK_SHADER_STAGE_VERTEX_BIT, "main", vSource );
     auto fragmentShader = vsg::ShaderStage::create( VK_SHADER_STAGE_FRAGMENT_BIT, "main", fSource );
 
@@ -203,7 +203,7 @@ auto TestboxSubgraph::initPipeline() -> void {
     _stateGroup->add( bindDescriptorSet );
 }
 
-auto TestboxSubgraph::initDrawCommand() -> void {
+auto NavboxSubgraph::initDrawCommand() -> void {
     // Add draw command.
     auto drawCommands = vsg::Commands::create();
     drawCommands->addChild( vsg::Draw::create( 36, 1, 0, 0 ) );
@@ -214,7 +214,7 @@ auto TestboxSubgraph::initDrawCommand() -> void {
     _stateGroup->addChild( tr );
 }
 
-auto TestboxSubgraph::updateBoxUniformValue() -> void {
+auto NavboxSubgraph::updateBoxUniformValue() -> void {
     ( *_boxUniformValue )[0] = _boxOrigin.x;
     ( *_boxUniformValue )[1] = _boxOrigin.y;
     ( *_boxUniformValue )[2] = _boxOrigin.z;
@@ -231,7 +231,7 @@ auto TestboxSubgraph::updateBoxUniformValue() -> void {
     _boxUniformValue->dirty();
 }
 
-auto TestboxSubgraph::updateLightBufUniformValue() -> void {
+auto NavboxSubgraph::updateLightBufUniformValue() -> void {
     ( *_lightUniformValue )[0] = _lightOrigin.x;
     ( *_lightUniformValue )[1] = _lightOrigin.y;
     ( *_lightUniformValue )[2] = _lightOrigin.z;
@@ -244,7 +244,7 @@ auto TestboxSubgraph::updateLightBufUniformValue() -> void {
     _lightUniformValue->dirty();
 }
 
-auto TestboxSubgraph::updateViewMatrixBufUniformValue() -> void {
+auto NavboxSubgraph::updateViewMatrixBufUniformValue() -> void {
     _viewmUniformValue->set( 0, _viewm );
     _viewmUniformValue->dirty();
 }

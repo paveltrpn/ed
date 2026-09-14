@@ -11,8 +11,6 @@
 #include <vsg/ui/ScrollWheelEvent.h>
 #include <vsg/ui/TouchEvent.h>
 
-#include "inputhandler.h"
-
 namespace tire {
 
 struct Trackball;

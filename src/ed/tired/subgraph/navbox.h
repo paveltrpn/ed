@@ -9,13 +9,13 @@
 
 namespace tire {
 
-struct TestboxSubgraph;
+struct NavboxSubgraph;
 
 // ======================================================================================
-// ==================== Testbox =========================================================
+// ==================== Navbox ==========================================================
 // ======================================================================================
 
-struct Testbox final : public QObject {
+struct Navbox final : public QObject {
     Q_OBJECT
 
     Q_PROPERTY( QVector3D boxOrigin READ boxOrigin WRITE setBoxOrigin NOTIFY boxOriginChanged FINAL )
@@ -28,9 +28,9 @@ struct Testbox final : public QObject {
     Q_PROPERTY( QVector3D lightColor READ lightColor WRITE setLightColor NOTIFY lightColorChanged FINAL )
 
 public:
-    Testbox( vsg::Viewer* viewer, QObject* parent = nullptr );
+    Navbox( vsg::Viewer* viewer, QObject* parent = nullptr );
 
-    auto node() const -> vsg::ref_ptr<TestboxSubgraph>;
+    auto node() const -> vsg::ref_ptr<NavboxSubgraph>;
 
     void setBoxOrigin( QVector3D value );
     void setBoxSize( float value );
@@ -66,20 +66,20 @@ private:
     auto lookMatrix( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up ) const -> vsg::mat4;
 
 private:
-    vsg::ref_ptr<TestboxSubgraph> _node{};
+    vsg::ref_ptr<NavboxSubgraph> _node{};
 };
 
 // ======================================================================================
-// ==================== TestboxSubgraph =================================================
+// ==================== NavboxSubgraph ==================================================
 // ======================================================================================
 
-struct TestboxSubgraph final : Subgraph {
-    TestboxSubgraph( vsg::Viewer* viewer );
+struct NavboxSubgraph final : Subgraph {
+    NavboxSubgraph( vsg::Viewer* viewer );
 
     auto initPipeline() -> void override;
     auto initDrawCommand() -> void;
 
-    friend Testbox;
+    friend Navbox;
 
 private:
     auto updateBoxUniformValue() -> void;

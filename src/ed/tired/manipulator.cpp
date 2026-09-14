@@ -1,5 +1,6 @@
 
 #include <QPoint>
+#include <QVector3D>
 
 #include "manipulator.h"
 
