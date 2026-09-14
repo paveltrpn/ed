@@ -14,6 +14,8 @@ Item {
     readonly property var _fonts: Appearence.fonts
     readonly property var _units: Appearence.units
 
+    height: _units.scaled_48
+
     property alias buttonLabel: buttonLabel.text
     property alias text: textInputComponent.text
 
@@ -107,7 +109,7 @@ Item {
                         rightMargin: _units.scaled_16
                         bottom: parent.bottom
                         top: parent.top
-                        topMargin: _units.scaled_20
+                        topMargin: _units.scaled_18
                     }
 
                     color: _color.si_button_underlying

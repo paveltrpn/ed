@@ -16,7 +16,7 @@ Rectangle {
 
     color: _color.si_background_light
     radius: _units.radiusEight
-    height: visible ? _units.scaled_64 : 0
+    height: visible ? _units.scaled_48 : 0
 
     signal accept()
     signal decline()

@@ -24,6 +24,8 @@ QuickTemplates.Button {
     // "1" - from right to left.
     property int pressAreaAlignment: 0
 
+    height: _units.scaled_48
+
     states: [
         State {
             when: control.down

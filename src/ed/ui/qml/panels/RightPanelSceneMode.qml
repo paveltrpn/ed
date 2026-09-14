@@ -52,7 +52,7 @@ Rectangle {
                 }
 
                 modeRelatedBgColor: _color.si_mode_scene
-                height: _units.scaled_56
+
                 buttonLabel: "ScaleX"
                 text: " ... "
             }
@@ -69,7 +69,6 @@ Rectangle {
                 }
 
                 modeRelatedBgColor: _color.si_mode_scene
-                height: _units.scaled_56
                 buttonLabel: "ScaleY"
                 text: " ... "
             }
@@ -86,7 +85,6 @@ Rectangle {
                 }
 
                 modeRelatedBgColor: _color.si_mode_scene
-                height: _units.scaled_56
                 buttonLabel: "ScaleZ"
                 text: " ... "
             }
@@ -117,7 +115,6 @@ Rectangle {
                 }
 
                 modeRelatedBgColor: _color.si_mode_scene
-                height: _units.scaled_56
                 buttonLabel: "RotX"
                 text: " ... "
             }
@@ -134,7 +131,6 @@ Rectangle {
                 }
 
                 modeRelatedBgColor: _color.si_mode_scene
-                height: _units.scaled_56
                 buttonLabel: "RotY"
                 text: " ... "
             }
@@ -182,7 +178,6 @@ Rectangle {
                 }
 
                 modeRelatedBgColor: _color.si_mode_scene
-                height: _units.scaled_56
                 buttonLabel: "TransX"
                 text: " ... "
             }
@@ -199,7 +194,6 @@ Rectangle {
                 }
 
                 modeRelatedBgColor: _color.si_mode_scene
-                height: _units.scaled_56
                 buttonLabel: "TransY"
                 text: " ... "
             }
@@ -216,7 +210,6 @@ Rectangle {
                 }
 
                 modeRelatedBgColor: _color.si_mode_scene
-                height: _units.scaled_56
                 buttonLabel: "TransZ"
                 text: " ... "
             }

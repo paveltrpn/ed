@@ -56,7 +56,6 @@ Rectangle {
             }
 
             modeRelatedBgColor: _color.si_mode_scene
-            height: _units.scaled_56
             buttonLabel: "Add object"
 
             onClicked: {
@@ -96,7 +95,6 @@ Rectangle {
             }
 
             modeRelatedBgColor: _color.si_mode_scene
-            height: _units.scaled_56
             buttonLabel: "Edit object"
 
             onClicked: {
@@ -123,7 +121,6 @@ Rectangle {
             }
 
             modeRelatedBgColor: _color.si_mode_scene
-            height: _units.scaled_56
             buttonLabel: "Info"
 
             onClicked: {
@@ -165,7 +162,6 @@ Rectangle {
             }
 
             modeRelatedBgColor: _color.si_mode_scene
-            height: _units.scaled_56
             buttonLabel: "Settings"
 
             onClicked: {
