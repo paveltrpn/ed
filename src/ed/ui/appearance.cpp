@@ -61,8 +61,8 @@ Appearance::Appearance( QObject *parent )
 }
 
 auto Appearance::buildFonts() -> void {
-    const auto fontName = "Monospace";
-    const auto baseFontSize = 8;
+    const auto fontName = "LessPerfectDOSVGA";
+    const auto baseFontSize = 14;
 
     _fonts["title_big"] = QFont{ fontName, baseFontSize + 12, QFont::ExtraBold };
     _fonts["title_accent"] = QFont{ fontName, baseFontSize + 8, QFont::ExtraBold };
