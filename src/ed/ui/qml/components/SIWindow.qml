@@ -19,7 +19,7 @@ Window {
     color: "transparent"
 
     property alias contentSource: windowContentLoader.source
-    property alias windowName: titleText.text
+    property alias title: titleText.text
 
     onVisibleChanged: {
         if (siWindowComponent.visible) {
@@ -136,6 +136,8 @@ Window {
 
                 font: _fonts.label
                 color: "white"
+
+                elide: Text.ElideRight
             }
 
             NpButton {

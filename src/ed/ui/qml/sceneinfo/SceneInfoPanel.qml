@@ -53,7 +53,6 @@ Rectangle {
             onClicked: {
                 if (!sceneInfoWindow.visible) {
                     sceneInfoWindow.show();
-                    sceneInfoWindow.windowName = "Scene info"
                 }
                 sceneinfoPanelComponent.close();
             }
@@ -63,6 +62,8 @@ Rectangle {
 
                 width: 410
                 height: 320
+
+                title: "Scene info"
 
                 contentSource: "../sceneinfo/SceneInfoComponent.qml"
             }

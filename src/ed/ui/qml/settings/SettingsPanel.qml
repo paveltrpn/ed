@@ -64,6 +64,8 @@ Rectangle {
                 width: 410
                 height: 320
 
+                title: "Service objects settings"
+
                 contentSource: "../settings/SettingsComponent.qml"
             }
         }
