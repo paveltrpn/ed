@@ -36,7 +36,7 @@ Rectangle {
             right: parent.right
         }
 
-        readonly property int itemsHeight: _units.scaled_32
+        readonly property int itemsHeight: _units.scaled_24
 
         NpContextMenuButton {
             id: serviceObjectsSettingsButton
@@ -53,8 +53,9 @@ Rectangle {
             onClicked: {
                 if (!sceneInfoWindow.visible) {
                     sceneInfoWindow.show();
+                    sceneInfoWindow.windowName = "Scene info"
                 }
-                sceneinfoPanelComponent.close()
+                sceneinfoPanelComponent.close();
             }
 
             SIWindow {
@@ -82,5 +83,3 @@ Rectangle {
         // }
     }
 }
-
-

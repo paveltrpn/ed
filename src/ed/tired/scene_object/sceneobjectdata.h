@@ -18,7 +18,6 @@ enum class SceneObjectTypeEnum {
     BOX,
     SPHERE,
     CYLINDER,
-    CONE,
     CAPSULE,
     MESH,
     IMPLICIT,
@@ -27,6 +26,10 @@ enum class SceneObjectTypeEnum {
     LANDSCAPE,
     POLYTOPE
 };
+
+// ======================================================================================
+// ==================== SceneObjectData =================================================
+// ======================================================================================
 
 struct SceneObjectData {
     Q_GADGET
@@ -184,7 +187,9 @@ private:
     vsg::dvec4 _color{};
 };
 
-// ==========================================================================================================
+// ======================================================================================
+// ==================== BoxObjectData ===================================================
+// ======================================================================================
 
 struct BoxObjectData final
     : public SceneObjectData
@@ -235,7 +240,9 @@ private:
     double _size{};
 };
 
-// ==========================================================================================================
+// ======================================================================================
+// ==================== SphereObjectData ================================================
+// ======================================================================================
 
 struct SphereObjectData final
     : public SceneObjectData
@@ -280,7 +287,9 @@ private:
     double _radius{};
 };
 
-// ==========================================================================================================
+// ======================================================================================
+// ==================== CylinderObjectData ==============================================
+// ======================================================================================
 
 struct CylinderObjectData final
     : public SceneObjectData
@@ -328,22 +337,74 @@ private:
     double _height{};
 };
 
-// ==========================================================================================================
+// ======================================================================================
+// ==================== CapsuleObjectData ===============================================
+// ======================================================================================
 
-struct MeshData final
+struct CapsuleObjectData final
+    : public SceneObjectData
+    , public IHasCollision {
+    Q_GADGET
+
+public:
+    CapsuleObjectData() = default;
+
+    CapsuleObjectData( const CapsuleObjectData &other ) = default;
+    CapsuleObjectData( CapsuleObjectData &&other ) = default;
+
+    CapsuleObjectData &operator=( const CapsuleObjectData &other ) = default;
+    CapsuleObjectData &operator=( CapsuleObjectData &&other ) = default;
+
+    auto getShape() -> void override{
+        //
+        // TODO: implement interface
+    };
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{
+            { "radius", _radius },
+            { "height", _height },
+        };
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+
+        _radius = derived.value( "radius" ).toDouble();
+        _height = derived.value( "height" ).toDouble();
+    }
+
+private:
+    double _radius{};
+    double _height{};
+};
+
+// ======================================================================================
+// ==================== MeshObjectData ==================================================
+// ======================================================================================
+
+struct MeshObjectData final
     : public SceneObjectData
     , public IHasCollision
     , public IHasMaterial {
     Q_GADGET
 
 public:
-    MeshData() = default;
+    MeshObjectData() = default;
 
-    MeshData( const MeshData &other ) = default;
-    MeshData( MeshData &&other ) = default;
+    MeshObjectData( const MeshObjectData &other ) = default;
+    MeshObjectData( MeshObjectData &&other ) = default;
 
-    MeshData &operator=( const MeshData &other ) = default;
-    MeshData &operator=( MeshData &&other ) = default;
+    MeshObjectData &operator=( const MeshObjectData &other ) = default;
+    MeshObjectData &operator=( MeshObjectData &&other ) = default;
 
     auto getMaterial() -> void override{
         //
@@ -376,11 +437,201 @@ public:
 private:
 };
 
+// ======================================================================================
+// ==================== ImplicitSurfaceObjectData =======================================
+// ======================================================================================
+
+struct ImplicitSurfaceObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    ImplicitSurfaceObjectData() = default;
+
+    ImplicitSurfaceObjectData( const ImplicitSurfaceObjectData &other ) = default;
+    ImplicitSurfaceObjectData( ImplicitSurfaceObjectData &&other ) = default;
+
+    ImplicitSurfaceObjectData &operator=( const ImplicitSurfaceObjectData &other ) = default;
+    ImplicitSurfaceObjectData &operator=( ImplicitSurfaceObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{};
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        //
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+    }
+
+private:
+};
+
+// ======================================================================================
+// ==================== BezierSurfaceObjectData =========================================
+// ======================================================================================
+
+struct BezierSurfaceObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    BezierSurfaceObjectData() = default;
+
+    BezierSurfaceObjectData( const BezierSurfaceObjectData &other ) = default;
+    BezierSurfaceObjectData( BezierSurfaceObjectData &&other ) = default;
+
+    BezierSurfaceObjectData &operator=( const BezierSurfaceObjectData &other ) = default;
+    BezierSurfaceObjectData &operator=( BezierSurfaceObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{};
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        //
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+    }
+
+private:
+};
+
+// ======================================================================================
+// ==================== BezierSplineObjectData ==========================================
+// ======================================================================================
+
+struct BezierSplineObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    BezierSplineObjectData() = default;
+
+    BezierSplineObjectData( const BezierSplineObjectData &other ) = default;
+    BezierSplineObjectData( BezierSplineObjectData &&other ) = default;
+
+    BezierSplineObjectData &operator=( const BezierSplineObjectData &other ) = default;
+    BezierSplineObjectData &operator=( BezierSplineObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{};
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        //
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+    }
+
+private:
+};
+
+// ======================================================================================
+// ==================== LandscapeObjectData =============================================
+// ======================================================================================
+
+struct LandscapeObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    LandscapeObjectData() = default;
+
+    LandscapeObjectData( const LandscapeObjectData &other ) = default;
+    LandscapeObjectData( LandscapeObjectData &&other ) = default;
+
+    LandscapeObjectData &operator=( const LandscapeObjectData &other ) = default;
+    LandscapeObjectData &operator=( LandscapeObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{};
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        //
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+    }
+
+private:
+};
+
+// ======================================================================================
+// ==================== PolytopeObjectData ==============================================
+// ======================================================================================
+
+struct PolytopeObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    PolytopeObjectData() = default;
+
+    PolytopeObjectData( const PolytopeObjectData &other ) = default;
+    PolytopeObjectData( PolytopeObjectData &&other ) = default;
+
+    PolytopeObjectData &operator=( const PolytopeObjectData &other ) = default;
+    PolytopeObjectData &operator=( PolytopeObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{};
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        //
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+    }
+
+private:
+};
+
 }  // namespace tire
 
 Q_DECLARE_METATYPE( tire::SceneObjectTypeEnum )
 
 Q_DECLARE_METATYPE( tire::SceneObjectData )
+
 Q_DECLARE_METATYPE( tire::BoxObjectData )
 Q_DECLARE_METATYPE( tire::SphereObjectData )
-Q_DECLARE_METATYPE( tire::MeshData )
+Q_DECLARE_METATYPE( tire::CylinderObjectData )
+Q_DECLARE_METATYPE( tire::CapsuleObjectData )
+
+Q_DECLARE_METATYPE( tire::MeshObjectData )
+
+Q_DECLARE_METATYPE( tire::BezierSurfaceObjectData )
+Q_DECLARE_METATYPE( tire::BezierSplineObjectData )
+
+Q_DECLARE_METATYPE( tire::LandscapeObjectData )
+Q_DECLARE_METATYPE( tire::PolytopeObjectData )

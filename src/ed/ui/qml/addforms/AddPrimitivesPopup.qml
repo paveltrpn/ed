@@ -35,7 +35,7 @@ Rectangle {
             right: parent.right
         }
 
-        readonly property int itemsHeight: 32
+        readonly property int itemsHeight: _units.scaled_24
 
         NpContextMenuButton {
             id: addSphereButton
@@ -81,10 +81,10 @@ Rectangle {
         }
 
         NpContextMenuButton {
-            id: addFromFileButton
+            id: addMeshButton
             Layout.fillWidth: true
             Layout.preferredHeight: addItemsButtonsLayout.itemsHeight
-            text: "From file"
+            text: "Mesh"
             enabled: true
 
             font: _fonts.label_accent
@@ -108,6 +108,16 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: addItemsButtonsLayout.itemsHeight
             text: "Bezier surface"
+            enabled: false
+
+            font: _fonts.label_accent
+        }
+
+        NpContextMenuButton {
+            id: addBezierSplineButton
+            Layout.fillWidth: true
+            Layout.preferredHeight: addItemsButtonsLayout.itemsHeight
+            text: "Bezier spline"
             enabled: false
 
             font: _fonts.label_accent

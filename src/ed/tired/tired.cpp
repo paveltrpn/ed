@@ -96,7 +96,7 @@ auto Tired::registerTypes() -> void {
     qRegisterMetaType<tire::SceneObjectData>( "SceneObjectData" );
     qRegisterMetaType<tire::BoxObjectData>( "BoxObject" );
     qRegisterMetaType<tire::SphereObjectData>( "SphereObjectData" );
-    qRegisterMetaType<tire::MeshData>( "MeshData" );
+    qRegisterMetaType<tire::MeshObjectData>( "MeshData" );
 }
 
 auto Tired::setGlobalMousePosX( float value ) -> void {

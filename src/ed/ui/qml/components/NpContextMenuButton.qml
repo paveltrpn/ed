@@ -58,7 +58,7 @@ QuickTemplates.Button {
     // implicitContentHeight + topPadding + bottomPadding)
 
     width: 32
-    height: 32
+    height: _units.scaled_24
 
     topPadding: 2
     bottomPadding: 2

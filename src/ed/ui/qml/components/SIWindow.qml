@@ -11,8 +11,6 @@ import ".."
 Window {
     id: siWindowComponent
 
-    title: "Color"
-
     readonly property var _color: Appearence.colors
     readonly property var _fonts: Appearence.fonts
     readonly property var _units: Appearence.units
@@ -21,6 +19,7 @@ Window {
     color: "transparent"
 
     property alias contentSource: windowContentLoader.source
+    property alias windowName: titleText.text
 
     onVisibleChanged: {
         if (siWindowComponent.visible) {
@@ -122,18 +121,37 @@ Window {
                 }
             }
 
-            Row {
-                anchors.right: parent.right
-                anchors.rightMargin: 5
-                spacing: 5
-                height: parent.height
+            Text {
+                id: titleText
 
-                NpButton {
-                    icon.source: "image://TiredImageProvider/filled-triangle-down.svg"
-                    width: _units.scaled_24
-                    height: _units.scaled_24
-                    onClicked: siWindowComponent.close()
+                anchors {
+                    top: parent.top
+                    bottom: parent.bottom
+                    left: parent.left
+                    right: closeButton.left
                 }
+
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+
+                font: _fonts.label
+                color: "white"
+            }
+
+            NpButton {
+                id: closeButton
+
+                anchors {
+                    top: parent.top
+                    topMargin: _units.scaled_2
+                    right: parent.right
+                    rightMargin: _units.scaled_2
+                }
+
+                icon.source: "image://TiredImageProvider/filled-triangle-down.svg"
+                width: _units.scaled_24
+                height: _units.scaled_24
+                onClicked: siWindowComponent.close()
             }
         }
 
