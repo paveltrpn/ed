@@ -80,6 +80,11 @@ void VsgWidget::initializeWindow() {
     _initialized = true;
 }
 
+auto VsgWidget::windowAdapter() const -> vsg::ref_ptr<vsg::Window> {
+    //
+    return _windowAdapter;
+}
+
 void VsgWidget::cleanup() {
     // remove links to all the VSG related classes.
     if ( _windowAdapter ) {
