@@ -1,10 +1,10 @@
 {
-  "application_name": "tire",
-  "engine_name": "tire",
+  "application_name": "ed",
+  "engine_name": "ed",
   "fullscreen": false,
   "resizeable": false,
-  "window_width": 1200,
-  "window_height": 800,
+  "window_width": 1024,
+  "window_height": 768,
   "window_pos_x": 300,
   "window_pos_y": 300,
   "background_color": "#0c0c1c",
@@ -17,5 +17,5 @@
   "enable_api_dump_validation_layers": false,
   "enable_raytracing_extensions": false, 
   "verbose_vulkan_output": false,
-  "ui_font": "DejaVu-Sans-Mono-1024-512-32-64-alpha.tga"
+  "ui_font": "LessPerfectDOSVGA"
 }
