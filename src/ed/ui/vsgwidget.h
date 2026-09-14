@@ -25,12 +25,18 @@ public:
     vsg::ref_ptr<vsg::Window> windowAdapter;
     vsg::ref_ptr<KeyboardMap> keyboardMap;
 
-    operator vsg::ref_ptr<vsg::Window>() { return windowAdapter; }
+    operator vsg::ref_ptr<vsg::Window>() {
+        //
+        return windowAdapter;
+    }
 
     /// Initialize the Vulkan integration using VulkanSceneGraph VkInstance/VkSurface support
     virtual void initializeWindow();
 
-    vsg::ref_ptr<vsg::Window> getWindowAdapter() { return windowAdapter; }
+    vsg::ref_ptr<vsg::Window> getWindowAdapter() {
+        //
+        return windowAdapter;
+    }
 
 protected:
     void cleanup();
