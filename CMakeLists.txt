@@ -90,18 +90,6 @@ target_link_libraries(log
 )
 
 # ================================
-# Module vk
-# ================================
-file(GLOB_RECURSE MOD_VK_SRC "src/ed/vk/*.cpp" "src/ed/vk/*.h")
-add_library(vk ${MOD_VK_SRC})
-set_target_properties(vk PROPERTIES AUTOMOC TRUE)
-target_compile_options(vk PRIVATE "${CXX_STANDART}")
-target_link_libraries(vk
-   vulkan
-   log
-)
-
-# ================================
 # Module image
 # ================================
 file(GLOB_RECURSE MOD_IMAGE_SRC "src/image/*.cpp" "src/image/*.h")
@@ -175,7 +163,6 @@ target_link_libraries(tired
     Qt::QuickWidgets
     Qt::QuickControls2
     Qt::QuickLayouts
-    vk
     log
     image
     event
@@ -194,7 +181,6 @@ target_compile_options(ed_ui PRIVATE "${CXX_STANDART}")
 target_link_libraries(ed_ui
     vsg
     xcb
-    vk
     image
     Qt::Core
     Qt::Gui
@@ -238,12 +224,10 @@ target_link_libraries(${TIRE_EDITOR_EXE}
     Qt::QuickWidgets
     Qt::QuickControls2
     Qt::QuickLayouts
-    tired
     ed_ui
     tired
+    ed_ui
     vsg
-    ed_ui
-    tired
     mesh
 )
     

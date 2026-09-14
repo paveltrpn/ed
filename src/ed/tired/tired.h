@@ -7,7 +7,6 @@
 
 #include <vsg/all.h>
 
-#include "ed/vk/context.h"
 #include "ed/ui/vsgwidget.h"
 #include "manipulator.h"
 #include "inputhandler.h"
@@ -67,8 +66,6 @@ signals:
     void controlModeChanged( int );
 
 private:
-    std::shared_ptr<vk::Context> _context{};
-
     vsg::ref_ptr<Viewer> _viewer{};
     vsg::ref_ptr<vsg::Camera> _camera{};
 

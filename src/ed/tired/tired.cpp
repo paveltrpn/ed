@@ -72,17 +72,6 @@ auto Tired::init( VsgWidget* window, uint32_t width, uint32_t height ) -> void {
         _viewer->continuousUpdate = CONTINOUS_UPDATE;
     }
 
-    // Borrow vulkan data from VSG.
-    {
-        const auto wa = window->windowAdapter;
-        const auto instance = wa->getInstance()->vk();
-        const auto physicalDevice = wa->getPhysicalDevice()->vk();
-        const auto device = wa->getDevice()->vk();
-        const auto surface = wa->getSurface()->vk();
-        const auto rp = wa->getRenderPass()->vk();
-        vk::Context::init( instance, physicalDevice, device, surface, rp, 0, 0 );
-    }
-
     _scenegraph->initSubgraphs();
 
     connect( _manipulator, &Manipulator::lookChanged, _scenegraph, &Scenegraph::lookChanged );
