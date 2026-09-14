@@ -19,7 +19,6 @@ Window {
     color: "transparent"
 
     property alias contentSource: windowContentLoader.source
-    property alias title: titleText.text
 
     onVisibleChanged: {
         if (siWindowComponent.visible) {
@@ -138,16 +137,17 @@ Window {
                 color: "white"
 
                 elide: Text.ElideRight
+
+                text: siWindowComponent.title
             }
 
             NpButton {
                 id: closeButton
 
                 anchors {
-                    top: parent.top
-                    topMargin: _units.scaled_2
                     right: parent.right
                     rightMargin: _units.scaled_2
+                    verticalCenter: parent.verticalCenter
                 }
 
                 icon.source: "image://TiredImageProvider/filled-triangle-down.svg"
