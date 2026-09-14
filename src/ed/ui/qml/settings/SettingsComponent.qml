@@ -42,7 +42,7 @@ Item {
         }
 
         NpTabButton {
-            text: qsTr("Test box")
+            text: qsTr("Navbox")
             anchors.top: parent.top
             height: parent.height
             font: _fonts.label_accent
