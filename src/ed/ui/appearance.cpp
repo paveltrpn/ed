@@ -5,6 +5,7 @@
 #include <QFont>
 
 #include "appearance.h"
+#include "config/config.h"
 
 namespace tire {
 
@@ -17,7 +18,8 @@ TiredImageProvider::TiredImageProvider()
 }
 
 QImage TiredImageProvider::requestImage( const QString &id, QSize *size, const QSize &requestedSize ) {
-    QImage requestedImg{ QString{ "/mnt/main/code/ed/src/ed/ui/qml/icons/%1" }.arg( id ) };
+    const auto basePath = Config::instance().basePath().string();
+    QImage requestedImg{ QString{ "%1/src/ed/ui/qml/icons/%2" }.arg(basePath).arg( id ) };
 
     if ( requestedImg.isNull() ) {
         std::println( "image \"{}\" not found!", id.toStdString() );
@@ -34,11 +36,10 @@ QImage TiredImageProvider::requestImage( const QString &id, QSize *size, const Q
 Appearance::Appearance( QObject *parent )
     : QObject{ parent } {
     //
-    auto wp = QDir{ QDir::currentPath() };
-    wp.cdUp();
+    const auto basePath = Config::instance().basePath().string();
 
     // Load color scheme.
-    QFile file( wp.path() + QDir::separator() + "src/ed/ui/qml/colorscheme.json" );
+    QFile file( QString{"%1/src/ed/ui/qml/colorscheme.json"}.arg(basePath) );
 
     if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
         std::println( "appearence file not exist : {}", file.fileName().toStdString() );

@@ -28,8 +28,6 @@ TiredUI::TiredUI( QObject* parent )
     // Set empty window title displayed on native decoration.
     setWindowTitle( " " );
 
-    Config::init( "assets/config.json" );
-
     const auto [windowWidth, windowHeight] = readSettings();
 
     _tired->registerTypes();
