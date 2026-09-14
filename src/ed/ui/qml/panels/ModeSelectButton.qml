@@ -16,6 +16,8 @@ QuickTemplates.Button {
 
     property alias buttonLabel: buttonLabel.text
 
+    implicitWidth: buttonRect.implicitWidth
+
     states: [
         State {
             when: control.down
@@ -45,14 +47,20 @@ QuickTemplates.Button {
 
     Item {
         id: buttonRect
+
         anchors {
-            fill: control
+            top: parent.top
+            bottom: parent.bottom
         }
+
+        implicitWidth: buttonLabel.implicitWidth
+
         Text {
             id: buttonLabel
+
             anchors {
-                fill: parent
-                margins: _units.scaled_2
+                top: parent.top
+                bottom: parent.bottom
             }
 
             verticalAlignment: Text.AlignVCenter

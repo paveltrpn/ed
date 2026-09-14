@@ -301,11 +301,10 @@ Rectangle {
 
                 anchors {
                     right: systemModeButton.left
+                    rightMargin: _units.full
                     top: parent.top
                     bottom: parent.bottom
                 }
-
-                width: _units.scaled_96
 
                 buttonLabel: "Scene"
 
@@ -334,9 +333,9 @@ Rectangle {
                     bottom: parent.bottom
                 }
 
-                width: _units.scaled_96
-
                 buttonLabel: "System"
+
+                width: implicitWidth
 
                 onClicked: {
                     systemModeButton.checked = !systemModeButton.checked;
