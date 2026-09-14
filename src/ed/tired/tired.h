@@ -35,7 +35,7 @@ struct Tired final : QObject {
 public:
     Tired( QObject* parent = nullptr );
 
-    auto init( VsgWidget* window, uint32_t width, uint32_t height ) -> void;
+    auto init( vsg::ref_ptr<vsg::Window> _windowAdapter, uint32_t width, uint32_t height ) -> void;
 
     auto viewer() -> vsg::ref_ptr<Viewer>;
     auto rootNode() -> vsg::ref_ptr<vsg::Node>;

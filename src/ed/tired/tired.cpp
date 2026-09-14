@@ -33,7 +33,7 @@ QObject* Tired::scenegraph() const {
     return _scenegraph;
 }
 
-auto Tired::init( VsgWidget* window, uint32_t width, uint32_t height ) -> void {
+auto Tired::init( vsg::ref_ptr<vsg::Window> windowAdapter, uint32_t width, uint32_t height ) -> void {
     // Setup the camera.
     {
         auto lookAt = vsg::LookAt::create( vsg::dvec3( 0.0, -16.0, 8.0 ), vsg::dvec3{ 0.0, 0.0, 0.0 },
@@ -54,7 +54,7 @@ auto Tired::init( VsgWidget* window, uint32_t width, uint32_t height ) -> void {
     // Setup manipulator and event handler objects.
     {
         _manipulator = new Manipulator{ _camera, nullptr, this };
-        _manipulator->trackball()->addWindow( *window );
+        _manipulator->trackball()->addWindow( windowAdapter );
         _inputHandler = new InputHandler{ _camera, _viewer, _scenegraph, this };
     }
 
@@ -62,7 +62,7 @@ auto Tired::init( VsgWidget* window, uint32_t width, uint32_t height ) -> void {
     {
         _viewer->addEventHandler( _manipulator->trackball() );
         _viewer->addEventHandler( _inputHandler->handler() );
-        auto commandGraph = vsg::createCommandGraphForView( *window, _camera, _scenegraph->root() );
+        auto commandGraph = vsg::createCommandGraphForView( windowAdapter, _camera, _scenegraph->root() );
         _viewer->addRecordAndSubmitTaskAndPresentation( { commandGraph } );
 
         constexpr auto UPDATE_INTERVAL{ 8 };

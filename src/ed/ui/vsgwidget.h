@@ -19,23 +19,18 @@ public:
 
     virtual ~VsgWidget();
 
-    vsg::ref_ptr<vsg::WindowTraits> traits;
-    vsg::ref_ptr<Viewer> viewer;
+    vsg::ref_ptr<vsg::WindowTraits> _traits;
+    vsg::ref_ptr<Viewer> _viewer;
 
-    vsg::ref_ptr<vsg::Window> windowAdapter;
-    vsg::ref_ptr<KeyboardMap> keyboardMap;
-
-    operator vsg::ref_ptr<vsg::Window>() {
-        //
-        return windowAdapter;
-    }
+    vsg::ref_ptr<vsg::Window> _windowAdapter;
+    vsg::ref_ptr<KeyboardMap> _keyboardMap;
 
     /// Initialize the Vulkan integration using VulkanSceneGraph VkInstance/VkSurface support
     virtual void initializeWindow();
 
-    vsg::ref_ptr<vsg::Window> getWindowAdapter() {
+    vsg::ref_ptr<vsg::Window> windowAdapter() {
         //
-        return windowAdapter;
+        return _windowAdapter;
     }
 
 protected:

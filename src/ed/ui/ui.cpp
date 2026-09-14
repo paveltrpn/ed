@@ -59,10 +59,9 @@ TiredUI::TiredUI( QObject* parent )
     _vsgWidget->initializeWindow();
 
     const auto clearColor = QColor{ _theme->getColor( "clear_color" ) };
-    _vsgWidget->getWindowAdapter()->clearColor().set( clearColor.redF(), clearColor.greenF(), clearColor.blueF(),
-                                                      1.0f );
+    _vsgWidget->windowAdapter()->clearColor().set( clearColor.redF(), clearColor.greenF(), clearColor.blueF(), 1.0f );
 
-    _tired->init( _vsgWidget, windowTraits->width, windowTraits->height );
+    _tired->init( _vsgWidget->windowAdapter(), windowTraits->width, windowTraits->height );
 
     _topPanel->setSource( QUrl::fromLocalFile( "../src/ed/ui/qml/panels/TopPanel.qml" ) );
     _topPanel->setResizeMode( QQuickWidget::SizeRootObjectToView );
