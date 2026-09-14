@@ -11,9 +11,6 @@
 #include "mesh/mesh.h"
 #include "mesh/obj.h"
 
-// #define PREFIX_PATH_ONE "/home/pavel/code/ed"
-#define PREFIX_PATH_ONE "/home/pavel/code/ed"
-
 namespace tire {
 
 // ======================================================================================

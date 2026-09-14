@@ -65,17 +65,49 @@ auto Appearance::buildFonts() -> void {
     const auto fontName = "LessPerfectDOSVGA";
     const auto baseFontSize = 14;
 
-    _fonts["title_big"] = QFont{ fontName, baseFontSize + 12, QFont::ExtraBold };
-    _fonts["title_accent"] = QFont{ fontName, baseFontSize + 8, QFont::ExtraBold };
-    _fonts["title"] = QFont{ fontName, baseFontSize + 8, QFont::Medium };
-    _fonts["subtitle_accent"] = QFont{ fontName, baseFontSize + 8, QFont::ExtraBold };
-    _fonts["subtitle"] = QFont{ fontName, baseFontSize + 8, QFont::Medium };
-    _fonts["text_body_accent"] = QFont{ fontName, baseFontSize + 4, QFont::ExtraBold };
-    _fonts["text_body"] = QFont{ fontName, baseFontSize + 4, QFont::Medium };
-    _fonts["label_accent"] = QFont{ fontName, baseFontSize + 2, QFont::ExtraBold };
-    _fonts["label"] = QFont{ fontName, baseFontSize + 2, QFont::Medium };
-    _fonts["subtext_accent"] = QFont{ fontName, baseFontSize, QFont::ExtraBold };
-    _fonts["subtext"] = QFont{ fontName, baseFontSize, QFont::Medium };
+    auto title_big = QFont{ fontName, baseFontSize + 12, QFont::Medium };
+    title_big.setPixelSize((static_cast<float>(baseFontSize) + 12.0f) * _scale);
+    _fonts["title_big"] = title_big;
+
+    auto title_accent = QFont{ fontName, baseFontSize + 12, QFont::ExtraBold };
+    title_accent.setPixelSize((static_cast<float>(baseFontSize) + 12.0f) * _scale);
+    _fonts["title_accent"] = title_accent;
+
+    auto title = QFont{ fontName, baseFontSize + 8, QFont::Medium };
+    title.setPixelSize((static_cast<float>(baseFontSize) + 8.0f) * _scale);
+    _fonts["title"] = title;
+
+    auto subtitle_accent = QFont{ fontName, baseFontSize + 8, QFont::ExtraBold };
+    subtitle_accent.setPixelSize((static_cast<float>(baseFontSize) + 8.0f) * _scale);
+    _fonts["subtitle_accent"] = subtitle_accent;
+
+    auto subtitle = QFont{ fontName, baseFontSize + 8, QFont::Medium };
+    subtitle.setPixelSize((static_cast<float>(baseFontSize) + 8.0f) * _scale);
+    _fonts["subtitle"] = subtitle;
+
+    auto text_body_accent = QFont{ fontName, baseFontSize + 4, QFont::ExtraBold };
+    text_body_accent.setPixelSize((static_cast<float>(baseFontSize) + 4.0f) * _scale);
+    _fonts["text_body_accent"] = text_body_accent;
+
+    auto text_body = QFont{ fontName, baseFontSize + 4, QFont::Medium };
+    text_body.setPixelSize((static_cast<float>(baseFontSize) + 4.0f) * _scale);
+    _fonts["text_body"] = text_body;
+
+    auto label_accent = QFont{ fontName, baseFontSize + 2, QFont::ExtraBold };
+    label_accent.setPixelSize((static_cast<float>(baseFontSize) + 2.0f) * _scale);
+    _fonts["label_accent"] = label_accent;
+
+    auto label = QFont{ fontName, baseFontSize + 2, QFont::Medium };
+    label.setPixelSize((static_cast<float>(baseFontSize) + 2.0f) * _scale);
+    _fonts["label"] = label;
+
+    auto subtext_accent = QFont{ fontName, baseFontSize + 0, QFont::ExtraBold };
+    subtext_accent.setPixelSize((static_cast<float>(baseFontSize) + 0.0f) * _scale);
+    _fonts["subtext_accent"] = subtext_accent;
+
+    auto subtext = QFont{ fontName, baseFontSize + 0, QFont::Medium };
+    subtext.setPixelSize((static_cast<float>(baseFontSize) + 0.0f) * _scale);
+    _fonts["subtext"] = subtext;
 }
 
 auto Appearance::buildUnits() -> void {

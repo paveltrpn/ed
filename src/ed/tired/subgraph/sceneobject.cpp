@@ -6,6 +6,7 @@
 #include "sceneobject.h"
 
 #include "program/program.h"
+#include "config/config.h"
 
 namespace tire {
 
@@ -28,8 +29,10 @@ auto SceneObjectSubgraph::initPipeline() -> void {
         log::fatal()( "Could not create shaders." );
     }
 
-    // read texture image
-    const auto rawData = std::make_unique<Tga>( std::format( "{}{}", PREFIX_PATH_ONE, "/assets/textures/glitch.tga" ) );
+    const auto basePath = Config::instance().basePath().string();
+
+    // Read texture image.
+    const auto rawData = std::make_unique<Tga>( std::format( "{}{}", basePath, "/assets/textures/glitch.tga" ) );
     auto rawDataSize = rawData->width() * rawData->height() * rawData->components();
 
     auto textureData = vsg::ubvec4Array2D::create( rawData->width(), rawData->height() );
