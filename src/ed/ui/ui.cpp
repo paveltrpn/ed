@@ -95,7 +95,7 @@ TiredUI::TiredUI( QObject* parent )
     mainColumnSplitter->setOrientation( Qt::Vertical );
     mainColumnSplitter->setStyleSheet(
         QString{ "QSplitter::handle { background-color:  %1; }" }.arg( splitterBorderColor ) );
-    mainColumnSplitter->setHandleWidth( 4 );
+    mainColumnSplitter->setHandleWidth( 2 );
 
     auto* hLayout = new QHBoxLayout{};
     hLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -117,14 +117,14 @@ TiredUI::TiredUI( QObject* parent )
     auto* hSplitter = new QSplitter{ this };
     hSplitter->setOrientation( Qt::Horizontal );
     hSplitter->setStyleSheet( QString{ "QSplitter::handle { background-color:  %1; }" }.arg( splitterBorderColor ) );
-    hSplitter->setHandleWidth( 4 );
+    hSplitter->setHandleWidth( 2 );
 
     hSplitter->addWidget( _leftPanel );
     hSplitter->addWidget( _vsgWidget );
     hSplitter->addWidget( _rightPanel );
 
-    const auto leftPanelWidth = static_cast<int>( windowWidth * 0.08f );
-    const auto rightPanelWidth = static_cast<int>( windowWidth * 0.08f );
+    const auto leftPanelWidth = static_cast<int>( windowWidth * 0.1f );
+    const auto rightPanelWidth = static_cast<int>( windowWidth * 0.1f );
     hSplitter->setSizes( { leftPanelWidth, windowWidth - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
 
     hLayout->addWidget( hSplitter );

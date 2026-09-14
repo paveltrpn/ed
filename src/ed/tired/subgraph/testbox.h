@@ -89,7 +89,7 @@ private:
 private:
     vsg::mat4 _viewm{};
 
-    vsg::vec3 _boxOrigin{ 0.0555f, 0.0475f, -0.200f };
+    vsg::vec3 _boxOrigin{ 0.054f, 0.048f, -0.200f };
     float _boxSize{ 0.006f };
     vsg::vec3 _boxAxis{ 10.0f, 0.0f, 1.0f };
     float _boxAngl{ 0.0f };
