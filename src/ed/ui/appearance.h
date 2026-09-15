@@ -26,27 +26,70 @@ private:
 // ==================== Appearance ======================================================
 // ======================================================================================
 
+struct AppearanceData final {
+    Q_GADGET
+    Q_PROPERTY( QVariantMap data MEMBER _data )
+
+public:
+    void insert( const QString &key, QVariant value ) {
+        //
+        _data.insert( key, value );
+    };
+
+    QVariant &operator[]( const QString &key ) {
+        //
+        return _data[key];
+    }
+
+    const QVariant operator[]( const QString &key ) const {
+        //
+        return _data[key];
+    }
+
+    QVariantMap _data{};
+};
+
+struct AppearanceDataProxy final : QObject {
+    Q_OBJECT
+    Q_PROPERTY( QVariantMap data READ data NOTIFY dataChanged )
+
+public:
+    explicit AppearanceDataProxy( const AppearanceData *appearenceData, QObject *parent = nullptr )
+        : QObject( parent )
+        , _data( appearenceData ) {}
+
+    QVariantMap data() const {
+        //
+        return this->_data->_data;
+    };
+
+signals:
+    void dataChanged();
+
+private:
+    const AppearanceData *_data{};
+};
+
 // Colors and other theme related provider. Instance of
 // this object available in qml.
 struct Appearance : QObject {
     Q_OBJECT
-    Q_PROPERTY( QJsonObject colors READ colors WRITE setColors MEMBER _colors NOTIFY colorsChanged )
-    Q_PROPERTY( QVariantMap fonts READ fonts MEMBER _fonts NOTIFY colorsChanged )
-    Q_PROPERTY( QVariantMap units READ units MEMBER _units NOTIFY unitsChanged )
+    Q_PROPERTY( AppearanceDataProxy *colors READ colors MEMBER _colors NOTIFY colorsChanged )
+    Q_PROPERTY( AppearanceDataProxy *fonts READ fonts MEMBER _fonts NOTIFY colorsChanged )
+    Q_PROPERTY( AppearanceDataProxy *units READ units MEMBER _units NOTIFY unitsChanged )
 
 public:
     Appearance( QObject *parent = nullptr );
 
-    Q_INVOKABLE QJsonObject colors();
-    Q_INVOKABLE QVariantMap fonts();
-    Q_INVOKABLE QVariantMap units();
-
-    Q_INVOKABLE void setColors( QJsonObject &value );
+    AppearanceDataProxy *colors();
+    AppearanceDataProxy *fonts();
+    AppearanceDataProxy *units();
 
     [[nodiscard]] auto getColor( const QString &value ) const -> QString;
     [[nodiscard]] auto getUnit( const QString &value ) const -> float;
 
 private:
+    auto buildColors() -> void;
     auto buildFonts() -> void;
     auto buildUnits() -> void;
 
@@ -56,9 +99,14 @@ signals:
     void unitsChanged();
 
 private:
-    QJsonObject _colors{};
-    QVariantMap _fonts{};
-    QVariantMap _units{};
+    AppearanceData _colorsData{};
+    AppearanceDataProxy *_colors{};
+
+    AppearanceData _fontsData{};
+    AppearanceDataProxy *_fonts{};
+
+    AppearanceData _unitsData{};
+    AppearanceDataProxy *_units;
 
     float _scale{ 1.0f };
 };
