@@ -35,8 +35,6 @@ public:
     Q_INVOKABLE void addExBox( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy,
                                float sz );
 
-    auto initSubgraphs() -> void;
-
     auto root() const -> vsg::ref_ptr<vsg::Group>;
 
     Navbox* navbox() const;
@@ -57,7 +55,9 @@ public slots:
     void lookChanged( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up );
 
 private:
+    // Must be Group of StateGroups.
     vsg::ref_ptr<vsg::Group> _root{};
+
     vsg::Viewer* _viewer;
 
     Navbox* _navbox{};

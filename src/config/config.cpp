@@ -22,6 +22,7 @@ Config &Config::instance() {
     if ( !ptr ) {
         throw std::logic_error( "Singleton must be initialized via init() before calling getInstance()." );
     }
+
     return *ptr;
 }
 

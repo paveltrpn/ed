@@ -30,6 +30,7 @@ Tired& Tired::instance() {
     if ( !ptr ) {
         throw std::logic_error( "Singleton must be initialized via init( ... ) before calling instance()." );
     }
+
     return *ptr;
 }
 
@@ -69,16 +70,21 @@ Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> view
         _scenegraph = new Scenegraph{ _viewer, this };
     }
 
-    // Setup manipulator and event handler objects.
+    // Setup manipulator object.
     {
         _manipulator = new Manipulator{ _camera, this };
         _manipulator->trackball()->addWindow( windowAdapter );
+    }
+
+    // Setup event handler object.
+    {
+        //
         _inputHandler = new InputHandler{ _camera, _viewer, _scenegraph, this };
     }
 
     connect( _manipulator, &Manipulator::lookChanged, _scenegraph, &Scenegraph::lookChanged );
 
-    // Setup viewer object.
+    // Finalize viewer object setup.
     {
         _viewer->addEventHandler( _manipulator->trackball() );
         _viewer->addEventHandler( _inputHandler->handler() );
@@ -91,8 +97,6 @@ Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> view
         constexpr auto CONTINOUS_UPDATE{ true };
         _viewer->continuousUpdate = CONTINOUS_UPDATE;
     }
-
-    _scenegraph->initSubgraphs();
 
     _viewer->compile();
 

@@ -9,9 +9,6 @@ Scenegraph::Scenegraph( vsg::Viewer* viewer, QObject* parent )
     : QObject{ parent }
     , _root{ new vsg::Group{} }
     , _viewer{ viewer } {
-}
-
-auto Scenegraph::initSubgraphs() -> void {
     _grid = new Grid{ _viewer, this };
     _navbox = new Navbox{ _viewer, this };
     _bounding = new Bounding{ _viewer, this };
