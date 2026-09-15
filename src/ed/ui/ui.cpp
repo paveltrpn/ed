@@ -1,5 +1,6 @@
 #include <vsg/all.h>
 
+#include <QQmlContext>
 #include <QHBoxLayout>
 #include <QSplitter>
 #include <QWidget>
@@ -26,16 +27,8 @@ TiredUI::TiredUI( QObject* parent )
     , _rightPanel{ new QQuickWidget{ _engine, this } } {
     registerTypes();
 
-    // Use this object for main window position and size (in particular).
-    qmlRegisterSingletonInstance( "Tire", 1, 0, "MainWindow", this );
-
     // Set empty window title displayed on native decoration.
     setWindowTitle( " " );
-
-    _engine->addImageProvider( "TiredImageProvider", new TiredImageProvider{} );
-
-    tire::Appearance::init();
-    qmlRegisterSingletonInstance( "Tire", 1, 0, "Appearence", tire::Appearance::pointer() );
 
     // Remove native decoration.
     // setWindowFlags( Qt::FramelessWindowHint );
@@ -44,11 +37,21 @@ TiredUI::TiredUI( QObject* parent )
     // specific decoration.
     // setAttribute( Qt::WA_TranslucentBackground );
 
+    // "By default, when you pass a QObject* via setContextProperty, the C++ side retains
+    // ownership (the QML engine will not delete it)."
+    //
+    // Use this object for main window position and size (in particular).
+    _context->setContextProperty( "mainWindow", this );
+
+    _engine->addImageProvider( "TiredImageProvider", new TiredImageProvider{} );
+
+    // Register UI style provider object.
+    tire::Appearance::init();
+    qmlRegisterSingletonInstance( "Tire", 1, 0, "Appearence", tire::Appearance::pointer() );
+
     // VSG initialization.
     auto windowTraits = vsg::WindowTraits::create();
-    // windowTraits->windowTitle = "ed";
     windowTraits->vulkanVersion = VK_MAKE_API_VERSION( 0, 1, 4, 0 );
-    // windowTraits->fullscreen = true;
 
     _vsgWidget = new VsgWidget( windowTraits );
     _vsgWidget->initializeWindow();

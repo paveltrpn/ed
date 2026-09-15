@@ -166,7 +166,7 @@ Rectangle {
         //                         font: _fonts.label_accent
         //                         onClicked: {
         //                             fileMenu.close();
-        //                             MainWindow.quitApplication();
+        //                             mainWindow.quitApplication();
         //                         }
         //                         bottomLeftRadius: 2
         //                         bottomRightRadius: 2

@@ -22,7 +22,7 @@ Window {
 
     onVisibleChanged: {
         if (siWindowComponent.visible) {
-            const mainWndCenter = MainWindow.mainWindowCenter();
+            const mainWndCenter = mainWindow.mainWindowCenter();
             siWindowComponent.x = mainWndCenter.x - siWindowComponent.width / 2;
             siWindowComponent.y = mainWndCenter.y - siWindowComponent.height / 2;
         } else {}

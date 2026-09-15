@@ -40,6 +40,9 @@ Tired* Tired::pointer() {
         throw std::logic_error( "Singleton must be initialized via init( ... ) before calling instance()." );
     }
 
+    // "Regardless of the method, you must manage ownership explicitly. The default behavior is that if QML receives a
+    // QObject* from a Q_INVOKABLE method and that object has no parent, QML assumes ownership (JavaScriptOwnership) and
+    // will delete it when the garbage collector runs."
     QQmlEngine::setObjectOwnership( ptr, QQmlEngine::CppOwnership );
 
     return ptr;
@@ -123,24 +126,6 @@ auto Tired::camera() -> vsg::ref_ptr<vsg::Camera> {
 
 QObject* Tired::scenegraph() const {
     return _scenegraph;
-}
-
-auto Tired::setGlobalMousePosX( float value ) -> void {
-    _globalMousePosX = value;
-    emit globalMousePosChanged( _globalMousePosX, _globalMousePosY );
-}
-
-auto Tired::setGlobalMousePosY( float value ) -> void {
-    _globalMousePosY = value;
-    emit globalMousePosChanged( _globalMousePosX, _globalMousePosY );
-}
-
-auto Tired::globalMousePosX() -> float {
-    return _globalMousePosX;
-}
-
-auto Tired::globalMousePosY() -> float {
-    return _globalMousePosY;
 }
 
 void Tired::setControlMode( int value ) {

@@ -27,9 +27,6 @@ struct Tired final : QObject {
     Q_PROPERTY( QObject* inputHandler READ inputHandler NOTIFY inputHandlerChanged FINAL )
     Q_PROPERTY( QObject* scenegraph READ scenegraph NOTIFY scenegraphChanged FINAL )
 
-    Q_PROPERTY( float globalMousePosX READ globalMousePosX WRITE setGlobalMousePosX NOTIFY globalMousePosChanged FINAL )
-    Q_PROPERTY( float globalMousePosY READ globalMousePosY WRITE setGlobalMousePosY NOTIFY globalMousePosChanged FINAL )
-
     Q_PROPERTY( int controlMode READ controlMode WRITE setControlMode NOTIFY controlModeChanged FINAL )
 
 public:
@@ -46,12 +43,6 @@ public:
     auto inputHandler() const -> QObject*;
     auto scenegraph() const -> QObject*;
 
-    auto setGlobalMousePosX( float value ) -> void;
-    auto setGlobalMousePosY( float value ) -> void;
-
-    auto globalMousePosX() -> float;
-    auto globalMousePosY() -> float;
-
     void setControlMode( int value );
     int controlMode();
 
@@ -59,9 +50,6 @@ signals:
     void manipulatorChanged();
     void inputHandlerChanged();
     void scenegraphChanged();
-
-    void globalMousePosChanged( float x, float y );
-
     void controlModeChanged( int );
 
 private:
@@ -81,9 +69,6 @@ private:
     Manipulator* _manipulator{};
     InputHandler* _inputHandler{};
     Scenegraph* _scenegraph{};
-
-    float _globalMousePosX{};
-    float _globalMousePosY{};
 
     ControlModes _controlMode{ ControlModes::SCENE };
 };
