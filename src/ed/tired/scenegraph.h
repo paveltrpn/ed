@@ -55,10 +55,10 @@ public slots:
     void lookChanged( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up );
 
 private:
+    vsg::Viewer* _viewer;
+
     // Must be Group of StateGroups.
     vsg::ref_ptr<vsg::Group> _root{};
-
-    vsg::Viewer* _viewer;
 
     Navbox* _navbox{};
     Grid* _grid{};
@@ -67,8 +67,7 @@ private:
     Gizmo* _gizmo{};
     GizmoModes _gizmoMode{};
 
-    vsg::ref_ptr<SceneObjectSubgraph> _sceneObjectSubgraph{};
-    std::vector<std::shared_ptr<SceneObjectBase>> _objectsList{};
+    SceneObjects* _sceneObjects{};
 
     vsg::ref_ptr<MarkerSubgraph> _markerSubgraph{};
 };

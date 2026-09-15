@@ -88,8 +88,8 @@ Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> view
     {
         _viewer->addEventHandler( _manipulator->trackball() );
         _viewer->addEventHandler( _inputHandler->handler() );
-        auto commandGraph = vsg::createCommandGraphForView( windowAdapter, _camera, _scenegraph->root() );
-        _viewer->addRecordAndSubmitTaskAndPresentation( { commandGraph } );
+        _viewer->addRecordAndSubmitTaskAndPresentation(
+            { vsg::createCommandGraphForView( windowAdapter, _camera, _scenegraph->root() ) } );
 
         constexpr auto UPDATE_INTERVAL{ 8 };
         _viewer->setInterval( UPDATE_INTERVAL );

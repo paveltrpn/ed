@@ -11,14 +11,30 @@
 namespace tire {
 
 // ======================================================================================
+// ==================== SceneObjects ====================================================
+// ======================================================================================
+
+SceneObjects::SceneObjects( vsg::Viewer* viewer, QObject* parent )
+    : QObject{ parent }
+    , _node{ new SceneObjectsSubgraph{ viewer } } {
+    //
+    _node->initPipeline();
+}
+
+auto SceneObjects::node() const -> vsg::ref_ptr<SceneObjectsSubgraph> {
+    //
+    return _node;
+}
+
+// ======================================================================================
 // ==================== SceneObjectSubgraph =============================================
 // ======================================================================================
 
-SceneObjectSubgraph::SceneObjectSubgraph( vsg::Viewer* viewer )
+SceneObjectsSubgraph::SceneObjectsSubgraph( vsg::Viewer* viewer )
     : Subgraph{ viewer } {
 }
 
-auto SceneObjectSubgraph::initPipeline() -> void {
+auto SceneObjectsSubgraph::initPipeline() -> void {
     auto sceneobjectProgram = Program{ TextProgramSource{ "sceneobject" } };
     auto vertexShader = vsg::ShaderStage::create( VK_SHADER_STAGE_VERTEX_BIT, "main",
                                                   sceneobjectProgram.spirv( ShaderStageType::VERTEX ) );
