@@ -7,9 +7,9 @@ import Tire 1.0
 TextInput {
     id: textInputComponent
 
-    readonly property var _color: Appearence.colors
-    readonly property var _fonts: Appearence.fonts
-    readonly property var _units: Appearence.units
+    readonly property var _color: Appearence.colors.data
+    readonly property var _fonts: Appearence.fonts.data
+    readonly property var _units: Appearence.units.data
 
     height: _units.scaled_24
     color: _color.si_text_dark

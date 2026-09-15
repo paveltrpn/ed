@@ -11,9 +11,9 @@ Window {
 
     title: "File"
 
-    readonly property var _color: Appearence.colors
-    readonly property var _fonts: Appearence.fonts
-    readonly property var _units: Appearence.units
+    readonly property var _color: Appearence.colors.data
+    readonly property var _fonts: Appearence.fonts.data
+    readonly property var _units: Appearence.units.data
 
     visible: true
 

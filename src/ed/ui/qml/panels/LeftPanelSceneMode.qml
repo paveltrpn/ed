@@ -14,9 +14,9 @@ import "../settings"
 Rectangle {
     id: leftPanelSceneComponent
 
-    readonly property var _color: Appearence.colors
-    readonly property var _fonts: Appearence.fonts
-    readonly property var _units: Appearence.units
+    readonly property var _color: Appearence.colors.data
+    readonly property var _fonts: Appearence.fonts.data
+    readonly property var _units: Appearence.units.data
 
     color: _color.si_button_shadow
 
