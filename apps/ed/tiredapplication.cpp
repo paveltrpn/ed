@@ -9,6 +9,7 @@ TiredApplication::TiredApplication( int &argc, char **argv )
     : QApplication( argc, argv )
     , _tiredUI{ new tire::TiredUI{ this } } {
     setAttribute( Qt::AA_UseStyleSheetPropagationInWidgetStyles );
+    _tiredUI->show();
 }
 
 bool TiredApplication::notify( QObject *receiver, QEvent *event ) {

@@ -129,8 +129,6 @@ TiredUI::TiredUI( QObject* parent )
     hSplitter->setSizes( { leftPanelWidth, windowWidth - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
 
     hLayout->addWidget( hSplitter );
-
-    this->show();
 }
 
 auto TiredUI::writeSettings() -> void {
