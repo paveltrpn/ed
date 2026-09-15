@@ -10,10 +10,9 @@ namespace tire {
 // ==================== Manipulator =====================================================
 // ======================================================================================
 
-Manipulator::Manipulator( vsg::ref_ptr<vsg::Camera> camera, vsg::ref_ptr<vsg::EllipsoidModel> ellipsoidModel,
-                          QObject* parent )
+Manipulator::Manipulator( vsg::ref_ptr<vsg::Camera> camera, QObject* parent )
     : QObject{ parent }
-    , _trackball{ new Trackball{ this, camera, ellipsoidModel } } {
+    , _trackball{ new Trackball{ this, camera } } {
 }
 
 auto Manipulator::trackball() -> const vsg::ref_ptr<Trackball> {

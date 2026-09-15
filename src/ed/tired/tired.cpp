@@ -71,10 +71,12 @@ Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> view
 
     // Setup manipulator and event handler objects.
     {
-        _manipulator = new Manipulator{ _camera, nullptr, this };
+        _manipulator = new Manipulator{ _camera, this };
         _manipulator->trackball()->addWindow( windowAdapter );
         _inputHandler = new InputHandler{ _camera, _viewer, _scenegraph, this };
     }
+
+    connect( _manipulator, &Manipulator::lookChanged, _scenegraph, &Scenegraph::lookChanged );
 
     // Setup viewer object.
     {
@@ -92,13 +94,7 @@ Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> view
 
     _scenegraph->initSubgraphs();
 
-    connect( _manipulator, &Manipulator::lookChanged, _scenegraph, &Scenegraph::lookChanged );
-
-    // Viewer compile.
-    {
-        //
-        _viewer->compile();
-    }
+    _viewer->compile();
 
     // Add default cube.
     _scenegraph->addExBox( -2.0, 1.5, 0.0, 22.0, 45.0, 12.0, 1.0, 1.3, 1.3 );

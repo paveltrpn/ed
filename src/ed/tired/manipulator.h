@@ -27,8 +27,7 @@ struct Manipulator final : QObject {
     Q_PROPERTY( QVector3D up READ up NOTIFY lookChanged FINAL )
 
 public:
-    Manipulator( vsg::ref_ptr<vsg::Camera> camera, vsg::ref_ptr<vsg::EllipsoidModel> ellipsoidModel = {},
-                 QObject* parent = nullptr );
+    Manipulator( vsg::ref_ptr<vsg::Camera> camera, QObject* parent = nullptr );
 
     auto trackball() -> const vsg::ref_ptr<Trackball>;
 
