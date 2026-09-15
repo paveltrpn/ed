@@ -9,31 +9,10 @@
 
 namespace tire {
 
-Tired::Tired( QObject* parent )
+Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> viewer, uint32_t width, uint32_t height,
+              QObject* parent )
     : QObject{ parent }
-    , _viewer{ Viewer::create() } {};
-
-auto Tired::viewer() -> vsg::ref_ptr<Viewer> {
-    return _viewer;
-}
-
-auto Tired::manipulator() const -> QObject* {
-    return _manipulator;
-}
-
-auto Tired::inputHandler() const -> QObject* {
-    return _inputHandler;
-}
-
-auto Tired::camera() -> vsg::ref_ptr<vsg::Camera> {
-    return _camera;
-}
-
-QObject* Tired::scenegraph() const {
-    return _scenegraph;
-}
-
-auto Tired::init( vsg::ref_ptr<vsg::Window> windowAdapter, uint32_t width, uint32_t height ) -> void {
+    , _viewer{ viewer } {
     // Setup the camera.
     {
         auto lookAt = vsg::LookAt::create( vsg::dvec3( 0.0, -16.0, 8.0 ), vsg::dvec3{ 0.0, 0.0, 0.0 },
@@ -88,6 +67,26 @@ auto Tired::init( vsg::ref_ptr<vsg::Window> windowAdapter, uint32_t width, uint3
     _scenegraph->addExBox( -1.0, 2.5, 0.0, 72.0, 25.0, -91.0, 2.0, 1.3, 1.3 );
     _scenegraph->addExBox( -1.0, -2.5, 0.0, 32.0, 225.0, -191.0, 2.0, 1.3, 1.3 );
     _scenegraph->addExBox( 1.0, 2.5, 0.0, 12.0, 65.0, 121.0, 2.0, 1.3, 1.3 );
+};
+
+auto Tired::viewer() -> vsg::ref_ptr<Viewer> {
+    return _viewer;
+}
+
+auto Tired::manipulator() const -> QObject* {
+    return _manipulator;
+}
+
+auto Tired::inputHandler() const -> QObject* {
+    return _inputHandler;
+}
+
+auto Tired::camera() -> vsg::ref_ptr<vsg::Camera> {
+    return _camera;
+}
+
+QObject* Tired::scenegraph() const {
+    return _scenegraph;
 }
 
 auto Tired::registerTypes() -> void {

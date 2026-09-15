@@ -15,17 +15,18 @@ namespace tire {
 
 class VsgWidget : public QWidget {
 public:
-    VsgWidget( vsg::ref_ptr<Viewer> in_viewer, vsg::ref_ptr<vsg::WindowTraits> in_traits );
+    VsgWidget( vsg::ref_ptr<vsg::WindowTraits> in_traits );
 
     virtual ~VsgWidget();
 
     vsg::ref_ptr<vsg::WindowTraits> _traits;
-    vsg::ref_ptr<Viewer> _viewer;
+    vsg::ref_ptr<tire::Viewer> _viewer;
 
     vsg::ref_ptr<vsg::Window> _windowAdapter;
     vsg::ref_ptr<KeyboardMap> _keyboardMap;
 
     auto windowAdapter() const -> vsg::ref_ptr<vsg::Window>;
+    auto viewer() const -> vsg::ref_ptr<tire::Viewer>;
 
     /// Initialize the Vulkan integration using VulkanSceneGraph VkInstance/VkSurface support
     virtual void initializeWindow();

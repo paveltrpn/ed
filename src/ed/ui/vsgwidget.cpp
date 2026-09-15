@@ -29,9 +29,9 @@
 
 namespace tire {
 
-VsgWidget::VsgWidget( vsg::ref_ptr<Viewer> in_viewer, vsg::ref_ptr<vsg::WindowTraits> in_traits )
+VsgWidget::VsgWidget( vsg::ref_ptr<vsg::WindowTraits> in_traits )
     : QWidget()
-    , _viewer( in_viewer )
+    , _viewer( tire::Viewer::create() )
     , _keyboardMap( KeyboardMap::create() ) {
     if ( in_traits ) {
         _traits = vsg::WindowTraits::create( *in_traits );
@@ -83,6 +83,10 @@ void VsgWidget::initializeWindow() {
 auto VsgWidget::windowAdapter() const -> vsg::ref_ptr<vsg::Window> {
     //
     return _windowAdapter;
+}
+auto VsgWidget::viewer() const -> vsg::ref_ptr<tire::Viewer> {
+    //
+    return _viewer;
 }
 
 void VsgWidget::cleanup() {

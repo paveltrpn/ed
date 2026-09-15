@@ -70,7 +70,7 @@ private:
     const AppearanceData *_data{};
 };
 
-// Colors and other theme related provider. Instance of
+// Colors and other theme related data provider. Instance of
 // this object available in qml.
 struct Appearance : QObject {
     Q_OBJECT

@@ -16,8 +16,7 @@ namespace tire {
 // ====================================================================
 
 TiredUI::TiredUI( QObject* parent )
-    : _tired{ new tire::Tired{ this } }
-    , _settings{ new QSettings{ this } }
+    : _settings{ new QSettings{ this } }
     , _engine{ new QQmlEngine{ this } }
     , _context{ _engine->rootContext() }
     , _topPanel{ new QQuickWidget{ _engine, this } }
@@ -40,7 +39,6 @@ TiredUI::TiredUI( QObject* parent )
     // windowTraits->fullscreen = true;
 
     qmlRegisterSingletonInstance( "Tire", 1, 0, "Appearence", _theme );
-    qmlRegisterSingletonInstance( "Tire", 1, 0, "Tired", _tired );
 
     // Use this object for main window position and size (in particular).
     qmlRegisterSingletonInstance( "Tire", 1, 0, "MainWindow", this );
@@ -53,14 +51,17 @@ TiredUI::TiredUI( QObject* parent )
     // setAttribute( Qt::WA_TranslucentBackground );
 
     // VSG initialization.
-    _vsgWidget = new VsgWidget( _tired->viewer(), windowTraits );
+    _vsgWidget = new VsgWidget( windowTraits );
     _vsgWidget->initializeWindow();
 
     const auto clearColor = QColor{ _theme->getColor( "clear_color" ) };
     _vsgWidget->windowAdapter()->clearColor().set( clearColor.redF(), clearColor.greenF(), clearColor.blueF(), 1.0f );
 
-    _tired->init( _vsgWidget->windowAdapter(), windowTraits->width, windowTraits->height );
+    _tired = new tire::Tired{ _vsgWidget->windowAdapter(), _vsgWidget->viewer(), windowTraits->width,
+                              windowTraits->height, this };
+    qmlRegisterSingletonInstance( "Tire", 1, 0, "Tired", _tired );
 
+    // Qt widgets initialization.
     _topPanel->setSource( QUrl::fromLocalFile( "../src/ed/ui/qml/panels/TopPanel.qml" ) );
     _topPanel->setResizeMode( QQuickWidget::SizeRootObjectToView );
 
