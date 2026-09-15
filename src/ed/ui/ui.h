@@ -9,7 +9,6 @@
 
 #include "vsgwidget.h"
 #include "appearance.h"
-#include "ed/tired/tired.h"
 
 namespace tire {
 
@@ -33,11 +32,9 @@ public:
     void closeEvent( QCloseEvent *event ) override;
 
 private:
-    auto reigsterTypes() -> void;
+    auto registerTypes() -> void;
 
 private:
-    tire::Tired *_tired{};
-
     QSettings *_settings{};
 
     QQmlEngine *_engine{};
@@ -48,8 +45,6 @@ private:
     QQuickWidget *_leftPanel{};
     QQuickWidget *_bottomPanel{};
     QQuickWidget *_rightPanel{};
-
-    Appearance *_theme;
 
     vsg::ref_ptr<KeyboardMap> keyboardMap;
 };

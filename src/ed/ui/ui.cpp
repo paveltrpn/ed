@@ -7,6 +7,7 @@
 
 #include "ui.h"
 #include "log/log.h"
+#include "ed/tired/tired.h"
 #include "config/config.h"
 
 namespace tire {
@@ -22,26 +23,19 @@ TiredUI::TiredUI( QObject* parent )
     , _topPanel{ new QQuickWidget{ _engine, this } }
     , _leftPanel{ new QQuickWidget{ _engine, this } }
     , _bottomPanel{ new QQuickWidget{ _engine, this } }
-    , _rightPanel{ new QQuickWidget{ _engine, this } }
-    , _theme{ new Appearance{ this } } {
-    // Set empty window title displayed on native decoration.
-    setWindowTitle( " " );
-
-    const auto [windowWidth, windowHeight] = readSettings();
-
-    _tired->registerTypes();
-
-    _engine->addImageProvider( "TiredImageProvider", new TiredImageProvider{} );
-
-    auto windowTraits = vsg::WindowTraits::create();
-    // windowTraits->windowTitle = "ed";
-    windowTraits->vulkanVersion = VK_MAKE_API_VERSION( 0, 1, 4, 0 );
-    // windowTraits->fullscreen = true;
-
-    qmlRegisterSingletonInstance( "Tire", 1, 0, "Appearence", _theme );
+    , _rightPanel{ new QQuickWidget{ _engine, this } } {
+    registerTypes();
 
     // Use this object for main window position and size (in particular).
     qmlRegisterSingletonInstance( "Tire", 1, 0, "MainWindow", this );
+
+    // Set empty window title displayed on native decoration.
+    setWindowTitle( " " );
+
+    _engine->addImageProvider( "TiredImageProvider", new TiredImageProvider{} );
+
+    tire::Appearance::init();
+    qmlRegisterSingletonInstance( "Tire", 1, 0, "Appearence", tire::Appearance::pointer() );
 
     // Remove native decoration.
     // setWindowFlags( Qt::FramelessWindowHint );
@@ -51,15 +45,19 @@ TiredUI::TiredUI( QObject* parent )
     // setAttribute( Qt::WA_TranslucentBackground );
 
     // VSG initialization.
+    auto windowTraits = vsg::WindowTraits::create();
+    // windowTraits->windowTitle = "ed";
+    windowTraits->vulkanVersion = VK_MAKE_API_VERSION( 0, 1, 4, 0 );
+    // windowTraits->fullscreen = true;
+
     _vsgWidget = new VsgWidget( windowTraits );
     _vsgWidget->initializeWindow();
 
-    const auto clearColor = QColor{ _theme->getColor( "clear_color" ) };
+    const auto clearColor = QColor{ tire::Appearance::instance().getColor( "clear_color" ) };
     _vsgWidget->windowAdapter()->clearColor().set( clearColor.redF(), clearColor.greenF(), clearColor.blueF(), 1.0f );
 
-    _tired = new tire::Tired{ _vsgWidget->windowAdapter(), _vsgWidget->viewer(), windowTraits->width,
-                              windowTraits->height, this };
-    qmlRegisterSingletonInstance( "Tire", 1, 0, "Tired", _tired );
+    tire::Tired::init( _vsgWidget->windowAdapter(), _vsgWidget->viewer(), windowTraits->width, windowTraits->height );
+    qmlRegisterSingletonInstance( "Tire", 1, 0, "Tired", tire::Tired::pointer() );
 
     // Qt widgets initialization.
     _topPanel->setSource( QUrl::fromLocalFile( "../src/ed/ui/qml/panels/TopPanel.qml" ) );
@@ -80,7 +78,7 @@ TiredUI::TiredUI( QObject* parent )
     _bottomPanel->setClearColor( Qt::transparent );
     _rightPanel->setClearColor( Qt::transparent );
 
-    const auto splitterBorderColor = _theme->getColor( "background" );
+    const auto splitterBorderColor = tire::Appearance::instance().getColor( "background" );
 
     auto centralWidget = new QWidget{ this };
     setCentralWidget( centralWidget );
@@ -104,6 +102,8 @@ TiredUI::TiredUI( QObject* parent )
     mainColumnSplitter->addWidget( _topPanel );
     mainColumnSplitter->addWidget( middleElementsWidget );
     mainColumnSplitter->addWidget( _bottomPanel );
+
+    const auto [windowWidth, windowHeight] = readSettings();
 
     const auto topPanelHeight = static_cast<int>( windowHeight * 0.06f );
     const auto bottomPanelHeight = static_cast<int>( windowHeight * 0.06f );
@@ -180,6 +180,15 @@ void TiredUI::moveWindow() {
 void TiredUI::resizeWindow( int edge ) {
     // const auto e = static_cast<Qt::Edge>( edge );
     // this->windowHandle()->startSystemResize( e );
+}
+
+auto TiredUI::registerTypes() -> void {
+    qRegisterMetaType<tire::SceneObjectTypeEnum>( "SceneObjectTypeEnum" );
+
+    qRegisterMetaType<tire::SceneObjectData>( "SceneObjectData" );
+    qRegisterMetaType<tire::BoxObjectData>( "BoxObject" );
+    qRegisterMetaType<tire::SphereObjectData>( "SphereObjectData" );
+    qRegisterMetaType<tire::MeshObjectData>( "MeshData" );
 }
 
 }  // namespace tire

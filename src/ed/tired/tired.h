@@ -33,8 +33,10 @@ struct Tired final : QObject {
     Q_PROPERTY( int controlMode READ controlMode WRITE setControlMode NOTIFY controlModeChanged FINAL )
 
 public:
-    Tired( vsg::ref_ptr<vsg::Window> _windowAdapter, vsg::ref_ptr<Viewer> viewer, uint32_t width, uint32_t height,
-           QObject* parent = nullptr );
+    static void init( vsg::ref_ptr<vsg::Window> _windowAdapter, vsg::ref_ptr<Viewer> viewer, uint32_t width,
+                      uint32_t height );
+    [[nodiscard]] static Tired& instance();
+    [[nodiscard]] static Tired* pointer();
 
     auto viewer() -> vsg::ref_ptr<Viewer>;
     auto rootNode() -> vsg::ref_ptr<vsg::Node>;
@@ -43,8 +45,6 @@ public:
     auto manipulator() const -> QObject*;
     auto inputHandler() const -> QObject*;
     auto scenegraph() const -> QObject*;
-
-    auto registerTypes() -> void;
 
     auto setGlobalMousePosX( float value ) -> void;
     auto setGlobalMousePosY( float value ) -> void;
@@ -63,6 +63,16 @@ signals:
     void globalMousePosChanged( float x, float y );
 
     void controlModeChanged( int );
+
+private:
+    Tired( vsg::ref_ptr<vsg::Window> _windowAdapter, vsg::ref_ptr<Viewer> viewer, uint32_t width, uint32_t height,
+           QObject* parent = nullptr );
+
+    ~Tired() = default;
+
+    inline static std::atomic<Tired*> _instance{ nullptr };
+    inline static std::once_flag _initFlag;
+    inline static bool _initSuccess{ false };
 
 private:
     vsg::ref_ptr<Viewer> _viewer{};

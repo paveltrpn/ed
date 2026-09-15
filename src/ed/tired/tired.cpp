@@ -1,3 +1,5 @@
+#include <QQmlEngine>
+
 #include <vsg/all.h>
 #include <vsg/app/Viewer.h>
 
@@ -6,8 +8,42 @@
 #endif
 
 #include "tired.h"
+#include "log/log.h"
 
 namespace tire {
+
+void Tired::init( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> viewer, uint32_t width,
+                  uint32_t height ) {
+    if ( _initSuccess ) {
+        log::error()( "Warning: Singleton already initialized. Ignoring new arguments." );
+    }
+
+    std::call_once( _initFlag, [&]() {
+        _instance.store( new Tired( windowAdapter, viewer, width, height ) );
+        _initSuccess = true;
+    } );
+}
+
+Tired& Tired::instance() {
+    auto* ptr = _instance.load();
+
+    if ( !ptr ) {
+        throw std::logic_error( "Singleton must be initialized via init( ... ) before calling instance()." );
+    }
+    return *ptr;
+}
+
+Tired* Tired::pointer() {
+    auto* ptr = _instance.load();
+
+    if ( !ptr ) {
+        throw std::logic_error( "Singleton must be initialized via init( ... ) before calling instance()." );
+    }
+
+    QQmlEngine::setObjectOwnership( ptr, QQmlEngine::CppOwnership );
+
+    return ptr;
+}
 
 Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> viewer, uint32_t width, uint32_t height,
               QObject* parent )
@@ -87,15 +123,6 @@ auto Tired::camera() -> vsg::ref_ptr<vsg::Camera> {
 
 QObject* Tired::scenegraph() const {
     return _scenegraph;
-}
-
-auto Tired::registerTypes() -> void {
-    qRegisterMetaType<tire::SceneObjectTypeEnum>( "SceneObjectTypeEnum" );
-
-    qRegisterMetaType<tire::SceneObjectData>( "SceneObjectData" );
-    qRegisterMetaType<tire::BoxObjectData>( "BoxObject" );
-    qRegisterMetaType<tire::SphereObjectData>( "SphereObjectData" );
-    qRegisterMetaType<tire::MeshObjectData>( "MeshData" );
 }
 
 auto Tired::setGlobalMousePosX( float value ) -> void {

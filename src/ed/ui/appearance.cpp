@@ -33,9 +33,40 @@ QImage TiredImageProvider::requestImage( const QString &id, QSize *size, const Q
 // ==================== Appearance ======================================================
 // ======================================================================================
 
+void Appearance::init() {
+    if ( _initSuccess ) {
+        log::error()( "Warning: Singleton already initialized. Ignoring new arguments." );
+    }
+
+    std::call_once( _initFlag, [&]() {
+        _instance.store( new Appearance{} );
+        _initSuccess = true;
+    } );
+}
+
+Appearance &Appearance::instance() {
+    auto *ptr = _instance.load();
+
+    if ( !ptr ) {
+        throw std::logic_error( "Singleton must be initialized via init( ... ) before calling instance()." );
+    }
+    return *ptr;
+}
+
+Appearance *Appearance::pointer() {
+    auto *ptr = _instance.load();
+
+    if ( !ptr ) {
+        throw std::logic_error( "Singleton must be initialized via init( ... ) before calling instance()." );
+    }
+
+    QQmlEngine::setObjectOwnership( ptr, QQmlEngine::CppOwnership );
+
+    return ptr;
+}
+
 Appearance::Appearance( QObject *parent )
-    : QObject{ parent }
-    , _colors{ new AppearanceDataProxy{ &_colorsData, this } }
+    : _colors{ new AppearanceDataProxy{ &_colorsData, this } }
     , _fonts{ new AppearanceDataProxy{ &_fontsData, this } }
     , _units{ new AppearanceDataProxy{ &_unitsData, this } } {
     buildColors();

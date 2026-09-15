@@ -1,6 +1,9 @@
 
 #pragma once
 
+#include <atomic>
+#include <mutex>
+
 #include <QObject>
 #include <QJsonObject>
 #include <QDir>
@@ -79,7 +82,9 @@ struct Appearance : QObject {
     Q_PROPERTY( AppearanceDataProxy *units READ units MEMBER _units NOTIFY unitsChanged )
 
 public:
-    Appearance( QObject *parent = nullptr );
+    static void init();
+    [[nodiscard]] static Appearance &instance();
+    [[nodiscard]] static Appearance *pointer();
 
     AppearanceDataProxy *colors();
     AppearanceDataProxy *fonts();
@@ -97,6 +102,14 @@ signals:
     void colorsChanged();
     void fontsChanged();
     void unitsChanged();
+
+private:
+    explicit Appearance( QObject *parent = nullptr );
+    ~Appearance() = default;
+
+    inline static std::atomic<Appearance *> _instance{ nullptr };
+    inline static std::once_flag _initFlag;
+    inline static bool _initSuccess{ false };
 
 private:
     AppearanceData _colorsData{};
