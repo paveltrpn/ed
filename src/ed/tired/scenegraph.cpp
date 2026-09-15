@@ -40,6 +40,14 @@ auto Scenegraph::bounding() const -> Bounding* {
     return _bounding;
 }
 
+auto Scenegraph::gizmo() const -> Gizmo* {
+    return _gizmo;
+}
+
+auto Scenegraph::sceneObjects() const -> SceneObjects* {
+    return _sceneObjects;
+}
+
 void Scenegraph::addExBox( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy, float sz ) {
     auto data = BoxObjectData{};
     data.setPosition( { px, py, pz } );
