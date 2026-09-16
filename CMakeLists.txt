@@ -22,20 +22,19 @@ else()
     message(SEND_ERROR "VMA_DIR is not set")
 endif()
 
-if (DEFINED ENV{vsg_DIR} AND NOT "$ENV{vsg_DIR}" STREQUAL "")
-    message( "vsg_DIR is set to $ENV{vsg_DIR}")
-    include_directories($ENV{vsg_DIR}/include)
-    link_directories($ENV{vsg_DIR}/lib)
-else()
-    message(SEND_ERROR "vsg_DIR is not set")
-endif()
+# NOTE: Use vsg library...
+# if (DEFINED ENV{vsg_DIR} AND NOT "$ENV{vsg_DIR}" STREQUAL "")
+#     message( "vsg_DIR is set to $ENV{vsg_DIR}")
+#     include_directories($ENV{vsg_DIR}/include)
+#     link_directories($ENV{vsg_DIR}/lib)
+# else()
+#     message(SEND_ERROR "vsg_DIR is not set")
+# endif()
+
+# ...or build it alongside.
+add_subdirectory(VulkanSceneGraph)
 
 find_package(glslang 15.0 REQUIRED)
-
-list(APPEND CMAKE_PREFIX_PATH $ENV{LOCAL_GLFW})
-find_package(glfw3 3.3 REQUIRED)
-
-find_package(nlohmann_json 3.11 REQUIRED)
 
 include_directories("src")
 
