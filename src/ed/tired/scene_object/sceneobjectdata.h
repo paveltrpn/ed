@@ -199,11 +199,15 @@ struct BoxObjectData final
 public:
     BoxObjectData()
         : SceneObjectData{}
-        , _size{ 1.0 } {}
+        , _width{ 1.0 }
+        , _height{ 1.0 }
+        , _depth{ 1.0 } {}
 
-    BoxObjectData( const SceneObjectData &base, double size )
+    BoxObjectData( const SceneObjectData &base, double width, double height, double depth )
         : SceneObjectData{ base }
-        , _size{ size } {};
+        , _width{ 1.0 }
+        , _height{ 1.0 }
+        , _depth{ 1.0 } {};
 
     BoxObjectData( const BoxObjectData &other ) = default;
     BoxObjectData( BoxObjectData &&other ) = default;
@@ -220,7 +224,9 @@ public:
         auto base = SceneObjectData::toJson();
 
         const auto self = QJsonObject{
-            { "size", _size },
+            { "width", _width },
+            { "height", _height },
+            { "depth", _depth },
         };
 
         base.insert( "derived", self );
@@ -233,11 +239,15 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _size = derived.value( "size" ).toDouble();
+        _width = derived.value( "width" ).toDouble();
+        _height = derived.value( "height" ).toDouble();
+        _depth = derived.value( "depth" ).toDouble();
     }
 
 private:
-    double _size{};
+    double _width{};
+    double _height{};
+    double _depth{};
 };
 
 // ======================================================================================
