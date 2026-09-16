@@ -8,9 +8,6 @@
 
 #include <vsg/all.h>
 
-#include "ihasmaterial.h"
-#include "ihascollision.h"
-
 namespace tire {
 
 enum class SceneObjectTypeEnum {
@@ -175,7 +172,6 @@ public:
                              colorArr[3].toDouble() };
     }
 
-private:
     SceneObjectTypeEnum _type{};
 
     QString _name{};
@@ -191,9 +187,7 @@ private:
 // ==================== BoxObjectData ===================================================
 // ======================================================================================
 
-struct BoxObjectData final
-    : public SceneObjectData
-    , public IHasCollision {
+struct BoxObjectData final : public SceneObjectData {
     Q_GADGET
 
 public:
@@ -214,11 +208,6 @@ public:
 
     BoxObjectData &operator=( const BoxObjectData &other ) = default;
     BoxObjectData &operator=( BoxObjectData &&other ) = default;
-
-    auto getShape() -> void override{
-        //
-        // TODO: implement interface
-    };
 
     QJsonObject toJson() const override {
         auto base = SceneObjectData::toJson();
@@ -244,7 +233,6 @@ public:
         _depth = derived.value( "depth" ).toDouble();
     }
 
-private:
     double _width{};
     double _height{};
     double _depth{};
@@ -254,9 +242,7 @@ private:
 // ==================== SphereObjectData ================================================
 // ======================================================================================
 
-struct SphereObjectData final
-    : public SceneObjectData
-    , public IHasCollision {
+struct SphereObjectData final : public SceneObjectData {
     Q_GADGET
 
 public:
@@ -268,11 +254,6 @@ public:
     SphereObjectData &operator=( const SphereObjectData &other ) = default;
     SphereObjectData &operator=( SphereObjectData &&other ) = default;
 
-    auto getShape() -> void override{
-        //
-        // TODO: implement interface
-    };
-
     QJsonObject toJson() const override {
         auto base = SceneObjectData::toJson();
 
@@ -293,7 +274,6 @@ public:
         _radius = derived.value( "radius" ).toDouble();
     }
 
-private:
     double _radius{};
 };
 
@@ -301,9 +281,7 @@ private:
 // ==================== CylinderObjectData ==============================================
 // ======================================================================================
 
-struct CylinderObjectData final
-    : public SceneObjectData
-    , public IHasCollision {
+struct CylinderObjectData final : public SceneObjectData {
     Q_GADGET
 
 public:
@@ -315,11 +293,6 @@ public:
     CylinderObjectData &operator=( const CylinderObjectData &other ) = default;
     CylinderObjectData &operator=( CylinderObjectData &&other ) = default;
 
-    auto getShape() -> void override{
-        //
-        // TODO: implement interface
-    };
-
     QJsonObject toJson() const override {
         auto base = SceneObjectData::toJson();
 
@@ -342,7 +315,6 @@ public:
         _height = derived.value( "height" ).toDouble();
     }
 
-private:
     double _radius{};
     double _height{};
 };
@@ -351,9 +323,7 @@ private:
 // ==================== CapsuleObjectData ===============================================
 // ======================================================================================
 
-struct CapsuleObjectData final
-    : public SceneObjectData
-    , public IHasCollision {
+struct CapsuleObjectData final : public SceneObjectData {
     Q_GADGET
 
 public:
@@ -365,11 +335,6 @@ public:
     CapsuleObjectData &operator=( const CapsuleObjectData &other ) = default;
     CapsuleObjectData &operator=( CapsuleObjectData &&other ) = default;
 
-    auto getShape() -> void override{
-        //
-        // TODO: implement interface
-    };
-
     QJsonObject toJson() const override {
         auto base = SceneObjectData::toJson();
 
@@ -392,7 +357,6 @@ public:
         _height = derived.value( "height" ).toDouble();
     }
 
-private:
     double _radius{};
     double _height{};
 };
@@ -401,10 +365,7 @@ private:
 // ==================== MeshObjectData ==================================================
 // ======================================================================================
 
-struct MeshObjectData final
-    : public SceneObjectData
-    , public IHasCollision
-    , public IHasMaterial {
+struct MeshObjectData final : public SceneObjectData {
     Q_GADGET
 
 public:
@@ -415,17 +376,6 @@ public:
 
     MeshObjectData &operator=( const MeshObjectData &other ) = default;
     MeshObjectData &operator=( MeshObjectData &&other ) = default;
-
-    auto getMaterial() -> void override{
-        //
-        // TODO: implement interface
-
-    };
-
-    auto getShape() -> void override{
-        //
-        // TODO: implement interface
-    };
 
     QJsonObject toJson() const override {
         auto base = SceneObjectData::toJson();
@@ -479,8 +429,6 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
     }
-
-private:
 };
 
 // ======================================================================================
@@ -515,8 +463,6 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
     }
-
-private:
 };
 
 // ======================================================================================
@@ -551,8 +497,6 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
     }
-
-private:
 };
 
 // ======================================================================================
@@ -587,8 +531,6 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
     }
-
-private:
 };
 
 // ======================================================================================
@@ -623,8 +565,6 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
     }
-
-private:
 };
 
 }  // namespace tire

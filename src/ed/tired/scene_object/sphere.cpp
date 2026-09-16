@@ -22,8 +22,7 @@ auto sphereData() -> std::tuple<vsg::ref_ptr<vsg::vec3Array>, vsg::ref_ptr<vsg::
 
 }  // namespace
 
-Sphere::Sphere( QObject* parent ){
-
-};
+Sphere::Sphere( QObject* parent )
+    : SceneObjectBase{} {};
 
 }  // namespace tire::object

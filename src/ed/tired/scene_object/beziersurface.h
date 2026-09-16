@@ -5,61 +5,19 @@
 
 namespace tire::object {
 
-struct Box final : public SceneObjectBase {
+struct Beziersurface final : public SceneObjectBase {
     Q_OBJECT
 
-    Q_PROPERTY( double width READ width WRITE setWidth NOTIFY widthChanged FINAL )
-    Q_PROPERTY( double height READ height WRITE setHeight NOTIFY heightChanged FINAL )
-    Q_PROPERTY( double depth READ depth WRITE setDepth NOTIFY depthChanged FINAL )
-
 public:
-    Box( QObject* parent = nullptr );
+    Beziersurface( QObject* parent = nullptr );
 
-    Box( const Box& other ) = delete;
-    Box( Box&& other ) = delete;
+    Beziersurface( const Beziersurface& other ) = delete;
+    Beziersurface( Beziersurface&& other ) = delete;
 
-    Box& operator=( const Box& other ) = delete;
-    Box& operator=( Box&& other ) = delete;
-
-    auto width() const -> double {
-        //
-        return _width;
-    }
-
-    auto height() const -> double {
-        //
-        return _height;
-    }
-
-    auto depth() const -> double {
-        //
-        return _depth;
-    }
-
-    auto setWidth( double value ) -> void {
-        //
-        _width = value;
-    }
-
-    auto setHeight( double value ) -> void {
-        //
-        _height = value;
-    }
-
-    auto setDepth( double value ) -> void {
-        //
-        _depth = value;
-    }
-
-signals:
-    void widthChanged();
-    void heightChanged();
-    void depthChanged();
+    Beziersurface& operator=( const Beziersurface& other ) = delete;
+    Beziersurface& operator=( Beziersurface&& other ) = delete;
 
 private:
-    double _width{};
-    double _height{};
-    double _depth{};
 };
 
 }  // namespace tire::object

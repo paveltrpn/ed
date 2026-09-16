@@ -5,9 +5,8 @@
 
 namespace tire::object {
 
-namespace {
-
-Capsule::Capsule( QObject* parent ) {
+Capsule::Capsule( QObject* parent )
+    : SceneObjectBase{} {
 }
 
 }  // namespace tire::object

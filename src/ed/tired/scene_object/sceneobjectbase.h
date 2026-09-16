@@ -24,6 +24,10 @@ struct SceneObjectBase : public QObject {
 public:
     SceneObjectBase( QObject* parent = nullptr );
 
+    SceneObjectBase( const SceneObjectData& data );
+    SceneObjectBase( SceneObjectTypeEnum type, const QString& name, const QUuid& uid, vsg::dvec3 position,
+                     vsg::dvec3 orientation, vsg::dvec3 scale, vsg::dvec4 color );
+
     SceneObjectBase( const SceneObjectBase& other ) = delete;
     SceneObjectBase( SceneObjectBase&& other ) = delete;
 
@@ -104,10 +108,8 @@ protected:
 
 protected:
     SceneObjectTypeEnum _type{};
-
     QString _name{};
     QUuid _uid{};
-
     vsg::dvec3 _position{};
     vsg::dvec3 _orientation{};
     vsg::dvec3 _scale{};

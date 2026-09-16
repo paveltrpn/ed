@@ -15,6 +15,10 @@ struct Box final : public SceneObjectBase {
 public:
     Box( QObject* parent = nullptr );
 
+    Box( const BoxObjectData& data );
+    Box( SceneObjectTypeEnum type, const QString& name, const QUuid& uid, vsg::dvec3 position, vsg::dvec3 orientation,
+         vsg::dvec3 scale, vsg::dvec4 color, double width, double height, double depth );
+
     Box( const Box& other ) = delete;
     Box( Box&& other ) = delete;
 
@@ -55,6 +59,9 @@ signals:
     void widthChanged();
     void heightChanged();
     void depthChanged();
+
+private:
+    auto init() -> void;
 
 private:
     double _width{};
