@@ -6,20 +6,20 @@
 namespace tire {
 
 // ======================================================================================
-// ==================== SceneObjects ====================================================
+// ==================== Scene ===========================================================
 // ======================================================================================
 
-struct SceneObjectsSubgraph;
+struct SceneSubgraph;
 
-struct SceneObjects final : public QObject {
+struct Scene final : public QObject {
     Q_OBJECT
 
     // Q_PROPERTY( QVector3D boxOrigin READ boxOrigin WRITE setBoxOrigin NOTIFY boxOriginChanged FINAL )
 
 public:
-    SceneObjects( vsg::Viewer* viewer, QObject* parent = nullptr );
+    Scene( vsg::Viewer* viewer, QObject* parent = nullptr );
 
-    auto node() const -> vsg::ref_ptr<SceneObjectsSubgraph>;
+    auto node() const -> vsg::ref_ptr<SceneSubgraph>;
 
     // void setBoxOrigin( QVector3D value );
 
@@ -29,15 +29,15 @@ signals:
     // void boxOriginChanged();
 
 private:
-    vsg::ref_ptr<SceneObjectsSubgraph> _node{};
+    vsg::ref_ptr<SceneSubgraph> _node{};
 };
 
 // ======================================================================================
-// ==================== SceneObjectsSubgraph ============================================
+// ==================== SceneSubgraph ===================================================
 // ======================================================================================
 
-struct SceneObjectsSubgraph final : Subgraph {
-    SceneObjectsSubgraph( vsg::Viewer* viewer );
+struct SceneSubgraph final : Subgraph {
+    SceneSubgraph( vsg::Viewer* viewer );
 
     auto initPipeline() -> void override;
 

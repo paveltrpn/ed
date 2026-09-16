@@ -7,7 +7,7 @@
 
 #include "subgraph/grid.h"
 #include "subgraph/navbox.h"
-#include "subgraph/sceneobject.h"
+#include "subgraph/scene.h"
 #include "subgraph/marker.h"
 #include "subgraph/bounding.h"
 #include "subgraph/gizmo.h"
@@ -27,7 +27,7 @@ struct Scenegraph final : public QObject {
     Q_PROPERTY( QObject* grid READ grid NOTIFY gridChanged FINAL )
     Q_PROPERTY( QObject* bounding READ bounding NOTIFY boundingChanged FINAL )
     Q_PROPERTY( QObject* gizmo READ gizmo NOTIFY gizmoChanged FINAL )
-    Q_PROPERTY( QObject* sceneObjects READ sceneObjects NOTIFY sceneObjectsChanged FINAL )
+    Q_PROPERTY( QObject* scene READ scene NOTIFY sceneChanged FINAL )
 
     Q_PROPERTY( int gizmoMode READ gizmoMode WRITE setGizmoMode NOTIFY gizmoModeChanged FINAL )
 
@@ -43,7 +43,7 @@ public:
     Grid* grid() const;
     Bounding* bounding() const;
     Gizmo* gizmo() const;
-    SceneObjects* sceneObjects() const;
+    Scene* scene() const;
 
     void setGizmoMode( int value );
     int gizmoMode();
@@ -53,7 +53,7 @@ signals:
     void gridChanged();
     void boundingChanged();
     void gizmoChanged();
-    void sceneObjectsChanged();
+    void sceneChanged();
 
     void gizmoModeChanged();
 
@@ -73,7 +73,7 @@ private:
     Gizmo* _gizmo{};
     GizmoModes _gizmoMode{};
 
-    SceneObjects* _sceneObjects{};
+    Scene* _scene{};
 
     vsg::ref_ptr<MarkerSubgraph> _markerSubgraph{};
 };

@@ -3,7 +3,8 @@
 
 #include "image/tga.h"
 #include "log/log.h"
-#include "sceneobject.h"
+
+#include "scene.h"
 
 #include "program/program.h"
 #include "config/config.h"
@@ -14,14 +15,14 @@ namespace tire {
 // ==================== SceneObjects ====================================================
 // ======================================================================================
 
-SceneObjects::SceneObjects( vsg::Viewer* viewer, QObject* parent )
+Scene::Scene( vsg::Viewer* viewer, QObject* parent )
     : QObject{ parent }
-    , _node{ new SceneObjectsSubgraph{ viewer } } {
+    , _node{ new SceneSubgraph{ viewer } } {
     //
     _node->initPipeline();
 }
 
-auto SceneObjects::node() const -> vsg::ref_ptr<SceneObjectsSubgraph> {
+auto Scene::node() const -> vsg::ref_ptr<SceneSubgraph> {
     //
     return _node;
 }
@@ -30,11 +31,11 @@ auto SceneObjects::node() const -> vsg::ref_ptr<SceneObjectsSubgraph> {
 // ==================== SceneObjectSubgraph =============================================
 // ======================================================================================
 
-SceneObjectsSubgraph::SceneObjectsSubgraph( vsg::Viewer* viewer )
+SceneSubgraph::SceneSubgraph( vsg::Viewer* viewer )
     : Subgraph{ viewer } {
 }
 
-auto SceneObjectsSubgraph::initPipeline() -> void {
+auto SceneSubgraph::initPipeline() -> void {
     auto sceneobjectProgram = Program{ TextProgramSource{ "sceneobject" } };
     auto vertexShader = vsg::ShaderStage::create( VK_SHADER_STAGE_VERTEX_BIT, "main",
                                                   sceneobjectProgram.spirv( ShaderStageType::VERTEX ) );

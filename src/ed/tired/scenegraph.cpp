@@ -13,9 +13,9 @@ Scenegraph::Scenegraph( vsg::Viewer* viewer, QObject* parent )
     _navbox = new Navbox{ _viewer, this };
     _bounding = new Bounding{ _viewer, this };
     _markerSubgraph = new MarkerSubgraph{ _viewer };
-    _sceneObjects = new SceneObjects{ _viewer, this };
+    _scene = new Scene{ _viewer, this };
 
-    _root->addChild( _sceneObjects->node() );
+    _root->addChild( _scene->node() );
     _root->addChild( _bounding->node() );
     _root->addChild( _grid->node() );
     _root->addChild( _navbox->node() );
@@ -44,8 +44,8 @@ auto Scenegraph::gizmo() const -> Gizmo* {
     return _gizmo;
 }
 
-auto Scenegraph::sceneObjects() const -> SceneObjects* {
-    return _sceneObjects;
+auto Scenegraph::scene() const -> Scene* {
+    return _scene;
 }
 
 void Scenegraph::addExBox( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy, float sz ) {
@@ -56,7 +56,7 @@ void Scenegraph::addExBox( float px, float py, float pz, float rx, float ry, flo
 
     auto exbox = std::make_shared<object::Box>( data );
 
-    _sceneObjects->node()->link( exbox );
+    _scene->node()->link( exbox );
 }
 
 void Scenegraph::setGizmoMode( int value ) {

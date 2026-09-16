@@ -8,8 +8,6 @@
 #include <vsg/all.h>
 
 #include "../scene_object/sceneobjectbase.h"
-#include "mesh/mesh.h"
-#include "mesh/obj.h"
 
 namespace tire {
 
