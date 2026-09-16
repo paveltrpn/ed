@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include <print>
 #include <QObject>
 
 #include <vsg/all.h>
@@ -14,6 +13,14 @@ namespace tire {
 struct SceneObjectBase : public QObject {
     Q_OBJECT
 
+    Q_PROPERTY( SceneObjectTypeEnum type READ type FINAL )
+    Q_PROPERTY( QUuid uid READ uid FINAL )
+    Q_PROPERTY( QString name READ name WRITE setName NOTIFY nameChanged FINAL )
+    Q_PROPERTY( vsg::dvec3 position READ position WRITE setPosition NOTIFY positionChanged FINAL )
+    Q_PROPERTY( vsg::dvec3 orientation READ orientation WRITE setOrientation NOTIFY orientationChanged FINAL )
+    Q_PROPERTY( vsg::dvec3 scale READ scale WRITE setScale NOTIFY scaleChanged FINAL )
+    Q_PROPERTY( vsg::dvec4 color READ color WRITE setColor NOTIFY colorChanged FINAL )
+
 public:
     SceneObjectBase( QObject* parent = nullptr );
 
@@ -23,19 +30,88 @@ public:
     SceneObjectBase& operator=( const SceneObjectBase& other ) = delete;
     SceneObjectBase& operator=( SceneObjectBase&& other ) = delete;
 
-    virtual auto data() const -> SceneObjectData const& = 0;
-    virtual auto data() -> SceneObjectData& = 0;
+    SceneObjectTypeEnum type() const {
+        //
+        return _type;
+    }
 
-    auto root() const -> vsg::ref_ptr<SceneObjectGraph>;
+    QString name() const {
+        //
+        return _name;
+    }
+
+    QUuid uid() const {
+        //
+        return _uid;
+    }
+
+    vsg::dvec3 position() const {
+        //
+        return _position;
+    }
+
+    vsg::dvec3 orientation() const {
+        //
+        return _orientation;
+    }
+
+    vsg::dvec3 scale() const {
+        //
+        return _scale;
+    }
+
+    vsg::dvec4 color() const {
+        //
+        return _color;
+    }
+
+    void setName( const QString& value ) {
+        //
+        _name = value;
+    }
+
+    void setPosition( vsg::dvec3 value ) {
+        //
+        _position = value;
+    }
+
+    void setOrientation( vsg::dvec3 value ) {
+        //
+        _orientation = value;
+    }
+
+    void setScale( vsg::dvec3 value ) {
+        //
+        _scale = value;
+    }
+
+    void setColor( vsg::dvec4 value ) {
+        //
+        _color = value;
+    }
+
+    auto node() const -> vsg::ref_ptr<SceneObjectGraph>;
 
 signals:
-    void dataChanged();
+    void nameChanged();
+    void positionChanged();
+    void orientationChanged();
+    void scaleChanged();
+    void colorChanged();
 
 protected:
-    vsg::ref_ptr<SceneObjectGraph> _thisObject{};
+    vsg::ref_ptr<SceneObjectGraph> _node{};
 
-private:
-    bool _selected{ false };
+protected:
+    SceneObjectTypeEnum _type{};
+
+    QString _name{};
+    QUuid _uid{};
+
+    vsg::dvec3 _position{};
+    vsg::dvec3 _orientation{};
+    vsg::dvec3 _scale{};
+    vsg::dvec4 _color{};
 };
 
 }  // namespace tire

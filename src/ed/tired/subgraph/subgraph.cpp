@@ -15,7 +15,7 @@ Subgraph::Subgraph( vsg::Viewer* viewer )
 }
 
 auto Subgraph::link( std::shared_ptr<SceneObjectBase> object ) -> void {
-    _stateGroup->addChild( object->root() );
+    _stateGroup->addChild( object->node() );
     recompile();
 }
 

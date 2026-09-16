@@ -5,20 +5,20 @@
 
 namespace tire::object {
 
-struct Cylinder final : public SceneObjectBase {
+struct Capsule final : public SceneObjectBase {
     Q_OBJECT
 
     Q_PROPERTY( double radius READ radius WRITE setRadius NOTIFY radiusChanged FINAL )
     Q_PROPERTY( double height READ height WRITE setHeight NOTIFY heightChanged FINAL )
 
 public:
-    Cylinder( QObject* parent = nullptr );
+    Capsule( QObject* parent = nullptr );
 
-    Cylinder( const Cylinder& other ) = delete;
-    Cylinder( Cylinder&& other ) = delete;
+    Capsule( const Capsule& other ) = delete;
+    Capsule( Capsule&& other ) = delete;
 
-    Cylinder& operator=( const Cylinder& other ) = delete;
-    Cylinder& operator=( Cylinder&& other ) = delete;
+    Capsule& operator=( const Capsule& other ) = delete;
+    Capsule& operator=( Capsule&& other ) = delete;
 
     auto radius() const -> double {
         //

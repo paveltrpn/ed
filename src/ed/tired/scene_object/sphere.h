@@ -8,18 +8,32 @@ namespace tire::object {
 struct Sphere final : public SceneObjectBase {
     Q_OBJECT
 
-    Q_PROPERTY( tire::SphereObjectData data READ getData NOTIFY dataChanged FINAL )
+    Q_PROPERTY( double radius READ radius WRITE setRadius NOTIFY radiusChanged FINAL )
 
 public:
-    Sphere( const SphereObjectData& data );
+    Sphere( QObject* parent = nullptr );
 
-    auto data() const -> SphereObjectData const& override;
-    auto data() -> SphereObjectData& override;
+    Sphere( const Sphere& other ) = delete;
+    Sphere( Sphere&& other ) = delete;
 
-    tire::SphereObjectData getData();
+    Sphere& operator=( const Sphere& other ) = delete;
+    Sphere& operator=( Sphere&& other ) = delete;
+
+    auto radius() const -> double {
+        //
+        return _radius;
+    }
+
+    auto setRadius( double value ) -> void {
+        //
+        _radius = value;
+    }
+
+signals:
+    void radiusChanged();
 
 private:
-    SphereObjectData _data{};
+    double _radius{};
 };
 
 }  // namespace tire::object

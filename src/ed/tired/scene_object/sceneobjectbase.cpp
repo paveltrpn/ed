@@ -5,11 +5,11 @@ namespace tire {
 
 SceneObjectBase::SceneObjectBase( QObject* parent )
     : QObject{ parent }
-    , _thisObject{ new SceneObjectGraph{ this } } {
+    , _node{ new SceneObjectGraph{ this } } {
 }
 
-auto SceneObjectBase::root() const -> vsg::ref_ptr<SceneObjectGraph> {
-    return _thisObject;
+auto SceneObjectBase::node() const -> vsg::ref_ptr<SceneObjectGraph> {
+    return _node;
 }
 
 }  // namespace tire

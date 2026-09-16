@@ -22,20 +22,7 @@ auto cylinderData() -> std::tuple<vsg::ref_ptr<vsg::vec3Array>, vsg::ref_ptr<vsg
 
 }  // namespace
 
-Cylinder::Cylinder( const CylinderObjectData& data )
-    : _data{ data } {
-}
-
-auto Cylinder::data() const -> tire::CylinderObjectData const& {
-    return _data;
-}
-
-auto Cylinder::data() -> tire::CylinderObjectData& {
-    return _data;
-}
-
-tire::CylinderObjectData Cylinder::getData() {
-    return _data;
+Cylinder::Cylinder( QObject* parent ) {
 }
 
 }  // namespace tire::object

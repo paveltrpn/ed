@@ -22,20 +22,8 @@ auto sphereData() -> std::tuple<vsg::ref_ptr<vsg::vec3Array>, vsg::ref_ptr<vsg::
 
 }  // namespace
 
-Sphere::Sphere( const SphereObjectData& data )
-    : _data{ data } {
-}
+Sphere::Sphere( QObject* parent ){
 
-auto Sphere::data() const -> tire::SphereObjectData const& {
-    return _data;
-}
-
-auto Sphere::data() -> tire::SphereObjectData& {
-    return _data;
-}
-
-tire::SphereObjectData Sphere::getData() {
-    return _data;
-}
+};
 
 }  // namespace tire::object
