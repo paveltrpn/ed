@@ -20,6 +20,18 @@ TextInput {
 
     clip: true
 
+    signal textValueChanged(string value)
+
+    onAccepted: {
+        textInputComponent.textValueChanged(textInputComponent.text);
+    }
+
+    onActiveFocusChanged: {
+        if (!activeFocus) {
+            textInputComponent.textValueChanged(textInputComponent.text);
+        }
+    }
+
     Rectangle {
         z: -1
         anchors.fill: parent

@@ -77,7 +77,7 @@ Item {
                     hoverEnabled: true
 
                     onClicked: {
-                        textInputComponent.focus = true
+                        textInputComponent.focus = true;
                     }
                 }
 
@@ -122,8 +122,14 @@ Item {
 
                     clip: true
 
-                    onTextChanged: {
-                        control.textValueChanged(textInputComponent.text)
+                    onAccepted: {
+                        control.textValueChanged(textInputComponent.text);
+                    }
+
+                    onActiveFocusChanged: {
+                        if (!activeFocus) {
+                            control.textValueChanged(textInputComponent.text);
+                        }
                     }
 
                     Rectangle {

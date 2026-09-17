@@ -45,7 +45,7 @@ Rectangle {
 
             onLoaded: {
                 boxOriginField.item.parameterlabel = "Box origin";
-                const value = Tired.scenegraph.navbox.boxOrigin
+                const value = Tired.scenegraph.navbox.boxOrigin;
                 boxOriginField.item.parameterValueX = value.x;
                 boxOriginField.item.parameterValueY = value.y;
                 boxOriginField.item.parameterValueZ = value.z;
@@ -86,7 +86,7 @@ Rectangle {
 
             onLoaded: {
                 boxAxisField.item.parameterlabel = "Box axis";
-                const value = Tired.scenegraph.navbox.boxAxis
+                const value = Tired.scenegraph.navbox.boxAxis;
                 boxAxisField.item.parameterValueX = value.x;
                 boxAxisField.item.parameterValueY = value.y;
                 boxAxisField.item.parameterValueZ = value.z;
@@ -127,7 +127,7 @@ Rectangle {
 
             onLoaded: {
                 item.parameterlabel = "Light origin";
-                const value = Tired.scenegraph.navbox.lightOrigin
+                const value = Tired.scenegraph.navbox.lightOrigin;
                 item.parameterValueX = value.x;
                 item.parameterValueY = value.y;
                 item.parameterValueZ = value.z;
@@ -189,7 +189,7 @@ Rectangle {
 
                 text: textBoxParameterWrapper.parameterValue.toFixed(3)
 
-                onTextChanged: {
+                onTextValueChanged: function (value) {
                     textBoxParameterWrapper.paramValueChanged(parseFloat(text));
                 }
             }
@@ -245,10 +245,10 @@ Rectangle {
 
                 text: textBox3ComponentParameterWrapper.parameterValueZ.toFixed(3)
 
-                onTextChanged: {
-                    const valueX = parseFloat(paramValueX.text)
-                    const valueY = parseFloat(paramValueY.text)
-                    const valueZ = parseFloat(paramValueZ.text)
+                onTextValueChanged: function (value) {
+                    const valueX = parseFloat(paramValueX.text);
+                    const valueY = parseFloat(paramValueY.text);
+                    const valueZ = parseFloat(paramValueZ.text);
                     textBox3ComponentParameterWrapper.paramValueChanged(valueX, valueY, valueZ);
                 }
             }
@@ -267,10 +267,10 @@ Rectangle {
 
                 text: textBox3ComponentParameterWrapper.parameterValueY.toFixed(3)
 
-                onTextChanged: {
-                    const valueX = parseFloat(paramValueX.text)
-                    const valueY = parseFloat(paramValueY.text)
-                    const valueZ = parseFloat(paramValueZ.text)
+                onTextValueChanged: function (value) {
+                    const valueX = parseFloat(paramValueX.text);
+                    const valueY = parseFloat(paramValueY.text);
+                    const valueZ = parseFloat(paramValueZ.text);
                     textBox3ComponentParameterWrapper.paramValueChanged(valueX, valueY, valueZ);
                 }
             }
@@ -289,10 +289,10 @@ Rectangle {
 
                 text: textBox3ComponentParameterWrapper.parameterValueX.toFixed(3)
 
-                onTextChanged: {
-                    const valueX = parseFloat(paramValueX.text)
-                    const valueY = parseFloat(paramValueY.text)
-                    const valueZ = parseFloat(paramValueZ.text)
+                onTextValueChanged: function (value) {
+                    const valueX = parseFloat(paramValueX.text);
+                    const valueY = parseFloat(paramValueY.text);
+                    const valueZ = parseFloat(paramValueZ.text);
                     textBox3ComponentParameterWrapper.paramValueChanged(valueX, valueY, valueZ);
                 }
             }

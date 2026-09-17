@@ -217,7 +217,7 @@ Rectangle {
 
                 text: gridParameterWrapper.parameterValue.toFixed(3)
 
-                onTextChanged: {
+                onTextValueChanged: function (value) {
                     gridParameterWrapper.paramValueChanged(parseFloat(text));
                 }
             }
