@@ -63,16 +63,16 @@ TiredUI::TiredUI( QObject* parent )
     qmlRegisterSingletonInstance( "Tire", 1, 0, "Tired", tire::Tired::pointer() );
 
     // Qt widgets initialization.
-    _topPanel->setSource( QUrl::fromLocalFile( "../src/ed/ui/qml/panels/TopPanel.qml" ) );
+    _topPanel->setSource( QUrl::fromLocalFile( "../src/ui/qml/panels/TopPanel.qml" ) );
     _topPanel->setResizeMode( QQuickWidget::SizeRootObjectToView );
 
-    _leftPanel->setSource( QUrl::fromLocalFile( "../src/ed/ui/qml/panels/LeftPanel.qml" ) );
+    _leftPanel->setSource( QUrl::fromLocalFile( "../src/ui/qml/panels/LeftPanel.qml" ) );
     _leftPanel->setResizeMode( QQuickWidget::SizeRootObjectToView );
 
-    _bottomPanel->setSource( QUrl::fromLocalFile( "../src/ed/ui/qml/panels/BottomPanel.qml" ) );
+    _bottomPanel->setSource( QUrl::fromLocalFile( "../src/ui/qml/panels/BottomPanel.qml" ) );
     _bottomPanel->setResizeMode( QQuickWidget::SizeRootObjectToView );
 
-    _rightPanel->setSource( QUrl::fromLocalFile( "../src/ed/ui/qml/panels/RightPanel.qml" ) );
+    _rightPanel->setSource( QUrl::fromLocalFile( "../src/ui/qml/panels/RightPanel.qml" ) );
     _rightPanel->setResizeMode( QQuickWidget::SizeRootObjectToView );
 
     // Set qml QQuickWidgets conteiners trnsparent background color.

@@ -19,7 +19,7 @@ TiredImageProvider::TiredImageProvider()
 
 QImage TiredImageProvider::requestImage( const QString &id, QSize *size, const QSize &requestedSize ) {
     const auto basePath = Config::instance().basePath().string();
-    QImage requestedImg{ QString{ "%1/src/ed/ui/qml/icons/%2" }.arg( basePath ).arg( id ) };
+    QImage requestedImg{ QString{ "%1/src/ui/qml/icons/%2" }.arg( basePath ).arg( id ) };
 
     if ( requestedImg.isNull() ) {
         std::println( "image \"{}\" not found!", id.toStdString() );
@@ -79,7 +79,7 @@ auto Appearance::buildColors() -> void {
     const auto basePath = Config::instance().basePath().string();
 
     // Load color scheme.
-    QFile file( QString{ "%1/src/ed/ui/qml/colorscheme.json" }.arg( basePath ) );
+    QFile file( QString{ "%1/src/ui/qml/colorscheme.json" }.arg( basePath ) );
 
     if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
         std::println( "appearence file not exist : {}", file.fileName().toStdString() );
