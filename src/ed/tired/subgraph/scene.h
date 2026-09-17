@@ -21,6 +21,9 @@ public:
 
     auto node() const -> vsg::ref_ptr<SceneSubgraph>;
 
+    Q_INVOKABLE void addExBox( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy,
+                               float sz );
+
     // void setBoxOrigin( QVector3D value );
 
     // QVector3D boxOrigin();

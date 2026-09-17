@@ -8,6 +8,8 @@
 
 #include "program/program.h"
 #include "config/config.h"
+#include "../scene_object/sceneobjectdata.h"
+#include "../scene_object/box.h"
 
 namespace tire {
 
@@ -25,6 +27,17 @@ Scene::Scene( vsg::Viewer* viewer, QObject* parent )
 auto Scene::node() const -> vsg::ref_ptr<SceneSubgraph> {
     //
     return _node;
+}
+
+void Scene::addExBox( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy, float sz ) {
+    auto data = BoxObjectData{};
+    data.setPosition( { px, py, pz } );
+    data.setOrientation( { rx, ry, rz } );
+    data.setScale( { sx, sy, sz } );
+
+    auto exbox = std::make_shared<object::Box>( data );
+
+    _node->link( exbox );
 }
 
 // ======================================================================================

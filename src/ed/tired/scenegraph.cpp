@@ -1,7 +1,5 @@
 
 #include "scenegraph.h"
-#include "scene_object/sceneobjectdata.h"
-#include "scene_object/box.h"
 
 namespace tire {
 
@@ -46,17 +44,6 @@ auto Scenegraph::gizmo() const -> Gizmo* {
 
 auto Scenegraph::scene() const -> Scene* {
     return _scene;
-}
-
-void Scenegraph::addExBox( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy, float sz ) {
-    auto data = BoxObjectData{};
-    data.setPosition( { px, py, pz } );
-    data.setOrientation( { rx, ry, rz } );
-    data.setScale( { sx, sy, sz } );
-
-    auto exbox = std::make_shared<object::Box>( data );
-
-    _scene->node()->link( exbox );
 }
 
 void Scenegraph::setGizmoMode( int value ) {

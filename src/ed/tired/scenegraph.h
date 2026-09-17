@@ -34,9 +34,6 @@ struct Scenegraph final : public QObject {
 public:
     Scenegraph( vsg::Viewer* viewer, QObject* parent = nullptr );
 
-    Q_INVOKABLE void addExBox( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy,
-                               float sz );
-
     auto root() const -> vsg::ref_ptr<vsg::Group>;
 
     Navbox* navbox() const;
