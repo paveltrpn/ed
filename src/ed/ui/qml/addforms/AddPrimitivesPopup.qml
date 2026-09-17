@@ -55,7 +55,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: addItemsButtonsLayout.itemsHeight
             text: "Sphere"
-            enabled: false
+            enabled: true
 
             font: _fonts.label_accent
         }
@@ -65,7 +65,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: addItemsButtonsLayout.itemsHeight
             text: "Cylinder"
-            enabled: false
+            enabled: true
 
             font: _fonts.label_accent
         }
@@ -75,7 +75,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: addItemsButtonsLayout.itemsHeight
             text: "Capsule"
-            enabled: false
+            enabled: true
 
             font: _fonts.label_accent
         }
@@ -85,7 +85,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: addItemsButtonsLayout.itemsHeight
             text: "Mesh"
-            enabled: true
+            enabled: false
 
             font: _fonts.label_accent
         }
