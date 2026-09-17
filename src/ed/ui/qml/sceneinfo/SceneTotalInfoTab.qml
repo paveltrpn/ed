@@ -1,3 +1,5 @@
+// qmllint disable unqualified
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -47,17 +49,46 @@ Rectangle {
 
             delegate: Item {
                 width: objectsListView.width
-                height: _units.scaled_24
+                height: _units.scaled_28
 
-                Text {
-                    id: objectDataText
+                Rectangle {
+                    id: frame
 
-                    anchors.fill: parent
+                    anchors {
+                        fill: parent
+                        topMargin: _units.scaled_2
+                        bottomMargin: _units.scaled_2
+                    }
 
-                    text: {
-                        const name = model.object.name
-                        const uid = model.object.uid
-                        return `${name} ${uid}`
+                    color: _color.si_background_light
+
+                    border {
+                        color: _color.si_background_dark
+                        width: _units.scaled_1
+                    }
+
+                    Text {
+                        id: objectDataText
+
+                        anchors {
+                            fill: parent
+                            leftMargin: _units.scaled_4
+                        }
+
+                        color: _color.si_text_dark
+
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
+
+                        font: _fonts.label_accent
+
+                        elide: Text.ElideRight
+
+                        text: {
+                            const name = model.object.name;
+                            const uid = model.object.uid;
+                            return `${name} ${uid}`;
+                        }
                     }
                 }
             }
