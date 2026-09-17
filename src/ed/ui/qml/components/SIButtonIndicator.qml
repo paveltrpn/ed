@@ -27,6 +27,10 @@ Item {
 
     signal textValueChanged(string value)
 
+    property real step: 1.0
+    property real min: -9999.0
+    property real max: 9999.0
+
     states: [
         State {
             when: indicatorArea.containsMouse || textInputComponent.focus
@@ -122,6 +126,8 @@ Item {
 
                     clip: true
 
+                    property real currentValue
+
                     onAccepted: {
                         control.textValueChanged(textInputComponent.text);
                     }
@@ -129,7 +135,35 @@ Item {
                     onActiveFocusChanged: {
                         if (!activeFocus) {
                             control.textValueChanged(textInputComponent.text);
+                        } else {
+                            textInputComponent.currentValue = Number.parseFloat(textInputComponent.text)
                         }
+                    }
+
+                    Keys.onUpPressed: {
+                        increment(control.step);
+                        // textInputComponent.accepted = true;
+                    }
+
+                    Keys.onDownPressed: {
+                        increment(-control.step);
+                        // textInputComponent.accepted = true;
+                    }
+
+                    function increment(delta) {
+                        commit();
+                        textInputComponent.currentValue += delta;
+                        textInputComponent.text = textInputComponent.currentValue.toFixed(3);
+                    }
+
+                    function commit() {
+                        let n = Number.parseFloat(textInputComponent.text);
+                        if (!Number.isNaN(n)) {
+                            textInputComponent.currentValue = Math.max(control.min, Math.min(control.max, n));
+                        } else {
+                            textInputComponent.text = textInputComponent.currentValue;
+                        }
+                        control.textValueChanged(textInputComponent.text);
                     }
 
                     Rectangle {
