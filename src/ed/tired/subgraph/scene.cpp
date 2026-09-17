@@ -19,7 +19,8 @@ namespace tire {
 
 Scene::Scene( vsg::Viewer* viewer, QObject* parent )
     : QObject{ parent }
-    , _node{ new SceneSubgraph{ viewer } } {
+    , _node{ new SceneSubgraph{ viewer } }
+    , _objects{ new ObjectsList{ this } } {
     //
     _node->initPipeline();
 }
@@ -29,7 +30,11 @@ auto Scene::node() const -> vsg::ref_ptr<SceneSubgraph> {
     return _node;
 }
 
-void Scene::addExBox( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy, float sz ) {
+auto Scene::objects() const -> ObjectsList* {
+    return _objects;
+}
+
+void Scene::addBox( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy, float sz ) {
     auto data = BoxObjectData{};
     data.setPosition( { px, py, pz } );
     data.setOrientation( { rx, ry, rz } );
