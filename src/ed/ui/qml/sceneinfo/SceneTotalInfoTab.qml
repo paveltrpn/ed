@@ -36,17 +36,30 @@ Rectangle {
             anchors {
                 top: parent.top
                 left: parent.left
+                leftMargin: _units.half
                 right: parent.right
+                rightMargin: _units.half
             }
 
             height: contentHeight
 
             model: Tired.scenegraph.scene.objects
 
-            delegate: Rectangle {
+            delegate: Item {
                 width: objectsListView.width
                 height: _units.scaled_24
-                color: "red"
+
+                Text {
+                    id: objectDataText
+
+                    anchors.fill: parent
+
+                    text: {
+                        const name = model.object.name
+                        const uid = model.object.uid
+                        return `${name} ${uid}`
+                    }
+                }
             }
         }
     }

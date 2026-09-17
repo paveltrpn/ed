@@ -38,6 +38,8 @@ QModelIndex ObjectsList::index( int row, int column, const QModelIndex &parent )
 
     // // Wrap the internal pointer into a QModelIndex
     // return createIndex( row, column, childNode );
+
+    return hasIndex( row, column, parent ) ? createIndex( row, column ) : QModelIndex{};
 }
 
 QModelIndex ObjectsList::parent( const QModelIndex &child ) const {
@@ -53,6 +55,8 @@ QModelIndex ObjectsList::parent( const QModelIndex &child ) const {
     // int row = grandParent ? grandParent->children.indexOf( parentNode ) : 0;
 
     // return createIndex( row, 0, parentNode );
+
+    return {};
 }
 
 int ObjectsList::rowCount( const QModelIndex &parent ) const {
@@ -102,6 +106,8 @@ QVariant ObjectsList::headerData( int section, Qt::Orientation orientation, int 
     // if ( section >= 0 && section < m_root->values.size() ) return m_root->values.at( section );
 
     // return QVariant();
+
+    return QVariant{};
 }
 
 Qt::ItemFlags ObjectsList::flags( const QModelIndex &index ) const {
@@ -121,6 +127,7 @@ bool ObjectsList::setData( const QModelIndex &index, const QVariant &value, int 
     // node->values[index.column()] = value.toString();
     // emit dataChanged( index, index, { role } );
     // return true;
+    return false;
 }
 
 bool ObjectsList::insertRows( int row, int count, const QModelIndex &parent ) {

@@ -13,8 +13,8 @@ namespace tire {
 struct SceneObjectBase : public QObject {
     Q_OBJECT
 
-    Q_PROPERTY( SceneObjectTypeEnum type READ type FINAL )
-    Q_PROPERTY( QUuid uid READ uid FINAL )
+    Q_PROPERTY( SceneObjectTypeEnum type READ type NOTIFY typeChanged FINAL )
+    Q_PROPERTY( QString uid READ uid NOTIFY uidChanged FINAL )
     Q_PROPERTY( QString name READ name WRITE setName NOTIFY nameChanged FINAL )
     Q_PROPERTY( vsg::dvec3 position READ position WRITE setPosition NOTIFY positionChanged FINAL )
     Q_PROPERTY( vsg::dvec3 orientation READ orientation WRITE setOrientation NOTIFY orientationChanged FINAL )
@@ -44,9 +44,9 @@ public:
         return _name;
     }
 
-    QUuid uid() const {
+    QString uid() const {
         //
-        return _uid;
+        return _uid.toString();
     }
 
     vsg::dvec3 position() const {
@@ -97,6 +97,8 @@ public:
     auto node() const -> vsg::ref_ptr<SceneObjectGraph>;
 
 signals:
+    void typeChanged();
+    void uidChanged();
     void nameChanged();
     void positionChanged();
     void orientationChanged();
