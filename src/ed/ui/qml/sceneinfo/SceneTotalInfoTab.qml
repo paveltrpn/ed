@@ -17,87 +17,36 @@ Rectangle {
 
     color: _color.si_background_light
 
-    implicitHeight: sceneTotalInfoLayout.implicitHeight + _units.full
+    height: sceneInfoAreaWrapper.height + _units.full
 
-    ColumnLayout {
-        id: sceneTotalInfoLayout
-
-        spacing: _units.half
+    Item {
+        id: sceneInfoAreaWrapper
 
         anchors {
+            top: parent.top
             left: parent.left
             right: parent.right
         }
 
-        Item {
-            id: spacer1
-            Layout.preferredWidth: parent.width
-            Layout.preferredHeight: _units.half
-        }
+        height: objectsListView.height
 
-        Loader {
-            id: dummyField
-            sourceComponent: numericParameter
-            Layout.preferredWidth: parent.width
-            Layout.preferredHeight: _units.scaled_24
+        ListView {
+            id: objectsListView
 
-            onLoaded: {
-                item.parameterlabel = "some dummy param";
-                item.parameterValue = 0.0;
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: parent.right
             }
 
-            Connections {
-            }
-        }
-    }
+            height: contentHeight
 
-    Component {
-        id: numericParameter
+            model: Tired.scenegraph.scene.objects
 
-        Item {
-            id: numericParameterWrapper
-
-            anchors.fill: parent
-
-            property string parameterlabel
-            property real parameterValue
-
-            signal paramValueChanged(value: real)
-
-            Text {
-                id: paramLabel
-                anchors {
-                    top: parent.top
-                    bottom: parent.bottom
-                    left: parent.left
-                    leftMargin: 8
-                }
-
-                text: numericParameterWrapper.parameterlabel
-
-                verticalAlignment: Text.AlignVCenter
-
-                color: _color.si_text_dark
-                font: _fonts.label
-            }
-
-            TiredTextInput {
-                id: paramValue
-
-                anchors {
-                    top: parent.top
-                    bottom: parent.bottom
-                    right: parent.right
-                    rightMargin: 8
-                }
-
-                width: 92
-
-                text: numericParameterWrapper.parameterValue.toFixed(3)
-
-                onTextChanged: {
-                    numericParameterWrapper.paramValueChanged(parseFloat(text));
-                }
+            delegate: Rectangle {
+                width: objectsListView.width
+                height: _units.scaled_24
+                color: "red"
             }
         }
     }
