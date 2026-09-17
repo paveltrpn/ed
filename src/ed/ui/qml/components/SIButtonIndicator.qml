@@ -25,6 +25,8 @@ Item {
     // "1" - from right to left.
     property int pressAreaAlignment: 0
 
+    signal textValueChanged(string value)
+
     states: [
         State {
             when: indicatorArea.containsMouse || textInputComponent.focus
@@ -119,6 +121,10 @@ Item {
                     leftPadding: _units.full
 
                     clip: true
+
+                    onTextChanged: {
+                        control.textValueChanged(textInputComponent.text)
+                    }
 
                     Rectangle {
                         id: borderRect

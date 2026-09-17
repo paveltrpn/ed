@@ -28,6 +28,31 @@ Rectangle {
             rightMargin: rightPanelSceneComponent._units.scaled_2
         }
 
+        property vector3d position: Qt.vector3d(0, 0, 0)
+        property vector3d orientation: Qt.vector3d(0, 0, 0)
+        property vector3d scale: Qt.vector3d(0, 0, 0)
+
+        property var selectedObjectHandle: null
+
+        Connections {
+            target: Tired.scenegraph.scene
+            function onSelectedObjectChanged(object) {
+                rightPanelScenemodeWrapper.selectedObjectHandle = object
+
+                if (object === null) {
+                    rightPanelScenemodeWrapper.position = Qt.vector3d(0, 0, 0)
+                    rightPanelScenemodeWrapper.orientation = Qt.vector3d(0, 0, 0)
+                    rightPanelScenemodeWrapper.scale = Qt.vector3d(0, 0, 0)
+
+                    return;
+                }
+
+                rightPanelScenemodeWrapper.position = object.position
+                rightPanelScenemodeWrapper.orientation = object.orientation
+                rightPanelScenemodeWrapper.scale = object.scale
+            }
+        }
+
         Item {
             id: scaleButtonsWrapper
 
@@ -54,7 +79,7 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
 
                 buttonLabel: "ScaleX"
-                text: " ... "
+                text: rightPanelScenemodeWrapper.scale.x.toFixed(3)
             }
 
             SIButtonIndicator {
@@ -70,7 +95,7 @@ Rectangle {
 
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "ScaleY"
-                text: " ... "
+                text: rightPanelScenemodeWrapper.scale.y.toFixed(3)
             }
 
             SIButtonIndicator {
@@ -86,7 +111,7 @@ Rectangle {
 
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "ScaleZ"
-                text: " ... "
+                text: rightPanelScenemodeWrapper.scale.z.toFixed(3)
             }
         }
 
@@ -116,7 +141,7 @@ Rectangle {
 
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "RotX"
-                text: " ... "
+                text: rightPanelScenemodeWrapper.orientation.x.toFixed(3)
             }
 
             SIButtonIndicator {
@@ -132,7 +157,7 @@ Rectangle {
 
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "RotY"
-                text: " ... "
+                text: rightPanelScenemodeWrapper.orientation.y.toFixed(3)
             }
 
             SIButtonIndicator {
@@ -149,7 +174,7 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
                 height: _units.scaled_56
                 buttonLabel: "RotZ"
-                text: " ... "
+                text: rightPanelScenemodeWrapper.orientation.z.toFixed(3)
             }
         }
 
@@ -179,7 +204,21 @@ Rectangle {
 
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "TransX"
-                text: " ... "
+                text: rightPanelScenemodeWrapper.position.x.toFixed(3)
+
+                onTextValueChanged: function (value) {
+                    if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
+                        return
+                    }
+
+                    const nowPos = rightPanelScenemodeWrapper.selectedObjectHandle.position
+
+                    const posX = Number.parseFloat(value)
+
+                    const pos = Qt.vector3d(posX, nowPos.y, nowPos.z);
+
+                    rightPanelScenemodeWrapper.selectedObjectHandle.position = pos
+                }
             }
 
             SIButtonIndicator {
@@ -195,7 +234,7 @@ Rectangle {
 
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "TransY"
-                text: " ... "
+                text: rightPanelScenemodeWrapper.position.y.toFixed(3)
             }
 
             SIButtonIndicator {
@@ -211,7 +250,7 @@ Rectangle {
 
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "TransZ"
-                text: " ... "
+                text: rightPanelScenemodeWrapper.position.z.toFixed(3)
             }
         }
     }

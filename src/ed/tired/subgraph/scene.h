@@ -31,10 +31,12 @@ public:
     auto selectedObjectUid() const -> QString;
     auto setSelectedObjectUid( const QString& value ) -> void;
 
+    Q_INVOKABLE SceneObjectBase* findObject( const QString& uid ) const;
+
 signals:
     void objectsChanged();
     void selectedObjectUidChanged();
-    void selectedObjectChanged( const SceneObjectBase* object );
+    void selectedObjectChanged( SceneObjectBase* object );
 
 private:
     vsg::ref_ptr<SceneSubgraph> _node{};
