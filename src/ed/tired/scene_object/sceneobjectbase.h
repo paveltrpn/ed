@@ -107,6 +107,7 @@ public:
 
 private:
     auto init() -> void;
+
 signals:
     void typeChanged();
     void uidChanged();
