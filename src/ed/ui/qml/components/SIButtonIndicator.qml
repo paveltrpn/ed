@@ -14,7 +14,7 @@ Item {
     readonly property var _fonts: Appearence.fonts.data
     readonly property var _units: Appearence.units.data
 
-    height: _units.scaled_48
+    height: _units.scaled_56
 
     property alias buttonLabel: buttonLabel.text
     property alias text: textInputComponent.text

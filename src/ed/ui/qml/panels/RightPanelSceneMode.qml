@@ -172,7 +172,6 @@ Rectangle {
                 }
 
                 modeRelatedBgColor: _color.si_mode_scene
-                height: _units.scaled_56
                 buttonLabel: "RotZ"
                 text: rightPanelScenemodeWrapper.orientation.z.toFixed(3)
             }
