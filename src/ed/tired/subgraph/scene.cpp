@@ -34,6 +34,14 @@ auto Scene::objects() const -> ObjectsList* {
     return _objects;
 }
 
+auto Scene::selectedObjectUid() const -> QString {
+    return _selectedObjectUid.toString();
+}
+auto Scene::setSelectedObjectUid( const QString& value ) -> void {
+    _selectedObjectUid = QUuid::fromString( value );
+    emit selectedObjectChanged();
+}
+
 void Scene::addBox( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy, float sz ) {
     auto data = BoxObjectData{};
     data.setPosition( { px, py, pz } );

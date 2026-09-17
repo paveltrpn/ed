@@ -60,11 +60,23 @@ Rectangle {
                         bottomMargin: _units.scaled_2
                     }
 
-                    color: _color.si_background_light
+                    color: (model.object.uid === Tired.scenegraph.scene.selectedObjectUid) ? _color.si_background_light_faded : _color.si_background_light
 
                     border {
                         color: _color.si_background_dark
                         width: _units.scaled_1
+                    }
+
+                    MouseArea {
+                        anchors {
+                            fill: parent
+                            topMargin: _units.scaled_2
+                            bottomMargin: _units.scaled_2
+                        }
+
+                        onClicked: {
+
+                        }
                     }
 
                     Text {

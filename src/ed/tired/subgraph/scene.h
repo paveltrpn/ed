@@ -16,6 +16,8 @@ struct Scene final : public QObject {
     Q_OBJECT
 
     Q_PROPERTY( ObjectsList* objects READ objects NOTIFY objectsChanged FINAL )
+    Q_PROPERTY(
+        QString selectedObjectUid READ selectedObjectUid WRITE setSelectedObjectUid NOTIFY selectedObjectChanged FINAL )
 
 public:
     Scene( vsg::Viewer* viewer, QObject* parent = nullptr );
@@ -26,12 +28,18 @@ public:
 
     auto objects() const -> ObjectsList*;
 
+    auto selectedObjectUid() const -> QString;
+    auto setSelectedObjectUid( const QString& value ) -> void;
+
 signals:
     void objectsChanged();
+    void selectedObjectChanged();
 
 private:
     vsg::ref_ptr<SceneSubgraph> _node{};
     ObjectsList* _objects{};
+
+    QUuid _selectedObjectUid{};
 };
 
 // ======================================================================================

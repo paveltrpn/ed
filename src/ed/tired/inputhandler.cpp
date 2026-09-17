@@ -144,6 +144,7 @@ void Handler::lineSegmentIntersector( vsg::PointerEvent& pointerEvent ) {
 
                 auto owner = sog->owner();
 
+                scenegraph->scene()->setSelectedObjectUid( owner->uid() );
                 scenegraph->bounding()->setTransformMat( sogMat );
 
                 return;
