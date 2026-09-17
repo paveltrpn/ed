@@ -20,6 +20,8 @@ Scenegraph::Scenegraph( vsg::Viewer* viewer, QObject* parent )
 
     _markerSubgraph->initPipeline();
     _root->addChild( _markerSubgraph );
+
+    connect( _scene, &Scene::selectedObjectChanged, _bounding, &Bounding::onSelectedObjectChanged );
 }
 
 auto Scenegraph::root() const -> vsg::ref_ptr<vsg::Group> {

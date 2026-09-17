@@ -75,7 +75,12 @@ Rectangle {
                         }
 
                         onClicked: {
+                            if (Tired.scenegraph.scene.selectedObjectUid === model.object.uid) {
+                                Tired.scenegraph.scene.selectedObjectUid = "{00000000-0000-0000-0000-000000000000}"
+                                return;
+                            }
 
+                            Tired.scenegraph.scene.selectedObjectUid = model.object.uid
                         }
                     }
 

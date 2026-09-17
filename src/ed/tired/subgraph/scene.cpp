@@ -1,4 +1,5 @@
 
+
 #include <vsg/all.h>
 
 #include "image/tga.h"
@@ -39,7 +40,12 @@ auto Scene::selectedObjectUid() const -> QString {
 }
 auto Scene::setSelectedObjectUid( const QString& value ) -> void {
     _selectedObjectUid = QUuid::fromString( value );
-    emit selectedObjectChanged();
+
+    emit selectedObjectUidChanged();
+
+    auto obj = _objects->findObject( QUuid::fromString( value ) );
+
+    emit selectedObjectChanged( obj.get() );
 }
 
 void Scene::addBox( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy, float sz ) {

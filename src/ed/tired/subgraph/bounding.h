@@ -33,6 +33,9 @@ public:
 
     void setTransformMat( vsg::mat4 value );
 
+public slots:
+    void onSelectedObjectChanged( const SceneObjectBase* object );
+
 signals:
     void scaleChanged();
     void lineLengthChanged();

@@ -1,4 +1,6 @@
 
+#include <algorithm>
+
 #include <QAbstractListModel>
 
 #include "objectslist.h"
@@ -26,6 +28,18 @@ auto ObjectsList::addObject( std::shared_ptr<SceneObjectBase> object ) -> void {
     _objectsList.push_back( object );
 
     endInsertRows();
+}
+
+auto ObjectsList::findObject( const QUuid &uid ) const -> std::shared_ptr<SceneObjectBase> {
+    auto it = std::find_if( _objectsList.begin(), _objectsList.end(),
+                            //
+                            [uid]( auto item ) -> bool { return item->uid() == uid.toString(); } );
+
+    if ( it == _objectsList.end() ) {
+        return {};
+    }
+
+    return *it;
 }
 
 QModelIndex ObjectsList::index( int row, int column, const QModelIndex &parent ) const {

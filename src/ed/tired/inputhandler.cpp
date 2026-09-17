@@ -127,6 +127,7 @@ void Handler::lineSegmentIntersector( vsg::PointerEvent& pointerEvent ) {
 
     if ( intersector->intersections.empty() ) {
         scenegraph->bounding()->setTransformMat( vsg::mat4{} );
+        scenegraph->scene()->setSelectedObjectUid( QUuid{}.toString() );
         return;
     }
 
