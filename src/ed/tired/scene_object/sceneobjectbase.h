@@ -81,6 +81,7 @@ public:
 
     void setPosition( QVector3D value ) {
         //
+        qDebug() << " === debug pos:  " << value;
         _position = vsg::dvec3{ value.x(), value.y(), value.z() };
 
         const auto rtX = vsg::rotate( vsg::radians( _orientation.x ), vsg::dvec3{ 1.0, 0.0, 0.0 } );

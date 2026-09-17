@@ -210,14 +210,9 @@ Rectangle {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
                         return
                     }
-
-                    const nowPos = rightPanelScenemodeWrapper.selectedObjectHandle.position
-
-                    const posX = Number.parseFloat(value)
-
-                    const pos = Qt.vector3d(posX, nowPos.y, nowPos.z);
-
-                    rightPanelScenemodeWrapper.selectedObjectHandle.position = pos
+                    let nowPos = rightPanelScenemodeWrapper.selectedObjectHandle.position
+                    nowPos.x = Number.parseFloat(value)
+                    rightPanelScenemodeWrapper.selectedObjectHandle.position = nowPos
                 }
             }
 
@@ -235,6 +230,14 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "TransY"
                 text: rightPanelScenemodeWrapper.position.y.toFixed(3)
+                onTextValueChanged: function (value) {
+                    if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
+                        return
+                    }
+                    let nowPos = rightPanelScenemodeWrapper.selectedObjectHandle.position
+                    nowPos.y = Number.parseFloat(value)
+                    rightPanelScenemodeWrapper.selectedObjectHandle.position = nowPos
+                }
             }
 
             SIButtonIndicator {
@@ -251,6 +254,14 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "TransZ"
                 text: rightPanelScenemodeWrapper.position.z.toFixed(3)
+                onTextValueChanged: function (value) {
+                    if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
+                        return
+                    }
+                    let nowPos = rightPanelScenemodeWrapper.selectedObjectHandle.position
+                    nowPos.z = Number.parseFloat(value)
+                    rightPanelScenemodeWrapper.selectedObjectHandle.position = nowPos
+                }
             }
         }
     }
