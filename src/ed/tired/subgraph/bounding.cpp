@@ -41,14 +41,17 @@ void Bounding::setTransformMat( vsg::mat4 value ) {
     _node->updateTransformMatUniform();
 }
 
-void Bounding::onSelectedObjectChanged( const SceneObjectBase* object ) {
+void Bounding::setOnObject( const SceneObjectBase* object ) {
     if ( !object ) {
         setTransformMat( vsg::mat4{} );
         return;
     }
-
     const auto sogMat = object->node()->fmatrix();
     setTransformMat( sogMat );
+}
+
+void Bounding::onSelectedObjectChanged( const SceneObjectBase* object ) {
+    setOnObject( object );
 }
 
 // ======================================================================================

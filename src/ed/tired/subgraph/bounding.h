@@ -33,6 +33,8 @@ public:
 
     void setTransformMat( vsg::mat4 value );
 
+    Q_INVOKABLE void setOnObject( const SceneObjectBase* object );
+
 public slots:
     void onSelectedObjectChanged( const SceneObjectBase* object );
 

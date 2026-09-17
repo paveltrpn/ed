@@ -87,6 +87,7 @@ Rectangle {
                     let nowScale = rightPanelScenemodeWrapper.selectedObjectHandle.scale
                     nowScale.x = Number.parseFloat(value)
                     rightPanelScenemodeWrapper.selectedObjectHandle.scale = nowScale
+                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
                 }
             }
 
@@ -111,6 +112,7 @@ Rectangle {
                     let nowScale = rightPanelScenemodeWrapper.selectedObjectHandle.scale
                     nowScale.y = Number.parseFloat(value)
                     rightPanelScenemodeWrapper.selectedObjectHandle.scale = nowScale
+                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
                 }
             }
 
@@ -135,6 +137,7 @@ Rectangle {
                     let nowScale = rightPanelScenemodeWrapper.selectedObjectHandle.scale
                     nowScale.z = Number.parseFloat(value)
                     rightPanelScenemodeWrapper.selectedObjectHandle.scale = nowScale
+                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
                 }
             }
         }
@@ -173,6 +176,7 @@ Rectangle {
                     let nowRot = rightPanelScenemodeWrapper.selectedObjectHandle.orientation
                     nowRot.x = Number.parseFloat(value)
                     rightPanelScenemodeWrapper.selectedObjectHandle.orientation = nowRot
+                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
                 }
             }
 
@@ -197,6 +201,7 @@ Rectangle {
                     let nowRot = rightPanelScenemodeWrapper.selectedObjectHandle.orientation
                     nowRot.y = Number.parseFloat(value)
                     rightPanelScenemodeWrapper.selectedObjectHandle.orientation = nowRot
+                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
                 }
             }
 
@@ -222,6 +227,7 @@ Rectangle {
                     let nowRot = rightPanelScenemodeWrapper.selectedObjectHandle.orientation
                     nowRot.z = Number.parseFloat(value)
                     rightPanelScenemodeWrapper.selectedObjectHandle.orientation = nowRot
+                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
                 }
             }
         }
@@ -261,6 +267,7 @@ Rectangle {
                     let nowPos = rightPanelScenemodeWrapper.selectedObjectHandle.position
                     nowPos.x = Number.parseFloat(value)
                     rightPanelScenemodeWrapper.selectedObjectHandle.position = nowPos
+                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
                 }
             }
 
@@ -285,6 +292,7 @@ Rectangle {
                     let nowPos = rightPanelScenemodeWrapper.selectedObjectHandle.position
                     nowPos.y = Number.parseFloat(value)
                     rightPanelScenemodeWrapper.selectedObjectHandle.position = nowPos
+                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
                 }
             }
 
@@ -309,6 +317,7 @@ Rectangle {
                     let nowPos = rightPanelScenemodeWrapper.selectedObjectHandle.position
                     nowPos.z = Number.parseFloat(value)
                     rightPanelScenemodeWrapper.selectedObjectHandle.position = nowPos
+                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
                 }
             }
         }
