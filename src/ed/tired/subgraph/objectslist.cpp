@@ -40,38 +40,44 @@ QModelIndex ObjectsList::parent( const QModelIndex &child ) const {
 }
 
 int ObjectsList::rowCount( const QModelIndex &parent ) const {
-    // if ( parent.column() > 0 ) return 0;
-
-    // Node *node = nodeFromIndex( parent );
-    // return node ? node->children.size() : 0;
+    return _objectsList.size();
 }
 
 int ObjectsList::columnCount( const QModelIndex &parent ) const {
-    // Q_UNUSED( parent );
-    // return ColumnCount;
+    return 1;
 }
 
 QVariant ObjectsList::data( const QModelIndex &index, int role ) const {
-    // if ( !index.isValid() ) return QVariant();
+    if ( !index.isValid() ) {
+        return {};
+    }
 
-    // auto *node = static_cast<Node *>( index.internalPointer() );
-    // if ( !node ) return QVariant();
+    auto it = _objectsList.cbegin();
+    it += index.row();
 
-    // switch ( role ) {
-    //     case Qt::DisplayRole:
-    //     case Qt::EditRole:
-    //         if ( index.column() < node->values.size() ) return node->values.at( index.column() );
-    //         return QVariant();
+    if ( role == Roles::Object ) {
+        return QVariant::fromValue<SceneObjectBase *>( *it );
+    }
 
-    //     case Qt::ToolTipRole:
-    //         return QString( "Row %1, Column %2" ).arg( index.row() ).arg( index.column() );
+    // auto *node = static_cast<SceneObjectBase *>( index.internalPointer() );
 
-    //     case Qt::TextAlignmentRole:
-    //         return QVariant( Qt::AlignLeft | Qt::AlignVCenter );
+    // if ( role == ObjectRole ) {
+    // }  // node->obj is QObject* parented to the model
+    // return QVariant::fromValue( node->obj );
 
-    //     default:
-    //         return QVariant();
+    // if ( role == Qt::DisplayRole ) {
+    //     return node->obj ? node->obj->objectName() : QString();
     // }
+
+    return {};
+}
+
+QHash<int, QByteArray> ObjectsList::roleNames() const {
+    QHash<int, QByteArray> roles = QAbstractItemModel::roleNames();
+
+    roles[Object] = "object";
+
+    return roles;
 }
 
 QVariant ObjectsList::headerData( int section, Qt::Orientation orientation, int role ) const {
@@ -83,9 +89,11 @@ QVariant ObjectsList::headerData( int section, Qt::Orientation orientation, int 
 }
 
 Qt::ItemFlags ObjectsList::flags( const QModelIndex &index ) const {
-    // if ( !index.isValid() ) return Qt::NoItemFlags;
+    if ( !index.isValid() ) {
+        return Qt::NoItemFlags;
+    }
 
-    // return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 }
 
 bool ObjectsList::setData( const QModelIndex &index, const QVariant &value, int role ) {
