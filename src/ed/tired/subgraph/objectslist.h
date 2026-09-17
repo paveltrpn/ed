@@ -36,8 +36,10 @@ public:
     bool insertRows( int row, int count, const QModelIndex &parent = QModelIndex() ) override;
     bool removeRows( int row, int count, const QModelIndex &parent = QModelIndex() ) override;
 
+    auto addObject( std::shared_ptr<SceneObjectBase> object ) -> void;
+
 private:
-    std::vector<SceneObjectBase *> _objectsList{};
+    std::vector<std::shared_ptr<SceneObjectBase>> _objectsList{};
 };
 
 };  // namespace tire

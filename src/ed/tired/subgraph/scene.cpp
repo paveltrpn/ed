@@ -40,9 +40,13 @@ void Scene::addBox( float px, float py, float pz, float rx, float ry, float rz, 
     data.setOrientation( { rx, ry, rz } );
     data.setScale( { sx, sy, sz } );
 
-    auto exbox = std::make_shared<object::Box>( data );
+    auto box = std::make_shared<object::Box>( data );
 
-    _node->link( exbox );
+    _node->link( box );
+
+    _objects->addObject( std::move( box ) );
+
+    emit objectsChanged();
 }
 
 // ======================================================================================

@@ -16,6 +16,18 @@ ObjectsList::ObjectsList( QObject *parent )
 ObjectsList::~ObjectsList() {
 }
 
+auto ObjectsList::addObject( std::shared_ptr<SceneObjectBase> object ) -> void {
+    // Add to end of vector.
+    const int row = _objectsList.size();
+    const QModelIndex parentIndex = QModelIndex();
+
+    beginInsertRows( parentIndex, row, row );
+
+    _objectsList.push_back( object );
+
+    endInsertRows();
+}
+
 QModelIndex ObjectsList::index( int row, int column, const QModelIndex &parent ) const {
     // if ( !hasIndex( row, column, parent ) ) return QModelIndex();
 
@@ -60,7 +72,7 @@ QVariant ObjectsList::data( const QModelIndex &index, int role ) const {
     it += index.row();
 
     if ( role == Roles::Object ) {
-        return QVariant::fromValue<SceneObjectBase *>( *it );
+        return QVariant::fromValue<SceneObjectBase *>( ( *it ).get() );
     }
 
     // auto *node = static_cast<SceneObjectBase *>( index.internalPointer() );
