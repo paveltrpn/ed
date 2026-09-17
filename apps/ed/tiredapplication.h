@@ -9,7 +9,7 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include "ed/ui/ui.h"
+#include "ui/ui.h"
 
 class TiredApplication final : public QApplication {
     Q_OBJECT

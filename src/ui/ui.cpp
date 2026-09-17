@@ -8,7 +8,7 @@
 
 #include "ui.h"
 #include "log/log.h"
-#include "ed/tired/tired.h"
+#include "tired/tired.h"
 #include "config/config.h"
 
 namespace tire {

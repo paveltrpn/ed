@@ -7,7 +7,7 @@
 
 #include <vsg/all.h>
 
-#include "ed/ui/vsgwidget.h"
+#include "ui/vsgwidget.h"
 #include "manipulator.h"
 #include "inputhandler.h"
 #include "scenegraph.h"

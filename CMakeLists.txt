@@ -134,7 +134,7 @@ target_link_libraries(program
 # ================================
 # Module tired
 # ================================
-file(GLOB_RECURSE MOD_TIRED_SRC "src/ed/tired/*.cpp" "src/ed/tired/*.h")
+file(GLOB_RECURSE MOD_TIRED_SRC "src/tired/*.cpp" "src/tired/*.h")
 add_library(tired ${MOD_TIRED_SRC})
 set_target_properties(tired PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(tired PROPERTIES AUTOMOC TRUE)
@@ -173,7 +173,7 @@ target_link_libraries(tired
 # ================================
 # Module ed_ui
 # ================================
-file(GLOB_RECURSE MOD_TIRED_ED_UI_SRC "src/ed/ui/*.cpp" "src/ed/ui/*.h")
+file(GLOB_RECURSE MOD_TIRED_ED_UI_SRC "src/ui/*.cpp" "src/ui/*.h")
 add_library(ed_ui ${MOD_TIRED_ED_UI_SRC})
 set_target_properties(ed_ui PROPERTIES AUTOMOC TRUE)
 target_compile_options(ed_ui PRIVATE "${CXX_STANDART}")
