@@ -151,9 +151,9 @@ Item {
                     }
 
                     function increment(delta) {
-                        commit();
                         textInputComponent.currentValue += delta;
                         textInputComponent.text = textInputComponent.currentValue.toFixed(3);
+                        commit();
                     }
 
                     function commit() {
