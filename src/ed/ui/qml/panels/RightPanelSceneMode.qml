@@ -80,6 +80,14 @@ Rectangle {
 
                 buttonLabel: "ScaleX"
                 text: rightPanelScenemodeWrapper.scale.x.toFixed(3)
+                onTextValueChanged: function (value) {
+                    if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
+                        return
+                    }
+                    let nowScale = rightPanelScenemodeWrapper.selectedObjectHandle.scale
+                    nowScale.x = Number.parseFloat(value)
+                    rightPanelScenemodeWrapper.selectedObjectHandle.scale = nowScale
+                }
             }
 
             SIButtonIndicator {
@@ -96,6 +104,14 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "ScaleY"
                 text: rightPanelScenemodeWrapper.scale.y.toFixed(3)
+                onTextValueChanged: function (value) {
+                    if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
+                        return
+                    }
+                    let nowScale = rightPanelScenemodeWrapper.selectedObjectHandle.scale
+                    nowScale.y = Number.parseFloat(value)
+                    rightPanelScenemodeWrapper.selectedObjectHandle.scale = nowScale
+                }
             }
 
             SIButtonIndicator {
@@ -112,6 +128,14 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "ScaleZ"
                 text: rightPanelScenemodeWrapper.scale.z.toFixed(3)
+                onTextValueChanged: function (value) {
+                    if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
+                        return
+                    }
+                    let nowScale = rightPanelScenemodeWrapper.selectedObjectHandle.scale
+                    nowScale.z = Number.parseFloat(value)
+                    rightPanelScenemodeWrapper.selectedObjectHandle.scale = nowScale
+                }
             }
         }
 
@@ -142,6 +166,14 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "RotX"
                 text: rightPanelScenemodeWrapper.orientation.x.toFixed(3)
+                onTextValueChanged: function (value) {
+                    if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
+                        return
+                    }
+                    let nowRot = rightPanelScenemodeWrapper.selectedObjectHandle.orientation
+                    nowRot.x = Number.parseFloat(value)
+                    rightPanelScenemodeWrapper.selectedObjectHandle.orientation = nowRot
+                }
             }
 
             SIButtonIndicator {
@@ -158,6 +190,14 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "RotY"
                 text: rightPanelScenemodeWrapper.orientation.y.toFixed(3)
+                onTextValueChanged: function (value) {
+                    if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
+                        return
+                    }
+                    let nowRot = rightPanelScenemodeWrapper.selectedObjectHandle.orientation
+                    nowRot.y = Number.parseFloat(value)
+                    rightPanelScenemodeWrapper.selectedObjectHandle.orientation = nowRot
+                }
             }
 
             SIButtonIndicator {
@@ -174,6 +214,15 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "RotZ"
                 text: rightPanelScenemodeWrapper.orientation.z.toFixed(3)
+
+                onTextValueChanged: function (value) {
+                    if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
+                        return
+                    }
+                    let nowRot = rightPanelScenemodeWrapper.selectedObjectHandle.orientation
+                    nowRot.z = Number.parseFloat(value)
+                    rightPanelScenemodeWrapper.selectedObjectHandle.orientation = nowRot
+                }
             }
         }
 

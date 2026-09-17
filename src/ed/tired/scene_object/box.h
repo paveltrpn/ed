@@ -16,6 +16,7 @@ public:
     Box( QObject* parent = nullptr );
 
     Box( const BoxObjectData& data );
+
     Box( SceneObjectTypeEnum type, const QString& name, const QUuid& uid, vsg::dvec3 position, vsg::dvec3 orientation,
          vsg::dvec3 scale, vsg::dvec4 color, double width, double height, double depth );
 

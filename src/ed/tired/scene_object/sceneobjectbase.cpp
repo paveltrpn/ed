@@ -17,6 +17,7 @@ SceneObjectBase::SceneObjectBase( const SceneObjectData& data )
     , _orientation{ data._orientation }
     , _scale{ data._scale }
     , _color{ data._color } {
+    init();
 }
 
 SceneObjectBase::SceneObjectBase( SceneObjectTypeEnum type, const QString& name, const QUuid& uid, vsg::dvec3 position,
@@ -29,10 +30,17 @@ SceneObjectBase::SceneObjectBase( SceneObjectTypeEnum type, const QString& name,
     , _orientation{ orientation }
     , _scale{ scale }
     , _color{ color } {
+    init();
 }
 
 auto SceneObjectBase::node() const -> vsg::ref_ptr<SceneObjectGraph> {
     return _node;
+}
+
+auto SceneObjectBase::init() -> void {
+    _node->setOrigin( _position );
+    _node->setRotation( _orientation );
+    _node->setScale( _scale );
 }
 
 }  // namespace tire

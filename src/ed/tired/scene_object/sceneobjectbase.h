@@ -83,22 +83,19 @@ public:
         //
         qDebug() << " === debug pos:  " << value;
         _position = vsg::dvec3{ value.x(), value.y(), value.z() };
-
-        const auto rtX = vsg::rotate( vsg::radians( _orientation.x ), vsg::dvec3{ 1.0, 0.0, 0.0 } );
-        const auto rtY = vsg::rotate( vsg::radians( _orientation.y ), vsg::dvec3{ 0.0, 1.0, 0.0 } );
-        const auto rtZ = vsg::rotate( vsg::radians( _orientation.z ), vsg::dvec3{ 0.0, 0.0, 1.0 } );
-
-        _node->matrix = vsg::translate( _position ) * ( rtX * rtY * rtZ ) * vsg::scale( _scale );
+        _node->setOrigin( _position );
     }
 
     void setOrientation( QVector3D value ) {
         //
         _orientation = vsg::dvec3{ value.x(), value.y(), value.z() };
+        _node->setRotation( _orientation );
     }
 
     void setScale( QVector3D value ) {
         //
         _scale = vsg::dvec3{ value.x(), value.y(), value.z() };
+        _node->setScale( _scale );
     }
 
     void setColor( QVector4D value ) {
@@ -108,6 +105,8 @@ public:
 
     auto node() const -> vsg::ref_ptr<SceneObjectGraph>;
 
+private:
+    auto init() -> void;
 signals:
     void typeChanged();
     void uidChanged();

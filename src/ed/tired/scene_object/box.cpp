@@ -82,14 +82,6 @@ auto Box::init() -> void {
     drawCommands->addChild( vsg::BindIndexBuffer::create( indices ) );
     drawCommands->addChild( vsg::DrawIndexed::create( 36, 1, 0, 0, 0 ) );
 
-    const auto rtX = vsg::rotate( vsg::radians( _orientation.x ), vsg::dvec3{ 1.0, 0.0, 0.0 } );
-    const auto rtY = vsg::rotate( vsg::radians( _orientation.y ), vsg::dvec3{ 0.0, 1.0, 0.0 } );
-    const auto rtZ = vsg::rotate( vsg::radians( _orientation.z ), vsg::dvec3{ 0.0, 0.0, 1.0 } );
-
-    auto tr = vsg::MatrixTransform::create();
-
-    _node->matrix = vsg::translate( _position ) * ( rtX * rtY * rtZ ) * vsg::scale( _scale );
-
     _node->addChild( drawCommands );
 }
 
