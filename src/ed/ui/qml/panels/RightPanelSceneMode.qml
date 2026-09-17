@@ -79,7 +79,10 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
 
                 buttonLabel: "ScaleX"
+
                 text: rightPanelScenemodeWrapper.scale.x.toFixed(3)
+                currentValue: rightPanelScenemodeWrapper.scale.x
+
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
                         return
@@ -104,7 +107,10 @@ Rectangle {
 
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "ScaleY"
+
                 text: rightPanelScenemodeWrapper.scale.y.toFixed(3)
+                currentValue: rightPanelScenemodeWrapper.scale.y
+
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
                         return
@@ -129,7 +135,10 @@ Rectangle {
 
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "ScaleZ"
+
                 text: rightPanelScenemodeWrapper.scale.z.toFixed(3)
+                currentValue: rightPanelScenemodeWrapper.scale.z
+
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
                         return
@@ -168,7 +177,10 @@ Rectangle {
 
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "RotX"
+
                 text: rightPanelScenemodeWrapper.orientation.x.toFixed(3)
+                currentValue: rightPanelScenemodeWrapper.orientation.x
+
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
                         return
@@ -193,7 +205,10 @@ Rectangle {
 
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "RotY"
+
                 text: rightPanelScenemodeWrapper.orientation.y.toFixed(3)
+                currentValue: rightPanelScenemodeWrapper.orientation.y
+
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
                         return
@@ -218,7 +233,9 @@ Rectangle {
 
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "RotZ"
+
                 text: rightPanelScenemodeWrapper.orientation.z.toFixed(3)
+                currentValue: rightPanelScenemodeWrapper.orientation.z
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
@@ -258,7 +275,9 @@ Rectangle {
 
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "TransX"
+
                 text: rightPanelScenemodeWrapper.position.x.toFixed(3)
+                currentValue: rightPanelScenemodeWrapper.position.x
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
@@ -284,7 +303,10 @@ Rectangle {
 
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "TransY"
+
                 text: rightPanelScenemodeWrapper.position.y.toFixed(3)
+                currentValue: rightPanelScenemodeWrapper.position.y
+
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
                         return
@@ -309,7 +331,10 @@ Rectangle {
 
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "TransZ"
+
                 text: rightPanelScenemodeWrapper.position.z.toFixed(3)
+                currentValue: rightPanelScenemodeWrapper.position.z
+
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
                         return
