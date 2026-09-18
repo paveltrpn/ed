@@ -8,35 +8,13 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 set(CXX_STANDART -std=c++26)
 
-if (DEFINED ENV{VULKAN_SDK} AND NOT "$ENV{VULKAN_SDK}" STREQUAL "")
-    message( "VULKAN_SDK is set to $ENV{VULKAN_SDK}")
-    include_directories($ENV{VULKAN_SDK}/include)
-else()
-    message(SEND_ERROR "VULKAN_SDK is not set")
-endif()
-
-if (DEFINED ENV{VMA_DIR} AND NOT "$ENV{VMA_DIR}" STREQUAL "")
-    message( "VMA_DIR is set to $ENV{VMA_DIR}")
-    include_directories($ENV{VMA_DIR}/include)
-else()
-    message(SEND_ERROR "VMA_DIR is not set")
-endif()
-
-# NOTE: Use vsg library...
-# if (DEFINED ENV{vsg_DIR} AND NOT "$ENV{vsg_DIR}" STREQUAL "")
-#     message( "vsg_DIR is set to $ENV{vsg_DIR}")
-#     include_directories($ENV{vsg_DIR}/include)
-#     link_directories($ENV{vsg_DIR}/lib)
-# else()
-#     message(SEND_ERROR "vsg_DIR is not set")
-# endif()
-
-# ...or build it alongside.
+# Build Vulkan Scene Graph alongside with project.
 add_subdirectory(vsg)
 
 # Add shape generator subdirectory.
 add_subdirectory(libs/generator)
 
+find_package(Vulkan 1.1 QUIET)
 find_package(glslang 15.0 REQUIRED)
 
 include_directories(src)

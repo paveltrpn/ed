@@ -1,52 +1,34 @@
-# tire (tiny-render) editor
+# tired (tiny-render scene) editor
 
-A small scene editor with Qt-based UI and vulkan scenegraph.  
+A small scene editor with Qt-based UI and vulkan sceneg raph.  
 
-Built with:
-
-- **VulkanSceneGraph (VSG)** as scenegraph
-- **Qt6** for the user interface
-
-## Dependencies Installation
+## Dependencies  
   
-### glslang tools
+### Vulkan SDK and glslang tools  
 ```bash
-apt install glslang-dev glslang-tools
-```
+apt install glslang-dev glslang-tools vulkan-sdk
+```  
+  
+Or you can download and install Vulkan SDK from https://vulkan.lunarg.com/sdk/home.  
+Vulkan SDK minimal version is 1.1  
 
-### Qt 6.10+  
-Build yourself ore use binaries provided by your system:  
+### Qt6  
+Build yourself or use binaries provided by your system:  
 ```bash
-# Download from https://www.qt.io/download
-# Or use package manager:
 sudo apt install qt6-base-dev qt6-declarative-dev
 ```
 
-### Vulkan SDK  
-Download and install from https://vulkan.lunarg.com/sdk/home  
-Or use package manager:  
+### Another libs  
+Vulakn scene graph sources is embed into this project and itself depends on some libraries: 
 ```bash
-sudo apt install vulkan-sdk
-```
-
-### VulkanSceneGraph (VSG)
-
-```bash
-git clone https://github.com/vsg-dev/VulkanSceneGraph
-cd VulkanSceneGraph
-mkdir build && cd build
-cmake ..
-ninja -j {n}
-cmake --install . --prefix /path/to/vsg
-export vsg_DIR=/path/to/vsg
+sudo apt install libxcb-dev libthreads-dev
 ```
 
 ## Build  
-Set required environment variables, create build directory, configure and build  
+Build checked only on Linux with X11 window server.  
+This project uses -std=c++26 build flag and it implies demand of newer c++ compiler (gcc 16.1 works nice).  
+Create build directory, configure and build  
 ```bash
-export VULKAN_SDK=/path/to/vulkan/sdk
-export vsg_DIR=/path/to/vsg
-export LOCAL_LATEST_QT=/path/to/qt
 
 mkdir build
 cd build
@@ -54,4 +36,9 @@ cd build
 cmake ..
 cmake --build .
 ```
+
+## Libraries used  
+This project embed couple of very nice, low dependency, very useful libraries:  
+- "Vulkan Scene Graph" - https://github.com/vsg-dev/VulkanSceneGraph
+- "generator" - https://github.com/ilmola/generator
 
