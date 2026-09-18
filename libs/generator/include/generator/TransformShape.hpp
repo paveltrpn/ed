@@ -7,82 +7,66 @@
 #ifndef GENERATOR_SHAPETRANSLATOR_HPP
 #define GENERATOR_SHAPETRANSLATOR_HPP
 
+#include <functional>
+
 #include "ShapeVertex.hpp"
 #include "utils.hpp"
 
 namespace generator {
 
-
-
 /// Apply a mutator function to each vertex.
 template <typename Shape>
-class TransformShape
-{
+class TransformShape {
 private:
-
-	using Impl = Shape;
-	Impl shape_;
+    using Impl = Shape;
+    Impl shape_;
 
 public:
+    class Vertices {
+    public:
+        ShapeVertex generate() const {
+            auto temp = vertices_.generate();
+            shape_->mutate_( temp );
+            return temp;
+        }
 
-	class Vertices {
-	public:
+        bool done() const noexcept { return vertices_.done(); }
 
-		ShapeVertex generate() const {
-			auto temp = vertices_.generate();
-			shape_->mutate_(temp);
-			return temp;
-		}
+        void next() { vertices_.next(); }
 
-		bool done() const noexcept { return vertices_.done(); }
+    private:
+        const TransformShape* shape_;
 
-		void next() { vertices_.next(); }
+        typename VertexGeneratorType<Shape>::Type vertices_;
 
-	private:
+        Vertices( const TransformShape& shape )
+            : shape_{ &shape }
+            , vertices_{ shape.shape_.vertices() } {}
 
-		const TransformShape* shape_;
+        friend class TransformShape;
+    };
 
-		typename VertexGeneratorType<Shape>::Type  vertices_;
+    /// @param shape Source data shape.
+    /// @param mutate Callback function that gets called once per vertex.
+    TransformShape( Shape shape, std::function<void( ShapeVertex& )> mutate )
+        : shape_{ std::move( shape ) }
+        , mutate_{ mutate } {}
 
-		Vertices(const TransformShape& shape) :
-			shape_{&shape},
-			vertices_{shape.shape_.vertices()}
-		{ }
+    using Edges = typename Impl::Edges;
 
-	friend class TransformShape;
-	};
+    Edges edges() const noexcept { return shape_.edges(); }
 
-	/// @param shape Source data shape.
-	/// @param mutate Callback function that gets called once per vertex.
-	TransformShape(Shape shape, std::function<void(ShapeVertex&)> mutate) :
-		shape_{std::move(shape)},
-		mutate_{mutate}
-	{
-
-	}
-
-	using Edges = typename Impl::Edges;
-
-	Edges edges() const noexcept { return shape_.edges(); }
-
-	Vertices vertices() const noexcept { return *this; }
+    Vertices vertices() const noexcept { return *this; }
 
 private:
-
-	std::function<void(ShapeVertex&)> mutate_;
-
+    std::function<void( ShapeVertex& )> mutate_;
 };
 
-
 template <typename Shape>
-TransformShape<Shape> transformShape(
-	Shape shape, std::function<void(ShapeVertex&)> mutate
-) {
-	return TransformShape<Shape>{std::move(shape), std::move(mutate)};
+TransformShape<Shape> transformShape( Shape shape, std::function<void( ShapeVertex& )> mutate ) {
+    return TransformShape<Shape>{ std::move( shape ), std::move( mutate ) };
 }
 
-
-}
-
+}  // namespace generator
 
 #endif
