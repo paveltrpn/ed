@@ -1,6 +1,6 @@
 # tired (tiny-render scene) editor
 
-A small scene editor with Qt-based UI and vulkan sceneg raph.  
+A small scene editor with Qt-based UI and vulkan sceneg graph.  
 
 ## Dependencies  
   
