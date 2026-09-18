@@ -26,9 +26,9 @@ auto Capsule::init() -> void {
     auto indicesArray = std::vector<unsigned int>{};
     auto colorsArray = std::vector<vsg::vec3>{};
 
-    auto mesh = generator::CapsuleMesh{ /* radius */ 1.0,
+    auto mesh = generator::CapsuleMesh{ /* radius */ 0.5,
                                         /* size */ 0.5,
-                                        /* slices */ 32,
+                                        /* slices */ 16,
                                         /* segments */ 4,
                                         /* rings */ 8,
                                         /* start */ 0.0,
