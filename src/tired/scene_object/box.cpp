@@ -1,55 +1,13 @@
 
+#include <print>
+
 #include <vsg/all.h>
+
+#include "generator/BoxMesh.hpp"
 
 #include "box.h"
 
 namespace tire::object {
-
-namespace {
-
-auto boxData() -> std::tuple<vsg::ref_ptr<vsg::vec3Array>, vsg::ref_ptr<vsg::vec3Array>, vsg::ref_ptr<vsg::vec2Array>,
-                             vsg::ref_ptr<vsg::uintArray>> {
-    auto vertices = vsg::vec3Array::create( { { -0.5f, -0.5f, 0.5f },
-                                              { 0.5f, -0.5f, 0.5f },
-                                              { 0.5f, 0.5f, 0.5f },
-                                              { -0.5f, 0.5f, 0.5f },
-                                              { -0.5f, -0.5f, -0.5f },
-                                              { 0.5f, -0.5f, -0.5f },
-                                              { 0.5f, 0.5f, -0.5f },
-                                              { -0.5f, 0.5f, -0.5f } } );
-
-    // VK_FORMAT_R32G32B32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
-    auto colors = vsg::vec3Array::create( {
-        { 1.0f, 0.0f, 0.0f },
-        { 0.0f, 1.0f, 0.0f },
-        { 0.0f, 0.0f, 1.0f },
-        { 1.0f, 1.0f, 1.0f },
-        { 1.0f, 0.0f, 0.0f },
-        { 0.0f, 1.0f, 0.0f },
-        { 0.0f, 0.0f, 1.0f },
-        { 1.0f, 1.0f, 1.0f },
-    } );
-
-    // VK_FORMAT_R32G32_SFLOAT, VK_VERTEX_INPUT_RATE_VERTEX, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
-    auto texcoords = vsg::vec2Array::create( { { 0.0f, 0.0f },
-                                               { 1.0f, 0.0f },
-                                               { 1.0f, 1.0f },
-                                               { 0.0f, 1.0f },
-                                               { 0.0f, 0.0f },
-                                               { 1.0f, 0.0f },
-                                               { 1.0f, 1.0f },
-                                               { 0.0f, 1.0f } } );
-
-    // VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_SHARING_MODE_EXCLUSIVE
-    //
-    // TOP BOTTOM NEAR FAR LEFT RIGHT
-    auto indices = vsg::uintArray::create( { 0, 1, 2, 2, 3, 0, 4, 7, 6, 6, 5, 4, 7, 3, 2, 2, 6, 7,
-                                             4, 5, 1, 1, 0, 4, 3, 7, 4, 4, 0, 3, 6, 2, 1, 1, 5, 6 } );
-
-    return { vertices, colors, texcoords, indices };
-}
-
-}  // namespace
 
 Box::Box( const BoxObjectData& data )
     : SceneObjectBase{ data._type, data._name, data._uid, data._position, data._orientation, data._scale, data._color }
@@ -73,8 +31,64 @@ Box::Box( QObject* parent )
 }
 
 auto Box::init() -> void {
+    auto positionsArray = std::vector<vsg::vec3>{};
+    auto normalsArray = std::vector<vsg::vec3>{};
+    auto texcoordsArray = std::vector<vsg::vec2>{};
+    auto indicesArray = std::vector<unsigned int>{};
+
+    auto boxMesh = generator::BoxMesh{ { 0.5, 0.5, 0.5 }, { 1, 1, 1 } };
+
+    auto vg = boxMesh.vertices();
+    while ( !vg.done() ) {
+        generator::MeshVertex vertex = vg.generate();
+
+        auto position = vertex.position.data();
+        auto normal = vertex.normal.data();
+        auto texcoord = vertex.texCoord.data();
+
+        positionsArray.emplace_back( position[0], position[1], position[2] );
+        normalsArray.emplace_back( normal[0], normal[1], normal[2] );
+        texcoordsArray.emplace_back( texcoord[0], texcoord[1] );
+
+        vg.next();
+    }
+
+    auto tg = boxMesh.triangles();
+    while ( !tg.done() ) {
+        generator::Triangle triangle = tg.generate();
+
+        auto indices = triangle.vertices;
+
+        indicesArray.push_back( indices[0] );
+        indicesArray.push_back( indices[1] );
+        indicesArray.push_back( indices[2] );
+
+        tg.next();
+    }
+
     // Retrive geometry.
-    auto [vertices, colors, texcoords, indices] = boxData();
+    auto vertices = vsg::vec3Array::create( positionsArray.size() );
+    for ( size_t i = 0; i < positionsArray.size(); ++i ) {
+        vertices->at( i ) = positionsArray[i];
+    }
+
+    auto texcoords = vsg::vec2Array::create( texcoordsArray.size() );
+    for ( size_t i = 0; i < texcoordsArray.size(); ++i ) {
+        texcoords->at( i ) = texcoordsArray[i];
+    }
+
+    auto colors = vsg::vec3Array::create( {
+        { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f, 0.0f },
+        { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f },
+        { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f },
+        { 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
+        { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
+    } );
+
+    auto indices = vsg::uintArray::create( indicesArray.size() );
+    for ( size_t i = 0; i < indicesArray.size(); ++i ) {
+        indices->at( i ) = indicesArray[i];
+    }
 
     // Setup geometry.
     auto drawCommands = vsg::Commands::create();

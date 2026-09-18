@@ -39,7 +39,8 @@ add_subdirectory(libs/generator)
 
 find_package(glslang 15.0 REQUIRED)
 
-include_directories("src")
+include_directories(src)
+include_directories(libs/generator/include)
 
 set(QT_VERSION 6.10)
 list(APPEND CMAKE_PREFIX_PATH $ENV{LOCAL_LATEST_QT})
@@ -171,6 +172,7 @@ target_link_libraries(tired
     vsg
     mesh
     program
+    generator
 )
 
 # ================================
