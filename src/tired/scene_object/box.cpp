@@ -1,6 +1,4 @@
 
-#include <print>
-
 #include <vsg/all.h>
 
 #include "generator/BoxMesh.hpp"
@@ -35,6 +33,7 @@ auto Box::init() -> void {
     auto normalsArray = std::vector<vsg::vec3>{};
     auto texcoordsArray = std::vector<vsg::vec2>{};
     auto indicesArray = std::vector<unsigned int>{};
+    auto colorsArray = std::vector<vsg::vec3>{};
 
     auto boxMesh = generator::BoxMesh{ { 0.5, 0.5, 0.5 }, { 1, 1, 1 } };
 
@@ -49,6 +48,7 @@ auto Box::init() -> void {
         positionsArray.emplace_back( position[0], position[1], position[2] );
         normalsArray.emplace_back( normal[0], normal[1], normal[2] );
         texcoordsArray.emplace_back( texcoord[0], texcoord[1] );
+        colorsArray.emplace_back( 1.0f, 1.0f, 1.0f );
 
         vg.next();
     }
@@ -68,27 +68,16 @@ auto Box::init() -> void {
 
     // Retrive geometry.
     auto vertices = vsg::vec3Array::create( positionsArray.size() );
-    for ( size_t i = 0; i < positionsArray.size(); ++i ) {
-        vertices->at( i ) = positionsArray[i];
-    }
+    std::copy( positionsArray.begin(), positionsArray.end(), vertices->begin() );
 
     auto texcoords = vsg::vec2Array::create( texcoordsArray.size() );
-    for ( size_t i = 0; i < texcoordsArray.size(); ++i ) {
-        texcoords->at( i ) = texcoordsArray[i];
-    }
-
-    auto colors = vsg::vec3Array::create( {
-        { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f, 0.0f },
-        { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f },
-        { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f },
-        { 1.0f, 1.0f, 1.0f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
-        { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 1.0f },
-    } );
+    std::copy( texcoordsArray.begin(), texcoordsArray.end(), texcoords->begin() );
 
     auto indices = vsg::uintArray::create( indicesArray.size() );
-    for ( size_t i = 0; i < indicesArray.size(); ++i ) {
-        indices->at( i ) = indicesArray[i];
-    }
+    std::copy( indicesArray.begin(), indicesArray.end(), indices->begin() );
+
+    auto colors = vsg::vec3Array::create( colorsArray.size() );
+    std::copy( colorsArray.begin(), colorsArray.end(), colors->begin() );
 
     // Setup geometry.
     auto drawCommands = vsg::Commands::create();
