@@ -9,11 +9,11 @@ namespace tire {
 // ======================================================================================
 
 struct VsgMeshData final {
-    vsg::ref_ptr<vsg::vec3Array> vertices{};
-    vsg::ref_ptr<vsg::vec3Array> normals{};
-    vsg::ref_ptr<vsg::vec3Array> colors{};
-    vsg::ref_ptr<vsg::vec2Array> texcrds{};
-    vsg::ref_ptr<vsg::uintArray> indices{};
+    vsg::ref_ptr<vsg::vec3Array> _vertices{};
+    vsg::ref_ptr<vsg::vec3Array> _normals{};
+    vsg::ref_ptr<vsg::vec3Array> _colors{};
+    vsg::ref_ptr<vsg::vec2Array> _texcrds{};
+    vsg::ref_ptr<vsg::uintArray> _indices{};
 };
 
 // ======================================================================================
