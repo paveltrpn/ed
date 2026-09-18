@@ -34,6 +34,9 @@ endif()
 # ...or build it alongside.
 add_subdirectory(VulkanSceneGraph)
 
+# Add shape generator subdirectory.
+add_subdirectory(libs/generator)
+
 find_package(glslang 15.0 REQUIRED)
 
 include_directories("src")
