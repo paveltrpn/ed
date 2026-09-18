@@ -19,7 +19,7 @@ sudo apt install qt6-base-dev qt6-declarative-dev
 ```
 
 ### Another libs  
-Vulakn scene graph sources is embed into this project and itself depends on some libraries: 
+Vulkan scene graph sources is embed into this project and itself depends on some libraries: 
 ```bash
 sudo apt install libxcb-dev libthreads-dev
 ```
