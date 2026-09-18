@@ -32,7 +32,7 @@ endif()
 # endif()
 
 # ...or build it alongside.
-add_subdirectory(VulkanSceneGraph)
+add_subdirectory(vsg)
 
 # Add shape generator subdirectory.
 add_subdirectory(libs/generator)
