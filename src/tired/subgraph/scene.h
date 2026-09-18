@@ -25,6 +25,12 @@ public:
     auto node() const -> vsg::ref_ptr<SceneSubgraph>;
 
     Q_INVOKABLE void addBox( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy, float sz );
+    Q_INVOKABLE void addSphere( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy,
+                                float sz );
+    Q_INVOKABLE void addCylinder( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy,
+                                  float sz );
+    Q_INVOKABLE void addCapsule( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy,
+                                 float sz );
 
     auto objects() const -> ObjectsList*;
 

@@ -13,6 +13,8 @@ struct Sphere final : public SceneObjectBase {
 public:
     Sphere( QObject* parent = nullptr );
 
+    Sphere( const SphereObjectData& data );
+
     Sphere( const Sphere& other ) = delete;
     Sphere( Sphere&& other ) = delete;
 
@@ -31,6 +33,9 @@ public:
 
 signals:
     void radiusChanged();
+
+private:
+    auto init() -> void;
 
 private:
     double _radius{};

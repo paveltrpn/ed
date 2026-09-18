@@ -1,28 +1,87 @@
 
 #include <vsg/all.h>
 
+#include "generator/CappedCylinderMesh.hpp"
+
 #include "cylinder.h"
 
 namespace tire::object {
 
-namespace {
-
-auto cylinderData() -> std::tuple<vsg::ref_ptr<vsg::vec3Array>, vsg::ref_ptr<vsg::vec3Array>,
-                                  vsg::ref_ptr<vsg::vec2Array>, vsg::ref_ptr<vsg::uintArray>> {
-    auto vertices = vsg::vec3Array::create();
-
-    auto colors = vsg::vec3Array::create();
-
-    auto texcoords = vsg::vec2Array::create();
-
-    auto indices = vsg::uintArray::create();
-
-    return { vertices, colors, texcoords, indices };
+Cylinder::Cylinder( QObject* parent ) {
+    init();
 }
 
-}  // namespace
+Cylinder::Cylinder( const CylinderObjectData& data )
+    : SceneObjectBase{ data._type, data._name, data._uid, data._position, data._orientation, data._scale, data._color }
+    , _radius{ data._radius }
+    , _height{ data._height } {
+    init();
+}
 
-Cylinder::Cylinder( QObject* parent ) {
+auto Cylinder::init() -> void {
+    auto positionsArray = std::vector<vsg::vec3>{};
+    auto normalsArray = std::vector<vsg::vec3>{};
+    auto texcoordsArray = std::vector<vsg::vec2>{};
+    auto indicesArray = std::vector<unsigned int>{};
+    auto colorsArray = std::vector<vsg::vec3>{};
+
+    auto mesh = generator::CappedCylinderMesh{ /* radius */ 0.5,
+                                               /* size */ 0.5,
+                                               /* slices */ 32,
+                                               /* segments */ 8,
+                                               /* rings */ 4,
+                                               /* start */ 0.0,
+                                               /* sweep */ gml::radians( 360.0 ) };
+
+    auto vg = mesh.vertices();
+    while ( !vg.done() ) {
+        generator::MeshVertex vertex = vg.generate();
+
+        auto position = vertex.position.data();
+        auto normal = vertex.normal.data();
+        auto texcoord = vertex.texCoord.data();
+
+        positionsArray.emplace_back( position[0], position[1], position[2] );
+        normalsArray.emplace_back( normal[0], normal[1], normal[2] );
+        texcoordsArray.emplace_back( texcoord[0], texcoord[1] );
+        colorsArray.emplace_back( 1.0f, 1.0f, 1.0f );
+
+        vg.next();
+    }
+
+    auto tg = mesh.triangles();
+    while ( !tg.done() ) {
+        generator::Triangle triangle = tg.generate();
+
+        auto indices = triangle.vertices;
+
+        indicesArray.push_back( indices[0] );
+        indicesArray.push_back( indices[1] );
+        indicesArray.push_back( indices[2] );
+
+        tg.next();
+    }
+
+    // Retrive geometry.
+    auto vertices = vsg::vec3Array::create( positionsArray.size() );
+    std::copy( positionsArray.begin(), positionsArray.end(), vertices->begin() );
+
+    auto texcoords = vsg::vec2Array::create( texcoordsArray.size() );
+    std::copy( texcoordsArray.begin(), texcoordsArray.end(), texcoords->begin() );
+
+    auto indices = vsg::uintArray::create( indicesArray.size() );
+    std::copy( indicesArray.begin(), indicesArray.end(), indices->begin() );
+
+    auto colors = vsg::vec3Array::create( colorsArray.size() );
+    std::copy( colorsArray.begin(), colorsArray.end(), colors->begin() );
+
+    // Setup geometry.
+    auto drawCommands = vsg::Commands::create();
+    drawCommands->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ vertices, colors, texcoords } ) );
+    drawCommands->addChild( vsg::BindIndexBuffer::create( indices ) );
+    drawCommands->addChild( vsg::DrawIndexed::create( indicesArray.size(), 1, 0, 0, 0 ) );
+
+    _node->addChild( drawCommands );
 }
 
 }  // namespace tire::object

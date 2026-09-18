@@ -83,7 +83,7 @@ auto Box::init() -> void {
     auto drawCommands = vsg::Commands::create();
     drawCommands->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ vertices, colors, texcoords } ) );
     drawCommands->addChild( vsg::BindIndexBuffer::create( indices ) );
-    drawCommands->addChild( vsg::DrawIndexed::create( 36, 1, 0, 0, 0 ) );
+    drawCommands->addChild( vsg::DrawIndexed::create( indicesArray.size(), 1, 0, 0, 0 ) );
 
     _node->addChild( drawCommands );
 }

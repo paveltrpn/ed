@@ -101,11 +101,14 @@ Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> view
     _viewer->compile();
 
     // Add default cube.
-    _scenegraph->scene()->addBox( -2.0, 1.5, 0.0, 22.0, 45.0, 12.0, 1.0, 1.3, 1.3 );
-    _scenegraph->scene()->addBox( 4.4, -1.8, 0.0, 62.0, 121.0, -32.0, 1.1, 1.8, 3.3 );
-    _scenegraph->scene()->addBox( -1.0, 2.5, 0.0, 72.0, 25.0, -91.0, 2.0, 1.3, 1.3 );
-    _scenegraph->scene()->addBox( -1.0, -2.5, 0.0, 32.0, 225.0, -191.0, 2.0, 1.3, 1.3 );
-    _scenegraph->scene()->addBox( 1.0, 2.5, 0.0, 12.0, 65.0, 121.0, 2.0, 1.3, 1.3 );
+    _scenegraph->scene()->addBox( -2.0, 3.0, 0.0, 22.0, 45.0, 12.0, 1.0, 1.3, 1.3 );
+    _scenegraph->scene()->addBox( -2.0, -3.0, 0.0, 72.0, 25.0, -91.0, 2.0, 1.3, 1.3 );
+    _scenegraph->scene()->addBox( 2.0, 3.0, 0.0, 32.0, 225.0, -191.0, 2.0, 1.3, 1.3 );
+    _scenegraph->scene()->addBox( 2.0, -3.0, 0.0, 12.0, 65.0, 121.0, 2.0, 1.3, 1.3 );
+
+    _scenegraph->scene()->addSphere( 0.0, 3.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
+    _scenegraph->scene()->addCylinder( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
+    _scenegraph->scene()->addCapsule( 0.0, -3.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
 };
 
 auto Tired::viewer() -> vsg::ref_ptr<Viewer> {

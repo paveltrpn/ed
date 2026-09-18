@@ -14,6 +14,8 @@ struct Cylinder final : public SceneObjectBase {
 public:
     Cylinder( QObject* parent = nullptr );
 
+    Cylinder( const CylinderObjectData& data );
+
     Cylinder( const Cylinder& other ) = delete;
     Cylinder( Cylinder&& other ) = delete;
 
@@ -43,6 +45,9 @@ public:
 signals:
     void radiusChanged();
     void heightChanged();
+
+private:
+    auto init() -> void;
 
 private:
     double _radius{};

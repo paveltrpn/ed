@@ -14,6 +14,8 @@ struct Capsule final : public SceneObjectBase {
 public:
     Capsule( QObject* parent = nullptr );
 
+    Capsule( const CapsuleObjectData& data );
+
     Capsule( const Capsule& other ) = delete;
     Capsule( Capsule&& other ) = delete;
 
@@ -43,6 +45,9 @@ public:
 signals:
     void radiusChanged();
     void heightChanged();
+
+private:
+    auto init() -> void;
 
 private:
     double _radius{};

@@ -11,6 +11,9 @@
 #include "config/config.h"
 #include "../scene_object/sceneobjectdata.h"
 #include "../scene_object/box.h"
+#include "../scene_object/sphere.h"
+#include "../scene_object/cylinder.h"
+#include "../scene_object/capsule.h"
 
 namespace tire {
 
@@ -64,6 +67,51 @@ void Scene::addBox( float px, float py, float pz, float rx, float ry, float rz, 
     _node->link( box );
 
     _objects->addObject( std::move( box ) );
+
+    emit objectsChanged();
+}
+
+void Scene::addSphere( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy, float sz ) {
+    auto data = SphereObjectData{};
+    data.setPosition( { px, py, pz } );
+    data.setOrientation( { rx, ry, rz } );
+    data.setScale( { sx, sy, sz } );
+
+    auto sphere = std::make_shared<object::Sphere>( data );
+
+    _node->link( sphere );
+
+    _objects->addObject( std::move( sphere ) );
+
+    emit objectsChanged();
+}
+
+void Scene::addCylinder( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy, float sz ) {
+    auto data = CylinderObjectData{};
+    data.setPosition( { px, py, pz } );
+    data.setOrientation( { rx, ry, rz } );
+    data.setScale( { sx, sy, sz } );
+
+    auto cylinder = std::make_shared<object::Cylinder>( data );
+
+    _node->link( cylinder );
+
+    _objects->addObject( std::move( cylinder ) );
+
+    emit objectsChanged();
+}
+
+void Scene::addCapsule( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy, float sz ) {
+    auto data = CapsuleObjectData{};
+    data.setPosition( { px, py, pz } );
+    data.setOrientation( { rx, ry, rz } );
+    data.setScale( { sx, sy, sz } );
+
+    auto capsule = std::make_shared<object::Capsule>( data );
+
+    _node->link( capsule );
+
+    _objects->addObject( std::move( capsule ) );
 
     emit objectsChanged();
 }
