@@ -41,6 +41,7 @@ find_package(glslang 15.0 REQUIRED)
 
 include_directories(src)
 include_directories(libs/generator/include)
+include_directories(libs/gml/include)
 
 set(QT_VERSION 6.10)
 list(APPEND CMAKE_PREFIX_PATH $ENV{LOCAL_LATEST_QT})
