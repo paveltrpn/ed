@@ -27,11 +27,6 @@ Item {
 
     signal textValueChanged(string value)
 
-    property real currentValue
-    property real step: 1.0
-    property real min: -9999.0
-    property real max: 9999.0
-
     states: [
         State {
             when: indicatorArea.containsMouse || textInputComponent.focus
@@ -137,18 +132,17 @@ Item {
                         }
                     }
 
-                    Keys.onUpPressed: {
-                        increment(control.step);
-                    }
+                    // Keys.onUpPressed: {
+                    //     increment(control.step);
+                    // }
 
-                    Keys.onDownPressed: {
-                        increment(-control.step);
-                    }
+                    // Keys.onDownPressed: {
+                    //     increment(-control.step);
+                    // }
 
-                    function increment(delta) {
-                        control.currentValue += delta;
-                        control.textValueChanged(control.currentValue)
-                    }
+                    // function increment(delta) {
+                    //     control.currentValue += delta;
+                    // }
 
                     Rectangle {
                         id: borderRect
