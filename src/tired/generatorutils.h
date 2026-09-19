@@ -17,6 +17,7 @@ struct VsgMeshData final {
     vsg::ref_ptr<vsg::vec3Array> _colors{};
     vsg::ref_ptr<vsg::vec2Array> _texcrds{};
     vsg::ref_ptr<vsg::uintArray> _indices{};
+    int _indicesCount{};
 };
 
 // ======================================================================================
@@ -32,7 +33,7 @@ public:
 
 private:
     template <typename T, typename V>
-    static auto copy(T vg, V tg) -> VsgMeshData {
+    static auto copy( T vg, V tg ) -> VsgMeshData {
         auto positionsArray = std::vector<vsg::vec3>{};
         auto normalsArray = std::vector<vsg::vec3>{};
         auto texcoordsArray = std::vector<vsg::vec2>{};
@@ -67,7 +68,9 @@ private:
             tg.next();
         }
 
-        auto result = VsgMeshData {};
+        auto result = VsgMeshData{};
+
+        result._indicesCount = indicesArray.size();
 
         // Retrive geometry.
         result._vertices = vsg::vec3Array::create( positionsArray.size() );
@@ -79,9 +82,11 @@ private:
         result._indices = vsg::uintArray::create( indicesArray.size() );
         std::copy( indicesArray.begin(), indicesArray.end(), result._indices->begin() );
 
-        auto colors = vsg::vec3Array::create( colorsArray.size() );
-        std::copy( colorsArray.begin(), colorsArray.end(), colors->begin() );
+        result._colors = vsg::vec3Array::create( colorsArray.size() );
+        std::copy( colorsArray.begin(), colorsArray.end(), result._colors->begin() );
+
+        return result;
     }
 };
 
-}
+}  // namespace tire

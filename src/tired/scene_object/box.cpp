@@ -4,6 +4,7 @@
 #include "generator/BoxMesh.hpp"
 
 #include "box.h"
+#include "../generatorutils.h"
 
 namespace tire::object {
 
@@ -29,61 +30,14 @@ Box::Box( QObject* parent )
 }
 
 auto Box::init() -> void {
-    auto positionsArray = std::vector<vsg::vec3>{};
-    auto normalsArray = std::vector<vsg::vec3>{};
-    auto texcoordsArray = std::vector<vsg::vec2>{};
-    auto indicesArray = std::vector<unsigned int>{};
-    auto colorsArray = std::vector<vsg::vec3>{};
-
-    auto boxMesh = generator::BoxMesh{ { 0.5, 0.5, 0.5 }, { 1, 1, 1 } };
-
-    auto vg = boxMesh.vertices();
-    while ( !vg.done() ) {
-        generator::MeshVertex vertex = vg.generate();
-
-        auto position = vertex.position.data();
-        auto normal = vertex.normal.data();
-        auto texcoord = vertex.texCoord.data();
-
-        positionsArray.emplace_back( position[0], position[1], position[2] );
-        normalsArray.emplace_back( normal[0], normal[1], normal[2] );
-        texcoordsArray.emplace_back( texcoord[0], texcoord[1] );
-        colorsArray.emplace_back( 1.0f, 1.0f, 1.0f );
-
-        vg.next();
-    }
-
-    auto tg = boxMesh.triangles();
-    while ( !tg.done() ) {
-        generator::Triangle triangle = tg.generate();
-
-        auto indices = triangle.vertices;
-
-        indicesArray.push_back( indices[0] );
-        indicesArray.push_back( indices[1] );
-        indicesArray.push_back( indices[2] );
-
-        tg.next();
-    }
-
-    // Retrive geometry.
-    auto vertices = vsg::vec3Array::create( positionsArray.size() );
-    std::copy( positionsArray.begin(), positionsArray.end(), vertices->begin() );
-
-    auto texcoords = vsg::vec2Array::create( texcoordsArray.size() );
-    std::copy( texcoordsArray.begin(), texcoordsArray.end(), texcoords->begin() );
-
-    auto indices = vsg::uintArray::create( indicesArray.size() );
-    std::copy( indicesArray.begin(), indicesArray.end(), indices->begin() );
-
-    auto colors = vsg::vec3Array::create( colorsArray.size() );
-    std::copy( colorsArray.begin(), colorsArray.end(), colors->begin() );
+    auto data = VsgMeshDataGenerator::box();
 
     // Setup geometry.
     auto drawCommands = vsg::Commands::create();
-    drawCommands->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ vertices, colors, texcoords } ) );
-    drawCommands->addChild( vsg::BindIndexBuffer::create( indices ) );
-    drawCommands->addChild( vsg::DrawIndexed::create( indicesArray.size(), 1, 0, 0, 0 ) );
+    drawCommands->addChild(
+        vsg::BindVertexBuffers::create( 0, vsg::DataList{ data._vertices, data._colors, data._texcrds } ) );
+    drawCommands->addChild( vsg::BindIndexBuffer::create( data._indices ) );
+    drawCommands->addChild( vsg::DrawIndexed::create( data._indicesCount, 1, 0, 0, 0 ) );
 
     _node->addChild( drawCommands );
 }
