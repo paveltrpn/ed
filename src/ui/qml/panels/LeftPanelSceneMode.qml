@@ -98,11 +98,11 @@ Rectangle {
             buttonLabel: "Edit object"
 
             onClicked: {
-                editObjectButton.checked = !editObjectButton.checked;
+                // editObjectButton.checked = !editObjectButton.checked;
 
-                if (editObjectButton.checked) {
-                    leftPanelSceneComponent.deselectOthers(editObjectButton);
-                }
+                // if (editObjectButton.checked) {
+                //     leftPanelSceneComponent.deselectOthers(editObjectButton);
+                // }
             }
 
             Component.onCompleted: {
@@ -111,10 +111,32 @@ Rectangle {
         }
 
         SIButtonMain {
-            id: infoButton
+            id: deleteObjectButton
 
             anchors {
                 top: editObjectButton.bottom
+                topMargin: leftPanelSceneComponent._units.half
+                left: parent.left
+                right: parent.right
+            }
+
+            modeRelatedBgColor: _color.si_mode_scene
+            buttonLabel: "Delete object"
+
+            onClicked: {
+            }
+
+            Component.onCompleted: {
+                leftPanelSceneComponent.buttonsList.push(deleteObjectButton);
+            }
+        }
+
+
+        SIButtonMain {
+            id: infoButton
+
+            anchors {
+                top: deleteObjectButton.bottom
                 topMargin: leftPanelSceneComponent._units.half
                 left: parent.left
                 right: parent.right
