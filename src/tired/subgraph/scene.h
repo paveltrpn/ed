@@ -26,11 +26,8 @@ public:
 
     Q_INVOKABLE void addBox( const BoxObjectData& data );
     Q_INVOKABLE void addSphere( const SphereObjectData& data );
-
-    Q_INVOKABLE void addCylinder( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy,
-                                  float sz );
-    Q_INVOKABLE void addCapsule( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy,
-                                 float sz );
+    Q_INVOKABLE void addCylinder( const CylinderObjectData& data );
+    Q_INVOKABLE void addCapsule( const CapsuleObjectData& data );
 
     auto objects() const -> ObjectsList*;
 

@@ -369,8 +369,8 @@ public:
         auto base = SceneObjectData::toJson();
 
         const auto self = QJsonObject{
-            { "radius", _radius },
-            { "height", _height },
+            { "radius", _radius }, { "size", _size },   { "slices", _slices }, { "segments", _segments },
+            { "rings", _rings },   { "start", _start }, { "sweep", _sweep },
         };
 
         base.insert( "derived", self );
@@ -384,11 +384,21 @@ public:
         const auto &derived = data.value( "derived" ).toObject();
 
         _radius = derived.value( "radius" ).toDouble();
-        _height = derived.value( "height" ).toDouble();
+        _size = derived.value( "size" ).toDouble();
+        _slices = derived.value( "slices" ).toInt();
+        _segments = derived.value( "segments" ).toInt();
+        _rings = derived.value( "rings" ).toInt();
+        _start = derived.value( "start" ).toDouble();
+        _sweep = derived.value( "sweep" ).toDouble();
     }
 
-    double _radius{};
-    double _height{};
+    double _radius = { 1.0 };
+    double _size = { 1.0 };
+    int _slices = { 32 };
+    int _segments = { 8 };
+    int _rings = { 4 };
+    double _start = { 0.0 };
+    double _sweep = { gml::radians( 360.0 ) };
 };
 
 // ======================================================================================

@@ -76,12 +76,7 @@ void Scene::addSphere( const SphereObjectData& data ) {
     emit objectsChanged();
 }
 
-void Scene::addCylinder( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy, float sz ) {
-    auto data = CylinderObjectData{};
-    data.setPosition( { px, py, pz } );
-    data.setOrientation( { rx, ry, rz } );
-    data.setScale( { sx, sy, sz } );
-
+void Scene::addCylinder( const CylinderObjectData& data ) {
     auto cylinder = std::make_shared<object::Cylinder>( data );
 
     _node->link( cylinder );
@@ -91,12 +86,7 @@ void Scene::addCylinder( float px, float py, float pz, float rx, float ry, float
     emit objectsChanged();
 }
 
-void Scene::addCapsule( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy, float sz ) {
-    auto data = CapsuleObjectData{};
-    data.setPosition( { px, py, pz } );
-    data.setOrientation( { rx, ry, rz } );
-    data.setScale( { sx, sy, sz } );
-
+void Scene::addCapsule( const CapsuleObjectData& data ) {
     auto capsule = std::make_shared<object::Capsule>( data );
 
     _node->link( capsule );

@@ -145,8 +145,21 @@ Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> view
         _scenegraph->scene()->addSphere( data );
     }
 
-    _scenegraph->scene()->addCylinder( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 5.0 );
-    _scenegraph->scene()->addCapsule( 0.0, -2.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
+    {
+        auto data = CylinderObjectData{};
+        data._position = { 0.0, 0.0, 0.0 };
+        data._orientation = { 0.0, 0.0, 0.0 };
+        data._scale = { 1.0, 1.0, 5.0 };
+        _scenegraph->scene()->addCylinder( data );
+    }
+
+    {
+        auto data = CapsuleObjectData{};
+        data._position = { 0.0, -2.0, 0.0 };
+        data._orientation = { 0.0, 0.0, 0.0 };
+        data._scale = { 1.0, 1.0, 1.0 };
+        _scenegraph->scene()->addCapsule( data );
+    }
 };
 
 auto Tired::viewer() -> vsg::ref_ptr<Viewer> {
