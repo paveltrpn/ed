@@ -193,15 +193,15 @@ struct BoxObjectData final : public SceneObjectData {
 public:
     BoxObjectData()
         : SceneObjectData{}
-        , _width{ 1.0 }
-        , _height{ 1.0 }
-        , _depth{ 1.0 } {}
+        , _segmentsX{ 1 }
+        , _segmentsY{ 1 }
+        , _segmentsZ{ 1 } {}
 
-    BoxObjectData( const SceneObjectData &base, double width, double height, double depth )
+    BoxObjectData( const SceneObjectData &base, int segmentsX, int segmentsY, int segmentsZ )
         : SceneObjectData{ base }
-        , _width{ 1.0 }
-        , _height{ 1.0 }
-        , _depth{ 1.0 } {};
+        , _segmentsX{ 1 }
+        , _segmentsY{ 1 }
+        , _segmentsZ{ 1 } {};
 
     BoxObjectData( const BoxObjectData &other ) = default;
     BoxObjectData( BoxObjectData &&other ) = default;
@@ -213,9 +213,9 @@ public:
         auto base = SceneObjectData::toJson();
 
         const auto self = QJsonObject{
-            { "width", _width },
-            { "height", _height },
-            { "depth", _depth },
+            { "segmentsX", _segmentsX },
+            { "segmentsY", _segmentsY },
+            { "segmentsZ", _segmentsZ },
         };
 
         base.insert( "derived", self );
@@ -228,14 +228,14 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _width = derived.value( "width" ).toDouble();
-        _height = derived.value( "height" ).toDouble();
-        _depth = derived.value( "depth" ).toDouble();
+        _segmentsX = derived.value( "segmentsX" ).toDouble();
+        _segmentsY = derived.value( "segmentsY" ).toDouble();
+        _segmentsZ = derived.value( "segmentsZ" ).toDouble();
     }
 
-    double _width{};
-    double _height{};
-    double _depth{};
+    int _segmentsX{ 1 };
+    int _segmentsY{ 1 };
+    int _segmentsZ{ 1 };
 };
 
 // ======================================================================================

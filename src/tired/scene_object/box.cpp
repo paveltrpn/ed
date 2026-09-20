@@ -7,28 +7,15 @@
 namespace tire::object {
 
 Box::Box( const BoxObjectData& data )
-    : SceneObjectBase{ data._type, data._name, data._uid, data._position, data._orientation, data._scale, data._color }
-    , _width{ data._width }
-    , _height{ data._height }
-    , _depth{ data._depth } {
-    init();
-}
-
-Box::Box( SceneObjectTypeEnum type, const QString& name, const QUuid& uid, vsg::dvec3 position, vsg::dvec3 orientation,
-          vsg::dvec3 scale, vsg::dvec4 color, double width, double height, double depth )
-    : SceneObjectBase{ type, name, uid, position, orientation, scale, color }
-    , _width{ width }
-    , _height{ height }
-    , _depth{ depth } {
-}
-
-Box::Box( QObject* parent )
-    : SceneObjectBase{} {
+    : SceneObjectBase{ data }
+    , _segmentsX{ data._segmentsX }
+    , _segmentsY{ data._segmentsY }
+    , _segmentsZ{ data._segmentsZ } {
     init();
 }
 
 auto Box::init() -> void {
-    auto data = VsgMeshDataGenerator::box( { 0.5, 0.5, 0.5 }, { 1, 1, 1 } );
+    auto data = VsgMeshDataGenerator::box( { 0.5, 0.5, 0.5 }, { _segmentsX, _segmentsY, _segmentsZ } );
 
     // Setup geometry.
     auto drawCommands = vsg::Commands::create();

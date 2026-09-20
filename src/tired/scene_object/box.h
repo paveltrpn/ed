@@ -8,17 +8,12 @@ namespace tire::object {
 struct Box final : public SceneObjectBase {
     Q_OBJECT
 
-    Q_PROPERTY( double width READ width WRITE setWidth NOTIFY widthChanged FINAL )
-    Q_PROPERTY( double height READ height WRITE setHeight NOTIFY heightChanged FINAL )
-    Q_PROPERTY( double depth READ depth WRITE setDepth NOTIFY depthChanged FINAL )
+    Q_PROPERTY( int segmentsX READ segmentsX WRITE setSegmentsX NOTIFY segmentsXChanged FINAL )
+    Q_PROPERTY( int segmentsY READ segmentsY WRITE setSegmentsY NOTIFY segmentsYChanged FINAL )
+    Q_PROPERTY( int segmentsZ READ segmentsZ WRITE setSegmentsZ NOTIFY segmentsZChanged FINAL )
 
 public:
-    Box( QObject* parent = nullptr );
-
     Box( const BoxObjectData& data );
-
-    Box( SceneObjectTypeEnum type, const QString& name, const QUuid& uid, vsg::dvec3 position, vsg::dvec3 orientation,
-         vsg::dvec3 scale, vsg::dvec4 color, double width, double height, double depth );
 
     Box( const Box& other ) = delete;
     Box( Box&& other ) = delete;
@@ -26,48 +21,48 @@ public:
     Box& operator=( const Box& other ) = delete;
     Box& operator=( Box&& other ) = delete;
 
-    auto width() const -> double {
+    auto segmentsX() const -> int {
         //
-        return _width;
+        return _segmentsX;
     }
 
-    auto height() const -> double {
+    auto segmentsY() const -> int {
         //
-        return _height;
+        return _segmentsY;
     }
 
-    auto depth() const -> double {
+    auto segmentsZ() const -> int {
         //
-        return _depth;
+        return _segmentsZ;
     }
 
-    auto setWidth( double value ) -> void {
+    auto setSegmentsX( int value ) -> void {
         //
-        _width = value;
+        _segmentsX = value;
     }
 
-    auto setHeight( double value ) -> void {
+    auto setSegmentsY( int value ) -> void {
         //
-        _height = value;
+        _segmentsY = value;
     }
 
-    auto setDepth( double value ) -> void {
+    auto setSegmentsZ( int value ) -> void {
         //
-        _depth = value;
+        _segmentsZ = value;
     }
 
 signals:
-    void widthChanged();
-    void heightChanged();
-    void depthChanged();
+    void segmentsXChanged();
+    void segmentsYChanged();
+    void segmentsZChanged();
 
 private:
     auto init() -> void;
 
 private:
-    double _width{};
-    double _height{};
-    double _depth{};
+    int _segmentsX{ 1 };
+    int _segmentsY{ 1 };
+    int _segmentsZ{ 1 };
 };
 
 }  // namespace tire::object
