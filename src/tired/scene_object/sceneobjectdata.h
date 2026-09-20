@@ -8,6 +8,8 @@
 
 #include <vsg/all.h>
 
+#include <gml/gml.hpp>
+
 namespace tire {
 
 enum class SceneObjectTypeEnum {
@@ -259,6 +261,12 @@ public:
 
         const auto self = QJsonObject{
             { "radius", _radius },
+            { "slices", _slices },
+            { "segments", _segments },
+            { "sliceStart", _sliceStart },
+            { "liceSweep", _sliceSweep },
+            { "segmentStart", _segmentStart },
+            { "segmentSweep", _segmentSweep },
         };
 
         base.insert( "derived", self );
@@ -272,9 +280,21 @@ public:
         const auto &derived = data.value( "derived" ).toObject();
 
         _radius = derived.value( "radius" ).toDouble();
+        _slices = derived.value( "slices" ).toInt();
+        _segments = derived.value( "segments" ).toInt();
+        _sliceStart = derived.value( "sliceStart" ).toDouble();
+        _sliceSweep = derived.value( "sliceSweep" ).toDouble();
+        _segmentStart = derived.value( "segmentStart" ).toDouble();
+        _segmentSweep = derived.value( "segmentSweep" ).toDouble();
     }
 
-    double _radius{};
+    double _radius{ 1.0 };
+    int _slices{ 32 };
+    int _segments{ 16 };
+    double _sliceStart{ 0.0 };
+    double _sliceSweep{ gml::radians( 360.0 ) };
+    double _segmentStart{ 0.0 };
+    double _segmentSweep{ gml::radians( 180.0 ) };
 };
 
 // ======================================================================================

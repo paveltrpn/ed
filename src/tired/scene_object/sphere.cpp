@@ -6,25 +6,21 @@
 
 namespace tire::object {
 
-Sphere::Sphere( QObject* parent )
-    : SceneObjectBase{} {
-    init();
-};
-
 Sphere::Sphere( const SphereObjectData& data )
     : SceneObjectBase{ data._type, data._name, data._uid, data._position, data._orientation, data._scale, data._color }
-    , _radius{ data._radius } {
+    , _radius{ data._radius }
+    , _slices{ data._slices }
+    , _segments{ data._segments }
+    , _sliceStart{ data._sliceStart }
+    , _sliceSweep{ data._sliceSweep }
+    , _segmentStart{ data._segmentStart }
+    , _segmentSweep{ data._segmentSweep } {
     init();
 }
 
 auto Sphere::init() -> void {
-    auto data = VsgMeshDataGenerator::sphere( /* radius */ 0.5,
-                                              /* slices */ 8,
-                                              /* segments */ 8,
-                                              /* sliceStart */ 0.0,
-                                              /* sliceSweep */ gml::radians( 360.0 ),
-                                              /* segmentStart */ 0.0,
-                                              /* segmentSweep */ gml::radians( 180.0 ) );
+    auto data = VsgMeshDataGenerator::sphere( _radius, _slices, _segments, _sliceStart, _sliceSweep, _segmentStart,
+                                              _segmentSweep );
 
     // Setup geometry.
     auto drawCommands = vsg::Commands::create();

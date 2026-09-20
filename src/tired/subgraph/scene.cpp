@@ -77,6 +77,8 @@ void Scene::addSphere( float px, float py, float pz, float rx, float ry, float r
     data.setOrientation( { rx, ry, rz } );
     data.setScale( { sx, sy, sz } );
 
+    data._radius = 0.5;
+
     auto sphere = std::make_shared<object::Sphere>( data );
 
     _node->link( sphere );
