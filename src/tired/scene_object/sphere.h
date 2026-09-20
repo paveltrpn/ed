@@ -27,72 +27,72 @@ public:
 
     auto radius() const -> double {
         //
-        return _radius;
+        return _data._radius;
     }
 
     auto slices() const -> int {
         //
-        return _slices;
+        return _data._slices;
     }
 
     auto segments() const -> int {
         //
-        return _segments;
+        return _data._segments;
     }
 
     auto sliceStart() const -> double {
         //
-        return _sliceStart;
+        return _data._sliceStart;
     }
 
     auto sliceSweep() const -> double {
         //
-        return _sliceSweep;
+        return _data._sliceSweep;
     }
 
     auto segmentStart() const -> double {
         //
-        return _segmentStart;
+        return _data._segmentStart;
     }
 
     auto segmentSweep() const -> double {
         //
-        return _segmentSweep;
+        return _data._segmentSweep;
     }
 
     auto setRadius( double value ) -> void {
         //
-        _radius = value;
+        _data._radius = value;
     }
 
     auto setSlices( int value ) -> void {
         //
-        _slices = value;
+        _data._slices = value;
     }
 
     auto setSegments( int value ) -> void {
         //
-        _segments = value;
+        _data._segments = value;
     }
 
     auto setSliceStart( double value ) -> void {
         //
-        _sliceStart = value;
+        _data._sliceStart = value;
     }
 
     auto setSliceSweep( double value ) -> void {
         //
-        _sliceSweep = value;
+        _data._sliceSweep = value;
     }
 
     auto setSegmentStart( double value ) -> void {
         //
-        _segmentStart = value;
+        _data._segmentStart = value;
     }
 
     auto setSegmentSweep( double value ) -> void {
         //
-        _segmentSweep = value;
+        _data._segmentSweep = value;
     }
 
 signals:
@@ -108,13 +108,7 @@ private:
     auto init() -> void;
 
 private:
-    double _radius{ 1.0 };
-    int _slices{ 32 };
-    int _segments{ 16 };
-    double _sliceStart{ 0.0 };
-    double _sliceSweep{ gml::radians( 360.0 ) };
-    double _segmentStart{ 0.0 };
-    double _segmentSweep{ gml::radians( 180.0 ) };
+    SphereObjectData _data{};
 };
 
 }  // namespace tire::object

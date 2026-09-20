@@ -23,32 +23,32 @@ public:
 
     auto segmentsX() const -> int {
         //
-        return _segmentsX;
+        return _data._segmentsX;
     }
 
     auto segmentsY() const -> int {
         //
-        return _segmentsY;
+        return _data._segmentsY;
     }
 
     auto segmentsZ() const -> int {
         //
-        return _segmentsZ;
+        return _data._segmentsZ;
     }
 
     auto setSegmentsX( int value ) -> void {
         //
-        _segmentsX = value;
+        _data._segmentsX = value;
     }
 
     auto setSegmentsY( int value ) -> void {
         //
-        _segmentsY = value;
+        _data._segmentsY = value;
     }
 
     auto setSegmentsZ( int value ) -> void {
         //
-        _segmentsZ = value;
+        _data._segmentsZ = value;
     }
 
 signals:
@@ -60,9 +60,7 @@ private:
     auto init() -> void;
 
 private:
-    int _segmentsX{ 1 };
-    int _segmentsY{ 1 };
-    int _segmentsZ{ 1 };
+    BoxObjectData _data{};
 };
 
 }  // namespace tire::object

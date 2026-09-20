@@ -8,14 +8,13 @@ namespace tire::object {
 
 Box::Box( const BoxObjectData& data )
     : SceneObjectBase{ data }
-    , _segmentsX{ data._segmentsX }
-    , _segmentsY{ data._segmentsY }
-    , _segmentsZ{ data._segmentsZ } {
+    , _data{ data } {
     init();
 }
 
 auto Box::init() -> void {
-    auto data = VsgMeshDataGenerator::box( { 0.5, 0.5, 0.5 }, { _segmentsX, _segmentsY, _segmentsZ } );
+    auto data =
+        VsgMeshDataGenerator::box( { 0.5, 0.5, 0.5 }, { _data._segmentsX, _data._segmentsY, _data._segmentsZ } );
 
     // Setup geometry.
     auto drawCommands = vsg::Commands::create();
