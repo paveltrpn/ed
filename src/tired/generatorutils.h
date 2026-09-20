@@ -38,8 +38,13 @@ public:
 
     static auto capsule( double radius = 1.0, double size = 0.5, int slices = 32, int segments = 4, int rings = 8,
                          double start = 0.0, double sweep = gml::radians( 360.0 ) ) -> VsgMeshData;
-    static auto torus() -> VsgMeshData;
-    static auto cone() -> VsgMeshData;
+
+    static auto cone( double radius = 1.0, double size = 1.0, int slices = 32, int segments = 8, int rings = 4,
+                      double start = 0.0, double sweep = gml::radians( 360.0 ) ) -> VsgMeshData;
+
+    static auto torus( double minor = 0.25, double major = 1.0, int slices = 16, int segments = 32,
+                       double minorStart = 0.0, double minorSweep = gml::radians( 360.0 ), double majorStart = 0.0,
+                       double majorSweep = gml::radians( 360.0 ) ) -> VsgMeshData;
 
 private:
     template <typename T, typename V>

@@ -402,6 +402,113 @@ public:
 };
 
 // ======================================================================================
+// ==================== ConeObjectData ==================================================
+// ======================================================================================
+
+struct ConeObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    ConeObjectData() = default;
+
+    ConeObjectData( const ConeObjectData &other ) = default;
+    ConeObjectData( ConeObjectData &&other ) = default;
+
+    ConeObjectData &operator=( const ConeObjectData &other ) = default;
+    ConeObjectData &operator=( ConeObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{
+            { "radius", _radius }, { "size", _size },   { "slices", _slices }, { "segments", _segments },
+            { "rings", _rings },   { "start", _start }, { "sweep", _sweep },
+        };
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+
+        _radius = derived.value( "radius" ).toDouble();
+        _size = derived.value( "size" ).toDouble();
+        _slices = derived.value( "slices" ).toInt();
+        _segments = derived.value( "segments" ).toInt();
+        _rings = derived.value( "rings" ).toInt();
+        _start = derived.value( "start" ).toDouble();
+        _sweep = derived.value( "sweep" ).toDouble();
+    }
+
+    double _radius = { 1.0 };
+    double _size = { 1.0 };
+    int _slices = { 32 };
+    int _segments = { 8 };
+    int _rings = { 4 };
+    double _start = { 0.0 };
+    double _sweep = { gml::radians( 360.0 ) };
+};
+
+// ======================================================================================
+// ==================== TorusObjectData =================================================
+// ======================================================================================
+
+struct TorusObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    TorusObjectData() = default;
+
+    TorusObjectData( const TorusObjectData &other ) = default;
+    TorusObjectData( TorusObjectData &&other ) = default;
+
+    TorusObjectData &operator=( const TorusObjectData &other ) = default;
+    TorusObjectData &operator=( TorusObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{
+            { "minor", _minor },           { "major", _major },           { "slices", _slices },
+            { "segments", _segments },     { "minorStart", _minorStart }, { "minorSweep", _minorSweep },
+            { "majorStart", _majorStart }, { "majorSweep", _majorSweep },
+        };
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+
+        _minor = derived.value( "minor" ).toDouble();
+        _major = derived.value( "major" ).toDouble();
+        _slices = derived.value( "slices" ).toInt();
+        _segments = derived.value( "segments" ).toInt();
+        _minorStart = derived.value( "minorStart" ).toInt();
+        _minorSweep = derived.value( "minorSweep" ).toDouble();
+        _majorStart = derived.value( "majorStart" ).toDouble();
+        _majorSweep = derived.value( "majorSweep" ).toDouble();
+    }
+
+    double _minor{ 0.25 };
+    double _major{ 1.0 };
+    int _slices{ 16 };
+    int _segments{ 32 };
+    double _minorStart{ 0.0 };
+    double _minorSweep{ gml::radians( 360.0 ) };
+    double _majorStart{ 0.0 };
+    double _majorSweep{ gml::radians( 360.0 ) };
+};
+
+// ======================================================================================
 // ==================== MeshObjectData ==================================================
 // ======================================================================================
 

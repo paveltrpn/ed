@@ -3,8 +3,8 @@
 #include "generator/SphereMesh.hpp"
 #include "generator/CappedCylinderMesh.hpp"
 #include "generator/CapsuleMesh.hpp"
+#include "generator/CappedConeMesh.hpp"
 #include "generator/TorusMesh.hpp"
-#include "generator/ConeMesh.hpp"
 
 #include "generatorutils.h"
 
@@ -33,12 +33,16 @@ auto VsgMeshDataGenerator::capsule( double radius, double size, int slices, int 
     return copy( mesh.vertices(), mesh.triangles() );
 }
 
-auto VsgMeshDataGenerator::torus() -> VsgMeshData {
-    return {};
+auto VsgMeshDataGenerator::cone( double radius, double size, int slices, int segments, int rings, double start,
+                                 double sweep ) -> VsgMeshData {
+    auto mesh = generator::CappedConeMesh{ radius, size, slices, segments, rings, start, sweep };
+    return copy( mesh.vertices(), mesh.triangles() );
 }
 
-auto VsgMeshDataGenerator::cone() -> VsgMeshData {
-    return {};
+auto VsgMeshDataGenerator::torus( double minor, double major, int slices, int segments, double minorStart,
+                                  double minorSweep, double majorStart, double majorSweep ) -> VsgMeshData {
+    auto mesh = generator::TorusMesh{ minor, major, slices, segments, minorStart, minorSweep, majorStart, majorSweep };
+    return copy( mesh.vertices(), mesh.triangles() );
 }
 
 }  // namespace tire
