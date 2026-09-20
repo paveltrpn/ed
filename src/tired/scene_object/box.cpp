@@ -13,8 +13,8 @@ Box::Box( const BoxObjectData& data )
 }
 
 auto Box::init() -> void {
-    auto data =
-        VsgMeshDataGenerator::box( { 0.5, 0.5, 0.5 }, { _data._segmentsX, _data._segmentsY, _data._segmentsZ } );
+    auto data = VsgMeshDataGenerator::box( { _data._sizeX, _data._sizeY, _data._sizeZ },
+                                           { _data._segmentsX, _data._segmentsY, _data._segmentsZ } );
 
     // Setup geometry.
     auto drawCommands = vsg::Commands::create();
