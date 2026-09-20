@@ -100,13 +100,51 @@ Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> view
 
     _viewer->compile();
 
-    // Add default cube.
-    _scenegraph->scene()->addBox( -2.0, 2.0, 0.0, 22.0, 45.0, 12.0, 1.0, 1.3, 1.3 );
-    _scenegraph->scene()->addBox( -2.0, -2.0, 0.0, 72.0, 25.0, -91.0, 2.0, 1.3, 1.3 );
-    _scenegraph->scene()->addBox( 2.0, 2.0, 0.0, 32.0, 225.0, -191.0, 2.0, 1.3, 1.3 );
-    _scenegraph->scene()->addBox( 2.0, -2.0, 0.0, 12.0, 65.0, 121.0, 2.0, 1.3, 1.3 );
+    // Add default scene nodes.
+    {
+        auto data = BoxObjectData{};
+        data._position = { -2.0, 2.0, 0.0 };
+        data._orientation = {
+            22.0,
+            45.0,
+            12.0,
+        };
+        data._scale = { 1.0, 1.3, 1.30 };
+        _scenegraph->scene()->addBox( data );
+    }
 
-    _scenegraph->scene()->addSphere( 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
+    {
+        auto data = BoxObjectData{};
+        data._position = { -2.0, -2.0, 0.0 };
+        data._orientation = { 72.0, 25.0, -91.0 };
+        data._scale = { 2.0, 1.3, 1.3 };
+        _scenegraph->scene()->addBox( data );
+    }
+
+    {
+        auto data = BoxObjectData{};
+        data._position = { 2.0, 2.0, 0.0 };
+        data._orientation = { 32.0, 225.0, -191.0 };
+        data._scale = { 2.0, 1.3, 1.3 };
+        _scenegraph->scene()->addBox( data );
+    }
+
+    {
+        auto data = BoxObjectData{};
+        data._position = { 2.0, -2.0, 0.0 };
+        data._orientation = { 12.0, 65.0, 121.0 };
+        data._scale = { 2.0, 1.3, 1.3 };
+        _scenegraph->scene()->addBox( data );
+    }
+
+    {
+        auto data = SphereObjectData{};
+        data._position = { 0.0, 2.0, 0.0 };
+        data._orientation = { 0.0, 0.0, 0.0 };
+        data._scale = { 1.0, 1.0, 1.0 };
+        _scenegraph->scene()->addSphere( data );
+    }
+
     _scenegraph->scene()->addCylinder( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 5.0 );
     _scenegraph->scene()->addCapsule( 0.0, -2.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
 };

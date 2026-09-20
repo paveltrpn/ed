@@ -56,12 +56,7 @@ SceneObjectBase* Scene::findObject( const QString& uid ) const {
     return obj.get();
 }
 
-void Scene::addBox( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy, float sz ) {
-    auto data = BoxObjectData{};
-    data.setPosition( { px, py, pz } );
-    data.setOrientation( { rx, ry, rz } );
-    data.setScale( { sx, sy, sz } );
-
+void Scene::addBox( const BoxObjectData& data ) {
     auto box = std::make_shared<object::Box>( data );
 
     _node->link( box );
@@ -71,14 +66,7 @@ void Scene::addBox( float px, float py, float pz, float rx, float ry, float rz, 
     emit objectsChanged();
 }
 
-void Scene::addSphere( float px, float py, float pz, float rx, float ry, float rz, float sx, float sy, float sz ) {
-    auto data = SphereObjectData{};
-    data.setPosition( { px, py, pz } );
-    data.setOrientation( { rx, ry, rz } );
-    data.setScale( { sx, sy, sz } );
-
-    data._radius = 0.5;
-
+void Scene::addSphere( const SphereObjectData& data ) {
     auto sphere = std::make_shared<object::Sphere>( data );
 
     _node->link( sphere );
