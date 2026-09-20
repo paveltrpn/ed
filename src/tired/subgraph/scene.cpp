@@ -15,6 +15,8 @@
 #include "../scene_object/cylinder.h"
 #include "../scene_object/capsule.h"
 
+#include "../vsgsetpolygonmode.h"
+
 namespace tire {
 
 // ======================================================================================
@@ -41,6 +43,7 @@ auto Scene::objects() const -> ObjectsList* {
 auto Scene::selectedObjectUid() const -> QString {
     return _selectedObjectUid.toString();
 }
+
 auto Scene::setSelectedObjectUid( const QString& value ) -> void {
     _selectedObjectUid = QUuid::fromString( value );
 
@@ -49,6 +52,39 @@ auto Scene::setSelectedObjectUid( const QString& value ) -> void {
     auto obj = _objects->findObject( QUuid::fromString( value ) );
 
     emit selectedObjectChanged( obj.get() );
+}
+
+auto Scene::renderMode() const -> int {
+    return static_cast<int>( _renderMode );
+}
+
+auto Scene::setRenderMode( int value ) -> void {
+    _renderMode = static_cast<ObjectsRenderMode>( value );
+
+    switch ( _renderMode ) {
+        case ObjectsRenderMode::WIREFRAME: {
+            // _node->_wireRasterizationState->mask = vsg::MASK_ALL;
+            // _node->_solidRasterizationState->mask = vsg::MASK_OFF;
+            // _node->_graphicsPipeline->di
+
+            _node->_lineWidthCmd->lineWidth = 4.0;
+            break;
+        }
+        case ObjectsRenderMode::SOLID: {
+            // _node->_wireRasterizationState->mask = vsg::MASK_OFF;
+            // _node->_solidRasterizationState->mask = vsg::MASK_ALL;
+
+            _node->_lineWidthCmd->lineWidth = 8.0;
+            break;
+        }
+        case ObjectsRenderMode::SOLIDWIRE: {
+            break;
+        }
+        default:
+            break;
+    }
+
+    emit renderModeChanged();
 }
 
 SceneObjectBase* Scene::findObject( const QString& uid ) const {
@@ -165,19 +201,49 @@ auto SceneSubgraph::initPipeline() -> void {
         VkVertexInputAttributeDescription{ 2, 2, VK_FORMAT_R32G32_SFLOAT, 0 }      // tex coord data
     };
 
+    _solidRasterizationState = vsg::RasterizationState::create();
+    _solidRasterizationState->depthClampEnable = VK_FALSE;
+    _solidRasterizationState->rasterizerDiscardEnable = VK_FALSE;
+    _solidRasterizationState->polygonMode = VK_POLYGON_MODE_LINE;
+    _solidRasterizationState->cullMode = VK_CULL_MODE_BACK_BIT;
+    _solidRasterizationState->frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    _solidRasterizationState->depthBiasEnable = VK_FALSE;
+    _solidRasterizationState->depthBiasConstantFactor = 1.0f;
+    _solidRasterizationState->depthBiasClamp = 0.0f;
+    _solidRasterizationState->depthBiasSlopeFactor = 1.0f;
+    _solidRasterizationState->lineWidth = 1.0f;
+
+    // _wireRasterizationState = vsg::RasterizationState::create();
+    // _wireRasterizationState->depthClampEnable = VK_FALSE;
+    // _wireRasterizationState->rasterizerDiscardEnable = VK_FALSE;
+    // _wireRasterizationState->polygonMode = VK_POLYGON_MODE_LINE;
+    // _wireRasterizationState->cullMode = VK_CULL_MODE_NONE;
+    // _wireRasterizationState->frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    // _wireRasterizationState->depthBiasEnable = VK_FALSE;
+    // _wireRasterizationState->depthBiasConstantFactor = 1.0f;
+    // _wireRasterizationState->depthBiasClamp = 0.0f;
+    // _wireRasterizationState->depthBiasSlopeFactor = 1.0f;
+    // _wireRasterizationState->lineWidth = 4.0f;
+
+    auto dynamicState = vsg::DynamicState::create();
+    dynamicState->dynamicStates = { VK_DYNAMIC_STATE_LINE_WIDTH, VK_DYNAMIC_STATE_POLYGON_MODE_EXT };
+
+    _lineWidthCmd = vsg::SetLineWidth::create();
+    _polygonModeCmd = vsg::SetPolygonMode::create();
+
     vsg::GraphicsPipelineStates pipelineStates{
         vsg::VertexInputState::create( vertexBindingsDescriptions, vertexAttributeDescriptions ),
         vsg::InputAssemblyState::create(),
-        vsg::RasterizationState::create(),
+        _solidRasterizationState,
         vsg::MultisampleState::create(),
         vsg::ColorBlendState::create(),
         vsg::DepthStencilState::create() };
 
     auto pipelineLayout =
         vsg::PipelineLayout::create( vsg::DescriptorSetLayouts{ descriptorSetLayout }, pushConstantRanges );
-    auto graphicsPipeline = vsg::GraphicsPipeline::create(
+    _graphicsPipeline = vsg::GraphicsPipeline::create(
         pipelineLayout, vsg::ShaderStages{ vertexShader, fragmentShader }, pipelineStates );
-    auto bindGraphicsPipeline = vsg::BindGraphicsPipeline::create( graphicsPipeline );
+    auto bindGraphicsPipeline = vsg::BindGraphicsPipeline::create( _graphicsPipeline );
 
     // create texture image and associated DescriptorSets and binding
     auto sampler = vsg::Sampler::create();
@@ -195,6 +261,9 @@ auto SceneSubgraph::initPipeline() -> void {
 
     _stateGroup->add( bindGraphicsPipeline );
     _stateGroup->add( bindDescriptorSet );
+
+    // _stateGroup->addChild( _polygonModeCmd );
+    _stateGroup->addChild( _lineWidthCmd );
 }
 
 }  // namespace tire
