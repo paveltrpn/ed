@@ -26,25 +26,22 @@ struct VsgMeshData final {
 
 struct VsgMeshDataGenerator final {
 public:
-    static auto box( const gml::dvec3& size = { 1.0, 1.0, 1.0 }, const gml::ivec3& segments = { 8, 8, 8 } )
+    static auto box( const gml::dvec3& size, const gml::ivec3& segments ) -> VsgMeshData;
+
+    static auto sphere( double radius, int slices, int segments, double sliceStart, double sliceSweep,
+                        double segmentStart, double segmentSweep ) -> VsgMeshData;
+
+    static auto cylinder( double radius, double size, int slices, int segments, int rings, double start, double sweep )
         -> VsgMeshData;
 
-    static auto sphere( double radius = 1.0, int slices = 32, int segments = 16, double sliceStart = 0.0,
-                        double sliceSweep = gml::radians( 360.0 ), double segmentStart = 0.0,
-                        double segmentSweep = gml::radians( 180.0 ) ) -> VsgMeshData;
+    static auto capsule( double radius, double size, int slices, int segments, int rings, double start, double )
+        -> VsgMeshData;
 
-    static auto cylinder( double radius = 1.0, double size = 1.0, int slices = 32, int segments = 8, int rings = 4,
-                          double start = 0.0, double sweep = gml::radians( 360.0 ) ) -> VsgMeshData;
+    static auto cone( double radius, double size, int slices, int segments, int rings, double start, double sweep )
+        -> VsgMeshData;
 
-    static auto capsule( double radius = 1.0, double size = 0.5, int slices = 32, int segments = 4, int rings = 8,
-                         double start = 0.0, double sweep = gml::radians( 360.0 ) ) -> VsgMeshData;
-
-    static auto cone( double radius = 1.0, double size = 1.0, int slices = 32, int segments = 8, int rings = 4,
-                      double start = 0.0, double sweep = gml::radians( 360.0 ) ) -> VsgMeshData;
-
-    static auto torus( double minor = 0.25, double major = 1.0, int slices = 16, int segments = 32,
-                       double minorStart = 0.0, double minorSweep = gml::radians( 360.0 ), double majorStart = 0.0,
-                       double majorSweep = gml::radians( 360.0 ) ) -> VsgMeshData;
+    static auto torus( double minor, double major, int slices, int segments, double minorStart, double minorSweep,
+                       double majorStart, double majorSweep ) -> VsgMeshData;
 
 private:
     template <typename T, typename V>

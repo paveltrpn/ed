@@ -18,6 +18,8 @@ enum class SceneObjectTypeEnum {
     SPHERE,
     CYLINDER,
     CAPSULE,
+    CONE,
+    TORUS,
     MESH,
     IMPLICIT,
     BEZIER_SURFACE,
@@ -42,24 +44,9 @@ struct SceneObjectData {
     Q_PROPERTY( vsg::dvec4 color READ color WRITE setColor FINAL )
 
 public:
-    SceneObjectData()
-        : _type{ SceneObjectTypeEnum::BASE }
-        , _name{ "OBJECT" }
-        , _uid{ QUuid::createUuid() }
-        , _position{ 0.0, 0.0, 0.0 }
-        , _orientation{ 0.0, 0.0, 0.0 }
-        , _scale{ 1.0, 1.0, 1.0 }
-        , _color{ 1.0, 1.0, 1.0, 1.0 } {};
-
-    SceneObjectData( SceneObjectTypeEnum type, QString name, QUuid uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                     vsg::dvec3 scale, vsg::dvec4 color )
+    SceneObjectData( SceneObjectTypeEnum type = SceneObjectTypeEnum::BASE, const QString &name = "OBJECT" )
         : _type{ type }
-        , _name{ name }
-        , _uid{ uid }
-        , _position{ position }
-        , _orientation{ orientation }
-        , _scale{ scale }
-        , _color{ color } {};
+        , _name{ name } {}
 
     SceneObjectData( const SceneObjectData &other ) = default;
     SceneObjectData( SceneObjectData &&other ) = default;
@@ -175,14 +162,14 @@ public:
     }
 
     SceneObjectTypeEnum _type{};
-
     QString _name{};
-    QUuid _uid{};
 
-    vsg::dvec3 _position{};
-    vsg::dvec3 _orientation{};
-    vsg::dvec3 _scale{};
-    vsg::dvec4 _color{};
+    QUuid _uid{ QUuid::createUuid() };
+
+    vsg::dvec3 _position{ 0.0, 0.0, 0.0 };
+    vsg::dvec3 _orientation{ 0.0, 0.0, 0.0 };
+    vsg::dvec3 _scale{ 1.0, 1.0, 1.0 };
+    vsg::dvec4 _color{ 1.0, 1.0, 1.0, 1.0 };
 };
 
 // ======================================================================================
@@ -194,16 +181,7 @@ struct BoxObjectData final : public SceneObjectData {
 
 public:
     BoxObjectData()
-        : SceneObjectData{}
-        , _segmentsX{ 1 }
-        , _segmentsY{ 1 }
-        , _segmentsZ{ 1 } {}
-
-    BoxObjectData( const SceneObjectData &base, int segmentsX, int segmentsY, int segmentsZ )
-        : SceneObjectData{ base }
-        , _segmentsX{ 1 }
-        , _segmentsY{ 1 }
-        , _segmentsZ{ 1 } {};
+        : SceneObjectData{ SceneObjectTypeEnum::BOX } {};
 
     BoxObjectData( const BoxObjectData &other ) = default;
     BoxObjectData( BoxObjectData &&other ) = default;
@@ -215,9 +193,8 @@ public:
         auto base = SceneObjectData::toJson();
 
         const auto self = QJsonObject{
-            { "segmentsX", _segmentsX },
-            { "segmentsY", _segmentsY },
-            { "segmentsZ", _segmentsZ },
+            { "sizeX", _sizeX },         { "sizeY", _sizeY },         { "sizeZ", _sizeZ },
+            { "segmentsX", _segmentsX }, { "segmentsY", _segmentsY }, { "segmentsZ", _segmentsZ },
         };
 
         base.insert( "derived", self );
@@ -230,10 +207,18 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _segmentsX = derived.value( "segmentsX" ).toDouble();
-        _segmentsY = derived.value( "segmentsY" ).toDouble();
-        _segmentsZ = derived.value( "segmentsZ" ).toDouble();
+        _sizeX = derived.value( "sizeX" ).toDouble();
+        _sizeY = derived.value( "sizeY" ).toDouble();
+        _sizeZ = derived.value( "sizeZ" ).toDouble();
+
+        _segmentsX = derived.value( "segmentsX" ).toInt();
+        _segmentsY = derived.value( "segmentsY" ).toInt();
+        _segmentsZ = derived.value( "segmentsZ" ).toInt();
     }
+
+    double _sizeX{ 0.5 };
+    double _sizeY{ 0.5 };
+    double _sizeZ{ 0.5 };
 
     int _segmentsX{ 1 };
     int _segmentsY{ 1 };
@@ -248,7 +233,8 @@ struct SphereObjectData final : public SceneObjectData {
     Q_GADGET
 
 public:
-    SphereObjectData() = default;
+    SphereObjectData()
+        : SceneObjectData{ SceneObjectTypeEnum::SPHERE } {};
 
     SphereObjectData( const SphereObjectData &other ) = default;
     SphereObjectData( SphereObjectData &&other ) = default;
@@ -288,9 +274,9 @@ public:
         _segmentSweep = derived.value( "segmentSweep" ).toDouble();
     }
 
-    double _radius{ 1.0 };
-    int _slices{ 32 };
-    int _segments{ 16 };
+    double _radius{ 0.5 };
+    int _slices{ 16 };
+    int _segments{ 8 };
     double _sliceStart{ 0.0 };
     double _sliceSweep{ gml::radians( 360.0 ) };
     double _segmentStart{ 0.0 };
@@ -305,7 +291,8 @@ struct CylinderObjectData final : public SceneObjectData {
     Q_GADGET
 
 public:
-    CylinderObjectData() = default;
+    CylinderObjectData()
+        : SceneObjectData{ SceneObjectTypeEnum::CYLINDER } {};
 
     CylinderObjectData( const CylinderObjectData &other ) = default;
     CylinderObjectData( CylinderObjectData &&other ) = default;
@@ -340,9 +327,9 @@ public:
         _sweep = derived.value( "sweep" ).toDouble();
     }
 
-    double _radius = { 1.0 };
-    double _size = { 1.0 };
-    int _slices = { 32 };
+    double _radius = { 0.5 };
+    double _size = { 0.5 };
+    int _slices = { 16 };
     int _segments = { 8 };
     int _rings = { 4 };
     double _start = { 0.0 };
@@ -357,7 +344,8 @@ struct CapsuleObjectData final : public SceneObjectData {
     Q_GADGET
 
 public:
-    CapsuleObjectData() = default;
+    CapsuleObjectData()
+        : SceneObjectData{ SceneObjectTypeEnum::CAPSULE } {};
 
     CapsuleObjectData( const CapsuleObjectData &other ) = default;
     CapsuleObjectData( CapsuleObjectData &&other ) = default;
@@ -392,9 +380,9 @@ public:
         _sweep = derived.value( "sweep" ).toDouble();
     }
 
-    double _radius = { 1.0 };
-    double _size = { 1.0 };
-    int _slices = { 32 };
+    double _radius = { 0.5 };
+    double _size = { 0.5 };
+    int _slices = { 16 };
     int _segments = { 8 };
     int _rings = { 4 };
     double _start = { 0.0 };
@@ -409,7 +397,8 @@ struct ConeObjectData final : public SceneObjectData {
     Q_GADGET
 
 public:
-    ConeObjectData() = default;
+    ConeObjectData()
+        : SceneObjectData{ SceneObjectTypeEnum::CONE } {};
 
     ConeObjectData( const ConeObjectData &other ) = default;
     ConeObjectData( ConeObjectData &&other ) = default;
@@ -444,9 +433,9 @@ public:
         _sweep = derived.value( "sweep" ).toDouble();
     }
 
-    double _radius = { 1.0 };
-    double _size = { 1.0 };
-    int _slices = { 32 };
+    double _radius = { 0.5 };
+    double _size = { 0.5 };
+    int _slices = { 16 };
     int _segments = { 8 };
     int _rings = { 4 };
     double _start = { 0.0 };
@@ -461,7 +450,8 @@ struct TorusObjectData final : public SceneObjectData {
     Q_GADGET
 
 public:
-    TorusObjectData() = default;
+    TorusObjectData()
+        : SceneObjectData{ SceneObjectTypeEnum::TORUS } {};
 
     TorusObjectData( const TorusObjectData &other ) = default;
     TorusObjectData( TorusObjectData &&other ) = default;
