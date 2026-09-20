@@ -26,13 +26,24 @@ struct VsgMeshData final {
 
 struct VsgMeshDataGenerator final {
 public:
-    static auto box() -> VsgMeshData;
-    static auto sphere() -> VsgMeshData;
+    static auto box( const gml::dvec3& size = { 1.0, 1.0, 1.0 }, const gml::ivec3& segments = { 8, 8, 8 } )
+        -> VsgMeshData;
+
+    static auto sphere( double radius = 1.0, int slices = 32, int segments = 16, double sliceStart = 0.0,
+                        double sliceSweep = gml::radians( 360.0 ), double segmentStart = 0.0,
+                        double segmentSweep = gml::radians( 180.0 ) ) -> VsgMeshData;
+
     static auto cylinder() -> VsgMeshData;
     static auto capsule() -> VsgMeshData;
+    static auto torus() -> VsgMeshData;
+    static auto cone() -> VsgMeshData;
 
 private:
     template <typename T, typename V>
+    requires requires( T x, V y ) {
+        x.generate();
+        y.generate();
+    }
     static auto copy( T vg, V tg ) -> VsgMeshData {
         auto positionsArray = std::vector<vsg::vec3>{};
         auto normalsArray = std::vector<vsg::vec3>{};

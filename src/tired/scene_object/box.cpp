@@ -1,8 +1,6 @@
 
 #include <vsg/all.h>
 
-#include "generator/BoxMesh.hpp"
-
 #include "box.h"
 #include "../generatorutils.h"
 
@@ -30,7 +28,7 @@ Box::Box( QObject* parent )
 }
 
 auto Box::init() -> void {
-    auto data = VsgMeshDataGenerator::box();
+    auto data = VsgMeshDataGenerator::box( { 1.0, 1.0, 1.0 }, { 1, 1, 1 } );
 
     // Setup geometry.
     auto drawCommands = vsg::Commands::create();
