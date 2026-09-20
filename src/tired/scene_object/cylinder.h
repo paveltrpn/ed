@@ -9,11 +9,14 @@ struct Cylinder final : public SceneObjectBase {
     Q_OBJECT
 
     Q_PROPERTY( double radius READ radius WRITE setRadius NOTIFY radiusChanged FINAL )
-    Q_PROPERTY( double height READ height WRITE setHeight NOTIFY heightChanged FINAL )
+    Q_PROPERTY( double size READ size WRITE setSize NOTIFY sizeChanged FINAL )
+    Q_PROPERTY( int slices READ slices WRITE setSlices NOTIFY slicesChanged FINAL )
+    Q_PROPERTY( int segments READ segments WRITE setSegments NOTIFY segmentsChanged FINAL )
+    Q_PROPERTY( int rings READ rings WRITE setRings NOTIFY ringsChanged FINAL )
+    Q_PROPERTY( double start READ start WRITE setStart NOTIFY startChanged FINAL )
+    Q_PROPERTY( double sweep READ sweep WRITE setSweep NOTIFY sweepChanged FINAL )
 
 public:
-    Cylinder( QObject* parent = nullptr );
-
     Cylinder( const CylinderObjectData& data );
 
     Cylinder( const Cylinder& other ) = delete;
@@ -24,34 +27,88 @@ public:
 
     auto radius() const -> double {
         //
-        return _radius;
+        return _data._radius;
     }
 
-    auto height() const -> double {
+    auto size() const -> double {
         //
-        return _height;
+        return _data._size;
+    }
+
+    auto slices() const -> int {
+        //
+        return _data._slices;
+    }
+
+    auto segments() const -> int {
+        //
+        return _data._segments;
+    }
+
+    auto rings() const -> int {
+        //
+        return _data._rings;
+    }
+
+    auto start() const -> double {
+        //
+        return _data._start;
+    }
+
+    auto sweep() const -> double {
+        //
+        return _data._sweep;
     }
 
     auto setRadius( double value ) -> void {
         //
-        _radius = value;
+        _data._radius = value;
     }
 
-    auto setHeight( double value ) -> void {
+    auto setSize( double value ) -> void {
         //
-        _height = value;
+        _data._size = value;
+    }
+
+    auto setSlices( int value ) -> void {
+        //
+        _data._slices = value;
+    }
+
+    auto setSegments( int value ) -> void {
+        //
+        _data._segments = value;
+    }
+
+    auto setRings( int value ) -> void {
+        //
+        _data._rings = value;
+    }
+
+    auto setStart( double value ) -> void {
+        //
+        _data._start = value;
+    }
+
+    auto setSweep( double value ) -> void {
+        //
+        _data._sweep = value;
     }
 
 signals:
     void radiusChanged();
-    void heightChanged();
+    void sizeChanged();
+    void slicesChanged();
+    void segmentsChanged();
+    void ringsChanged();
+    void startChanged();
+    void sweepChanged();
 
 private:
     auto init() -> void;
 
 private:
-    double _radius{};
-    double _height{};
+    CylinderObjectData _data{};
 };
 
 }  // namespace tire::object
