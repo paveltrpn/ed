@@ -28,7 +28,7 @@ Box::Box( QObject* parent )
 }
 
 auto Box::init() -> void {
-    auto data = VsgMeshDataGenerator::box( { 1.0, 1.0, 1.0 }, { 1, 1, 1 } );
+    auto data = VsgMeshDataGenerator::box( { 0.5, 0.5, 0.5 }, { 1, 1, 1 } );
 
     // Setup geometry.
     auto drawCommands = vsg::Commands::create();

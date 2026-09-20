@@ -33,8 +33,11 @@ public:
                         double sliceSweep = gml::radians( 360.0 ), double segmentStart = 0.0,
                         double segmentSweep = gml::radians( 180.0 ) ) -> VsgMeshData;
 
-    static auto cylinder() -> VsgMeshData;
-    static auto capsule() -> VsgMeshData;
+    static auto cylinder( double radius = 1.0, double size = 1.0, int slices = 32, int segments = 8, int rings = 4,
+                          double start = 0.0, double sweep = gml::radians( 360.0 ) ) -> VsgMeshData;
+
+    static auto capsule( double radius = 1.0, double size = 0.5, int slices = 32, int segments = 4, int rings = 8,
+                         double start = 0.0, double sweep = gml::radians( 360.0 ) ) -> VsgMeshData;
     static auto torus() -> VsgMeshData;
     static auto cone() -> VsgMeshData;
 

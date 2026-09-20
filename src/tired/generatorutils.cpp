@@ -10,7 +10,7 @@
 namespace tire {
 
 auto VsgMeshDataGenerator::box( const gml::dvec3& size, const gml::ivec3& segments ) -> VsgMeshData {
-    auto mesh = generator::BoxMesh{ { 0.5, 0.5, 0.5 }, { 1, 1, 1 } };
+    auto mesh = generator::BoxMesh{ size, segments };
     return copy( mesh.vertices(), mesh.triangles() );
 }
 
@@ -20,12 +20,16 @@ auto VsgMeshDataGenerator::sphere( double radius, int slices, int segments, doub
     return copy( mesh.vertices(), mesh.triangles() );
 }
 
-auto VsgMeshDataGenerator::cylinder() -> VsgMeshData {
-    return {};
+auto VsgMeshDataGenerator::cylinder( double radius, double size, int slices, int segments, int rings, double start,
+                                     double sweep ) -> VsgMeshData {
+    auto mesh = generator::CappedCylinderMesh{ radius, size, slices, segments, rings, start, sweep };
+    return copy( mesh.vertices(), mesh.triangles() );
 }
 
-auto VsgMeshDataGenerator::capsule() -> VsgMeshData {
-    return {};
+auto VsgMeshDataGenerator::capsule( double radius, double size, int slices, int segments, int rings, double start,
+                                    double sweep ) -> VsgMeshData {
+    auto mesh = generator::CapsuleMesh{ radius, size, slices, segments, rings, start, sweep };
+    return copy( mesh.vertices(), mesh.triangles() );
 }
 
 auto VsgMeshDataGenerator::torus() -> VsgMeshData {
