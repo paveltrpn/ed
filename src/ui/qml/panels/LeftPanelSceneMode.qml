@@ -20,23 +20,6 @@ Rectangle {
 
     color: _color.si_button_shadow
 
-    property var buttonsList: []
-
-    function deselectOthers(exceptItem) {
-        for (let i in leftPanelSceneComponent.buttonsList) {
-            const btn = leftPanelSceneComponent.buttonsList[i];
-
-            if (exceptItem === null) {
-                btn.checked = false;
-                continue;
-            }
-
-            if (btn !== exceptItem) {
-                btn.checked = false;
-            }
-        }
-    }
-
     Item {
         id: leftPanelMainComponentWrapper
         anchors {
@@ -44,6 +27,8 @@ Rectangle {
             leftMargin: leftPanelSceneComponent._units.scaled_2
             rightMargin: leftPanelSceneComponent._units.scaled_2
         }
+
+        property string activeBtn: ""
 
         SIButtonMain {
             id: addObjectButton
@@ -58,16 +43,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Add object"
 
+            checked: leftPanelMainComponentWrapper.activeBtn === "addObjectButton"
+
             onClicked: {
-                addObjectButton.checked = !addObjectButton.checked;
-
                 if (addObjectButton.checked) {
-                    leftPanelSceneComponent.deselectOthers(addObjectButton);
+                    leftPanelMainComponentWrapper.activeBtn = ""
+                    return
                 }
-            }
 
-            Component.onCompleted: {
-                leftPanelSceneComponent.buttonsList.push(addObjectButton);
+                leftPanelMainComponentWrapper.activeBtn = "addObjectButton";
             }
         }
 
@@ -98,15 +82,12 @@ Rectangle {
             buttonLabel: "Edit object"
 
             onClicked: {
-                // editObjectButton.checked = !editObjectButton.checked;
+                if (editObjectButton.checked) {
+                    leftPanelMainComponentWrapper.activeBtn = ""
+                    return
+                }
 
-                // if (editObjectButton.checked) {
-                //     leftPanelSceneComponent.deselectOthers(editObjectButton);
-                // }
-            }
-
-            Component.onCompleted: {
-                leftPanelSceneComponent.buttonsList.push(editObjectButton);
+                leftPanelMainComponentWrapper.activeBtn = "editObjectButton";
             }
         }
 
@@ -124,13 +105,9 @@ Rectangle {
             buttonLabel: "Delete object"
 
             onClicked: {
-            }
-
-            Component.onCompleted: {
-                leftPanelSceneComponent.buttonsList.push(deleteObjectButton);
+                leftPanelMainComponentWrapper.activeBtn = "deleteObjectButton";
             }
         }
-
 
         SIButtonMain {
             id: infoButton
@@ -145,16 +122,10 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Info"
 
+            checked: leftPanelMainComponentWrapper.activeBtn === "infoButton"
+
             onClicked: {
-                infoButton.checked = !infoButton.checked;
-
-                if (infoButton.checked) {
-                    leftPanelSceneComponent.deselectOthers(infoButton);
-                }
-            }
-
-            Component.onCompleted: {
-                leftPanelSceneComponent.buttonsList.push(infoButton);
+                leftPanelMainComponentWrapper.activeBtn = "infoButton";
             }
         }
 
@@ -186,16 +157,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Settings"
 
+            checked: leftPanelMainComponentWrapper.activeBtn === "settingsButton"
+
             onClicked: {
-                settingsButton.checked = !settingsButton.checked;
-
                 if (settingsButton.checked) {
-                    leftPanelSceneComponent.deselectOthers(settingsButton);
+                    leftPanelMainComponentWrapper.activeBtn = ""
+                    return
                 }
-            }
 
-            Component.onCompleted: {
-                leftPanelSceneComponent.buttonsList.push(settingsButton);
+                leftPanelMainComponentWrapper.activeBtn = "settingsButton";
             }
         }
 
