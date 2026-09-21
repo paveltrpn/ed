@@ -1,3 +1,5 @@
+#include <print>
+
 #include <vsg/all.h>
 
 #include <QQmlContext>
@@ -52,17 +54,22 @@ TiredUI::TiredUI( QObject* parent )
     // VSG initialization.
     auto windowTraits = vsg::WindowTraits::create();
     windowTraits->vulkanVersion = VK_MAKE_API_VERSION( 0, 1, 4, 0 );
-    // windowTraits->instanceExtensionNames.push_back( VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME );
-    // windowTraits->deviceExtensionNames.push_back( "VK_EXT_dynamic_state_polygon_mode" );
-    // windowTraits->deviceExtensionNames.push_back( "VK_EXT_extended_dynamic_state" );
+    windowTraits->deviceExtensionNames.push_back( "VK_EXT_extended_dynamic_state3" );
 
-    _vsgWidget = new VsgWidget( windowTraits );
-    _vsgWidget->initializeWindow();
+    try {
+        _vsgWidget = new VsgWidget( windowTraits );
+        _vsgWidget->initializeWindow();
 
-    const auto clearColor = QColor{ tire::Appearance::instance().getColor( "clear_color" ) };
-    _vsgWidget->windowAdapter()->clearColor().set( clearColor.redF(), clearColor.greenF(), clearColor.blueF(), 1.0f );
+        const auto clearColor = QColor{ tire::Appearance::instance().getColor( "clear_color" ) };
+        _vsgWidget->windowAdapter()->clearColor().set( clearColor.redF(), clearColor.greenF(), clearColor.blueF(),
+                                                       1.0f );
 
-    tire::Tired::init( _vsgWidget->windowAdapter(), _vsgWidget->viewer(), windowTraits->width, windowTraits->height );
+        tire::Tired::init( _vsgWidget->windowAdapter(), _vsgWidget->viewer(), windowTraits->width,
+                           windowTraits->height );
+    } catch ( vsg::Exception& e ) {
+        log::fatal()( "{}", e.message );
+    }
+
     qmlRegisterSingletonInstance( "Tire", 1, 0, "Tired", tire::Tired::pointer() );
 
     // Qt widgets initialization.

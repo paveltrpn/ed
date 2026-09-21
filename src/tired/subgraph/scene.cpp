@@ -67,14 +67,14 @@ auto Scene::setRenderMode( int value ) -> void {
             // _node->_solidRasterizationState->mask = vsg::MASK_OFF;
             // _node->_graphicsPipeline->di
 
-            _node->_lineWidthCmd->lineWidth = 4.0;
+            _node->_polygonModeCmd->mode = VK_POLYGON_MODE_LINE;
             break;
         }
         case ObjectsRenderMode::SOLID: {
             // _node->_wireRasterizationState->mask = vsg::MASK_OFF;
             // _node->_solidRasterizationState->mask = vsg::MASK_ALL;
 
-            _node->_lineWidthCmd->lineWidth = 8.0;
+            _node->_polygonModeCmd->mode = VK_POLYGON_MODE_FILL;
             break;
         }
         case ObjectsRenderMode::SOLIDWIRE: {
@@ -229,6 +229,8 @@ auto SceneSubgraph::initPipeline() -> void {
     dynamicState->dynamicStates = { VK_DYNAMIC_STATE_LINE_WIDTH, VK_DYNAMIC_STATE_POLYGON_MODE_EXT };
 
     _lineWidthCmd = vsg::SetLineWidth::create();
+    _lineWidthCmd->lineWidth = 2.0f;
+
     _polygonModeCmd = vsg::SetPolygonMode::create();
 
     vsg::GraphicsPipelineStates pipelineStates{
@@ -262,7 +264,7 @@ auto SceneSubgraph::initPipeline() -> void {
     _stateGroup->add( bindGraphicsPipeline );
     _stateGroup->add( bindDescriptorSet );
 
-    // _stateGroup->addChild( _polygonModeCmd );
+    _stateGroup->addChild( _polygonModeCmd );
     _stateGroup->addChild( _lineWidthCmd );
 }
 

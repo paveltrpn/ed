@@ -68,15 +68,10 @@ Rectangle {
 
                     buttonLabel: "WRF"
 
+                    checked: Tired.scenegraph.scene.renderMode == 0
+
                     onClicked: {
-                        wireframeModeButton.checked = !wireframeModeButton.checked
-
-                        if (wireframeModeButton.checked) {
-                            solidModeButton.checked = false
-                            solidwireframeModeButton.checked = false
-                        }
-
-                        Tired.scenegraph.scene.renderMode = 1
+                        Tired.scenegraph.scene.renderMode = 0
                     }
                 }
 
@@ -88,15 +83,10 @@ Rectangle {
 
                     buttonLabel: "SLD"
 
+                    checked: Tired.scenegraph.scene.renderMode == 1
+
                     onClicked: {
-                        solidModeButton.checked = !solidModeButton.checked
-
-                        if (solidModeButton.checked) {
-                            wireframeModeButton.checked = false
-                            solidwireframeModeButton.checked = false
-                        }
-
-                        Tired.scenegraph.scene.renderMode = 0
+                        Tired.scenegraph.scene.renderMode = 1
                     }
                 }
 
@@ -108,13 +98,10 @@ Rectangle {
 
                     buttonLabel: "S+W"
 
-                    onClicked: {
-                        solidwireframeModeButton.checked = !solidwireframeModeButton.checked
+                    checked: Tired.scenegraph.scene.renderMode == 2
 
-                        if (solidwireframeModeButton.checked) {
-                            wireframeModeButton.checked = false
-                            solidModeButton.checked = false
-                        }
+                    onClicked: {
+                        Tired.scenegraph.scene.renderMode = 2
                     }
                 }
 
