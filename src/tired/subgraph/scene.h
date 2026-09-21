@@ -72,11 +72,11 @@ struct SceneSubgraph final : Subgraph {
     friend Scene;
 
 private:
-    vsg::ref_ptr<vsg::RasterizationState> _wireRasterizationState{};
-    vsg::ref_ptr<vsg::RasterizationState> _solidRasterizationState{};
+    vsg::ref_ptr<vsg::RasterizationState> _rasterizationState{};
 
     vsg::ref_ptr<vsg::SetPolygonMode> _polygonModeCmd{};
     vsg::ref_ptr<vsg::SetLineWidth> _lineWidthCmd{};
+    vsg::ref_ptr<vsg::SetCullMode> _setCullModeCmd{};
 
     vsg::ref_ptr<vsg::GraphicsPipeline> _graphicsPipeline{};
 };

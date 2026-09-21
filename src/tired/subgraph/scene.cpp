@@ -63,18 +63,13 @@ auto Scene::setRenderMode( int value ) -> void {
 
     switch ( _renderMode ) {
         case ObjectsRenderMode::WIREFRAME: {
-            // _node->_wireRasterizationState->mask = vsg::MASK_ALL;
-            // _node->_solidRasterizationState->mask = vsg::MASK_OFF;
-            // _node->_graphicsPipeline->di
-
             _node->_polygonModeCmd->mode = VK_POLYGON_MODE_LINE;
+            _node->_setCullModeCmd->mode = VK_CULL_MODE_NONE;
             break;
         }
         case ObjectsRenderMode::SOLID: {
-            // _node->_wireRasterizationState->mask = vsg::MASK_OFF;
-            // _node->_solidRasterizationState->mask = vsg::MASK_ALL;
-
             _node->_polygonModeCmd->mode = VK_POLYGON_MODE_FILL;
+            _node->_setCullModeCmd->mode = VK_CULL_MODE_BACK_BIT;
             break;
         }
         case ObjectsRenderMode::SOLIDWIRE: {
@@ -201,42 +196,34 @@ auto SceneSubgraph::initPipeline() -> void {
         VkVertexInputAttributeDescription{ 2, 2, VK_FORMAT_R32G32_SFLOAT, 0 }      // tex coord data
     };
 
-    _solidRasterizationState = vsg::RasterizationState::create();
-    _solidRasterizationState->depthClampEnable = VK_FALSE;
-    _solidRasterizationState->rasterizerDiscardEnable = VK_FALSE;
-    _solidRasterizationState->polygonMode = VK_POLYGON_MODE_LINE;
-    _solidRasterizationState->cullMode = VK_CULL_MODE_BACK_BIT;
-    _solidRasterizationState->frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-    _solidRasterizationState->depthBiasEnable = VK_FALSE;
-    _solidRasterizationState->depthBiasConstantFactor = 1.0f;
-    _solidRasterizationState->depthBiasClamp = 0.0f;
-    _solidRasterizationState->depthBiasSlopeFactor = 1.0f;
-    _solidRasterizationState->lineWidth = 1.0f;
-
-    // _wireRasterizationState = vsg::RasterizationState::create();
-    // _wireRasterizationState->depthClampEnable = VK_FALSE;
-    // _wireRasterizationState->rasterizerDiscardEnable = VK_FALSE;
-    // _wireRasterizationState->polygonMode = VK_POLYGON_MODE_LINE;
-    // _wireRasterizationState->cullMode = VK_CULL_MODE_NONE;
-    // _wireRasterizationState->frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-    // _wireRasterizationState->depthBiasEnable = VK_FALSE;
-    // _wireRasterizationState->depthBiasConstantFactor = 1.0f;
-    // _wireRasterizationState->depthBiasClamp = 0.0f;
-    // _wireRasterizationState->depthBiasSlopeFactor = 1.0f;
-    // _wireRasterizationState->lineWidth = 4.0f;
+    _rasterizationState = vsg::RasterizationState::create();
+    _rasterizationState->depthClampEnable = VK_FALSE;
+    _rasterizationState->rasterizerDiscardEnable = VK_FALSE;
+    _rasterizationState->polygonMode = VK_POLYGON_MODE_FILL;
+    _rasterizationState->cullMode = VK_CULL_MODE_BACK_BIT;
+    _rasterizationState->frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    _rasterizationState->depthBiasEnable = VK_FALSE;
+    _rasterizationState->depthBiasConstantFactor = 1.0f;
+    _rasterizationState->depthBiasClamp = 0.0f;
+    _rasterizationState->depthBiasSlopeFactor = 1.0f;
+    _rasterizationState->lineWidth = 1.0f;
 
     auto dynamicState = vsg::DynamicState::create();
-    dynamicState->dynamicStates = { VK_DYNAMIC_STATE_LINE_WIDTH, VK_DYNAMIC_STATE_POLYGON_MODE_EXT };
+    dynamicState->dynamicStates = { VK_DYNAMIC_STATE_LINE_WIDTH, VK_DYNAMIC_STATE_POLYGON_MODE_EXT,
+                                    VK_DYNAMIC_STATE_CULL_MODE };
 
     _lineWidthCmd = vsg::SetLineWidth::create();
-    _lineWidthCmd->lineWidth = 2.0f;
+    _lineWidthCmd->lineWidth = 3.0f;
 
     _polygonModeCmd = vsg::SetPolygonMode::create();
+
+    _setCullModeCmd = vsg::SetCullMode::create();
+    _setCullModeCmd->mode = VK_CULL_MODE_BACK_BIT;
 
     vsg::GraphicsPipelineStates pipelineStates{
         vsg::VertexInputState::create( vertexBindingsDescriptions, vertexAttributeDescriptions ),
         vsg::InputAssemblyState::create(),
-        _solidRasterizationState,
+        _rasterizationState,
         vsg::MultisampleState::create(),
         vsg::ColorBlendState::create(),
         vsg::DepthStencilState::create() };
@@ -266,6 +253,7 @@ auto SceneSubgraph::initPipeline() -> void {
 
     _stateGroup->addChild( _polygonModeCmd );
     _stateGroup->addChild( _lineWidthCmd );
+    _stateGroup->addChild( _setCullModeCmd );
 }
 
 }  // namespace tire

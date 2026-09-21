@@ -1,6 +1,8 @@
 
 #include <vsg/vk/CommandBuffer.h>
+
 #include "setcullmode.h"
+#include "../extfunctions.h"
 
 namespace vsg {
 
@@ -9,8 +11,7 @@ SetCullMode::SetCullMode( VkCullModeFlagBits in_mode )
 }
 
 void SetCullMode::record( CommandBuffer& commandBuffer ) const {
-    vkCmdSetCullModeEXT( commandBuffer, mode );
+    tire::vkCmdSetCullMode( commandBuffer, mode );
 }
 
 }  // namespace vsg
-

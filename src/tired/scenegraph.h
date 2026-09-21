@@ -68,7 +68,7 @@ private:
     Bounding* _bounding{};
 
     Gizmo* _gizmo{};
-    GizmoModes _gizmoMode{};
+    GizmoModes _gizmoMode{ GizmoModes::GLOBAL };
 
     Scene* _scene{};
 

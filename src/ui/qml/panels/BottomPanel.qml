@@ -40,7 +40,7 @@ Rectangle {
                 bottom: parent.bottom
                 bottomMargin: _units.scaled_8
                 left: parent.left
-                leftMargin: _units.scaled_256
+                leftMargin: _units.scaled_8
             }
         }
     }

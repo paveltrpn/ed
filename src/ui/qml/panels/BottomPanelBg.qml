@@ -140,12 +140,10 @@ Rectangle {
 
                     buttonLabel: "LCL"
 
-                    onClicked: {
-                        gimoLocalModeButton.checked = !gimoLocalModeButton.checked
+                    checked: Tired.scenegraph.gizmoMode == 0
 
-                        if (gimoLocalModeButton.checked) {
-                            gimoGlobalModeButton.checked = false
-                        }
+                    onClicked: {
+                        Tired.scenegraph.gizmoMode = 0
                     }
                 }
 
@@ -157,12 +155,10 @@ Rectangle {
 
                     buttonLabel: "GBL"
 
-                    onClicked: {
-                        gimoGlobalModeButton.checked = !gimoGlobalModeButton.checked
+                    checked: Tired.scenegraph.gizmoMode == 1
 
-                        if (gimoGlobalModeButton.checked) {
-                            gimoLocalModeButton.checked = false
-                        }
+                    onClicked: {
+                        Tired.scenegraph.gizmoMode = 1
                     }
                 }
 
