@@ -125,6 +125,11 @@ Rectangle {
             checked: leftPanelMainComponentWrapper.activeBtn === "infoButton"
 
             onClicked: {
+                if (infoButton.checked) {
+                    leftPanelMainComponentWrapper.activeBtn = ""
+                    return
+                }
+
                 leftPanelMainComponentWrapper.activeBtn = "infoButton";
             }
         }
