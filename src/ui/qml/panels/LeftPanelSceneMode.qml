@@ -103,7 +103,6 @@ Rectangle {
                 // if (editObjectButton.checked) {
                 //     leftPanelSceneComponent.deselectOthers(editObjectButton);
                 // }
-                Tired.scenegraph.scene.renderMode = 1
             }
 
             Component.onCompleted: {
@@ -125,7 +124,6 @@ Rectangle {
             buttonLabel: "Delete object"
 
             onClicked: {
-                Tired.scenegraph.scene.renderMode = 0
             }
 
             Component.onCompleted: {

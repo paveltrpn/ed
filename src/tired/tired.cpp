@@ -98,6 +98,14 @@ Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> view
         _viewer->continuousUpdate = CONTINOUS_UPDATE;
     }
 
+    {
+        vsg::ref_ptr<vsg::Instance> instance = windowAdapter->getInstance();
+        vsg::ref_ptr<vsg::Device> device = windowAdapter->getDevice();
+
+        _instanceExtensions = instance->getExtensions();
+        _deviceExtensions = device->getExtensions();
+    }
+
     _viewer->compile();
 
     // Add default scene nodes.

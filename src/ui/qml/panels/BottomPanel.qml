@@ -28,5 +28,20 @@ Rectangle {
         color: _color.si_button_shadow
         bottomLeftRadius: _units.radiusEight
         bottomRightRadius: _units.radiusEight
+
+        BottomPanelBg {
+            id: bottomPanelBgItem
+
+            anchors {
+                top: parent.top
+                topMargin: _units.scaled_8
+                right: parent.right
+                rightMargin: _units.scaled_8
+                bottom: parent.bottom
+                bottomMargin: _units.scaled_8
+                left: parent.left
+                leftMargin: _units.scaled_256
+            }
+        }
     }
 }

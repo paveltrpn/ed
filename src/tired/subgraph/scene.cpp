@@ -15,7 +15,7 @@
 #include "../scene_object/cylinder.h"
 #include "../scene_object/capsule.h"
 
-#include "../vsgsetpolygonmode.h"
+#include "../vsgcommands/setpolygonmode.h"
 
 namespace tire {
 

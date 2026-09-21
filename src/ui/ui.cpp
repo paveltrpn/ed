@@ -52,6 +52,9 @@ TiredUI::TiredUI( QObject* parent )
     // VSG initialization.
     auto windowTraits = vsg::WindowTraits::create();
     windowTraits->vulkanVersion = VK_MAKE_API_VERSION( 0, 1, 4, 0 );
+    // windowTraits->instanceExtensionNames.push_back( VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME );
+    // windowTraits->deviceExtensionNames.push_back( "VK_EXT_dynamic_state_polygon_mode" );
+    // windowTraits->deviceExtensionNames.push_back( "VK_EXT_extended_dynamic_state" );
 
     _vsgWidget = new VsgWidget( windowTraits );
     _vsgWidget->initializeWindow();

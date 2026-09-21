@@ -71,6 +71,9 @@ private:
     Scenegraph* _scenegraph{};
 
     ControlModes _controlMode{ ControlModes::SCENE };
+
+    const vsg::InstanceExtensions* _instanceExtensions{};
+    const vsg::DeviceExtensions* _deviceExtensions{};
 };
 
 }  // namespace tire
