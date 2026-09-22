@@ -14,6 +14,8 @@ namespace tire {
 // ======================================================================================
 
 enum class ObjectsRenderMode { WIREFRAME, SOLID, SOLIDWIRE };
+enum class ObjectsAppearenceMode { COLOR, TEXTURE };
+enum class ObjectsLightMode { NONE, CONSTANT, INSCENE };
 
 struct SceneSubgraph;
 
@@ -25,6 +27,11 @@ struct Scene final : public QObject {
                     selectedObjectUidChanged FINAL )
 
     Q_PROPERTY( int renderMode READ renderMode WRITE setRenderMode NOTIFY renderModeChanged FINAL )
+    Q_PROPERTY( int appearnceMode READ appearnceMode WRITE setAppearnceMode NOTIFY appearnceModeChanged FINAL )
+    Q_PROPERTY( int lightMode READ lightMode WRITE setLightMode NOTIFY lightModeChanged FINAL )
+
+    Q_PROPERTY( int showOuline READ showOuline WRITE setShowOuline NOTIFY showOulineChanged FINAL )
+
 public:
     Scene( vsg::Viewer* viewer, QObject* parent = nullptr );
 
@@ -43,6 +50,15 @@ public:
     auto renderMode() const -> int;
     auto setRenderMode( int value ) -> void;
 
+    auto appearnceMode() const -> int;
+    auto setAppearnceMode( int value ) -> void;
+
+    auto lightMode() const -> int;
+    auto setLightMode( int value ) -> void;
+
+    auto showOuline() const -> bool;
+    auto setShowOuline( bool value ) -> void;
+
     Q_INVOKABLE SceneObjectBase* findObject( const QString& uid ) const;
 
 signals:
@@ -50,6 +66,9 @@ signals:
     void selectedObjectUidChanged();
     void selectedObjectChanged( SceneObjectBase* object );
     void renderModeChanged();
+    void appearnceModeChanged();
+    void lightModeChanged();
+    void showOulineChanged();
 
 private:
     vsg::ref_ptr<SceneSubgraph> _node{};
@@ -58,6 +77,8 @@ private:
     QUuid _selectedObjectUid{};
 
     ObjectsRenderMode _renderMode{ ObjectsRenderMode::SOLID };
+
+    bool _showOuline{ false };
 };
 
 // ======================================================================================
@@ -73,6 +94,9 @@ struct SceneSubgraph final : Subgraph {
     friend Scene;
 
 private:
+    auto updateObjectParamsUniformValue() -> void;
+
+private:
     vsg::ref_ptr<vsg::RasterizationState> _rasterizationState{};
 
     vsg::ref_ptr<vsg::SetPolygonMode> _polygonModeCmd{};
@@ -80,6 +104,11 @@ private:
     vsg::ref_ptr<vsg::SetCullMode> _setCullModeCmd{};
 
     vsg::ref_ptr<vsg::GraphicsPipeline> _graphicsPipeline{};
+
+    vsg::ref_ptr<vsg::intArray> _objectParamsUniformValue{};
+
+    ObjectsAppearenceMode _appearnceMode{ ObjectsAppearenceMode::TEXTURE };
+    ObjectsLightMode _lightMode{ ObjectsLightMode::CONSTANT };
 };
 
 }  // namespace tire

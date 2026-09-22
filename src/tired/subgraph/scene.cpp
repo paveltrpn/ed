@@ -84,6 +84,35 @@ auto Scene::setRenderMode( int value ) -> void {
     emit renderModeChanged();
 }
 
+auto Scene::appearnceMode() const -> int {
+    return static_cast<int>( _node->_appearnceMode );
+}
+
+auto Scene::setAppearnceMode( int value ) -> void {
+    _node->_appearnceMode = static_cast<ObjectsAppearenceMode>( value );
+    _node->updateObjectParamsUniformValue();
+    emit appearnceModeChanged();
+}
+
+auto Scene::lightMode() const -> int {
+    return static_cast<int>( _node->_lightMode );
+}
+
+auto Scene::setLightMode( int value ) -> void {
+    _node->_lightMode = static_cast<ObjectsLightMode>( value );
+    _node->updateObjectParamsUniformValue();
+    emit lightModeChanged();
+}
+
+auto Scene::showOuline() const -> bool {
+    return _showOuline;
+}
+
+auto Scene::setShowOuline( bool value ) -> void {
+    _showOuline = value;
+    emit showOulineChanged();
+}
+
 SceneObjectBase* Scene::findObject( const QString& uid ) const {
     auto obj = _objects->findObject( QUuid::fromString( uid ) );
     return obj.get();
@@ -181,11 +210,27 @@ auto SceneSubgraph::initPipeline() -> void {
 
     auto textureImageView = vsg::ImageView::create( textureImage );
 
+    // create texture image and associated DescriptorSets and binding
+    auto sampler = vsg::Sampler::create();
+    sampler->magFilter = VK_FILTER_LINEAR;
+    sampler->minFilter = VK_FILTER_LINEAR;
+    sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+
+    auto imageInfo = vsg::ImageInfo::create( sampler, textureImageView );
+    auto texture = vsg::DescriptorImage::create( imageInfo, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER );
+
+    _objectParamsUniformValue =
+        vsg::intArray::create( { static_cast<int>( _appearnceMode ), static_cast<int>( _lightMode ), 0, 0 } );
+    _objectParamsUniformValue->properties.dataVariance = vsg::DYNAMIC_DATA;
+
+    const auto objectParamsUniformDescriptor = vsg::DescriptorBuffer::create(
+        _objectParamsUniformValue, /* dstBinding */ 1, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER );
+
     // set up graphics pipeline
     vsg::DescriptorSetLayoutBindings descriptorBindings{
-        { 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT,
-          nullptr }  // { binding, descriptorType, descriptorCount, stageFlags, pImmutableSamplers}
-    };
+        { /* binding */ 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, /* count */ 1, VK_SHADER_STAGE_FRAGMENT_BIT,
+          nullptr },
+        { /* binding */ 1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, /* count */ 1, VK_SHADER_STAGE_FRAGMENT_BIT, nullptr } };
 
     auto descriptorSetLayout = vsg::DescriptorSetLayout::create( descriptorBindings );
 
@@ -246,17 +291,8 @@ auto SceneSubgraph::initPipeline() -> void {
         pipelineLayout, vsg::ShaderStages{ vertexShader, fragmentShader }, pipelineStates );
     auto bindGraphicsPipeline = vsg::BindGraphicsPipeline::create( _graphicsPipeline );
 
-    // create texture image and associated DescriptorSets and binding
-    auto sampler = vsg::Sampler::create();
-    sampler->magFilter = VK_FILTER_LINEAR;
-    sampler->minFilter = VK_FILTER_LINEAR;
-    sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-
-    auto imageInfo = vsg::ImageInfo::create( sampler, textureImageView );
-
-    auto texture = vsg::DescriptorImage::create( imageInfo, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER );
-
-    auto descriptorSet = vsg::DescriptorSet::create( descriptorSetLayout, vsg::Descriptors{ texture } );
+    auto descriptorSet =
+        vsg::DescriptorSet::create( descriptorSetLayout, vsg::Descriptors{ texture, objectParamsUniformDescriptor } );
     auto bindDescriptorSet =
         vsg::BindDescriptorSet::create( VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, descriptorSet );
 
@@ -314,7 +350,7 @@ auto SceneSubgraph::initPipelineOutline() -> void {
 
     auto depthStencilState = vsg::DepthStencilState::create();
     depthStencilState->depthTestEnable = VK_FALSE;
-    depthStencilState->depthWriteEnable = VK_FALSE;  // <-- don't block main geometry
+    depthStencilState->depthWriteEnable = VK_TRUE;  // <-- don't block main geometry
     depthStencilState->depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
 
     vsg::GraphicsPipelineStates pipelineStates{
@@ -337,6 +373,15 @@ auto SceneSubgraph::initPipelineOutline() -> void {
 
     _outlineStateGroup->add( bindGraphicsPipeline );
     _outlineStateGroup->add( bindDescriptorSet );
+}
+
+auto SceneSubgraph::updateObjectParamsUniformValue() -> void {
+    ( *_objectParamsUniformValue )[0] = static_cast<int>( _appearnceMode );
+    ( *_objectParamsUniformValue )[1] = static_cast<int>( _lightMode );
+    ( *_objectParamsUniformValue )[2] = 0;
+    ( *_objectParamsUniformValue )[3] = 0;
+
+    _objectParamsUniformValue->dirty();
 }
 
 }  // namespace tire

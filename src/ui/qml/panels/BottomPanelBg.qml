@@ -106,21 +106,33 @@ Rectangle {
                 }
 
                 SISceneControlButton {
-                    id: dummy1_ModeButton
+                    id: colorModeButton
 
                     Layout.fillWidth: true
                     Layout.preferredHeight: parent.height
 
-                    buttonLabel: "---"
+                    buttonLabel: "CLR"
+
+                    checked: Tired.scenegraph.scene.appearnceMode == 0
+
+                    onClicked: {
+                        Tired.scenegraph.scene.appearnceMode = 0
+                    }
                 }
 
                 SISceneControlButton {
-                    id: dummy2_ModeButton
+                    id: textureModeButton
 
                     Layout.fillWidth: true
                     Layout.preferredHeight: parent.height
 
-                    buttonLabel: "---"
+                    buttonLabel: "TEX"
+
+                    checked: Tired.scenegraph.scene.appearnceMode == 1
+
+                    onClicked: {
+                        Tired.scenegraph.scene.appearnceMode = 1
+                    }
                 }
             }
 
@@ -153,7 +165,7 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: parent.height
 
-                    buttonLabel: "GBL"
+                    buttonLabel: "GLB"
 
                     checked: Tired.scenegraph.gizmoMode == 1
 
@@ -168,7 +180,13 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: parent.height
 
-                    buttonLabel: "---"
+                    buttonLabel: "NON"
+
+                    checked: Tired.scenegraph.scene.lightMode == 0
+
+                    onClicked: {
+                        Tired.scenegraph.scene.lightMode = 0
+                    }
                 }
 
                 SISceneControlButton {
@@ -177,7 +195,13 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: parent.height
 
-                    buttonLabel: "---"
+                    buttonLabel: "CNS"
+
+                    checked: Tired.scenegraph.scene.lightMode == 1
+
+                    onClicked: {
+                        Tired.scenegraph.scene.lightMode = 1
+                    }
                 }
 
                 SISceneControlButton {
@@ -186,7 +210,13 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: parent.height
 
-                    buttonLabel: "---"
+                    buttonLabel: "SCN"
+
+                    checked: Tired.scenegraph.scene.lightMode == 2
+
+                    onClicked: {
+                        Tired.scenegraph.scene.lightMode = 2
+                    }
                 }
             }
         }

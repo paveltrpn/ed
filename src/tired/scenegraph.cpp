@@ -12,10 +12,10 @@ Scenegraph::Scenegraph( vsg::Viewer* viewer, QObject* parent )
     _bounding = new Bounding{ _viewer, this };
     _scene = new Scene{ _viewer, this };
 
-    _root->addChild( _grid->node() );
     _root->addChild( _bounding->node() );
     _root->addChild( _navbox->node() );
     _root->addChild( _scene->node() );
+    _root->addChild( _grid->node() );
 
     connect( _scene, &Scene::selectedObjectChanged, _bounding, &Bounding::onSelectedObjectChanged );
 }
