@@ -41,4 +41,5 @@ cmake --build .
 This project embed couple of very nice, low dependency, very useful libraries:  
 - "Vulkan Scene Graph" - https://github.com/vsg-dev/VulkanSceneGraph
 - "generator" - https://github.com/ilmola/generator
+- "OpenMesh" - https://www.graphics.rwth-aachen.de/software/openmesh/
 
