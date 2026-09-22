@@ -88,6 +88,8 @@ private:
 struct SceneSubgraph final : Subgraph {
     SceneSubgraph( vsg::Viewer* viewer );
 
+    auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
+
     auto initPipeline() -> void override;
     auto initPipelineOutline() -> void;
 

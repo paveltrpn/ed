@@ -174,6 +174,10 @@ SceneSubgraph::SceneSubgraph( vsg::Viewer* viewer )
     : Subgraph{ viewer } {
 }
 
+auto SceneSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {
+    return {};
+}
+
 auto SceneSubgraph::initPipeline() -> void {
     auto sceneobjectProgram = Program{ TextProgramSource{ "sceneobject" } };
     auto vertexShader = vsg::ShaderStage::create( VK_SHADER_STAGE_VERTEX_BIT, "main",

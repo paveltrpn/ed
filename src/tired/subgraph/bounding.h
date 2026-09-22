@@ -53,6 +53,8 @@ private:
 struct BoundingSubgraph final : public Subgraph {
     BoundingSubgraph( vsg::Viewer* viewer );
 
+    auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
+
     auto initPipeline() -> void override;
     auto initDrawCommand() -> void;
 

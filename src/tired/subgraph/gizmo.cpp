@@ -20,6 +20,10 @@ GizmoSubgraph::GizmoSubgraph( vsg::Viewer* viewer )
     //
 }
 
+auto GizmoSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {
+    return {};
+}
+
 auto GizmoSubgraph::initPipeline() -> void{
     //
 };

@@ -63,6 +63,10 @@ BoundingSubgraph::BoundingSubgraph( vsg::Viewer* viewer )
     //
 }
 
+auto BoundingSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {
+    return {};
+}
+
 auto BoundingSubgraph::initPipeline() -> void {
     auto bboxcornerSource = TextProgramSource{ "bboxcorner" };
     auto vSource = bboxcornerSource.stageSource( ShaderStageType::VERTEX );

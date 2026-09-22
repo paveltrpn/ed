@@ -121,6 +121,10 @@ NavboxSubgraph::NavboxSubgraph( vsg::Viewer* viewer )
     : Subgraph{ viewer } {
 }
 
+auto NavboxSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {
+    return {};
+}
+
 auto NavboxSubgraph::initPipeline() -> void {
     auto navboxSource = TextProgramSource{ "navbox" };
     auto vSource = navboxSource.stageSource( ShaderStageType::VERTEX );

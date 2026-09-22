@@ -119,6 +119,10 @@ GridSubgraph::GridSubgraph( vsg::Viewer* viewer )
     : Subgraph{ viewer } {
 }
 
+auto GridSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {
+    return {};
+}
+
 auto GridSubgraph::initPipeline() -> void {
     auto gridSource = TextProgramSource{ "grid" };
     auto vSource = gridSource.stageSource( ShaderStageType::VERTEX );

@@ -2,6 +2,7 @@
 #pragma once
 
 #include <memory.h>
+#include <vector>
 
 #include <QObject>
 
@@ -17,6 +18,8 @@ namespace tire {
 
 struct Subgraph : vsg::Group {
     Subgraph( vsg::Viewer* viewer );
+
+    virtual auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> = 0;
 
     virtual auto initPipeline() -> void = 0;
 
