@@ -239,8 +239,8 @@ auto SceneSubgraph::initPipeline() -> void {
     auto descriptorSetLayout = vsg::DescriptorSetLayout::create( descriptorBindings );
 
     vsg::PushConstantRanges pushConstantRanges{
-        { VK_SHADER_STAGE_VERTEX_BIT, 0,
-          128 }  // projection, view, and model matrices, actual push constant calls automatically provided by the VSG's RecordTraversal
+        { VK_SHADER_STAGE_VERTEX_BIT, 0, 128 }
+        // projection, view, and model matrices, actual push constant calls automatically provided by the VSG's RecordTraversal
     };
 
     vsg::VertexInputState::Bindings vertexBindingsDescriptions{
@@ -326,8 +326,8 @@ auto SceneSubgraph::initPipelineOutline() -> void {
     auto descriptorSetLayout = vsg::DescriptorSetLayout::create( descriptorBindings );
 
     vsg::PushConstantRanges pushConstantRanges{
-        { VK_SHADER_STAGE_VERTEX_BIT, 0,
-          128 }  // projection, view, and model matrices, actual push constant calls automatically provided by the VSG's RecordTraversal
+        { VK_SHADER_STAGE_VERTEX_BIT, 0, 128 }
+        // projection, view, and model matrices, actual push constant calls automatically provided by the VSG's RecordTraversal
     };
 
     vsg::VertexInputState::Bindings vertexBindingsDescriptions{

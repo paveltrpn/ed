@@ -24,7 +24,7 @@ auto GizmoSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGr
     return {};
 }
 
-auto GizmoSubgraph::initPipeline() -> void{
+auto GizmoSubgraph::initPipeline() -> void {
     //
 };
 
