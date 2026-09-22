@@ -144,10 +144,6 @@ Rectangle {
             }
 
             visible: infoButton.checked
-
-            onClose: {
-                leftPanelSceneComponent.deselectOthers(null);
-            }
         }
 
         SIButtonMain {
@@ -184,10 +180,6 @@ Rectangle {
             }
 
             visible: settingsButton.checked
-
-            onClose: {
-                leftPanelSceneComponent.deselectOthers(null);
-            }
         }
 
         // SettingsComponent {
