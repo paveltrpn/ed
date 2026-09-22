@@ -68,6 +68,7 @@ struct SceneSubgraph final : Subgraph {
     SceneSubgraph( vsg::Viewer* viewer );
 
     auto initPipeline() -> void override;
+    auto initPipelineOutline() -> void;
 
     friend Scene;
 

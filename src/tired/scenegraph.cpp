@@ -10,16 +10,12 @@ Scenegraph::Scenegraph( vsg::Viewer* viewer, QObject* parent )
     _grid = new Grid{ _viewer, this };
     _navbox = new Navbox{ _viewer, this };
     _bounding = new Bounding{ _viewer, this };
-    _markerSubgraph = new MarkerSubgraph{ _viewer };
     _scene = new Scene{ _viewer, this };
 
-    _root->addChild( _scene->node() );
-    _root->addChild( _bounding->node() );
     _root->addChild( _grid->node() );
+    _root->addChild( _bounding->node() );
     _root->addChild( _navbox->node() );
-
-    _markerSubgraph->initPipeline();
-    _root->addChild( _markerSubgraph );
+    _root->addChild( _scene->node() );
 
     connect( _scene, &Scene::selectedObjectChanged, _bounding, &Bounding::onSelectedObjectChanged );
 }

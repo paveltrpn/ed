@@ -33,6 +33,7 @@ protected:
     // how it is drawn (shaders, pipeline state), it must be a child of a vsg::StateGroup
     // configured with the appropriate ShaderSet and pipeline states."
     vsg::ref_ptr<vsg::StateGroup> _stateGroup{};
+    vsg::ref_ptr<vsg::StateGroup> _outlineStateGroup{};
 };
 
 }  // namespace tire

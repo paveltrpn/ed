@@ -8,7 +8,6 @@
 #include "subgraph/grid.h"
 #include "subgraph/navbox.h"
 #include "subgraph/scene.h"
-#include "subgraph/marker.h"
 #include "subgraph/bounding.h"
 #include "subgraph/gizmo.h"
 
@@ -71,8 +70,6 @@ private:
     GizmoModes _gizmoMode{ GizmoModes::GLOBAL };
 
     Scene* _scene{};
-
-    vsg::ref_ptr<MarkerSubgraph> _markerSubgraph{};
 };
 
 }  // namespace tire
