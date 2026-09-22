@@ -25,10 +25,11 @@ void main() {
     vec3 ambientLight   = vec3( 0.3, 0.3, 0.3 );
     vec3 lightcolor     = vec3( 1.0, 1.0, 1.0 );
     vec3 lightpos       = normalize( vec3( 1.0, 0.0, 1.0 ) );
+    const float lightIntensity = 2.0f;
 
     vec4 nrmTransformed     = inverse(transpose( pc.modelview )) * vec4( inNormal, 0.0 );
     float directional       = max( dot( nrmTransformed.xyz, lightpos ), 0.0 );
-    vLighting               = ambientLight + ( lightcolor * directional );
+    vLighting               = ambientLight + ( lightcolor * directional ) * lightIntensity;
 
     gl_Position             = (pc.projection * pc.modelview) * vec4(inPosition, 1.0);
     fragColor               = inColor;
