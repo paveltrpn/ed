@@ -14,12 +14,17 @@ add_subdirectory(vsg)
 # Add shape generator subdirectory.
 add_subdirectory(libs/generator)
 
+# Add OpenMesh subdirectory.
+add_subdirectory(libs/OpenMesh)
+
 find_package(Vulkan 1.1 QUIET)
 find_package(glslang 15.0 REQUIRED)
 
 include_directories(src)
 include_directories(libs/generator/include)
 include_directories(libs/gml/include)
+include_directories(libs/OpenMesh/Core)
+include_directories(libs/OpenMesh/Tools)
 
 set(QT_VERSION 6.10)
 list(APPEND CMAKE_PREFIX_PATH $ENV{LOCAL_LATEST_QT})
@@ -152,6 +157,8 @@ target_link_libraries(tired
     mesh
     program
     generator
+    OpenMeshCore
+    OpenMeshTools
 )
 
 # ================================
