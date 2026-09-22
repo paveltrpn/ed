@@ -24,11 +24,16 @@ auto Subgraph::link( std::shared_ptr<SceneObjectBase> object ) -> void {
 }
 
 auto Subgraph::recompile() -> void {
-    _viewer->compileManager->compile( _stateGroup );
-    _viewer->compileManager->compile( _outlineStateGroup );
+    auto compileTraversal = vsg::CompileTraversal::create( *_viewer );
 
-    vsg::CompileResult res{};
-    vsg::updateViewer( *_viewer, res );
+    compileTraversal->compile( _stateGroup );
+    compileTraversal->compile( _outlineStateGroup );
+
+    // _viewer->compileManager->compile( _stateGroup );
+    // _viewer->compileManager->compile( _outlineStateGroup );
+
+    // vsg::CompileResult res{};
+    // vsg::updateViewer( *_viewer, res );
 }
 
 }  // namespace tire
