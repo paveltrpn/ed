@@ -101,6 +101,9 @@ private:
         result._colors = vsg::vec3Array::create( colorsArray.size() );
         std::copy( colorsArray.begin(), colorsArray.end(), result._colors->begin() );
 
+        result._normals = vsg::vec3Array::create( normalsArray.size() );
+        std::copy( normalsArray.begin(), normalsArray.end(), result._normals->begin() );
+
         return result;
     }
 };

@@ -18,8 +18,8 @@ auto Cylinder::init() -> void {
 
     // Setup geometry.
     auto drawCommands = vsg::Commands::create();
-    drawCommands->addChild(
-        vsg::BindVertexBuffers::create( 0, vsg::DataList{ data._vertices, data._colors, data._texcrds } ) );
+    drawCommands->addChild( vsg::BindVertexBuffers::create(
+        0, vsg::DataList{ data._vertices, data._colors, data._texcrds, data._normals } ) );
     drawCommands->addChild( vsg::BindIndexBuffer::create( data._indices ) );
     drawCommands->addChild( vsg::DrawIndexed::create( data._indicesCount, 1, 0, 0, 0 ) );
 
