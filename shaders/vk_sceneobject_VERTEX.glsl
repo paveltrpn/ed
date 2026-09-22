@@ -21,7 +21,6 @@ out gl_PerVertex {
 
 
 void main() {
-    vec3 color = vec3( 0.4, 0.9, 0.7 );
     vec3 ambientLight   = vec3( 0.3, 0.3, 0.3 );
     vec3 lightcolor     = vec3( 1.0, 1.0, 1.0 );
     vec3 lightpos       = normalize( vec3( 1.0, 0.0, 1.0 ) );
