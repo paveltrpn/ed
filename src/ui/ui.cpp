@@ -23,6 +23,8 @@ TiredUI::TiredUI( QObject* parent )
     : _settings{ new QSettings{ this } }
     , _engine{ new QQmlEngine{ this } }
     , _context{ _engine->rootContext() }
+    , _columnSplitter{ new QSplitter{ this } }
+    , _rowSplitter{ new QSplitter{ this } }
     , _topPanel{ new QQuickWidget{ _engine, this } }
     , _leftPanel{ new QQuickWidget{ _engine, this } }
     , _bottomPanel{ new QQuickWidget{ _engine, this } }
@@ -66,6 +68,12 @@ TiredUI::TiredUI( QObject* parent )
 
         tire::Tired::init( _vsgWidget->windowAdapter(), _vsgWidget->viewer(), windowTraits->width,
                            windowTraits->height );
+
+        connect( tire::Tired::pointer(), &tire::Tired::restorePanelsSize, this, [this]() {
+            //
+            this->resetPanelsSize();
+        } );
+
     } catch ( vsg::Exception& e ) {
         log::fatal()( "{}", e.message );
     }
@@ -100,11 +108,10 @@ TiredUI::TiredUI( QObject* parent )
     mainColumnLayout->setContentsMargins( 0, 0, 0, 0 );
     centralWidget->setLayout( mainColumnLayout );
 
-    auto* mainColumnSplitter = new QSplitter{ this };
-    mainColumnSplitter->setOrientation( Qt::Vertical );
-    mainColumnSplitter->setStyleSheet(
+    _columnSplitter->setOrientation( Qt::Vertical );
+    _columnSplitter->setStyleSheet(
         QString{ "QSplitter::handle { background-color:  %1; }" }.arg( splitterBorderColor ) );
-    mainColumnSplitter->setHandleWidth( 2 );
+    _columnSplitter->setHandleWidth( 2 );
 
     auto* hLayout = new QHBoxLayout{};
     hLayout->setContentsMargins( 0, 0, 0, 0 );
@@ -112,33 +119,27 @@ TiredUI::TiredUI( QObject* parent )
     auto middleElementsWidget = new QWidget{ this };
     middleElementsWidget->setLayout( hLayout );
 
-    mainColumnSplitter->addWidget( _topPanel );
-    mainColumnSplitter->addWidget( middleElementsWidget );
-    mainColumnSplitter->addWidget( _bottomPanel );
+    _columnSplitter->addWidget( _topPanel );
+    _columnSplitter->addWidget( middleElementsWidget );
+    _columnSplitter->addWidget( _bottomPanel );
 
-    const auto [windowWidth, windowHeight] = readSettings();
+    mainColumnLayout->addWidget( _columnSplitter );
 
-    const auto topPanelHeight = static_cast<int>( windowHeight * 0.07f );
-    const auto bottomPanelHeight = static_cast<int>( windowHeight * 0.07f );
-    mainColumnSplitter->setSizes(
-        { topPanelHeight, windowHeight - ( topPanelHeight + bottomPanelHeight ), bottomPanelHeight } );
+    _rowSplitter->setOrientation( Qt::Horizontal );
+    _rowSplitter->setStyleSheet( QString{ "QSplitter::handle { background-color:  %1; }" }.arg( splitterBorderColor ) );
+    _rowSplitter->setHandleWidth( 2 );
 
-    mainColumnLayout->addWidget( mainColumnSplitter );
+    _rowSplitter->addWidget( _leftPanel );
+    _rowSplitter->addWidget( _vsgWidget );
+    _rowSplitter->addWidget( _rightPanel );
 
-    auto* hSplitter = new QSplitter{ this };
-    hSplitter->setOrientation( Qt::Horizontal );
-    hSplitter->setStyleSheet( QString{ "QSplitter::handle { background-color:  %1; }" }.arg( splitterBorderColor ) );
-    hSplitter->setHandleWidth( 2 );
+    // Restore previuosely saved window geometry.
+    readSettings();
 
-    hSplitter->addWidget( _leftPanel );
-    hSplitter->addWidget( _vsgWidget );
-    hSplitter->addWidget( _rightPanel );
+    // Set default size of panels.
+    resetPanelsSize();
 
-    const auto leftPanelWidth = static_cast<int>( windowWidth * 0.11f );
-    const auto rightPanelWidth = static_cast<int>( windowWidth * 0.11f );
-    hSplitter->setSizes( { leftPanelWidth, windowWidth - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
-
-    hLayout->addWidget( hSplitter );
+    hLayout->addWidget( _rowSplitter );
 }
 
 auto TiredUI::writeSettings() -> void {
@@ -149,24 +150,17 @@ auto TiredUI::writeSettings() -> void {
     _settings->sync();
 }
 
-auto TiredUI::readSettings() -> std::pair<int, int> {
+auto TiredUI::readSettings() -> void {
     _settings->beginGroup( "MainWindow" );
-
-    std::pair<int, int> result{};
 
     const auto geometry = _settings->value( "geometry", QByteArray() ).toByteArray();
     if ( geometry.isEmpty() ) {
         setGeometry( 200, 200, 1024, 768 );
-        result = std::make_pair( 1024, 768 );
     } else {
         restoreGeometry( geometry );
-        const auto g = this->geometry();
-        result = std::make_pair( g.width(), g.height() );
     }
 
     _settings->endGroup();
-
-    return result;
 }
 
 QVector2D TiredUI::mainWindowCenter() const {
@@ -191,6 +185,38 @@ void TiredUI::moveWindow() {
 void TiredUI::resizeWindow( int edge ) {
     // const auto e = static_cast<Qt::Edge>( edge );
     // this->windowHandle()->startSystemResize( e );
+}
+
+void TiredUI::enlargeRightPanel( float factor ) {
+    const auto g = this->geometry();
+    const auto width = g.width();
+
+    const auto leftPanelWidth = static_cast<int>( width * 0.11f );
+    const auto rightPanelWidth = static_cast<int>( width * factor );
+    _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
+}
+
+void TiredUI::enlargeLeftPanel( float factor ) {
+    const auto g = this->geometry();
+    const auto width = g.width();
+
+    const auto leftPanelWidth = static_cast<int>( width * factor );
+    const auto rightPanelWidth = static_cast<int>( width * 0.11f );
+    _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
+}
+
+void TiredUI::resetPanelsSize() {
+    const auto g = this->geometry();
+    const auto width = g.width();
+    const auto height = g.height();
+
+    const auto topPanelHeight = static_cast<int>( height * 0.07f );
+    const auto bottomPanelHeight = static_cast<int>( height * 0.07f );
+    _columnSplitter->setSizes( { topPanelHeight, height - ( topPanelHeight + bottomPanelHeight ), bottomPanelHeight } );
+
+    const auto leftPanelWidth = static_cast<int>( width * 0.11f );
+    const auto rightPanelWidth = static_cast<int>( width * 0.11f );
+    _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
 }
 
 auto TiredUI::registerTypes() -> void {

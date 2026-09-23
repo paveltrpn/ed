@@ -20,23 +20,6 @@ Rectangle {
 
     color: _color.si_button_shadow
 
-    property var buttonsList: []
-
-    function deselectOthers(exceptItem) {
-        for (let i in leftPanelSystemComponent.buttonsList) {
-            const btn = leftPanelSystemComponent.buttonsList[i];
-
-            if (exceptItem === null) {
-                btn.checked = false;
-                continue;
-            }
-
-            if (btn !== exceptItem) {
-                btn.checked = false;
-            }
-        }
-    }
-
     Item {
         id: leftPanelMainComponentWrapper
         anchors {
@@ -44,6 +27,8 @@ Rectangle {
             leftMargin: leftPanelSystemComponent._units.scaled_2
             rightMargin: leftPanelSystemComponent._units.scaled_2
         }
+
+        property string activeBtn: ""
 
         SIButtonMain {
             id: aboutButton
@@ -58,24 +43,24 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_system
             buttonLabel: "About"
 
+            checked: leftPanelMainComponentWrapper.activeBtn === "aboutButton"
+
             onClicked: {
-                aboutButton.checked = !aboutButton.checked;
-
                 if (aboutButton.checked) {
-                    leftPanelSystemComponent.deselectOthers(aboutButton);
+                    leftPanelMainComponentWrapper.activeBtn = "";
+                    return;
                 }
-            }
 
-            Component.onCompleted: {
-                leftPanelSystemComponent.buttonsList.push(aboutButton);
+                leftPanelMainComponentWrapper.activeBtn = "aboutButton";
             }
         }
 
         AboutPanel {
             id: aboutPanelItem
+
             anchors {
                 top: aboutButton.bottom
-                topMargin: visible ? _units.half : 0
+                topMargin: visible ? _units.eight : 0
                 left: parent.left
                 right: parent.right
             }
@@ -83,7 +68,49 @@ Rectangle {
             visible: aboutButton.checked
 
             onClose: {
-                leftPanelSystemComponent.deselectOthers(null);
+                leftPanelMainComponentWrapper.activeBtn = "";
+            }
+        }
+
+        SIButtonMain {
+            id: uiSettingsButton
+
+            anchors {
+                top: aboutPanelItem.bottom
+                topMargin: aboutPanelItem._units.half
+                left: parent.left
+                right: parent.right
+            }
+
+            modeRelatedBgColor: _color.si_mode_system
+            buttonLabel: "Ui"
+
+            checked: leftPanelMainComponentWrapper.activeBtn === "uiSettingsButton"
+
+            onClicked: {
+                if (uiSettingsButton.checked) {
+                    leftPanelMainComponentWrapper.activeBtn = "";
+                    return;
+                }
+
+                leftPanelMainComponentWrapper.activeBtn = "uiSettingsButton";
+            }
+        }
+
+        UiSettingsPanel {
+            id: uiSettingsPanelItem
+
+            anchors {
+                top: uiSettingsButton.bottom
+                topMargin: visible ? _units.eight : 0
+                left: parent.left
+                right: parent.right
+            }
+
+            visible: uiSettingsButton.checked
+
+            onClose: {
+                leftPanelMainComponentWrapper.activeBtn = "";
             }
         }
 
@@ -99,16 +126,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_system
             buttonLabel: "Exit"
 
+            checked: leftPanelMainComponentWrapper.activeBtn === "exitButton"
+
             onClicked: {
-                exitButton.checked = !exitButton.checked;
-
                 if (exitButton.checked) {
-                    leftPanelSystemComponent.deselectOthers(exitButton);
+                    leftPanelMainComponentWrapper.activeBtn = "";
+                    return;
                 }
-            }
 
-            Component.onCompleted: {
-                leftPanelSystemComponent.buttonsList.push(exitButton);
+                leftPanelMainComponentWrapper.activeBtn = "exitButton";
             }
         }
 
@@ -116,7 +142,7 @@ Rectangle {
             id: exitPanelItem
             anchors {
                 bottom: parent.bottom
-                bottomMargin: visible ? _units.half : 0
+                bottomMargin: visible ? _units.eight : 0
                 left: parent.left
                 right: parent.right
             }
@@ -128,7 +154,7 @@ Rectangle {
             }
 
             onDecline: {
-                exitButton.checked = false;
+                leftPanelMainComponentWrapper.activeBtn = "";
             }
         }
     }

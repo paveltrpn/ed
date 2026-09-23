@@ -52,6 +52,8 @@ signals:
     void scenegraphChanged();
     void controlModeChanged( int );
 
+    void restorePanelsSize();
+
 private:
     Tired( vsg::ref_ptr<vsg::Window> _windowAdapter, vsg::ref_ptr<Viewer> viewer, uint32_t width, uint32_t height,
            QObject* parent = nullptr );
