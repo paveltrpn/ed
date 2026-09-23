@@ -20,6 +20,8 @@ Rectangle {
 
     color: _color.si_button_shadow
 
+    property string activeBtn: ""
+
     Item {
         id: leftPanelMainComponentWrapper
         anchors {
@@ -28,7 +30,13 @@ Rectangle {
             rightMargin: leftPanelSceneComponent._units.scaled_2
         }
 
-        property string activeBtn: ""
+        MouseArea {
+            id: closePopupsMouseArea
+            anchors.fill: parent
+            onClicked: {
+                leftPanelSceneComponent.activeBtn = "";
+            }
+        }
 
         SIButtonMain {
             id: objectAddButton
@@ -43,15 +51,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Object"
 
-            checked: leftPanelMainComponentWrapper.activeBtn === "objectAddButton"
+            checked: leftPanelSceneComponent.activeBtn === "objectAddButton"
 
             onClicked: {
                 if (objectAddButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = "";
+                    leftPanelSceneComponent.activeBtn = "";
                     return;
                 }
 
-                leftPanelMainComponentWrapper.activeBtn = "objectAddButton";
+                leftPanelSceneComponent.activeBtn = "objectAddButton";
             }
         }
 
@@ -81,15 +89,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Mesh"
 
-            checked: leftPanelMainComponentWrapper.activeBtn === "meshAddButton"
+            checked: leftPanelSceneComponent.activeBtn === "meshAddButton"
 
             onClicked: {
                 if (meshAddButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = "";
+                    leftPanelSceneComponent.activeBtn = "";
                     return;
                 }
 
-                leftPanelMainComponentWrapper.activeBtn = "meshAddButton";
+                leftPanelSceneComponent.activeBtn = "meshAddButton";
             }
         }
 
@@ -119,15 +127,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Bezier"
 
-            checked: leftPanelMainComponentWrapper.activeBtn === "bezierAddButton"
+            checked: leftPanelSceneComponent.activeBtn === "bezierAddButton"
 
             onClicked: {
                 if (bezierAddButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = "";
+                    leftPanelSceneComponent.activeBtn = "";
                     return;
                 }
 
-                leftPanelMainComponentWrapper.activeBtn = "bezierAddButton";
+                leftPanelSceneComponent.activeBtn = "bezierAddButton";
             }
         }
 
@@ -157,15 +165,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Implicit"
 
-            checked: leftPanelMainComponentWrapper.activeBtn === "implicitAddButton"
+            checked: leftPanelSceneComponent.activeBtn === "implicitAddButton"
 
             onClicked: {
                 if (implicitAddButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = "";
+                    leftPanelSceneComponent.activeBtn = "";
                     return;
                 }
 
-                leftPanelMainComponentWrapper.activeBtn = "implicitAddButton";
+                leftPanelSceneComponent.activeBtn = "implicitAddButton";
             }
         }
 
@@ -195,15 +203,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Landscape"
 
-            checked: leftPanelMainComponentWrapper.activeBtn === "landscapeAddButton"
+            checked: leftPanelSceneComponent.activeBtn === "landscapeAddButton"
 
             onClicked: {
                 if (landscapeAddButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = "";
+                    leftPanelSceneComponent.activeBtn = "";
                     return;
                 }
 
-                leftPanelMainComponentWrapper.activeBtn = "landscapeAddButton";
+                leftPanelSceneComponent.activeBtn = "landscapeAddButton";
             }
         }
 
@@ -233,15 +241,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Polytope"
 
-            checked: leftPanelMainComponentWrapper.activeBtn === "polytopeAddButton"
+            checked: leftPanelSceneComponent.activeBtn === "polytopeAddButton"
 
             onClicked: {
                 if (polytopeAddButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = "";
+                    leftPanelSceneComponent.activeBtn = "";
                     return;
                 }
 
-                leftPanelMainComponentWrapper.activeBtn = "polytopeAddButton";
+                leftPanelSceneComponent.activeBtn = "polytopeAddButton";
             }
         }
 
@@ -271,15 +279,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Info"
 
-            checked: leftPanelMainComponentWrapper.activeBtn === "infoButton"
+            checked: leftPanelSceneComponent.activeBtn === "infoButton"
 
             onClicked: {
                 if (infoButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = "";
+                    leftPanelSceneComponent.activeBtn = "";
                     return;
                 }
 
-                leftPanelMainComponentWrapper.activeBtn = "infoButton";
+                leftPanelSceneComponent.activeBtn = "infoButton";
             }
         }
 
@@ -307,15 +315,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Settings"
 
-            checked: leftPanelMainComponentWrapper.activeBtn === "settingsButton"
+            checked: leftPanelSceneComponent.activeBtn === "settingsButton"
 
             onClicked: {
                 if (settingsButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = "";
+                    leftPanelSceneComponent.activeBtn = "";
                     return;
                 }
 
-                leftPanelMainComponentWrapper.activeBtn = "settingsButton";
+                leftPanelSceneComponent.activeBtn = "settingsButton";
             }
         }
 

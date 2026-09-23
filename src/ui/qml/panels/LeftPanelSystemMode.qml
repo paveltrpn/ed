@@ -30,6 +30,14 @@ Rectangle {
 
         property string activeBtn: ""
 
+        MouseArea {
+            id: closePopupsMouseArea
+            anchors.fill: parent
+            onClicked: {
+                leftPanelMainComponentWrapper.activeBtn = "";
+            }
+        }
+
         SIButtonMain {
             id: aboutButton
 
