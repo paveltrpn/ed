@@ -31,7 +31,7 @@ Rectangle {
         property string activeBtn: ""
 
         SIButtonMain {
-            id: addObjectButton
+            id: objectAddButton
 
             anchors {
                 top: parent.top
@@ -41,71 +41,155 @@ Rectangle {
             }
 
             modeRelatedBgColor: _color.si_mode_scene
-            buttonLabel: "Add object"
+            buttonLabel: "Object"
 
-            checked: leftPanelMainComponentWrapper.activeBtn === "addObjectButton"
+            checked: leftPanelMainComponentWrapper.activeBtn === "objectAddButton"
 
             onClicked: {
-                if (addObjectButton.checked) {
+                if (objectAddButton.checked) {
                     leftPanelMainComponentWrapper.activeBtn = ""
                     return
                 }
 
-                leftPanelMainComponentWrapper.activeBtn = "addObjectButton";
+                leftPanelMainComponentWrapper.activeBtn = "objectAddButton";
             }
         }
 
-        AddPrimitivesPopup {
-            id: addPrimitivesPopupItem
+        AddObjectPopup {
+            id: addObjectPopupItem
 
             anchors {
-                top: addObjectButton.bottom
-                topMargin: visible ? leftPanelSceneComponent._units.half : 0
+                top: objectAddButton.bottom
+                topMargin: visible ? _units.eight : 0
                 left: parent.left
                 right: parent.right
             }
 
-            visible: addObjectButton.checked
+            visible: objectAddButton.checked
         }
 
         SIButtonMain {
-            id: editObjectButton
+            id: meshAddButton
 
             anchors {
-                top: addPrimitivesPopupItem.bottom
+                top: addObjectPopupItem.bottom
                 topMargin: leftPanelSceneComponent._units.half
                 left: parent.left
                 right: parent.right
             }
 
             modeRelatedBgColor: _color.si_mode_scene
-            buttonLabel: "Edit object"
+            buttonLabel: "Mesh"
+
+            checked: leftPanelMainComponentWrapper.activeBtn === "meshAddButton"
 
             onClicked: {
-                if (editObjectButton.checked) {
+                if (meshAddButton.checked) {
                     leftPanelMainComponentWrapper.activeBtn = ""
                     return
                 }
 
-                leftPanelMainComponentWrapper.activeBtn = "editObjectButton";
+                leftPanelMainComponentWrapper.activeBtn = "meshAddButton";
             }
         }
 
         SIButtonMain {
-            id: deleteObjectButton
+            id: bezierAddButton
 
             anchors {
-                top: editObjectButton.bottom
+                top: meshAddButton.bottom
                 topMargin: leftPanelSceneComponent._units.half
                 left: parent.left
                 right: parent.right
             }
 
             modeRelatedBgColor: _color.si_mode_scene
-            buttonLabel: "Delete object"
+            buttonLabel: "Bezier"
+
+            checked: leftPanelMainComponentWrapper.activeBtn === "bezierAddButton"
 
             onClicked: {
-                leftPanelMainComponentWrapper.activeBtn = "deleteObjectButton";
+                if (bezierAddButton.checked) {
+                    leftPanelMainComponentWrapper.activeBtn = ""
+                    return
+                }
+
+                leftPanelMainComponentWrapper.activeBtn = "bezierAddButton";
+            }
+        }
+
+        SIButtonMain {
+            id: implicitAddButton
+
+            anchors {
+                top: bezierAddButton.bottom
+                topMargin: leftPanelSceneComponent._units.half
+                left: parent.left
+                right: parent.right
+            }
+
+            modeRelatedBgColor: _color.si_mode_scene
+            buttonLabel: "Implicit"
+
+            checked: leftPanelMainComponentWrapper.activeBtn === "implicitAddButton"
+
+            onClicked: {
+                if (implicitAddButton.checked) {
+                    leftPanelMainComponentWrapper.activeBtn = ""
+                    return
+                }
+
+                leftPanelMainComponentWrapper.activeBtn = "implicitAddButton";
+            }
+        }
+
+        SIButtonMain {
+            id: landscapeAddButton
+
+            anchors {
+                top: implicitAddButton.bottom
+                topMargin: leftPanelSceneComponent._units.half
+                left: parent.left
+                right: parent.right
+            }
+
+            modeRelatedBgColor: _color.si_mode_scene
+            buttonLabel: "Landscape"
+
+            checked: leftPanelMainComponentWrapper.activeBtn === "landscapeAddButton"
+
+            onClicked: {
+                if (landscapeAddButton.checked) {
+                    leftPanelMainComponentWrapper.activeBtn = ""
+                    return
+                }
+
+                leftPanelMainComponentWrapper.activeBtn = "landscapeAddButton";
+            }
+        }
+
+        SIButtonMain {
+            id: polytopeAddButton
+
+            anchors {
+                top: landscapeAddButton.bottom
+                topMargin: leftPanelSceneComponent._units.half
+                left: parent.left
+                right: parent.right
+            }
+
+            modeRelatedBgColor: _color.si_mode_scene
+            buttonLabel: "Polytope"
+
+            checked: leftPanelMainComponentWrapper.activeBtn === "polytopeAddButton"
+
+            onClicked: {
+                if (polytopeAddButton.checked) {
+                    leftPanelMainComponentWrapper.activeBtn = ""
+                    return
+                }
+
+                leftPanelMainComponentWrapper.activeBtn = "polytopeAddButton";
             }
         }
 
@@ -113,7 +197,7 @@ Rectangle {
             id: infoButton
 
             anchors {
-                top: deleteObjectButton.bottom
+                top: polytopeAddButton.bottom
                 topMargin: leftPanelSceneComponent._units.half
                 left: parent.left
                 right: parent.right
@@ -138,7 +222,7 @@ Rectangle {
             id: sceneinfoPanelItem
             anchors {
                 top: infoButton.bottom
-                topMargin: _units.half
+                topMargin: _units.eight
                 left: parent.left
                 right: parent.right
             }
