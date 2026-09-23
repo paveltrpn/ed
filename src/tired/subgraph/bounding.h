@@ -5,6 +5,7 @@
 #include <vsg/all.h>
 
 #include "subgraph.h"
+#include "../scene_object/sceneobjectbase.h"
 
 namespace tire {
 
@@ -54,8 +55,9 @@ struct BoundingSubgraph final : public Subgraph {
     BoundingSubgraph( vsg::Viewer* viewer );
 
     auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
+    auto recompile() -> void override;
 
-    auto initPipeline() -> void override;
+    auto initPipeline() -> void;
     auto initDrawCommand() -> void;
 
     friend Bounding;
@@ -64,6 +66,8 @@ private:
     auto updateTransformMatUniform() -> void;
 
 private:
+    vsg::ref_ptr<vsg::StateGroup> _stateGroup{};
+
     vsg::mat4 _transformMat{};
 
     vsg::mat4 _initialScale{ vsg::scale<float>( 1.1f, 1.1f, 1.1f ) };

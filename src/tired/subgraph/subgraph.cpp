@@ -8,32 +8,28 @@ namespace tire {
 // ======================================================================================
 
 Subgraph::Subgraph( vsg::Viewer* viewer )
-    : _viewer{ viewer }
-    , _stateGroup{ vsg::StateGroup::create() } {
+    : _viewer{ viewer } {
     //
-
-    _outlineStateGroup = vsg::StateGroup::create();
-
-    this->addChild( _outlineStateGroup );
-    this->addChild( _stateGroup );
 }
 
-auto Subgraph::link( std::shared_ptr<SceneObjectBase> object ) -> void {
-    _stateGroup->addChild( object->node() );
-    recompile();
-}
+// auto Subgraph::recompile() -> void {
+//     auto compileTraversal = vsg::CompileTraversal::create( *_viewer );
 
-auto Subgraph::recompile() -> void {
-    auto compileTraversal = vsg::CompileTraversal::create( *_viewer );
+//     compileTraversal->compile( _stateGroup );
+//     compileTraversal->compile( _outlineStateGroup );
 
-    compileTraversal->compile( _stateGroup );
-    compileTraversal->compile( _outlineStateGroup );
+//     {
+//         // auto res = _viewer->compileManager->compile( _stateGroup );
+//         // auto isUpdateNeeded = res.requiresViewerUpdate( _viewer );
+//     }
 
-    // _viewer->compileManager->compile( _stateGroup );
-    // _viewer->compileManager->compile( _outlineStateGroup );
+//     {
+//         // _viewer->compileManager->compile( _outlineStateGroup );
+//     }
 
-    // vsg::CompileResult res{};
-    // vsg::updateViewer( *_viewer, res );
-}
+//     // TODO: check is this realy needed!
+//     vsg::CompileResult res{};
+//     vsg::updateViewer( *_viewer, res );
+// }
 
 }  // namespace tire

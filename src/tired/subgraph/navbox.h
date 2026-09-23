@@ -77,8 +77,9 @@ struct NavboxSubgraph final : Subgraph {
     NavboxSubgraph( vsg::Viewer* viewer );
 
     auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
+    auto recompile() -> void override;
 
-    auto initPipeline() -> void override;
+    auto initPipeline() -> void;
     auto initDrawCommand() -> void;
 
     friend Navbox;
@@ -89,6 +90,8 @@ private:
     auto updateViewMatrixBufUniformValue() -> void;
 
 private:
+    vsg::ref_ptr<vsg::StateGroup> _stateGroup{};
+
     vsg::mat4 _viewm{};
 
     vsg::vec3 _boxOrigin{ 0.04f, 0.048f, -0.200f };

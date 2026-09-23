@@ -28,8 +28,6 @@ Scene::Scene( vsg::Viewer* viewer, QObject* parent )
     , _node{ new SceneSubgraph{ viewer } }
     , _objects{ new ObjectsList{ this } } {
     //
-
-    _node->initPipelineOutline();
     _node->initPipeline();
 }
 
@@ -123,8 +121,6 @@ void Scene::addBox( const BoxObjectData& data ) {
 
     _node->link( obj );
 
-    _node->_outlineStateGroup->addChild( obj->node() );
-
     _objects->addObject( std::move( obj ) );
 
     emit objectsChanged();
@@ -134,8 +130,6 @@ void Scene::addSphere( const SphereObjectData& data ) {
     auto obj = std::make_shared<object::Sphere>( data );
 
     _node->link( obj );
-
-    _node->_outlineStateGroup->addChild( obj->node() );
 
     _objects->addObject( std::move( obj ) );
 
@@ -147,8 +141,6 @@ void Scene::addCylinder( const CylinderObjectData& data ) {
 
     _node->link( obj );
 
-    _node->_outlineStateGroup->addChild( obj->node() );
-
     _objects->addObject( std::move( obj ) );
 
     emit objectsChanged();
@@ -158,8 +150,6 @@ void Scene::addCapsule( const CapsuleObjectData& data ) {
     auto obj = std::make_shared<object::Capsule>( data );
 
     _node->link( obj );
-
-    _node->_outlineStateGroup->addChild( obj->node() );
 
     _objects->addObject( std::move( obj ) );
 
@@ -171,11 +161,24 @@ void Scene::addCapsule( const CapsuleObjectData& data ) {
 // ======================================================================================
 
 SceneSubgraph::SceneSubgraph( vsg::Viewer* viewer )
-    : Subgraph{ viewer } {
+    : Subgraph{ viewer }
+    , _stateGroup{ vsg::StateGroup::create() } {
+    //
+    this->addChild( _stateGroup );
 }
 
 auto SceneSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {
-    return {};
+    return { _stateGroup };
+}
+
+auto SceneSubgraph::recompile() -> void {
+    auto ct = vsg::CompileTraversal::create( *_viewer );
+    ct->compile( _stateGroup );
+}
+
+auto SceneSubgraph::link( std::shared_ptr<SceneObjectBase> object ) -> void {
+    _stateGroup->addChild( object->node() );
+    recompile();
 }
 
 auto SceneSubgraph::initPipeline() -> void {
@@ -306,77 +309,6 @@ auto SceneSubgraph::initPipeline() -> void {
     _stateGroup->addChild( _polygonModeCmd );
     _stateGroup->addChild( _lineWidthCmd );
     _stateGroup->addChild( _setCullModeCmd );
-}
-
-auto SceneSubgraph::initPipelineOutline() -> void {
-    auto program = Program{ TextProgramSource{ "outline" } };
-    auto vertexShader =
-        vsg::ShaderStage::create( VK_SHADER_STAGE_VERTEX_BIT, "main", program.spirv( ShaderStageType::VERTEX ) );
-    auto fragmentShader =
-        vsg::ShaderStage::create( VK_SHADER_STAGE_FRAGMENT_BIT, "main", program.spirv( ShaderStageType::FRAGMENT ) );
-
-    if ( !vertexShader || !fragmentShader ) {
-        log::fatal()( "Could not create shaders." );
-    }
-
-    const auto basePath = Config::instance().basePath().string();
-
-    // set up graphics pipeline
-    auto descriptorBindings = vsg::DescriptorSetLayoutBindings{};
-    auto descriptorSetLayout = vsg::DescriptorSetLayout::create( descriptorBindings );
-
-    vsg::PushConstantRanges pushConstantRanges{
-        { VK_SHADER_STAGE_VERTEX_BIT, 0, 128 }
-        // projection, view, and model matrices, actual push constant calls automatically provided by the VSG's RecordTraversal
-    };
-
-    vsg::VertexInputState::Bindings vertexBindingsDescriptions{
-        VkVertexInputBindingDescription{ 0, sizeof( vsg::vec3 ), VK_VERTEX_INPUT_RATE_VERTEX },  // vertex data
-        VkVertexInputBindingDescription{ 3, sizeof( vsg::vec3 ), VK_VERTEX_INPUT_RATE_VERTEX }   // normals coord data
-    };
-
-    vsg::VertexInputState::Attributes vertexAttributeDescriptions{
-        VkVertexInputAttributeDescription{ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0 },  // vertex data
-        VkVertexInputAttributeDescription{ 3, 3, VK_FORMAT_R32G32B32_SFLOAT, 0 }   // normals coord data
-    };
-
-    auto rasterizationState = vsg::RasterizationState::create();
-    rasterizationState->depthClampEnable = VK_FALSE;
-    rasterizationState->rasterizerDiscardEnable = VK_FALSE;
-    rasterizationState->polygonMode = VK_POLYGON_MODE_FILL;
-    rasterizationState->cullMode = VK_CULL_MODE_FRONT_BIT;
-    rasterizationState->frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-    rasterizationState->depthBiasEnable = VK_FALSE;
-    rasterizationState->depthBiasConstantFactor = 1.0f;
-    rasterizationState->depthBiasClamp = 0.0f;
-    rasterizationState->depthBiasSlopeFactor = 1.0f;
-    rasterizationState->lineWidth = 1.0f;
-
-    auto depthStencilState = vsg::DepthStencilState::create();
-    depthStencilState->depthTestEnable = VK_FALSE;
-    depthStencilState->depthWriteEnable = VK_TRUE;  // <-- don't block main geometry
-    depthStencilState->depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
-
-    vsg::GraphicsPipelineStates pipelineStates{
-        vsg::VertexInputState::create( vertexBindingsDescriptions, vertexAttributeDescriptions ),
-        vsg::InputAssemblyState::create(),
-        rasterizationState,
-        vsg::MultisampleState::create(),
-        vsg::ColorBlendState::create(),
-        depthStencilState };
-
-    auto pipelineLayout =
-        vsg::PipelineLayout::create( vsg::DescriptorSetLayouts{ descriptorSetLayout }, pushConstantRanges );
-    auto graphicsPipeline = vsg::GraphicsPipeline::create(
-        pipelineLayout, vsg::ShaderStages{ vertexShader, fragmentShader }, pipelineStates );
-    auto bindGraphicsPipeline = vsg::BindGraphicsPipeline::create( graphicsPipeline );
-
-    auto descriptorSet = vsg::DescriptorSet::create( descriptorSetLayout, vsg::Descriptors{} );
-    auto bindDescriptorSet =
-        vsg::BindDescriptorSet::create( VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, descriptorSet );
-
-    _outlineStateGroup->add( bindGraphicsPipeline );
-    _outlineStateGroup->add( bindDescriptorSet );
 }
 
 auto SceneSubgraph::updateObjectParamsUniformValue() -> void {

@@ -59,12 +59,19 @@ void Bounding::onSelectedObjectChanged( const SceneObjectBase* object ) {
 // ======================================================================================
 
 BoundingSubgraph::BoundingSubgraph( vsg::Viewer* viewer )
-    : Subgraph{ viewer } {
+    : Subgraph{ viewer }
+    , _stateGroup{ vsg::StateGroup::create() } {
     //
+    this->addChild( _stateGroup );
 }
 
 auto BoundingSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {
-    return {};
+    return { _stateGroup };
+}
+
+auto BoundingSubgraph::recompile() -> void {
+    auto ct = vsg::CompileTraversal::create( *_viewer );
+    ct->compile( _stateGroup );
 }
 
 auto BoundingSubgraph::initPipeline() -> void {

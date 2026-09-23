@@ -116,11 +116,19 @@ auto Grid::updateCameraPosition( const vsg::vec3& value ) -> void {
 // ======================================================================================
 
 GridSubgraph::GridSubgraph( vsg::Viewer* viewer )
-    : Subgraph{ viewer } {
+    : Subgraph{ viewer }
+    , _stateGroup{ vsg::StateGroup::create() } {
+    //
+    this->addChild( _stateGroup );
 }
 
 auto GridSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {
-    return {};
+    return { _stateGroup };
+}
+
+auto GridSubgraph::recompile() -> void {
+    auto ct = vsg::CompileTraversal::create( *_viewer );
+    ct->compile( _stateGroup );
 }
 
 auto GridSubgraph::initPipeline() -> void {
@@ -212,10 +220,6 @@ auto GridSubgraph::initDrawCommand() -> void {
     commands->addChild( drawCmd );
 
     _stateGroup->addChild( commands );
-}
-
-auto GridSubgraph::recompile() -> void {
-    Subgraph::recompile();
 }
 
 auto GridSubgraph::updateGridBufUniformValue() -> void {

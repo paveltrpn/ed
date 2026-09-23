@@ -118,11 +118,19 @@ auto Navbox::lookMatrix( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg
 // ======================================================================================
 
 NavboxSubgraph::NavboxSubgraph( vsg::Viewer* viewer )
-    : Subgraph{ viewer } {
+    : Subgraph{ viewer }
+    , _stateGroup{ vsg::StateGroup::create() } {
+    //
+    this->addChild( _stateGroup );
 }
 
 auto NavboxSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {
-    return {};
+    return { _stateGroup };
+}
+
+auto NavboxSubgraph::recompile() -> void {
+    auto ct = vsg::CompileTraversal::create( *_viewer );
+    ct->compile( _stateGroup );
 }
 
 auto NavboxSubgraph::initPipeline() -> void {

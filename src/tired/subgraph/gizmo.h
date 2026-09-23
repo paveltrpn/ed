@@ -28,10 +28,12 @@ struct GizmoSubgraph final : public Subgraph {
     GizmoSubgraph( vsg::Viewer* viewer );
 
     auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
+    auto recompile() -> void override;
 
-    auto initPipeline() -> void override;
+    auto initPipeline() -> void;
 
 private:
+    vsg::ref_ptr<vsg::StateGroup> _stateGroup{};
 };
 
 }  // namespace tire

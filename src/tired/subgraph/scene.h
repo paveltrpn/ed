@@ -89,9 +89,11 @@ struct SceneSubgraph final : Subgraph {
     SceneSubgraph( vsg::Viewer* viewer );
 
     auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
+    auto recompile() -> void override;
 
-    auto initPipeline() -> void override;
-    auto initPipelineOutline() -> void;
+    auto initPipeline() -> void;
+
+    auto link( std::shared_ptr<SceneObjectBase> object ) -> void;
 
     friend Scene;
 
@@ -99,6 +101,8 @@ private:
     auto updateObjectParamsUniformValue() -> void;
 
 private:
+    vsg::ref_ptr<vsg::StateGroup> _stateGroup{};
+
     vsg::ref_ptr<vsg::RasterizationState> _rasterizationState{};
 
     vsg::ref_ptr<vsg::SetPolygonMode> _polygonModeCmd{};

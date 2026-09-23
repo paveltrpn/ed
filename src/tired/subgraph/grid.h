@@ -75,11 +75,10 @@ struct GridSubgraph final : public Subgraph {
     GridSubgraph( vsg::Viewer* viewer );
 
     auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
-
-    auto initPipeline() -> void override;
-    auto initDrawCommand() -> void;
-
     auto recompile() -> void override;
+
+    auto initPipeline() -> void;
+    auto initDrawCommand() -> void;
 
     friend Grid;
 
@@ -88,6 +87,8 @@ private:
     auto updatePlaneBufUniformValue() -> void;
 
 private:
+    vsg::ref_ptr<vsg::StateGroup> _stateGroup{};
+
     float _gridSize{ 1.0f };
     float _lineThickness{ 0.0256f };
     float _maxRange{ 256.0f };
