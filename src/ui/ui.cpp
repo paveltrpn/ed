@@ -118,8 +118,8 @@ TiredUI::TiredUI( QObject* parent )
 
     const auto [windowWidth, windowHeight] = readSettings();
 
-    const auto topPanelHeight = static_cast<int>( windowHeight * 0.06f );
-    const auto bottomPanelHeight = static_cast<int>( windowHeight * 0.06f );
+    const auto topPanelHeight = static_cast<int>( windowHeight * 0.07f );
+    const auto bottomPanelHeight = static_cast<int>( windowHeight * 0.07f );
     mainColumnSplitter->setSizes(
         { topPanelHeight, windowHeight - ( topPanelHeight + bottomPanelHeight ), bottomPanelHeight } );
 
@@ -134,8 +134,8 @@ TiredUI::TiredUI( QObject* parent )
     hSplitter->addWidget( _vsgWidget );
     hSplitter->addWidget( _rightPanel );
 
-    const auto leftPanelWidth = static_cast<int>( windowWidth * 0.1f );
-    const auto rightPanelWidth = static_cast<int>( windowWidth * 0.1f );
+    const auto leftPanelWidth = static_cast<int>( windowWidth * 0.11f );
+    const auto rightPanelWidth = static_cast<int>( windowWidth * 0.11f );
     hSplitter->setSizes( { leftPanelWidth, windowWidth - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
 
     hLayout->addWidget( hSplitter );
