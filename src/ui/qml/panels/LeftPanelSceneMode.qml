@@ -47,16 +47,16 @@ Rectangle {
 
             onClicked: {
                 if (objectAddButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = ""
-                    return
+                    leftPanelMainComponentWrapper.activeBtn = "";
+                    return;
                 }
 
                 leftPanelMainComponentWrapper.activeBtn = "objectAddButton";
             }
         }
 
-        AddObjectPopup {
-            id: addObjectPopupItem
+        ObjectAddPopup {
+            id: objectAddPopupItem
 
             anchors {
                 top: objectAddButton.bottom
@@ -72,7 +72,7 @@ Rectangle {
             id: meshAddButton
 
             anchors {
-                top: addObjectPopupItem.bottom
+                top: objectAddPopupItem.bottom
                 topMargin: leftPanelSceneComponent._units.half
                 left: parent.left
                 right: parent.right
@@ -85,19 +85,32 @@ Rectangle {
 
             onClicked: {
                 if (meshAddButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = ""
-                    return
+                    leftPanelMainComponentWrapper.activeBtn = "";
+                    return;
                 }
 
                 leftPanelMainComponentWrapper.activeBtn = "meshAddButton";
             }
         }
 
+        MeshAddPopup {
+            id: meshAddPopupItem
+
+            anchors {
+                top: meshAddButton.bottom
+                topMargin: visible ? _units.eight : 0
+                left: parent.left
+                right: parent.right
+            }
+
+            visible: meshAddButton.checked
+        }
+
         SIButtonMain {
             id: bezierAddButton
 
             anchors {
-                top: meshAddButton.bottom
+                top: meshAddPopupItem.bottom
                 topMargin: leftPanelSceneComponent._units.half
                 left: parent.left
                 right: parent.right
@@ -110,19 +123,32 @@ Rectangle {
 
             onClicked: {
                 if (bezierAddButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = ""
-                    return
+                    leftPanelMainComponentWrapper.activeBtn = "";
+                    return;
                 }
 
                 leftPanelMainComponentWrapper.activeBtn = "bezierAddButton";
             }
         }
 
+        BezierAddPopup {
+            id: bezierAddPopupItem
+
+            anchors {
+                top: bezierAddButton.bottom
+                topMargin: visible ? _units.eight : 0
+                left: parent.left
+                right: parent.right
+            }
+
+            visible: bezierAddButton.checked
+        }
+
         SIButtonMain {
             id: implicitAddButton
 
             anchors {
-                top: bezierAddButton.bottom
+                top: bezierAddPopupItem.bottom
                 topMargin: leftPanelSceneComponent._units.half
                 left: parent.left
                 right: parent.right
@@ -135,19 +161,32 @@ Rectangle {
 
             onClicked: {
                 if (implicitAddButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = ""
-                    return
+                    leftPanelMainComponentWrapper.activeBtn = "";
+                    return;
                 }
 
                 leftPanelMainComponentWrapper.activeBtn = "implicitAddButton";
             }
         }
 
+        ImplicitAddPopup {
+            id: implicitAddPopupItem
+
+            anchors {
+                top: implicitAddButton.bottom
+                topMargin: visible ? _units.eight : 0
+                left: parent.left
+                right: parent.right
+            }
+
+            visible: implicitAddButton.checked
+        }
+
         SIButtonMain {
             id: landscapeAddButton
 
             anchors {
-                top: implicitAddButton.bottom
+                top: implicitAddPopupItem.bottom
                 topMargin: leftPanelSceneComponent._units.half
                 left: parent.left
                 right: parent.right
@@ -160,19 +199,32 @@ Rectangle {
 
             onClicked: {
                 if (landscapeAddButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = ""
-                    return
+                    leftPanelMainComponentWrapper.activeBtn = "";
+                    return;
                 }
 
                 leftPanelMainComponentWrapper.activeBtn = "landscapeAddButton";
             }
         }
 
+        LandscapeAddPopup {
+            id: landscapeAddPopupItem
+
+            anchors {
+                top: landscapeAddButton.bottom
+                topMargin: visible ? _units.eight : 0
+                left: parent.left
+                right: parent.right
+            }
+
+            visible: landscapeAddButton.checked
+        }
+
         SIButtonMain {
             id: polytopeAddButton
 
             anchors {
-                top: landscapeAddButton.bottom
+                top: landscapeAddPopupItem.bottom
                 topMargin: leftPanelSceneComponent._units.half
                 left: parent.left
                 right: parent.right
@@ -185,19 +237,32 @@ Rectangle {
 
             onClicked: {
                 if (polytopeAddButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = ""
-                    return
+                    leftPanelMainComponentWrapper.activeBtn = "";
+                    return;
                 }
 
                 leftPanelMainComponentWrapper.activeBtn = "polytopeAddButton";
             }
         }
 
+        PolytopeAddPopup {
+            id: polytopeAddPopupItem
+
+            anchors {
+                top: polytopeAddButton.bottom
+                topMargin: visible ? _units.eight : 0
+                left: parent.left
+                right: parent.right
+            }
+
+            visible: polytopeAddButton.checked
+        }
+
         SIButtonMain {
             id: infoButton
 
             anchors {
-                top: polytopeAddButton.bottom
+                top: polytopeAddPopupItem.bottom
                 topMargin: leftPanelSceneComponent._units.half
                 left: parent.left
                 right: parent.right
@@ -210,8 +275,8 @@ Rectangle {
 
             onClicked: {
                 if (infoButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = ""
-                    return
+                    leftPanelMainComponentWrapper.activeBtn = "";
+                    return;
                 }
 
                 leftPanelMainComponentWrapper.activeBtn = "infoButton";
@@ -246,8 +311,8 @@ Rectangle {
 
             onClicked: {
                 if (settingsButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = ""
-                    return
+                    leftPanelMainComponentWrapper.activeBtn = "";
+                    return;
                 }
 
                 leftPanelMainComponentWrapper.activeBtn = "settingsButton";

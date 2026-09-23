@@ -8,7 +8,7 @@ import Tire 1.0
 import "../components"
 
 Rectangle {
-    id: addPrimitivesPopupComponent
+    id: objectAddPopupComponent
 
     readonly property var _color: Appearence.colors.data
     readonly property var _fonts: Appearence.fonts.data
@@ -42,7 +42,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: addItemsButtonsLayout.itemsHeight
             text: "Box"
-            enabled: true
+            enabled: false
 
             topLeftRadius: _units.radiusEight
             topRightRadius: _units.radiusEight
@@ -55,7 +55,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: addItemsButtonsLayout.itemsHeight
             text: "Sphere"
-            enabled: true
+            enabled: false
 
             font: _fonts.label_accent
         }
@@ -65,7 +65,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: addItemsButtonsLayout.itemsHeight
             text: "Cylinder"
-            enabled: true
+            enabled: false
 
             font: _fonts.label_accent
         }
@@ -75,75 +75,28 @@ Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: addItemsButtonsLayout.itemsHeight
             text: "Capsule"
-            enabled: true
-
-            font: _fonts.label_accent
-        }
-
-        NpContextMenuButton {
-            id: addMeshButton
-            Layout.fillWidth: true
-            Layout.preferredHeight: addItemsButtonsLayout.itemsHeight
-            text: "Mesh"
             enabled: false
 
             font: _fonts.label_accent
         }
 
         NpContextMenuButton {
-            id: addImplicitButton
+            id: addConeButton
             Layout.fillWidth: true
             Layout.preferredHeight: addItemsButtonsLayout.itemsHeight
-
-            text: "Implicit surface"
-            icon.source: "image://TiredImageProvider/star-alt-3-svgrepo-com.svg"
-
+            text: "Cone"
             enabled: false
 
             font: _fonts.label_accent
         }
 
         NpContextMenuButton {
-            id: addBezierSurfaceButton
+            id: addTorusButton
             Layout.fillWidth: true
             Layout.preferredHeight: addItemsButtonsLayout.itemsHeight
-            text: "Bezier surface"
+            text: "Torus"
             enabled: false
-
             font: _fonts.label_accent
-        }
-
-        NpContextMenuButton {
-            id: addBezierSplineButton
-            Layout.fillWidth: true
-            Layout.preferredHeight: addItemsButtonsLayout.itemsHeight
-            text: "Bezier spline"
-            enabled: false
-
-            font: _fonts.label_accent
-        }
-
-        NpContextMenuButton {
-            id: addLandscapeButton
-            Layout.fillWidth: true
-            Layout.preferredHeight: addItemsButtonsLayout.itemsHeight
-            text: "Landscape"
-            enabled: false
-
-            font: _fonts.label_accent
-        }
-
-        NpContextMenuButton {
-            id: addPolytopeButton
-            Layout.fillWidth: true
-            Layout.preferredHeight: addItemsButtonsLayout.itemsHeight
-            text: "Polytope"
-            enabled: false
-
-            font: _fonts.label_accent
-
-            bottomLeftRadius: _units.radiusEight
-            bottomRightRadius: _units.radiusEight
         }
     }
 }
