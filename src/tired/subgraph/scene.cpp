@@ -23,7 +23,7 @@ namespace tire {
 // ==================== SceneObjects ====================================================
 // ======================================================================================
 
-Scene::Scene( vsg::Viewer* viewer, QObject* parent )
+Scene::Scene( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent )
     : QObject{ parent }
     , _node{ new SceneSubgraph{ viewer } }
     , _objects{ new ObjectsList{ this } } {
@@ -119,7 +119,7 @@ SceneObjectBase* Scene::findObject( const QString& uid ) const {
 void Scene::addBox( const BoxObjectData& data ) {
     auto obj = std::make_shared<object::Box>( data );
 
-    _node->link( obj );
+    _node->attach( obj );
 
     _objects->addObject( std::move( obj ) );
 
@@ -129,7 +129,7 @@ void Scene::addBox( const BoxObjectData& data ) {
 void Scene::addSphere( const SphereObjectData& data ) {
     auto obj = std::make_shared<object::Sphere>( data );
 
-    _node->link( obj );
+    _node->attach( obj );
 
     _objects->addObject( std::move( obj ) );
 
@@ -139,7 +139,7 @@ void Scene::addSphere( const SphereObjectData& data ) {
 void Scene::addCylinder( const CylinderObjectData& data ) {
     auto obj = std::make_shared<object::Cylinder>( data );
 
-    _node->link( obj );
+    _node->attach( obj );
 
     _objects->addObject( std::move( obj ) );
 
@@ -149,7 +149,7 @@ void Scene::addCylinder( const CylinderObjectData& data ) {
 void Scene::addCapsule( const CapsuleObjectData& data ) {
     auto obj = std::make_shared<object::Capsule>( data );
 
-    _node->link( obj );
+    _node->attach( obj );
 
     _objects->addObject( std::move( obj ) );
 
@@ -157,10 +157,10 @@ void Scene::addCapsule( const CapsuleObjectData& data ) {
 }
 
 // ======================================================================================
-// ==================== SceneObjectSubgraph =============================================
+// ==================== SceneSubgraph ===================================================
 // ======================================================================================
 
-SceneSubgraph::SceneSubgraph( vsg::Viewer* viewer )
+SceneSubgraph::SceneSubgraph( vsg::observer_ptr<vsg::Viewer> viewer )
     : Subgraph{ viewer }
     , _stateGroup{ vsg::StateGroup::create() } {
     //
@@ -171,14 +171,12 @@ auto SceneSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGr
     return { _stateGroup };
 }
 
-auto SceneSubgraph::recompile() -> void {
-    auto ct = vsg::CompileTraversal::create( *_viewer );
-    ct->compile( _stateGroup );
-}
+auto SceneSubgraph::attach( std::shared_ptr<SceneObjectBase> object ) -> void {
+    vsg::CompileResult cr{};
 
-auto SceneSubgraph::link( std::shared_ptr<SceneObjectBase> object ) -> void {
-    _stateGroup->addChild( object->node() );
-    recompile();
+    const auto ao = tire::AttachAndCompileOp::create( _viewer, _stateGroup, object->node(), cr );
+
+    _viewer.get()->addUpdateOperation( ao );
 }
 
 auto SceneSubgraph::initPipeline() -> void {

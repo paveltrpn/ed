@@ -10,7 +10,7 @@ namespace tire {
 // ==================== Grid ============================================================
 // ======================================================================================
 
-Grid::Grid( vsg::Viewer* viewer, QObject* parent )
+Grid::Grid( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent )
     : QObject{ parent }
     , _node{ new GridSubgraph{ viewer } } {
     //
@@ -115,7 +115,7 @@ auto Grid::updateCameraPosition( const vsg::vec3& value ) -> void {
 // ==================== GridSubgraph ====================================================
 // ======================================================================================
 
-GridSubgraph::GridSubgraph( vsg::Viewer* viewer )
+GridSubgraph::GridSubgraph( vsg::observer_ptr<vsg::Viewer> viewer )
     : Subgraph{ viewer }
     , _stateGroup{ vsg::StateGroup::create() } {
     //
@@ -124,11 +124,6 @@ GridSubgraph::GridSubgraph( vsg::Viewer* viewer )
 
 auto GridSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {
     return { _stateGroup };
-}
-
-auto GridSubgraph::recompile() -> void {
-    auto ct = vsg::CompileTraversal::create( *_viewer );
-    ct->compile( _stateGroup );
 }
 
 auto GridSubgraph::initPipeline() -> void {

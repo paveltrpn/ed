@@ -31,7 +31,7 @@ struct Scenegraph final : public QObject {
     Q_PROPERTY( int gizmoMode READ gizmoMode WRITE setGizmoMode NOTIFY gizmoModeChanged FINAL )
 
 public:
-    Scenegraph( vsg::Viewer* viewer, QObject* parent = nullptr );
+    Scenegraph( vsg::observer_ptr<vsg::Viewer>, QObject* parent = nullptr );
 
     auto root() const -> vsg::ref_ptr<vsg::Group>;
 
@@ -57,7 +57,7 @@ public slots:
     void lookChanged( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up );
 
 private:
-    vsg::Viewer* _viewer;
+    vsg::observer_ptr<vsg::Viewer> _viewer;
 
     // Must be Group of StateGroups.
     vsg::ref_ptr<vsg::Group> _root{};

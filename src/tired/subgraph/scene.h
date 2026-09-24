@@ -33,7 +33,7 @@ struct Scene final : public QObject {
     Q_PROPERTY( int showOuline READ showOuline WRITE setShowOuline NOTIFY showOulineChanged FINAL )
 
 public:
-    Scene( vsg::Viewer* viewer, QObject* parent = nullptr );
+    Scene( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent = nullptr );
 
     auto node() const -> vsg::ref_ptr<SceneSubgraph>;
 
@@ -86,14 +86,13 @@ private:
 // ======================================================================================
 
 struct SceneSubgraph final : Subgraph {
-    SceneSubgraph( vsg::Viewer* viewer );
+    SceneSubgraph( vsg::observer_ptr<vsg::Viewer> viewer );
 
     auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
-    auto recompile() -> void override;
 
     auto initPipeline() -> void;
 
-    auto link( std::shared_ptr<SceneObjectBase> object ) -> void;
+    auto attach( std::shared_ptr<SceneObjectBase> object ) -> void;
 
     friend Scene;
 

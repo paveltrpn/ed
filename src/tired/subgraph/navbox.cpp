@@ -10,7 +10,7 @@ namespace tire {
 // ==================== Navbox ==========================================================
 // ======================================================================================
 
-Navbox::Navbox( vsg::Viewer* viewer, QObject* parent )
+Navbox::Navbox( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent )
     : QObject{ parent }
     , _node{ new NavboxSubgraph{ viewer } } {
     //
@@ -117,7 +117,7 @@ auto Navbox::lookMatrix( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg
 // ==================== NavboxSubgraph ==================================================
 // ======================================================================================
 
-NavboxSubgraph::NavboxSubgraph( vsg::Viewer* viewer )
+NavboxSubgraph::NavboxSubgraph( vsg::observer_ptr<vsg::Viewer> viewer )
     : Subgraph{ viewer }
     , _stateGroup{ vsg::StateGroup::create() } {
     //
@@ -126,11 +126,6 @@ NavboxSubgraph::NavboxSubgraph( vsg::Viewer* viewer )
 
 auto NavboxSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {
     return { _stateGroup };
-}
-
-auto NavboxSubgraph::recompile() -> void {
-    auto ct = vsg::CompileTraversal::create( *_viewer );
-    ct->compile( _stateGroup );
 }
 
 auto NavboxSubgraph::initPipeline() -> void {

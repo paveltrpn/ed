@@ -7,7 +7,7 @@ namespace tire {
 // ==================== Subgraph ========================================================
 // ======================================================================================
 
-Subgraph::Subgraph( vsg::Viewer* viewer )
+Subgraph::Subgraph( vsg::observer_ptr<vsg::Viewer> viewer )
     : _viewer{ viewer } {
     //
 }

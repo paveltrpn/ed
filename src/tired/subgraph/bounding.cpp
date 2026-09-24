@@ -8,7 +8,7 @@ namespace tire {
 // ==================== Bounding ========================================================
 // ======================================================================================
 
-Bounding::Bounding( vsg::Viewer* viewer, QObject* parent )
+Bounding::Bounding( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent )
     : QObject{ parent }
     , _node{ new BoundingSubgraph{ viewer } } {
     //
@@ -58,7 +58,7 @@ void Bounding::onSelectedObjectChanged( const SceneObjectBase* object ) {
 // ==================== BoundingSubgraph ================================================
 // ======================================================================================
 
-BoundingSubgraph::BoundingSubgraph( vsg::Viewer* viewer )
+BoundingSubgraph::BoundingSubgraph( vsg::observer_ptr<vsg::Viewer> viewer )
     : Subgraph{ viewer }
     , _stateGroup{ vsg::StateGroup::create() } {
     //
@@ -67,11 +67,6 @@ BoundingSubgraph::BoundingSubgraph( vsg::Viewer* viewer )
 
 auto BoundingSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {
     return { _stateGroup };
-}
-
-auto BoundingSubgraph::recompile() -> void {
-    auto ct = vsg::CompileTraversal::create( *_viewer );
-    ct->compile( _stateGroup );
 }
 
 auto BoundingSubgraph::initPipeline() -> void {

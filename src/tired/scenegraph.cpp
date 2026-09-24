@@ -3,7 +3,7 @@
 
 namespace tire {
 
-Scenegraph::Scenegraph( vsg::Viewer* viewer, QObject* parent )
+Scenegraph::Scenegraph( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent )
     : QObject{ parent }
     , _root{ new vsg::Group{} }
     , _viewer{ viewer } {

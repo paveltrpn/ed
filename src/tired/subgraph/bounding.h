@@ -22,7 +22,7 @@ struct Bounding final : public QObject {
     Q_PROPERTY( float lineLength READ lineLength WRITE setLineLength NOTIFY lineLengthChanged FINAL )
 
 public:
-    Bounding( vsg::Viewer* viewer, QObject* parent = nullptr );
+    Bounding( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent = nullptr );
 
     auto node() const -> vsg::ref_ptr<BoundingSubgraph>;
 
@@ -52,10 +52,9 @@ private:
 // ======================================================================================
 
 struct BoundingSubgraph final : public Subgraph {
-    BoundingSubgraph( vsg::Viewer* viewer );
+    BoundingSubgraph( vsg::observer_ptr<vsg::Viewer> viewer );
 
     auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
-    auto recompile() -> void override;
 
     auto initPipeline() -> void;
     auto initDrawCommand() -> void;

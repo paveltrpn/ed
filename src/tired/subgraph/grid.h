@@ -27,7 +27,7 @@ struct Grid final : public QObject {
     Q_PROPERTY( float gridZOffset READ gridZOffset WRITE setGridZOffset NOTIFY gridZOffsetChanged FINAL )
 
 public:
-    Grid( vsg::Viewer* viewer, QObject* parent = nullptr );
+    Grid( vsg::observer_ptr<vsg::Viewer>, QObject* parent = nullptr );
 
     auto node() const -> vsg::ref_ptr<GridSubgraph>;
 
@@ -72,10 +72,9 @@ private:
 // ======================================================================================
 
 struct GridSubgraph final : public Subgraph {
-    GridSubgraph( vsg::Viewer* viewer );
+    GridSubgraph( vsg::observer_ptr<vsg::Viewer> );
 
     auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
-    auto recompile() -> void override;
 
     auto initPipeline() -> void;
     auto initDrawCommand() -> void;

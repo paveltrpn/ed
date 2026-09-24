@@ -28,7 +28,7 @@ struct Navbox final : public QObject {
     Q_PROPERTY( QVector3D lightColor READ lightColor WRITE setLightColor NOTIFY lightColorChanged FINAL )
 
 public:
-    Navbox( vsg::Viewer* viewer, QObject* parent = nullptr );
+    Navbox( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent = nullptr );
 
     auto node() const -> vsg::ref_ptr<NavboxSubgraph>;
 
@@ -74,10 +74,9 @@ private:
 // ======================================================================================
 
 struct NavboxSubgraph final : Subgraph {
-    NavboxSubgraph( vsg::Viewer* viewer );
+    NavboxSubgraph( vsg::observer_ptr<vsg::Viewer> viewer );
 
     auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
-    auto recompile() -> void override;
 
     auto initPipeline() -> void;
     auto initDrawCommand() -> void;

@@ -15,7 +15,7 @@ Gizmo::Gizmo( const QObject* parent ) {
 // ==================== GizmoSubgraph ===================================================
 // ======================================================================================
 
-GizmoSubgraph::GizmoSubgraph( vsg::Viewer* viewer )
+GizmoSubgraph::GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer )
     : Subgraph{ viewer }
     , _stateGroup{ vsg::StateGroup::create() } {
     //
@@ -24,11 +24,6 @@ GizmoSubgraph::GizmoSubgraph( vsg::Viewer* viewer )
 
 auto GizmoSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {
     return { _stateGroup };
-}
-
-auto GizmoSubgraph::recompile() -> void {
-    auto ct = vsg::CompileTraversal::create( *_viewer );
-    ct->compile( _stateGroup );
 }
 
 auto GizmoSubgraph::initPipeline() -> void{

@@ -68,7 +68,7 @@ Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> view
     // Setup scenegraph.
     {
         //
-        _scenegraph = new Scenegraph{ _viewer, this };
+        _scenegraph = new Scenegraph{ vsg::observer_ptr<vsg::Viewer>{ _viewer }, this };
     }
 
     // Setup manipulator object.

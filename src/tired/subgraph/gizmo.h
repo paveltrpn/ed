@@ -25,10 +25,9 @@ public:
 // ======================================================================================
 
 struct GizmoSubgraph final : public Subgraph {
-    GizmoSubgraph( vsg::Viewer* viewer );
+    GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer );
 
     auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
-    auto recompile() -> void override;
 
     auto initPipeline() -> void;
 
