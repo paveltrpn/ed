@@ -39,10 +39,10 @@ Rectangle {
         readonly property int itemsHeight: _units.scaled_24
 
         NpContextMenuButton {
-            id: serviceObjectsSettingsButton
+            id: sceneInformationButton
             Layout.fillWidth: true
             Layout.preferredHeight: sceneinfoPanelButtonsLayout.itemsHeight
-            text: "Scene info"
+            text: "Information"
             enabled: true
 
             topLeftRadius: _units.radiusEight
@@ -60,8 +60,8 @@ Rectangle {
             SIWindow {
                 id: sceneInfoWindow
 
-                width: 640
-                height: 800
+                width: 512
+                height: 400
 
                 title: "Scene info"
 

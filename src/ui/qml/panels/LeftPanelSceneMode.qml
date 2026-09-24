@@ -267,43 +267,6 @@ Rectangle {
         }
 
         SIButtonMain {
-            id: infoButton
-
-            anchors {
-                top: polytopeAddPopupItem.bottom
-                topMargin: leftPanelSceneComponent._units.half
-                left: parent.left
-                right: parent.right
-            }
-
-            modeRelatedBgColor: _color.si_mode_scene
-            buttonLabel: "Info"
-
-            checked: leftPanelSceneComponent.activeBtn === "infoButton"
-
-            onClicked: {
-                if (infoButton.checked) {
-                    leftPanelSceneComponent.activeBtn = "";
-                    return;
-                }
-
-                leftPanelSceneComponent.activeBtn = "infoButton";
-            }
-        }
-
-        SceneInfoPanel {
-            id: sceneinfoPanelItem
-            anchors {
-                top: infoButton.bottom
-                topMargin: _units.eight
-                left: parent.left
-                right: parent.right
-            }
-
-            visible: infoButton.checked
-        }
-
-        SIButtonMain {
             id: settingsButton
 
             anchors {

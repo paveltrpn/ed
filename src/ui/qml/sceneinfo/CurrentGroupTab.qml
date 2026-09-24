@@ -8,7 +8,7 @@ import Tire 1.0
 import "../components"
 
 Rectangle {
-    id: currentGroupComponent
+    id: selectedInfoComponent
 
     readonly property var _color: Appearence.colors.data
     readonly property var _fonts: Appearence.fonts.data
@@ -19,10 +19,10 @@ Rectangle {
 
     color: _color.si_background_light
 
-    implicitHeight: currentGroupInfoLayout.implicitHeight + _units.full
+    implicitHeight: selectedInfoLayout.implicitHeight + _units.full
 
     ColumnLayout {
-        id: currentGroupInfoLayout
+        id: selectedInfoLayout
 
         spacing: _units.half
 

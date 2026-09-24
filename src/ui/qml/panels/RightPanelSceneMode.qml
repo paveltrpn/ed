@@ -20,6 +20,8 @@ Rectangle {
 
     color: _color.si_button_shadow
 
+    property string activeBtn: ""
+
     Item {
         id: rightPanelScenemodeWrapper
         anchors {
@@ -336,6 +338,43 @@ Rectangle {
                     Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
                 }
             }
+        }
+
+        SIButtonMain {
+            id: sceneButton
+
+            anchors {
+                bottom: sceneinfoPanelItem.top
+                bottomMargin: _units.eight
+                left: parent.left
+                right: parent.right
+            }
+
+            modeRelatedBgColor: _color.si_mode_scene
+            buttonLabel: "Scene"
+
+            checked: rightPanelSceneComponent.activeBtn === "infoButton"
+
+            onClicked: {
+                if (sceneButton.checked) {
+                    rightPanelSceneComponent.activeBtn = "";
+                    return;
+                }
+
+                rightPanelSceneComponent.activeBtn = "infoButton";
+            }
+        }
+
+        SceneInfoPanel {
+            id: sceneinfoPanelItem
+            anchors {
+                bottom: rightPanelScenemodeWrapper.bottom
+                bottomMargin: _units.eight
+                left: parent.left
+                right: parent.right
+            }
+
+            visible: sceneButton.checked
         }
     }
 }

@@ -87,7 +87,7 @@ struct AttachAndCompileOp : public vsg::Inherit<vsg::Operation, AttachAndCompile
 
         ct->compile( _attachmentPoint );
 
-        // TODO: needot o update viewer?
+        // TODO: need to update viewer?
         // updateViewer( *ref_viewer, _compileResult );
     }
 
@@ -104,7 +104,7 @@ private:
 
 struct DetachAndCompileOp : public vsg::Inherit<vsg::Operation, DetachAndCompileOp> {
     DetachAndCompileOp( vsg::observer_ptr<vsg::Viewer> viewer, vsg::ref_ptr<vsg::Group> detachmentPoint,
-              vsg::ref_ptr<vsg::Node> node )
+                        vsg::ref_ptr<vsg::Node> node )
         : _viewer( viewer )
         , _detachmentPoint( detachmentPoint )
         , _node( node ) {}

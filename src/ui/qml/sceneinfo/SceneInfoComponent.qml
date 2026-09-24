@@ -30,14 +30,14 @@ Item {
         width: parent.width
 
         NpTabButton {
-            text: qsTr("Scene total")
+            text: qsTr("Scene")
             anchors.top: parent.top
             height: parent.height
             font: _fonts.label_accent
         }
 
         NpTabButton {
-            text: qsTr("Current group")
+            text: qsTr("Selected")
             anchors.top: parent.top
             height: parent.height
             font: _fonts.label_accent
@@ -62,7 +62,7 @@ Item {
         }
 
         CurrentGroupTab {
-            id: currentGroupTab
+            id: selectedInfoTab
             Layout.fillWidth: true
         }
     }
