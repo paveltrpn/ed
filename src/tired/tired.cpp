@@ -19,13 +19,13 @@ void Tired::init( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> 
         log::error()( "Warning: Singleton already initialized. Ignoring new arguments." );
     }
 
-    std::call_once( _initFlag, [&]() {
+    std::call_once( _initFlag, [&]() -> void {
         _instance.store( new Tired( windowAdapter, viewer, width, height ) );
         _initSuccess = true;
     } );
 }
 
-Tired& Tired::instance() {
+auto Tired::instance() -> Tired& {
     auto* ptr = _instance.load();
 
     if ( !ptr ) {
@@ -35,7 +35,7 @@ Tired& Tired::instance() {
     return *ptr;
 }
 
-Tired* Tired::pointer() {
+auto Tired::pointer() -> Tired* {
     auto* ptr = _instance.load();
 
     if ( !ptr ) {
@@ -198,7 +198,7 @@ void Tired::setControlMode( int value ) {
     emit controlModeChanged( value );
 }
 
-int Tired::controlMode() {
+auto Tired::controlMode() -> int {
     return static_cast<int>( _controlMode );
 }
 
