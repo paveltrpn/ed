@@ -55,9 +55,16 @@ Rectangle {
                     id: frame
 
                     anchors {
-                        fill: parent
+                        left: parent.left
+                        leftMargin: _units.scaled_4
+                        top: parent.top
+                        bottom: parent.bottom
+
                         topMargin: _units.scaled_2
                         bottomMargin: _units.scaled_2
+
+                        right: removeBtn.right
+                        rightMargin: _units.scaled_4
                     }
 
                     color: (model.object.uid === Tired.scenegraph.scene.selectedObjectUid) ? _color.si_background_light_faded : _color.si_background_light
@@ -92,8 +99,7 @@ Rectangle {
                             leftMargin: _units.scaled_4
                             top: parent.top
                             bottom: parent.bottom
-                            right: removeBtn.right
-                            rightMargin: _units.scaled_4
+
                         }
 
                         color: _color.si_text_dark
@@ -111,24 +117,24 @@ Rectangle {
                             return `${name} ${uid}`;
                         }
                     }
+                }
 
-                    SIButton {
-                        id: removeBtn
+                SIButton {
+                    id: removeBtn
 
-                        anchors {
-                            right: parent.right
-                            rightMargin: _units.scaled_4
-                            verticalCenter: parent.verticalCenter
-                        }
+                    anchors {
+                        right: parent.right
+                        rightMargin: _units.scaled_4
+                        verticalCenter: parent.verticalCenter
+                    }
 
-                        width: 32
-                        height: 24
+                    width: 32
+                    height: 24
 
-                        buttonLabel: "D"
+                    buttonLabel: "D"
 
-                        onClicked: {
-                            Tired.scenegraph.scene.removeObject(model.object.uid)
-                        }
+                    onClicked: {
+                        Tired.scenegraph.scene.removeObject(model.object.uid)
                     }
                 }
             }

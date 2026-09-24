@@ -190,7 +190,7 @@ auto SceneSubgraph::attach( std::shared_ptr<SceneObjectBase> object ) -> void {
 auto SceneSubgraph::detach( std::shared_ptr<SceneObjectBase> object ) -> void {
     vsg::CompileResult cr{};
 
-    const auto op = tire::DetachOp::create( _viewer, _stateGroup, object->node() );
+    const auto op = tire::DetachAndCompileOp::create( _viewer, _stateGroup, object->node() );
 
     _viewer.get()->addUpdateOperation( op );
 }
