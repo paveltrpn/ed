@@ -37,6 +37,8 @@ public:
     bool removeRows( int row, int count, const QModelIndex &parent = QModelIndex() ) override;
 
     auto addObject( std::shared_ptr<SceneObjectBase> object ) -> void;
+    auto removeObject( std::shared_ptr<SceneObjectBase> object ) -> void;
+
     auto findObject( const QUuid &uid ) const -> std::shared_ptr<SceneObjectBase>;
 
 private:

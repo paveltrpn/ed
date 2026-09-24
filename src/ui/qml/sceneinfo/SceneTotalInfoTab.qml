@@ -49,7 +49,7 @@ Rectangle {
 
             delegate: Item {
                 width: objectsListView.width
-                height: _units.scaled_28
+                height: _units.scaled_32
 
                 Rectangle {
                     id: frame
@@ -88,8 +88,12 @@ Rectangle {
                         id: objectDataText
 
                         anchors {
-                            fill: parent
+                            left: parent.left
                             leftMargin: _units.scaled_4
+                            top: parent.top
+                            bottom: parent.bottom
+                            right: removeBtn.right
+                            rightMargin: _units.scaled_4
                         }
 
                         color: _color.si_text_dark
@@ -105,6 +109,25 @@ Rectangle {
                             const name = model.object.name;
                             const uid = model.object.uid;
                             return `${name} ${uid}`;
+                        }
+                    }
+
+                    SIButton {
+                        id: removeBtn
+
+                        anchors {
+                            right: parent.right
+                            rightMargin: _units.scaled_4
+                            verticalCenter: parent.verticalCenter
+                        }
+
+                        width: 32
+                        height: 24
+
+                        buttonLabel: "D"
+
+                        onClicked: {
+                            Tired.scenegraph.scene.removeObject(model.object.uid)
                         }
                     }
                 }

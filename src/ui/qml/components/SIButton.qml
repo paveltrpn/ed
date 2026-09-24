@@ -57,7 +57,8 @@ QuickTemplates.Button {
         anchors {
             fill: control
         }
-        strokeWidth: _units.scaled_2
+
+        strokeWidth: _units.scaled_1
 
         radius: _units.scaled_6
         bevel: true

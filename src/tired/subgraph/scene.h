@@ -42,6 +42,8 @@ public:
     Q_INVOKABLE void addCylinder( const CylinderObjectData& data );
     Q_INVOKABLE void addCapsule( const CapsuleObjectData& data );
 
+    Q_INVOKABLE void removeObject( const QUuid& uid );
+
     auto objects() const -> ObjectsList*;
 
     auto selectedObjectUid() const -> QString;
@@ -93,6 +95,7 @@ struct SceneSubgraph final : Subgraph {
     auto initPipeline() -> void;
 
     auto attach( std::shared_ptr<SceneObjectBase> object ) -> void;
+    auto detach( std::shared_ptr<SceneObjectBase> object ) -> void;
 
     friend Scene;
 

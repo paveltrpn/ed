@@ -30,6 +30,14 @@ auto ObjectsList::addObject( std::shared_ptr<SceneObjectBase> object ) -> void {
     endInsertRows();
 }
 
+auto ObjectsList::removeObject( std::shared_ptr<SceneObjectBase> object ) -> void {
+    // beginRemoveRows( parentIndex, row, row );
+
+    // _objectsList.push_back( object );
+
+    // endInsertRows();
+}
+
 auto ObjectsList::findObject( const QUuid &uid ) const -> std::shared_ptr<SceneObjectBase> {
     auto it = std::find_if( _objectsList.begin(), _objectsList.end(),
                             //

@@ -156,6 +156,14 @@ void Scene::addCapsule( const CapsuleObjectData& data ) {
     emit objectsChanged();
 }
 
+void Scene::removeObject( const QUuid& uid ) {
+    qDebug() << "=== " << uid;
+    auto obj = _objects->findObject( uid );
+    _node->detach( obj );
+
+    // TODO: remove from list and model
+}
+
 // ======================================================================================
 // ==================== SceneSubgraph ===================================================
 // ======================================================================================
@@ -174,9 +182,17 @@ auto SceneSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGr
 auto SceneSubgraph::attach( std::shared_ptr<SceneObjectBase> object ) -> void {
     vsg::CompileResult cr{};
 
-    const auto ao = tire::AttachAndCompileOp::create( _viewer, _stateGroup, object->node(), cr );
+    const auto op = tire::AttachAndCompileOp::create( _viewer, _stateGroup, object->node(), cr );
 
-    _viewer.get()->addUpdateOperation( ao );
+    _viewer.get()->addUpdateOperation( op );
+}
+
+auto SceneSubgraph::detach( std::shared_ptr<SceneObjectBase> object ) -> void {
+    vsg::CompileResult cr{};
+
+    const auto op = tire::DetachOp::create( _viewer, _stateGroup, object->node() );
+
+    _viewer.get()->addUpdateOperation( op );
 }
 
 auto SceneSubgraph::initPipeline() -> void {

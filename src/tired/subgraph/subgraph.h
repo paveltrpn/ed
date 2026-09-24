@@ -15,8 +15,9 @@ namespace tire {
 // ======================================================================================
 
 struct DeferredDeleteOp : public vsg::Inherit<vsg::Operation, DeferredDeleteOp> {
-    DeferredDeleteOp( vsg::ref_ptr<vsg::Node> node, int frameDelay = 4 )
-        : _node( node )
+    DeferredDeleteOp( vsg::observer_ptr<vsg::Viewer> viewer, vsg::ref_ptr<vsg::Node> node, int frameDelay = 4 )
+        : _viewer( viewer )
+        , _node( node )
         , _frameDelay( frameDelay ) {}
 
     void run() override {
@@ -48,11 +49,6 @@ struct AttachOp : public vsg::Inherit<vsg::Operation, AttachOp> {
         , _node( node )
         , _compileResult( compileResult ) {}
 
-    vsg::observer_ptr<vsg::Viewer> _viewer;
-    vsg::ref_ptr<vsg::Group> _attachmentPoint;
-    vsg::ref_ptr<vsg::Node> _node;
-    vsg::CompileResult _compileResult;
-
     void run() override {
         vsg::ref_ptr<vsg::Viewer> ref_viewer = _viewer;
 
@@ -62,6 +58,12 @@ struct AttachOp : public vsg::Inherit<vsg::Operation, AttachOp> {
 
         _attachmentPoint->addChild( _node );
     }
+
+private:
+    vsg::observer_ptr<vsg::Viewer> _viewer;
+    vsg::ref_ptr<vsg::Group> _attachmentPoint;
+    vsg::ref_ptr<vsg::Node> _node;
+    vsg::CompileResult _compileResult;
 };
 
 // ======================================================================================
@@ -101,8 +103,10 @@ private:
 // ======================================================================================
 
 struct DetachOp : public vsg::Inherit<vsg::Operation, DetachOp> {
-    DetachOp( vsg::ref_ptr<vsg::Group> detachmentPoint, vsg::ref_ptr<vsg::Node> node )
-        : _detachmentPoint( detachmentPoint )
+    DetachOp( vsg::observer_ptr<vsg::Viewer> viewer, vsg::ref_ptr<vsg::Group> detachmentPoint,
+              vsg::ref_ptr<vsg::Node> node )
+        : _viewer( viewer )
+        , _detachmentPoint( detachmentPoint )
         , _node( node ) {}
 
     void run() override {
@@ -113,7 +117,12 @@ struct DetachOp : public vsg::Inherit<vsg::Operation, DetachOp> {
 
                 vsg::ref_ptr<vsg::Viewer> ref_viewer = _viewer;
 
-                ref_viewer->addUpdateOperation( DeferredDeleteOp::create( _node ), vsg::UpdateOperations::ALL_FRAMES );
+                auto ct = vsg::CompileTraversal::create( *ref_viewer );
+
+                ct->compile( _detachmentPoint );
+
+                ref_viewer->addUpdateOperation( DeferredDeleteOp::create( _viewer, _node ),
+                                                vsg::UpdateOperations::ALL_FRAMES );
             }
         }
     }
