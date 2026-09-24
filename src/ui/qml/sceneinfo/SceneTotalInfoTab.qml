@@ -32,13 +32,36 @@ Rectangle {
 
         height: objectsListView.height
 
+        Text {
+            id: listHederText
+
+            anchors {
+                left: parent.left
+                leftMargin: _units.scaled_4
+            }
+
+            height: 32
+            width: implicitWidth
+
+            color: _color.si_text_dark
+
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+
+            font: _fonts.text_body_accent
+
+            text: " Objects list:"
+        }
+
         ListView {
             id: objectsListView
 
+            spacing: 0
+
             anchors {
-                top: parent.top
+                top: listHederText.bottom
                 left: parent.left
-                leftMargin: _units.half
+                leftMargin: _units.full * 2
                 right: parent.right
                 rightMargin: _units.half
             }
@@ -49,7 +72,7 @@ Rectangle {
 
             delegate: Item {
                 width: objectsListView.width
-                height: _units.scaled_32
+                height: _units.scaled_28
 
                 Rectangle {
                     id: frame
@@ -59,35 +82,53 @@ Rectangle {
                         leftMargin: _units.scaled_4
                         top: parent.top
                         bottom: parent.bottom
-
-                        topMargin: _units.scaled_2
-                        bottomMargin: _units.scaled_2
-
-                        right: removeBtn.right
+                        right: removeBtn.left
                         rightMargin: _units.scaled_4
                     }
 
-                    color: (model.object.uid === Tired.scenegraph.scene.selectedObjectUid) ? _color.si_background_light_faded : _color.si_background_light
+                    color: _color.si_background_light
 
-                    border {
-                        color: _color.si_background_dark
-                        width: _units.scaled_1
-                    }
+                    // border {
+                    //     color: _color.si_background_dark
+                    //     width: _units.scaled_1
+                    // }
+
+                    states: [
+                        State {
+                            name: "hovered"
+                            when: listItemMouseArea.containsMouse && (model.object.uid !== Tired.scenegraph.scene.selectedObjectUid)
+                            PropertyChanges {
+                                frame.color: _color.si_background_light_faded
+                            }
+                        },
+                        State {
+                            name: "seleced"
+                            when: (model.object.uid === Tired.scenegraph.scene.selectedObjectUid)
+                            PropertyChanges {
+                                frame.color: _color.si_button_bg_blue
+                                objectDataText.color: _color.si_text_light
+                            }
+                        }
+                    ]
 
                     MouseArea {
+                        id: listItemMouseArea
+
                         anchors {
                             fill: parent
                             topMargin: _units.scaled_2
                             bottomMargin: _units.scaled_2
                         }
 
+                        hoverEnabled: true
+
                         onClicked: {
                             if (Tired.scenegraph.scene.selectedObjectUid === model.object.uid) {
-                                Tired.scenegraph.scene.selectedObjectUid = "{00000000-0000-0000-0000-000000000000}"
+                                Tired.scenegraph.scene.selectedObjectUid = "{00000000-0000-0000-0000-000000000000}";
                                 return;
                             }
 
-                            Tired.scenegraph.scene.selectedObjectUid = model.object.uid
+                            Tired.scenegraph.scene.selectedObjectUid = model.object.uid;
                         }
                     }
 
@@ -99,13 +140,13 @@ Rectangle {
                             leftMargin: _units.scaled_4
                             top: parent.top
                             bottom: parent.bottom
-
+                            right: parent.right
                         }
 
                         color: _color.si_text_dark
 
                         verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignHCenter
+                        horizontalAlignment: Text.AlignHLeft
 
                         font: _fonts.label_accent
 
@@ -114,7 +155,7 @@ Rectangle {
                         text: {
                             const name = model.object.name;
                             const uid = model.object.uid;
-                            return `${name} ${uid}`;
+                            return `name: ${name} uid: ${uid}`;
                         }
                     }
                 }
@@ -125,16 +166,18 @@ Rectangle {
                     anchors {
                         right: parent.right
                         rightMargin: _units.scaled_4
-                        verticalCenter: parent.verticalCenter
+                        top: parent.top
+                        topMargin: _units.scaled_2
+                        bottom: parent.bottom
+                        bottomMargin: _units.scaled_2
                     }
 
                     width: 32
-                    height: 24
 
                     buttonLabel: "D"
 
                     onClicked: {
-                        Tired.scenegraph.scene.removeObject(model.object.uid)
+                        Tired.scenegraph.scene.removeObject(model.object.uid);
                     }
                 }
             }
