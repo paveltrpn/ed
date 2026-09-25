@@ -14,6 +14,8 @@ Rectangle {
     readonly property var _fonts: Appearence.fonts.data
     readonly property var _units: Appearence.units.data
 
+    property var selectedObject: null
+
     bottomLeftRadius: _units.radiusEight
     bottomRightRadius: _units.radiusEight
 
@@ -31,44 +33,56 @@ Rectangle {
         Connections {
             target: Tired.scenegraph.scene
             function onSelectedObjectChanged(object) {
+                selectedInfoComponent.selectedObject = object;
+
                 if (object !== null) {
+                    let wantedSource = "";
+
                     switch (object.type) {
                     case 0:
                         {
-                            objectInfoLoader.source = "";
+                            wantedSource = "";
                             break;
                         }
                     case 1:
                         {
-                            objectInfoLoader.source = "./BoxInfoWidget.qml";
+                            wantedSource = "./BoxInfoWidget.qml";
                             break;
                         }
                     case 2:
                         {
-                            objectInfoLoader.source = "./SphereInfoWidget.qml";
+                            wantedSource = "./SphereInfoWidget.qml";
                             break;
                         }
                     case 3:
                         {
-                            objectInfoLoader.source = "./CylinderInfoWidget.qml";
+                            wantedSource = "./CylinderInfoWidget.qml";
                             break;
                         }
                     case 4:
                         {
-                            objectInfoLoader.source = "./CapsuleInfoWidget.qml";
+                            wantedSource = "./CapsuleInfoWidget.qml";
                             break;
                         }
                     case 5:
                         {
-                            objectInfoLoader.source = "./ConeInfoWidget.qml";
+                            wantedSource = "./ConeInfoWidget.qml";
                             break;
                         }
                     case 6:
                         {
-                            objectInfoLoader.source = "./TorusInfoWidget.qml";
+                            wantedSource = "./TorusInfoWidget.qml";
                             break;
                         }
                     }
+
+                    if (objectInfoLoader.source !== wantedSource) {
+                        objectInfoLoader.source = wantedSource;
+                    } else if (objectInfoLoader.status === Loader.Ready) {
+                        objectInfoLoader.item.object = object;
+                    }
+                } else if (objectInfoLoader.status === Loader.Ready) {
+                    objectInfoLoader.item.object = null;
                 }
             }
         }
@@ -121,6 +135,12 @@ Rectangle {
 
                 anchors {
                     fill: parent
+                }
+
+                onLoaded: {
+                    if (objectInfoLoader.item !== null && selectedInfoComponent.selectedObject !== null) {
+                        objectInfoLoader.item.object = selectedInfoComponent.selectedObject;
+                    }
                 }
             }
         }
