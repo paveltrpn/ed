@@ -28,6 +28,51 @@ Rectangle {
             fill: parent
         }
 
+        Connections {
+            target: Tired.scenegraph.scene
+            function onSelectedObjectChanged(object) {
+                if (object !== null) {
+                    switch (object.type) {
+                    case 0:
+                        {
+                            objectInfoLoader.source = "";
+                            break;
+                        }
+                    case 1:
+                        {
+                            objectInfoLoader.source = "./BoxInfoWidget.qml";
+                            break;
+                        }
+                    case 2:
+                        {
+                            objectInfoLoader.source = "./SphereInfoWidget.qml";
+                            break;
+                        }
+                    case 3:
+                        {
+                            objectInfoLoader.source = "./CylinderInfoWidget.qml";
+                            break;
+                        }
+                    case 4:
+                        {
+                            objectInfoLoader.source = "./CapsuleInfoWidget.qml";
+                            break;
+                        }
+                    case 5:
+                        {
+                            objectInfoLoader.source = "./ConeInfoWidget.qml";
+                            break;
+                        }
+                    case 6:
+                        {
+                            objectInfoLoader.source = "./TorusInfoWidget.qml";
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         states: [
             State {
                 name: "no_object_selected"
@@ -64,17 +109,20 @@ Rectangle {
             text: "No objects selected"
         }
 
-        Rectangle {
+        Item {
             id: someObjectSelectedWrapper
 
             anchors {
-                centerIn: parent
+                fill: parent
             }
 
-            width: 100
-            height: 100
+            Loader {
+                id: objectInfoLoader
 
-            color: "red"
+                anchors {
+                    fill: parent
+                }
+            }
         }
     }
 }

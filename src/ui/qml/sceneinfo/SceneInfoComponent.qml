@@ -14,6 +14,7 @@ Item {
 
     anchors {
         top: parent.top
+        bottom: parent.bottom
         left: parent.left
         leftMargin: _units.scaled_1
         right: parent.right
@@ -49,6 +50,7 @@ Item {
 
         anchors {
             top: sceneInfoTabBar.bottom
+            bottom: parent.bottom
             left: parent.left
             right: parent.right
         }
@@ -59,11 +61,13 @@ Item {
         SceneTotalInfoTab {
             id: sceneTotalInfoTab
             Layout.fillWidth: true
+            Layout.fillHeight: true
         }
 
         CurrentGroupTab {
             id: selectedInfoTab
             Layout.fillWidth: true
+            Layout.fillHeight: true
         }
     }
 }
