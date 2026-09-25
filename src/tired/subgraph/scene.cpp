@@ -52,6 +52,11 @@ auto Scene::setSelectedObjectUid( const QString& value ) -> void {
     auto obj = _objects->findObject( QUuid::fromString( value ) );
 
     emit selectedObjectChanged( obj.get() );
+    emit isAnyObjectSelectedChanged();
+}
+
+auto Scene::isAnyObjectSelected() const -> bool {
+    return !_selectedObjectUid.isNull();
 }
 
 auto Scene::renderMode() const -> int {

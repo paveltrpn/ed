@@ -19,88 +19,62 @@ Rectangle {
 
     color: _color.si_background_light
 
-    implicitHeight: selectedInfoLayout.implicitHeight + _units.full
+    // implicitHeight: selectedInfoLayout.implicitHeight + _units.full
 
-    ColumnLayout {
-        id: selectedInfoLayout
-
-        spacing: _units.half
+    Item {
+        id: objectInfoArea
 
         anchors {
-            left: parent.left
-            right: parent.right
+            fill: parent
         }
 
-        Item {
-            id: spacer1
-            Layout.preferredWidth: parent.width
-            Layout.preferredHeight: _units.half
+        states: [
+            State {
+                name: "no_object_selected"
+                when: !Tired.scenegraph.scene.isAnyObjectSelected
+                PropertyChanges {
+                    noObjectSelectedDummy.visible: true
+                    someObjectSelectedWrapper.visible: false
+                }
+            },
+            State {
+                name: "some_object_selected"
+                when: Tired.scenegraph.scene.isAnyObjectSelected
+                PropertyChanges {
+                    noObjectSelectedDummy.visible: false
+                    someObjectSelectedWrapper.visible: true
+                }
+            }
+        ]
+
+        Text {
+            id: noObjectSelectedDummy
+
+            anchors {
+                fill: parent
+            }
+
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+
+            font: _fonts.text_body_accent
+
+            color: _color.si_background_dark
+
+            text: "No objects selected"
         }
 
-        Loader {
-            id: dummyField
-            sourceComponent: numericParameter
-            Layout.preferredWidth: parent.width
-            Layout.preferredHeight: 24
+        Rectangle {
+            id: someObjectSelectedWrapper
 
-            onLoaded: {
-                item.parameterlabel = "some dummy param";
-                item.parameterValue = 0.0;
+            anchors {
+                centerIn: parent
             }
 
-            Connections {
-            }
-        }
-    }
+            width: 100
+            height: 100
 
-    Component {
-        id: numericParameter
-
-        Item {
-            id: numericParameterWrapper
-
-            anchors.fill: parent
-
-            property string parameterlabel
-            property real parameterValue
-
-            signal paramValueChanged(value: real)
-
-            Text {
-                id: paramLabel
-                anchors {
-                    top: parent.top
-                    bottom: parent.bottom
-                    left: parent.left
-                    leftMargin: 8
-                }
-
-                text: numericParameterWrapper.parameterlabel
-
-                verticalAlignment: Text.AlignVCenter
-
-                color: _color.si_text_dark
-                font: _fonts.label
-            }
-
-            TiredTextInput {
-                id: paramValue
-
-                anchors {
-                    top: parent.top
-                    bottom: parent.bottom
-                    right: parent.right
-                    rightMargin: 8
-                }
-
-                width: 92
-
-                text: numericParameterWrapper.parameterValue.toFixed(3)
-
-                onTextChanged: {
-                    numericParameterWrapper.paramValueChanged(parseFloat(text));
-                }
-            }
+            color: "red"
         }
     }
 }

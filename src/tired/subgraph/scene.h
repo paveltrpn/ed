@@ -25,6 +25,7 @@ struct Scene final : public QObject {
     Q_PROPERTY( ObjectsList* objects READ objects NOTIFY objectsChanged FINAL )
     Q_PROPERTY( QString selectedObjectUid READ selectedObjectUid WRITE setSelectedObjectUid NOTIFY
                     selectedObjectUidChanged FINAL )
+    Q_PROPERTY( bool isAnyObjectSelected READ isAnyObjectSelected NOTIFY isAnyObjectSelectedChanged FINAL )
 
     Q_PROPERTY( int renderMode READ renderMode WRITE setRenderMode NOTIFY renderModeChanged FINAL )
     Q_PROPERTY( int appearnceMode READ appearnceMode WRITE setAppearnceMode NOTIFY appearnceModeChanged FINAL )
@@ -49,6 +50,8 @@ public:
     auto selectedObjectUid() const -> QString;
     auto setSelectedObjectUid( const QString& value ) -> void;
 
+    auto isAnyObjectSelected() const -> bool;
+
     auto renderMode() const -> int;
     auto setRenderMode( int value ) -> void;
 
@@ -71,6 +74,7 @@ signals:
     void appearnceModeChanged();
     void lightModeChanged();
     void showOulineChanged();
+    void isAnyObjectSelectedChanged();
 
 private:
     vsg::ref_ptr<SceneSubgraph> _node{};
