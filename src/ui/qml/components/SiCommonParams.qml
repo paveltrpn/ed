@@ -244,7 +244,7 @@ Item {
 
                 enabled: siCommonParamsComponent.object !== null
 
-                text: siCommonParamsComponent.object ? siCommonParamsComponent.object.color.r.toFixed(3) : "0.000"
+                text: siCommonParamsComponent.object ? siCommonParamsComponent.object.color.x.toFixed(3) : "0.000"
 
                 onTextValueChanged: siCommonParamsComponent.onVectorInputChanged("color", 0, colorRInput)
             }
@@ -257,7 +257,7 @@ Item {
 
                 enabled: siCommonParamsComponent.object !== null
 
-                text: siCommonParamsComponent.object ? siCommonParamsComponent.object.color.g.toFixed(3) : "0.000"
+                text: siCommonParamsComponent.object ? siCommonParamsComponent.object.color.y.toFixed(3) : "0.000"
 
                 onTextValueChanged: siCommonParamsComponent.onVectorInputChanged("color", 1, colorGInput)
             }
@@ -270,22 +270,9 @@ Item {
 
                 enabled: siCommonParamsComponent.object !== null
 
-                text: siCommonParamsComponent.object ? siCommonParamsComponent.object.color.b.toFixed(3) : "0.000"
+                text: siCommonParamsComponent.object ? siCommonParamsComponent.object.color.z.toFixed(3) : "0.000"
 
                 onTextValueChanged: siCommonParamsComponent.onVectorInputChanged("color", 2, colorBInput)
-            }
-
-            TiredTextInput {
-                id: colorAInput
-
-                Layout.fillWidth: true
-                Layout.preferredHeight: _units.scaled_24
-
-                enabled: siCommonParamsComponent.object !== null
-
-                text: siCommonParamsComponent.object ? siCommonParamsComponent.object.color.a.toFixed(3) : "0.000"
-
-                onTextValueChanged: siCommonParamsComponent.onVectorInputChanged("color", 3, colorAInput)
             }
         }
     }
@@ -345,13 +332,11 @@ Item {
             sclZInput.text = o.scale.z.toFixed(3);
 
         if (!colorRInput.activeFocus)
-            colorRInput.text = o.color.r.toFixed(3);
+            colorRInput.text = o.color.x.toFixed(3);
         if (!colorGInput.activeFocus)
-            colorGInput.text = o.color.g.toFixed(3);
+            colorGInput.text = o.color.y.toFixed(3);
         if (!colorBInput.activeFocus)
-            colorBInput.text = o.color.b.toFixed(3);
-        if (!colorAInput.activeFocus)
-            colorAInput.text = o.color.a.toFixed(3);
+            colorBInput.text = o.color.z.toFixed(3);
     }
 
     function onVectorInputChanged(kind, axis, input) {
