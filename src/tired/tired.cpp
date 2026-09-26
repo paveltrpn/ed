@@ -13,8 +13,8 @@
 
 namespace tire {
 
-void Tired::init( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> viewer, uint32_t width,
-                  uint32_t height ) {
+auto Tired::init( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> viewer, uint32_t width,
+                  uint32_t height ) -> void {
     if ( _initSuccess ) {
         log::error()( "Warning: Singleton already initialized. Ignoring new arguments." );
     }
@@ -189,11 +189,11 @@ auto Tired::camera() -> vsg::ref_ptr<vsg::Camera> {
     return _camera;
 }
 
-QObject* Tired::scenegraph() const {
+auto Tired::scenegraph() const -> QObject* {
     return _scenegraph;
 }
 
-void Tired::setControlMode( int value ) {
+auto Tired::setControlMode( int value ) -> void {
     _controlMode = static_cast<ControlModes>( value );
     emit controlModeChanged( value );
 }
