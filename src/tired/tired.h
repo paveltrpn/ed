@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include <memory>
 
 #include <QObject>
 
@@ -30,21 +29,21 @@ struct Tired final : QObject {
     Q_PROPERTY( int controlMode READ controlMode WRITE setControlMode NOTIFY controlModeChanged FINAL )
 
 public:
-    static void init( vsg::ref_ptr<vsg::Window> _windowAdapter, vsg::ref_ptr<Viewer> viewer, uint32_t width,
-                      uint32_t height );
-    [[nodiscard]] static Tired& instance();
-    [[nodiscard]] static Tired* pointer();
+    static auto init( vsg::ref_ptr<vsg::Window> _windowAdapter, vsg::ref_ptr<Viewer> viewer, uint32_t width,
+                      uint32_t height ) -> void;
+    [[nodiscard]] static auto instance() -> Tired&;
+    [[nodiscard]] static auto pointer() -> Tired*;
 
     auto viewer() -> vsg::ref_ptr<Viewer>;
     auto rootNode() -> vsg::ref_ptr<vsg::Node>;
     auto camera() -> vsg::ref_ptr<vsg::Camera>;
 
-    auto manipulator() const -> QObject*;
-    auto inputHandler() const -> QObject*;
-    auto scenegraph() const -> QObject*;
+    [[nodiscard]] auto manipulator() const -> QObject*;
+    [[nodiscard]] auto inputHandler() const -> QObject*;
+    [[nodiscard]] auto scenegraph() const -> QObject*;
 
-    void setControlMode( int value );
-    int controlMode();
+    auto setControlMode( int value ) -> void;
+    [[nodiscard]] auto controlMode() const -> int;
 
 signals:
     void manipulatorChanged();

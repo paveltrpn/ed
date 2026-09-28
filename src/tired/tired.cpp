@@ -198,7 +198,7 @@ auto Tired::setControlMode( int value ) -> void {
     emit controlModeChanged( value );
 }
 
-auto Tired::controlMode() -> int {
+auto Tired::controlMode() const -> int {
     return static_cast<int>( _controlMode );
 }
 
