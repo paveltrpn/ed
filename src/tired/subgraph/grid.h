@@ -89,7 +89,7 @@ private:
     vsg::ref_ptr<vsg::StateGroup> _stateGroup{};
 
     float _gridSize{ 1.0f };
-    float _lineThickness{ 0.0256f };
+    float _lineThickness{ 0.015f };
     float _maxRange{ 256.0f };
     float _zoomSensitivity{ 0.5f };
 
