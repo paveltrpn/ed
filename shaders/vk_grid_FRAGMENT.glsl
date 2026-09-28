@@ -16,6 +16,15 @@ layout(set = 0, binding = 1) uniform GridBuffer {
     float _p2;
 } gridSettings;
 
+// 4x4 Bayer matrix, normalized to (0, 1) via (v + 0.5) / 16.0.
+// Min threshold 0.5/16 > 0 keeps fade = 0 fully off;
+// max threshold 15.5/16 < 1 keeps fade = 1 fully on.
+const float bayer4[16] = float[16](
+    0.5f / 16.0f,  8.5f / 16.0f,  2.5f / 16.0f, 10.5f / 16.0f,
+   12.5f / 16.0f,  4.5f / 16.0f, 14.5f / 16.0f,  6.5f / 16.0f,
+    3.5f / 16.0f, 11.5f / 16.0f,  1.5f / 16.0f,  9.5f / 16.0f,
+   15.5f / 16.0f,  7.5f / 16.0f, 13.5f / 16.0f,  5.5f / 16.0f );
+
 void main() {
     // Early Z-culling based on distance.
     float distToCamera = distance(vWorldPos, gridSettings.cameraPosition);
@@ -88,5 +97,13 @@ void main() {
         discard;
     }
 
-    outFragColor.a *= fade;
+    // No dithering.
+    // outFragColor.a *= fade;
+
+    // Binary dither: screen-space 4x4 Bayer threshold.
+    // Screen-space index keeps the pattern fixed to the screen, so it
+    // does not swim with camera motion.
+    ivec2 bayerIndex = ivec2( mod(gl_FragCoord.xy, 4.0) );
+    float threshold = bayer4[ bayerIndex.y * 4 + bayerIndex.x ];
+    outFragColor.a = step( threshold, fade );
 }
