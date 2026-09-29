@@ -18,11 +18,20 @@ auto Gizmo::node() const -> vsg::ref_ptr<GizmoSubgraph> {
     return _gizmo;
 }
 
-auto Gizmo::update( vsg::ivec2 screenOffset ) -> void {
-    // std::println( " drag move {} {}", screenOffset.x, screenOffset.y );
+auto Gizmo::update( vsg::ivec2 mouseDisplacement, DraggerAxis axis ) -> void {
+    constexpr double PX_TO_WORLD{ 0.01 };
 
-    auto xtr = vsg::translate( -static_cast<double>( screenOffset.x / 1000.0 ), 0.0, 0.0 );
-    _gizmo->_moveDraggersPivot->matrix = _gizmo->_moveDraggersPivot->matrix * xtr;
+    // TODO: Y / Z axis drags
+    if ( axis != DraggerAxis::X ) {
+        return;
+    }
+
+    const double dx = static_cast<double>( mouseDisplacement.x ) * PX_TO_WORLD;
+    _gizmo->_moveDraggersPivot->matrix = vsg::translate( dx, 0.0, 0.0 );
+}
+
+auto Gizmo::reset() -> void {
+    _gizmo->_moveDraggersPivot->matrix = vsg::dmat4{};
 }
 
 // ======================================================================================

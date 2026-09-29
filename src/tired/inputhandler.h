@@ -79,6 +79,7 @@ private:
     vsg::observer_ptr<vsg::Camera> _camera{};
 
     vsg::ivec2 _moveStart{};
+    DraggerAxis _dragAxis{};
 };
 
 }  // namespace tire

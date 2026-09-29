@@ -23,7 +23,8 @@ public:
 
     auto node() const -> vsg::ref_ptr<GizmoSubgraph>;
 
-    auto update( vsg::ivec2 screenOffset ) -> void;
+    auto update( vsg::ivec2 mouseDisplacement, DraggerAxis axis ) -> void;
+    auto reset() -> void;
 
 private:
     vsg::ref_ptr<GizmoSubgraph> _gizmo{};
