@@ -15,44 +15,22 @@
 
 namespace tire {
 
-struct Handler;
-
 // ======================================================================================
 // ==================== InputHandler ====================================================
 // ======================================================================================
 
+struct Handler;
+
 struct InputHandler final : QObject {
     Q_OBJECT
 
-    Q_PROPERTY( QPoint mousePos READ mousePos WRITE setMousePos NOTIFY mousePosUpdated )
-
 public:
-    InputHandler( vsg::ref_ptr<vsg::Camera> camera, vsg::ref_ptr<vsg::Viewer> viwer, Scenegraph* scenegraph,
-                  QObject* parent = nullptr );
+    InputHandler( Scenegraph* scenegraph, vsg::observer_ptr<vsg::Camera> camera, QObject* parent = nullptr );
 
     auto handler() -> const vsg::ref_ptr<Handler>;
-    auto camera() -> vsg::ref_ptr<vsg::Camera>;
-    auto viewer() -> const vsg::ref_ptr<vsg::Viewer>;
-
-    auto scenegraph() -> const Scenegraph*;
-
-public:
-    void setMousePos( QPoint value );
-    QPoint mousePos();
-
-signals:
-    void mousePosUpdated();
 
 private:
     vsg::ref_ptr<Handler> _handler{};
-
-    // TODO: We not owning this, use raw pointer!
-    vsg::ref_ptr<vsg::Camera> _camera{};
-    vsg::ref_ptr<vsg::Viewer> _viewer{};
-
-    Scenegraph* _scenegraph{};
-
-    QPoint mousePos_{};
 };
 
 // ======================================================================================
@@ -62,7 +40,7 @@ private:
 struct Handler final : vsg::Visitor {
     vsg::KeySymbol closeKey = vsg::KEY_Escape;
 
-    Handler( InputHandler* inputHandler );
+    Handler( Scenegraph* scenegraph, vsg::observer_ptr<vsg::Camera> camera );
 
     void apply( vsg::KeyPressEvent& keyPress ) override;
     void apply( vsg::KeyReleaseEvent& keyRelease ) override;
@@ -85,10 +63,13 @@ private:
     auto collectIntersections( int32_t x, int32_t y )
         -> std::vector<vsg::ref_ptr<vsg::LineSegmentIntersector::Intersection>>;
 
-    void lineSegmentIntersector( vsg::PointerEvent& pointerEvent );
+    void onLMBClick( vsg::PointerEvent& pointerEvent );
+    void onMMBClick( vsg::PointerEvent& pointerEvent );
+    void onRMBClick( vsg::PointerEvent& pointerEvent );
 
 private:
-    InputHandler* _inputHandler{};
+    Scenegraph* _scenegraph{};
+    vsg::observer_ptr<vsg::Camera> _camera{};
 };
 
 }  // namespace tire

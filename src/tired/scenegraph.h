@@ -35,6 +35,8 @@ public:
 
     auto root() const -> vsg::ref_ptr<vsg::Group>;
 
+    auto scenegraphViewer() const -> vsg::observer_ptr<vsg::Viewer>;
+
     Navbox* navbox() const;
     Grid* grid() const;
     Bounding* bounding() const;

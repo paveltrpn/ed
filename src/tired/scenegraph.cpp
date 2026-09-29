@@ -26,6 +26,10 @@ auto Scenegraph::root() const -> vsg::ref_ptr<vsg::Group> {
     return _root;
 }
 
+auto Scenegraph::scenegraphViewer() const -> vsg::observer_ptr<vsg::Viewer> {
+    return _viewer;
+}
+
 auto Scenegraph::navbox() const -> Navbox* {
     return _navbox;
 }

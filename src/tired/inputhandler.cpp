@@ -10,47 +10,23 @@ namespace tire {
 // ==================== InputHandler ====================================================
 // ======================================================================================
 
-InputHandler::InputHandler( vsg::ref_ptr<vsg::Camera> camera, vsg::ref_ptr<vsg::Viewer> viwer, Scenegraph* scenegraph,
-                            QObject* parent )
+InputHandler::InputHandler( Scenegraph* scenegraph, vsg::observer_ptr<vsg::Camera> camera, QObject* parent )
     : QObject{ parent }
-    , _handler{ new Handler{ this } }
-    , _camera{ camera }
-    , _viewer{ viwer }
-    , _scenegraph{ scenegraph } {
+    , _handler{ new Handler{ scenegraph, camera } } {
 }
 
 auto InputHandler::handler() -> const vsg::ref_ptr<Handler> {
     return _handler;
 }
 
-auto InputHandler::camera() -> vsg::ref_ptr<vsg::Camera> {
-    return _camera;
-}
-
-auto InputHandler::viewer() -> const vsg::ref_ptr<vsg::Viewer> {
-    return _viewer;
-};
-
-auto InputHandler::scenegraph() -> const Scenegraph* {
-    return _scenegraph;
-}
-
-void InputHandler::setMousePos( QPoint value ) {
-    mousePos_ = value;
-    emit mousePosUpdated();
-}
-
-QPoint InputHandler::mousePos() {
-    return mousePos_;
-}
-
 // ======================================================================================
 // ==================== Handler =========================================================
 // ======================================================================================
 
-Handler::Handler( InputHandler* inputHandler )
+Handler::Handler( Scenegraph* scenegraph, vsg::observer_ptr<vsg::Camera> camera )
     : vsg::Visitor{}
-    , _inputHandler{ inputHandler } {
+    , _scenegraph{ scenegraph }
+    , _camera{ camera } {
 }
 
 void Handler::apply( vsg::KeyPressEvent& keyPress ) {
@@ -70,7 +46,18 @@ void Handler::apply( vsg::FocusOutEvent& focusOut ) {
 
 void Handler::apply( vsg::ButtonPressEvent& buttonPress ) {
     if ( buttonPress.button == 1 ) {
-        lineSegmentIntersector( buttonPress );
+        onLMBClick( buttonPress );
+        return;
+    }
+
+    if ( buttonPress.button == 2 ) {
+        onMMBClick( buttonPress );
+        return;
+    }
+
+    if ( buttonPress.button == 3 ) {
+        onRMBClick( buttonPress );
+        return;
     }
 }
 
@@ -78,7 +65,6 @@ void Handler::apply( vsg::ButtonReleaseEvent& buttonRelease ) {
 }
 
 void Handler::apply( vsg::MoveEvent& moveEvent ) {
-    _inputHandler->setMousePos( { moveEvent.x, moveEvent.y } );
 }
 
 void Handler::apply( vsg::ScrollWheelEvent& scrollWheel ) {
@@ -106,7 +92,7 @@ void Handler::apply( vsg::TerminateEvent& ) {
 
 void Handler::close() {
     // take a ref_ptr<> of the observer_ptr<> to be able to safely access it
-    vsg::ref_ptr<vsg::Viewer> viewer = _inputHandler->viewer();
+    vsg::ref_ptr<vsg::Viewer> viewer = _scenegraph->scenegraphViewer();
     if ( viewer ) {
         viewer->close();
     }
@@ -114,12 +100,13 @@ void Handler::close() {
 
 auto Handler::collectIntersections( int32_t x, int32_t y )
     -> std::vector<vsg::ref_ptr<vsg::LineSegmentIntersector::Intersection>> {
-    auto intersector = vsg::LineSegmentIntersector::create( *_inputHandler->camera().get(), x, y );
+    //
+
+    auto intersector = vsg::LineSegmentIntersector::create( *_camera.get(), x, y );
 
     // const auto beforeIntersection = vsg::clock::now();
 
-    auto scenegraph = _inputHandler->scenegraph();
-    scenegraph->root()->accept( *intersector );
+    _scenegraph->root()->accept( *intersector );
 
     // const auto afterIntersection = vsg::clock::now();
 
@@ -132,14 +119,12 @@ auto Handler::collectIntersections( int32_t x, int32_t y )
     return intersector->intersections;
 }
 
-void Handler::lineSegmentIntersector( vsg::PointerEvent& pointerEvent ) {
+void Handler::onLMBClick( vsg::PointerEvent& pointerEvent ) {
     const auto& intersections = collectIntersections( pointerEvent.x, pointerEvent.y );
 
-    auto scenegraph = _inputHandler->scenegraph();
-
     if ( intersections.empty() ) {
-        scenegraph->bounding()->setTransformMat( vsg::mat4{} );
-        scenegraph->scene()->setSelectedObjectUid( QUuid{}.toString() );
+        _scenegraph->bounding()->setTransformMat( vsg::mat4{} );
+        _scenegraph->scene()->setSelectedObjectUid( QUuid{}.toString() );
         return;
     }
 
@@ -149,8 +134,8 @@ void Handler::lineSegmentIntersector( vsg::PointerEvent& pointerEvent ) {
         for ( auto node : intersection->nodePath ) {
             if ( auto clickedDrawable = dynamic_cast<const SceneObjectGraph*>( node ) ) {
                 auto owner = clickedDrawable->owner();
-                scenegraph->scene()->setSelectedObjectUid( owner->uid() );
-                scenegraph->bounding()->setOnObject( owner );
+                _scenegraph->scene()->setSelectedObjectUid( owner->uid() );
+                _scenegraph->bounding()->setOnObject( owner );
 
                 handled = true;
             } else if ( auto clickedDrawable = dynamic_cast<const MoveDragger*>( node ) ) {
@@ -164,6 +149,14 @@ void Handler::lineSegmentIntersector( vsg::PointerEvent& pointerEvent ) {
             return;
         }
     }
+}
+
+void Handler::onMMBClick( vsg::PointerEvent& pointerEvent ) {
+    std::println( " VSG middle button click" );
+}
+
+void Handler::onRMBClick( vsg::PointerEvent& pointerEvent ) {
+    std::println( " VSG right button click" );
 }
 
 }  // namespace tire

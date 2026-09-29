@@ -80,7 +80,7 @@ Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> view
     // Setup event handler object.
     {
         //
-        _inputHandler = new InputHandler{ _camera, _viewer, _scenegraph, this };
+        _inputHandler = new InputHandler{ _scenegraph, vsg::observer_ptr<vsg::Camera>{ _camera }, this };
     }
 
     connect( _manipulator, &Manipulator::lookChanged, _scenegraph, &Scenegraph::lookChanged );
