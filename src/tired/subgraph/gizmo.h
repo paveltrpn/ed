@@ -45,6 +45,10 @@ struct GizmoSubgraph final : public Subgraph {
 private:
     vsg::ref_ptr<vsg::StateGroup> _stateGroup{};
 
+    vsg::ref_ptr<vsg::Switch> _gizmoKillSwitch{};
+
+    vsg::ref_ptr<vsg::floatArray> _dragerParamUniformValue{};
+
     vsg::ref_ptr<MoveDragger> _xMoveDg{};
     vsg::ref_ptr<MoveDragger> _yMoveDg{};
     vsg::ref_ptr<MoveDragger> _zMoveDg{};

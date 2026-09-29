@@ -24,9 +24,12 @@ auto Gizmo::node() const -> vsg::ref_ptr<GizmoSubgraph> {
 
 GizmoSubgraph::GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer )
     : Subgraph{ viewer }
-    , _stateGroup{ vsg::StateGroup::create() } {
+    , _stateGroup{ vsg::StateGroup::create() }
+    , _gizmoKillSwitch{ vsg::Switch::create() } {
     //
     this->addChild( _stateGroup );
+
+    _stateGroup->addChild( _gizmoKillSwitch );
 
     initPipeline();
     initDraggers();
@@ -47,11 +50,11 @@ auto GizmoSubgraph::initPipeline() -> void {
         log::fatal()( "Could not create shaders." );
     }
 
-    const auto dragerParamUniformValue = vsg::floatArray::create( { 1.0, 0.0, 0.0, -1.0 } );
-    dragerParamUniformValue->properties.dataVariance = vsg::DYNAMIC_DATA;
+    _dragerParamUniformValue = vsg::floatArray::create( { 1.0, 0.0, 0.0, -1.0 } );
+    _dragerParamUniformValue->properties.dataVariance = vsg::DYNAMIC_DATA;
 
     const auto dragerParamUniformDescriptor = vsg::DescriptorBuffer::create(
-        dragerParamUniformValue, /* dstBinding */ 0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER );
+        _dragerParamUniformValue, /* dstBinding */ 0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER );
 
     // set up graphics pipeline
     const auto descriptorBindings = vsg::DescriptorSetLayoutBindings{
@@ -114,9 +117,9 @@ auto GizmoSubgraph::initDraggers() -> void {
     _yMoveDg = vsg::ref_ptr<MoveDragger>{ new MoveDragger{ tire::DraggerAxis::Y } };
     _zMoveDg = vsg::ref_ptr<MoveDragger>{ new MoveDragger{ tire::DraggerAxis::Z } };
 
-    _stateGroup->addChild( _xMoveDg );
-    _stateGroup->addChild( _yMoveDg );
-    _stateGroup->addChild( _zMoveDg );
+    _gizmoKillSwitch->addChild( vsg::MASK_ALL, _xMoveDg );
+    _gizmoKillSwitch->addChild( vsg::MASK_ALL, _yMoveDg );
+    _gizmoKillSwitch->addChild( vsg::MASK_ALL, _zMoveDg );
 }
 
 // ======================================================================================
