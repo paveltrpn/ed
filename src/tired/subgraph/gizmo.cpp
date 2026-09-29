@@ -80,12 +80,10 @@ auto GizmoSubgraph::initPipeline() -> void {
 
     const auto vertexBindingsDescriptions = vsg::VertexInputState::Bindings{
         VkVertexInputBindingDescription{ 0, sizeof( vsg::vec3 ), VK_VERTEX_INPUT_RATE_VERTEX },  // vertex data
-        VkVertexInputBindingDescription{ 1, sizeof( vsg::vec3 ), VK_VERTEX_INPUT_RATE_VERTEX },  // colour data
     };
 
     const auto vertexAttributeDescriptions = vsg::VertexInputState::Attributes{
         VkVertexInputAttributeDescription{ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0 },  // vertex data
-        VkVertexInputAttributeDescription{ 1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0 },  // colour data
     };
 
     const auto rasterizationState = vsg::RasterizationState::create();
@@ -162,13 +160,25 @@ auto Dragger::color() const -> vsg::vec3 {
 
 MoveDragger::MoveDragger( DraggerAxis axis )
     : Dragger{ axis } {
-    auto data = VsgMeshDataGenerator::cylinder( /* radius */ 0.15,
-                                                /* size */ 2.0,
-                                                /* slices */ 8,
-                                                /* segments */ 4,
-                                                /* rings */ 4,
-                                                /* start */ 0.0,
-                                                /* sweep */ gml::radians( 360.0 ) );
+    auto shaft = VsgMeshDataGenerator::cylinder( /* radius */ 0.05,
+                                                 /* size */ 2.0,
+                                                 /* slices */ 8,
+                                                 /* segments */ 4,
+                                                 /* rings */ 4,
+                                                 /* start */ 0.0,
+                                                 /* sweep */ gml::radians( 360.0 ) );
+
+    auto tip = VsgMeshDataGenerator::cone( /* radius */ 0.30,
+                                           /* size */ 0.5,
+                                           /* slices */ 8,
+                                           /* segments */ 4,
+                                           /* rings */ 4,
+                                           /* start */ 0.0,
+                                           /* sweep */ gml::radians( 360.0 ) );
+
+    for ( size_t i{}; i < tip._vertices->size(); ++i ) {
+        ( *tip._vertices )[i] += vsg::vec3( 0.0f, 0.0f, 2.0f );
+    }
 
     const auto offst = vsg::translate( vsg::dvec3{ 0.0, 0.0, 2.0 } );
 
@@ -202,9 +212,13 @@ MoveDragger::MoveDragger( DraggerAxis axis )
     _dragger->addChild( vsg::PushConstants::create(
         VK_SHADER_STAGE_VERTEX_BIT, 128, vsg::floatArray::create( { _color.r, _color.g, _color.b, -1.0 } ) ) );
 
-    _dragger->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ data._vertices, data._colors } ) );
-    _dragger->addChild( vsg::BindIndexBuffer::create( data._indices ) );
-    _dragger->addChild( vsg::DrawIndexed::create( data._indicesCount, 1, 0, 0, 0 ) );
+    _dragger->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ shaft._vertices } ) );
+    _dragger->addChild( vsg::BindIndexBuffer::create( shaft._indices ) );
+    _dragger->addChild( vsg::DrawIndexed::create( shaft._indicesCount, 1, 0, 0, 0 ) );
+
+    _dragger->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ tip._vertices } ) );
+    _dragger->addChild( vsg::BindIndexBuffer::create( tip._indices ) );
+    _dragger->addChild( vsg::DrawIndexed::create( tip._indicesCount, 1, 0, 0, 0 ) );
 
     this->addChild( _dragger );
 }
