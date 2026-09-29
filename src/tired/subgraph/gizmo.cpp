@@ -62,10 +62,8 @@ auto GizmoSubgraph::initPipeline() -> void {
 
     const auto descriptorSetLayout = vsg::DescriptorSetLayout::create( descriptorBindings );
 
-    vsg::PushConstantRanges pushConstantRanges{
-        { VK_SHADER_STAGE_VERTEX_BIT, 0, 128 }
-        // projection, view, and model matrices, actual push constant calls automatically provided by the VSG's RecordTraversal
-    };
+    // Projection, view, and model matrices plus dragger color.
+    vsg::PushConstantRanges pushConstantRanges{ { VK_SHADER_STAGE_VERTEX_BIT, 0, 128 + sizeof( float ) * 4 } };
 
     const auto vertexBindingsDescriptions = vsg::VertexInputState::Bindings{
         VkVertexInputBindingDescription{ 0, sizeof( vsg::vec3 ), VK_VERTEX_INPUT_RATE_VERTEX },  // vertex data
@@ -120,6 +118,8 @@ auto GizmoSubgraph::initDraggers() -> void {
     _gizmoKillSwitch->addChild( vsg::MASK_ALL, _xMoveDg );
     _gizmoKillSwitch->addChild( vsg::MASK_ALL, _yMoveDg );
     _gizmoKillSwitch->addChild( vsg::MASK_ALL, _zMoveDg );
+
+    // vkCmdPushConstants( cb, _pipeline->layout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof( float ) * 4, &v );
 }
 
 // ======================================================================================
@@ -157,12 +157,6 @@ MoveDragger::MoveDragger( DraggerAxis axis )
                                                 /* start */ 0.0,
                                                 /* sweep */ gml::radians( 360.0 ) );
 
-    _dragger->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ data._vertices, data._colors } ) );
-    _dragger->addChild( vsg::BindIndexBuffer::create( data._indices ) );
-    _dragger->addChild( vsg::DrawIndexed::create( data._indicesCount, 1, 0, 0, 0 ) );
-
-    this->addChild( _dragger );
-
     const auto offst = vsg::translate( vsg::dvec3{ 0.0, 0.0, 2.0 } );
 
     switch ( _axis ) {
@@ -191,6 +185,16 @@ MoveDragger::MoveDragger( DraggerAxis axis )
             break;
         }
     }
+
+    const auto colorPC = vsg::PushConstants::create(
+        VK_SHADER_STAGE_VERTEX_BIT, 128, vsg::floatArray::create( { _color.r, _color.g, _color.b, -1.0 } ) );
+
+    _dragger->addChild( colorPC );
+    _dragger->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ data._vertices, data._colors } ) );
+    _dragger->addChild( vsg::BindIndexBuffer::create( data._indices ) );
+    _dragger->addChild( vsg::DrawIndexed::create( data._indicesCount, 1, 0, 0, 0 ) );
+
+    this->addChild( _dragger );
 }
 
 }  // namespace tire
