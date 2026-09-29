@@ -17,7 +17,10 @@ struct Gizmo final : public QObject {
     Q_OBJECT
 
 public:
-    Gizmo( const QObject* parent = nullptr );
+    Gizmo( vsg::observer_ptr<vsg::Viewer> viewer, const QObject* parent = nullptr );
+
+private:
+    vsg::ref_ptr<GizmoSubgraph> _gizmo{};
 };
 
 // ======================================================================================
@@ -30,6 +33,7 @@ struct GizmoSubgraph final : public Subgraph {
     auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
 
     auto initPipeline() -> void;
+    auto initDrawCmd() -> void;
 
 private:
     vsg::ref_ptr<vsg::StateGroup> _stateGroup{};
