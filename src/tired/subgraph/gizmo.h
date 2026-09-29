@@ -24,7 +24,8 @@ public:
     auto node() const -> vsg::ref_ptr<GizmoSubgraph>;
 
     auto beginDrag() -> void;
-    auto update( vsg::ivec2 mouseDisplacement, DraggerAxis axis ) -> void;
+    auto update( vsg::dvec3 worldDisplacement, DraggerAxis axis ) -> void;
+    auto translateX() const -> double;
 
 private:
     vsg::ref_ptr<GizmoSubgraph> _gizmo{};

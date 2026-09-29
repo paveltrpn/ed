@@ -86,7 +86,8 @@ void Handler::apply( vsg::ButtonReleaseEvent& buttonRelease ) {
 
 void Handler::apply( vsg::MoveEvent& moveEvent ) {
     if ( _manipulator->dragActive() ) {
-        _scenegraph->gizmo()->update( { moveEvent.x - _moveStart.x, moveEvent.y - _moveStart.y }, _dragAxis );
+        const auto worldPoint = dragPlaneIntersection( moveEvent.x, moveEvent.y );
+        _scenegraph->gizmo()->update( worldPoint - _dragStartWorld, _dragAxis );
     }
 }
 
@@ -142,6 +143,43 @@ auto Handler::collectIntersections( int32_t x, int32_t y )
     return intersector->intersections;
 }
 
+auto Handler::viewDirection() -> vsg::dvec3 {
+    const auto camera = _camera.get();
+
+    const auto eyeToWorld = vsg::inverse( camera->viewMatrix->transform() );
+    return vsg::normalize( ( eyeToWorld * vsg::dvec4{ 0.0, 0.0, -1.0, 0.0 } ).xyz );
+}
+
+auto Handler::dragPlaneIntersection( int32_t x, int32_t y ) -> vsg::dvec3 {
+    const auto camera = _camera.get();
+
+    const auto viewport = camera->getViewport();
+    const double ndcX = ( static_cast<double>( x ) - viewport.x ) / static_cast<double>( viewport.width ) * 2.0 - 1.0;
+    const double ndcY = ( static_cast<double>( y ) - viewport.y ) / static_cast<double>( viewport.height ) * 2.0 - 1.0;
+
+    const auto projection = camera->projectionMatrix->transform();
+    const auto invProjection = vsg::inverse( projection );
+    const auto eyeToWorld = vsg::inverse( camera->viewMatrix->transform() );
+
+    // Same near/far NDC convention as vsg::LineSegmentIntersector.
+    const bool reverseDepth = projection( 2, 2 ) > 0.0;
+    const double zNear = reverseDepth ? viewport.maxDepth : viewport.minDepth;
+    const double zFar = reverseDepth ? viewport.minDepth : viewport.maxDepth;
+
+    const auto near4 = eyeToWorld * invProjection * vsg::dvec4{ ndcX, ndcY, zNear, 1.0 };
+    const auto far4 = eyeToWorld * invProjection * vsg::dvec4{ ndcX, ndcY, zFar, 1.0 };
+
+    const vsg::dvec3 a{ near4.x / near4.w, near4.y / near4.w, near4.z / near4.w };
+    const vsg::dvec3 b{ far4.x / far4.w, far4.y / far4.w, far4.z / far4.w };
+
+    const vsg::dvec3 dir{ b - a };
+
+    const double denom = vsg::dot( dir, _dragPlaneNormal );
+    const double t = vsg::dot( _dragPlaneAnchor - a, _dragPlaneNormal ) / denom;
+
+    return a + dir * t;
+}
+
 void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
     const auto& intersections = collectIntersections( pointerEvent.x, pointerEvent.y );
 
@@ -169,9 +207,12 @@ void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
                 std::println( " dragger axis: {}", static_cast<int>( clickedDrawable->axis() ) );
 
                 _manipulator->setDragActive( true );
-                _moveStart = vsg::ivec2{ pointerEvent.x, pointerEvent.y };
                 _dragAxis = clickedDrawable->axis();
                 _scenegraph->gizmo()->beginDrag();
+
+                _dragPlaneAnchor = vsg::dvec3{ _scenegraph->gizmo()->translateX(), 0.0, 0.0 };
+                _dragPlaneNormal = viewDirection();
+                _dragStartWorld = dragPlaneIntersection( pointerEvent.x, pointerEvent.y );
 
                 handled = true;
             }
@@ -192,7 +233,6 @@ void Handler::onRMBPress( vsg::PointerEvent& pointerEvent ) {
 void Handler::onLMBRelease( vsg::PointerEvent& pointerEvent ) {
     if ( _manipulator->dragActive() ) {
         _manipulator->setDragActive( false );
-        _moveStart = vsg::ivec2{};
     }
 }
 

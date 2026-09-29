@@ -22,16 +22,18 @@ auto Gizmo::beginDrag() -> void {
     _dragAnchorX = _translationX;
 }
 
-auto Gizmo::update( vsg::ivec2 mouseDisplacement, DraggerAxis axis ) -> void {
-    constexpr double PX_TO_WORLD{ 0.01 };
-
+auto Gizmo::update( vsg::dvec3 worldDisplacement, DraggerAxis axis ) -> void {
     // TODO: Y / Z axis drags
     if ( axis != DraggerAxis::X ) {
         return;
     }
 
-    _translationX = _dragAnchorX + static_cast<double>( mouseDisplacement.x ) * PX_TO_WORLD;
+    _translationX = _dragAnchorX + worldDisplacement.x;
     _gizmo->_moveDraggersPivot->matrix = vsg::translate( _translationX, 0.0, 0.0 );
+}
+
+auto Gizmo::translateX() const -> double {
+    return _translationX;
 }
 
 // ======================================================================================
