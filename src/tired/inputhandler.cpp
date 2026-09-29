@@ -86,14 +86,17 @@ void Handler::apply( vsg::ButtonReleaseEvent& buttonRelease ) {
 
 void Handler::apply( vsg::MoveEvent& moveEvent ) {
     if ( _manipulator->dragActive() ) {
-        const vsg::dvec2 mouseDisplacement{ moveEvent.x - _dragPressScreen.x, moveEvent.y - _dragPressScreen.y };
+        const auto mouseDisplacement = vsg::dvec2{ static_cast<double>( moveEvent.x ) - _dragPressScreen.x,
+                                                   static_cast<double>( moveEvent.y ) - _dragPressScreen.y };
 
         // Project the mouse displacement onto the axis's screen direction: the gizmo follows the
         // cursor 1:1 along the projected axis, whatever the camera distance or orientation.
         const auto dirLenSq = vsg::dot( _dragAxisScreenDir, _dragAxisScreenDir );
-        const double delta = dirLenSq > 1.0e-12 ? vsg::dot( mouseDisplacement, _dragAxisScreenDir ) / dirLenSq : 0.0;
 
-        _scenegraph->gizmo()->update( _dragAxisWorld * delta );
+        if ( dirLenSq > std::numeric_limits<double>::epsilon() ) {
+            const auto delta = vsg::dot( mouseDisplacement, _dragAxisScreenDir ) / dirLenSq;
+            _scenegraph->gizmo()->update( _dragAxisWorld * delta );
+        }
     }
 }
 
@@ -158,10 +161,10 @@ auto Handler::screenPosition( const vsg::dvec3& worldPoint ) -> vsg::dvec2 {
     const auto clip = camera->projectionMatrix->transform() * camera->viewMatrix->transform() *
                       vsg::dvec4{ worldPoint.x, worldPoint.y, worldPoint.z, 1.0 };
 
-    const double ndcX = clip.x / clip.w * 0.5 + 0.5;
-    const double ndcY = clip.y / clip.w * 0.5 + 0.5;
+    const auto ndcX = clip.x / clip.w * 0.5 + 0.5;
+    const auto ndcY = clip.y / clip.w * 0.5 + 0.5;
 
-    return vsg::dvec2{ viewport.x + ndcX * viewport.width, viewport.y + ndcY * viewport.height };
+    return { viewport.x + ndcX * viewport.width, viewport.y + ndcY * viewport.height };
 }
 
 void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
@@ -169,6 +172,7 @@ void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
 
     auto scene = _scenegraph->scene();
     auto bound = _scenegraph->bounding();
+    auto gizmo = _scenegraph->gizmo();
 
     if ( intersections.empty() ) {
         bound->setTransformMat( vsg::mat4{} );
@@ -188,27 +192,35 @@ void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
 
                 handled = true;
             } else if ( auto clickedDrawable = dynamic_cast<const MoveDragger*>( node ) ) {
-                std::println( " dragger axis: {}", static_cast<int>( clickedDrawable->axis() ) );
-
                 _manipulator->setDragActive( true );
+
                 _dragAxis = clickedDrawable->axis();
-                _scenegraph->gizmo()->beginDrag();
+
+                gizmo->beginDrag();
 
                 _dragPressScreen = vsg::ivec2{ pointerEvent.x, pointerEvent.y };
 
-                vsg::dvec3 axisWorld{ 1.0, 0.0, 0.0 };
                 switch ( _dragAxis ) {
-                    case DraggerAxis::Y:
-                        axisWorld = vsg::dvec3{ 0.0, 1.0, 0.0 };
+                    case DraggerAxis::X: {
+                        _dragAxisWorld = vsg::dvec3{ 1.0, 0.0, 0.0 };
                         break;
-                    case DraggerAxis::Z:
-                        axisWorld = vsg::dvec3{ 0.0, 0.0, 1.0 };
+                    }
+                    case DraggerAxis::Y: {
+                        _dragAxisWorld = vsg::dvec3{ 0.0, 1.0, 0.0 };
                         break;
+                    }
+                    case DraggerAxis::Z: {
+                        _dragAxisWorld = vsg::dvec3{ 0.0, 0.0, 1.0 };
+                        break;
+                    }
+                    default: {
+                        return;
+                    }
                 }
-                _dragAxisWorld = axisWorld;
 
-                const auto anchor = _scenegraph->gizmo()->translate();
-                _dragAxisScreenDir = screenPosition( anchor + axisWorld ) - screenPosition( anchor );
+                const auto anchor = gizmo->translate();
+
+                _dragAxisScreenDir = screenPosition( anchor + _dragAxisWorld ) - screenPosition( anchor );
 
                 handled = true;
             }
