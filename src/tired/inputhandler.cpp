@@ -87,6 +87,7 @@ void Handler::apply( vsg::ButtonReleaseEvent& buttonRelease ) {
 void Handler::apply( vsg::MoveEvent& moveEvent ) {
     if ( _manipulator->dragActive() ) {
         _scenegraph->gizmo()->update( { _moveStart.x - moveEvent.x, _moveStart.y - moveEvent.y } );
+        _moveStart = vsg::ivec2{};
     }
 }
 

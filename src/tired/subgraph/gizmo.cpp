@@ -19,7 +19,10 @@ auto Gizmo::node() const -> vsg::ref_ptr<GizmoSubgraph> {
 }
 
 auto Gizmo::update( vsg::ivec2 screenOffset ) -> void {
-    std::println( " drag move {} {}", screenOffset.x, screenOffset.y );
+    // std::println( " drag move {} {}", screenOffset.x, screenOffset.y );
+
+    auto xtr = vsg::translate( -static_cast<double>( screenOffset.x / 1000.0 ), 0.0, 0.0 );
+    _gizmo->_moveDraggersPivot->matrix = _gizmo->_moveDraggersPivot->matrix * xtr;
 }
 
 // ======================================================================================
@@ -29,7 +32,8 @@ auto Gizmo::update( vsg::ivec2 screenOffset ) -> void {
 GizmoSubgraph::GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer )
     : Subgraph{ viewer }
     , _stateGroup{ vsg::StateGroup::create() }
-    , _gizmoKillSwitch{ vsg::Switch::create() } {
+    , _gizmoKillSwitch{ vsg::Switch::create() }
+    , _moveDraggersPivot{ vsg::MatrixTransform::create() } {
     //
     this->addChild( _stateGroup );
 
@@ -118,11 +122,11 @@ auto GizmoSubgraph::initDraggers() -> void {
     _yMoveDg = vsg::ref_ptr<MoveDragger>{ new MoveDragger{ tire::DraggerAxis::Y } };
     _zMoveDg = vsg::ref_ptr<MoveDragger>{ new MoveDragger{ tire::DraggerAxis::Z } };
 
-    _gizmoKillSwitch->addChild( vsg::MASK_ALL, _xMoveDg );
-    _gizmoKillSwitch->addChild( vsg::MASK_ALL, _yMoveDg );
-    _gizmoKillSwitch->addChild( vsg::MASK_ALL, _zMoveDg );
+    _moveDraggersPivot->addChild( _xMoveDg );
+    _moveDraggersPivot->addChild( _yMoveDg );
+    _moveDraggersPivot->addChild( _zMoveDg );
 
-    // vkCmdPushConstants( cb, _pipeline->layout(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof( float ) * 4, &v );
+    _gizmoKillSwitch->addChild( vsg::MASK_ALL, _moveDraggersPivot );
 }
 
 // ======================================================================================
@@ -164,7 +168,7 @@ MoveDragger::MoveDragger( DraggerAxis axis )
 
     switch ( _axis ) {
         case tire::DraggerAxis::X: {
-            const auto rm = vsg::rotate( vsg::radians( 90.0 ), vsg::dvec3{ 1.0, 0.0, 0.0 } );
+            const auto rm = vsg::rotate( vsg::radians( 90.0 ), vsg::dvec3{ 0.0, 1.0, 0.0 } );
             this->matrix = rm * offst;
 
             _color = vsg::vec3{ 1.0f, 0.0f, 0.0f };
@@ -172,7 +176,7 @@ MoveDragger::MoveDragger( DraggerAxis axis )
             break;
         }
         case tire::DraggerAxis::Y: {
-            const auto rm = vsg::rotate( vsg::radians( 90.0 ), vsg::dvec3{ 0.0, 1.0, 0.0 } );
+            const auto rm = vsg::rotate( vsg::radians( 90.0 ), vsg::dvec3{ 1.0, 0.0, 0.0 } );
             this->matrix = rm * offst;
 
             _color = vsg::vec3{ 0.0f, 1.0f, 0.0f };
@@ -180,7 +184,7 @@ MoveDragger::MoveDragger( DraggerAxis axis )
             break;
         }
         case tire::DraggerAxis::Z: {
-            const auto rm = vsg::rotate( vsg::radians( 90.0 ), vsg::dvec3{ 0.0, 0.0, 1.0 } );
+            const auto rm = vsg::rotate( vsg::radians( 0.0 ), vsg::dvec3{ 0.0, 0.0, 1.0 } );
             this->matrix = rm * offst;
 
             _color = vsg::vec3{ 0.0f, 0.0f, 1.0f };

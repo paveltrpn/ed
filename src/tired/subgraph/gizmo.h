@@ -44,12 +44,17 @@ struct GizmoSubgraph final : public Subgraph {
     auto initPipeline() -> void;
     auto initDraggers() -> void;
 
+    friend Gizmo;
+
 private:
     vsg::ref_ptr<vsg::StateGroup> _stateGroup{};
 
     vsg::ref_ptr<vsg::Switch> _gizmoKillSwitch{};
 
     vsg::ref_ptr<vsg::floatArray> _dragerParamUniformValue{};
+
+    vsg::dvec3 _dragersPos{};
+    vsg::ref_ptr<vsg::MatrixTransform> _moveDraggersPivot{};
 
     vsg::ref_ptr<MoveDragger> _xMoveDg{};
     vsg::ref_ptr<MoveDragger> _yMoveDg{};
