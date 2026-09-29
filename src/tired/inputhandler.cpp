@@ -45,23 +45,41 @@ void Handler::apply( vsg::FocusOutEvent& focusOut ) {
 }
 
 void Handler::apply( vsg::ButtonPressEvent& buttonPress ) {
-    if ( buttonPress.button == 1 ) {
-        onLMBClick( buttonPress );
-        return;
-    }
+    switch ( buttonPress.button ) {
+        case 1: {
+            onLMBPress( buttonPress );
+            return;
+        }
 
-    if ( buttonPress.button == 2 ) {
-        onMMBClick( buttonPress );
-        return;
-    }
+        case 2: {
+            onMMBPress( buttonPress );
+            return;
+        }
 
-    if ( buttonPress.button == 3 ) {
-        onRMBClick( buttonPress );
-        return;
+        case 3: {
+            onRMBPress( buttonPress );
+            return;
+        }
     }
 }
 
 void Handler::apply( vsg::ButtonReleaseEvent& buttonRelease ) {
+    switch ( buttonRelease.button ) {
+        case 1: {
+            onLMBRelease( buttonRelease );
+            return;
+        }
+
+        case 2: {
+            onMMBRelease( buttonRelease );
+            return;
+        }
+
+        case 3: {
+            onRMBRelease( buttonRelease );
+            return;
+        }
+    }
 }
 
 void Handler::apply( vsg::MoveEvent& moveEvent ) {
@@ -119,7 +137,7 @@ auto Handler::collectIntersections( int32_t x, int32_t y )
     return intersector->intersections;
 }
 
-void Handler::onLMBClick( vsg::PointerEvent& pointerEvent ) {
+void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
     const auto& intersections = collectIntersections( pointerEvent.x, pointerEvent.y );
 
     if ( intersections.empty() ) {
@@ -141,6 +159,8 @@ void Handler::onLMBClick( vsg::PointerEvent& pointerEvent ) {
             } else if ( auto clickedDrawable = dynamic_cast<const MoveDragger*>( node ) ) {
                 std::println( " dragger axis: {}", static_cast<int>( clickedDrawable->axis() ) );
 
+                _dragActive = true;
+
                 handled = true;
             }
         }
@@ -151,12 +171,24 @@ void Handler::onLMBClick( vsg::PointerEvent& pointerEvent ) {
     }
 }
 
-void Handler::onMMBClick( vsg::PointerEvent& pointerEvent ) {
-    std::println( " VSG middle button click" );
+void Handler::onMMBPress( vsg::PointerEvent& pointerEvent ) {
+    std::println( " VSG middle button press" );
 }
 
-void Handler::onRMBClick( vsg::PointerEvent& pointerEvent ) {
-    std::println( " VSG right button click" );
+void Handler::onRMBPress( vsg::PointerEvent& pointerEvent ) {
+    std::println( " VSG right button press" );
+}
+
+void Handler::onLMBRelease( vsg::PointerEvent& pointerEvent ) {
+    std::println( " VSG left button release" );
+}
+
+void Handler::onMMBRelease( vsg::PointerEvent& pointerEvent ) {
+    std::println( " VSG middle button release" );
+}
+
+void Handler::onRMBRelease( vsg::PointerEvent& pointerEvent ) {
+    std::println( " VSG right button release" );
 }
 
 }  // namespace tire

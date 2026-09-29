@@ -63,13 +63,19 @@ private:
     auto collectIntersections( int32_t x, int32_t y )
         -> std::vector<vsg::ref_ptr<vsg::LineSegmentIntersector::Intersection>>;
 
-    void onLMBClick( vsg::PointerEvent& pointerEvent );
-    void onMMBClick( vsg::PointerEvent& pointerEvent );
-    void onRMBClick( vsg::PointerEvent& pointerEvent );
+    void onLMBPress( vsg::PointerEvent& pointerEvent );
+    void onMMBPress( vsg::PointerEvent& pointerEvent );
+    void onRMBPress( vsg::PointerEvent& pointerEvent );
+
+    void onLMBRelease( vsg::PointerEvent& pointerEvent );
+    void onMMBRelease( vsg::PointerEvent& pointerEvent );
+    void onRMBRelease( vsg::PointerEvent& pointerEvent );
 
 private:
     Scenegraph* _scenegraph{};
     vsg::observer_ptr<vsg::Camera> _camera{};
+
+    bool _dragActive{};
 };
 
 }  // namespace tire
