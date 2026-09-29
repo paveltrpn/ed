@@ -35,6 +35,9 @@ public:
     QVector3D center() const;
     QVector3D up() const;
 
+    auto setDragActive( bool value ) -> void;
+    auto dragActive() const -> bool;
+
     friend Trackball;
 
 signals:
@@ -42,6 +45,8 @@ signals:
 
 private:
     vsg::ref_ptr<Trackball> _trackball{};
+
+    bool _dragActive{};
 };
 
 // ======================================================================================

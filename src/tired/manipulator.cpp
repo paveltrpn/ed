@@ -34,6 +34,14 @@ QVector3D Manipulator::up() const {
                       static_cast<float>( _trackball->up().z ) };
 }
 
+auto Manipulator::setDragActive( bool value ) -> void {
+    _dragActive = value;
+}
+
+auto Manipulator::dragActive() const -> bool {
+    return _dragActive;
+}
+
 // ======================================================================================
 // ==================== Trackball =======================================================
 // ======================================================================================
@@ -46,11 +54,19 @@ Trackball::Trackball( Manipulator* owner, vsg::ref_ptr<vsg::Camera> camera,
 }
 
 void Trackball::apply( vsg::MoveEvent& moveEvent ) {
+    if ( _owner->dragActive() ) {
+        return;
+    }
+
     _owner->lookChanged( eye(), center(), up() );
     vsg::Trackball::apply( moveEvent );
 }
 
 void Trackball::apply( vsg::ScrollWheelEvent& scrollWheel ) {
+    if ( _owner->dragActive() ) {
+        return;
+    }
+
     _owner->lookChanged( eye(), center(), up() );
     vsg::Trackball::apply( scrollWheel );
 }

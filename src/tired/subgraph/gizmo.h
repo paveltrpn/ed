@@ -23,6 +23,8 @@ public:
 
     auto node() const -> vsg::ref_ptr<GizmoSubgraph>;
 
+    auto update( vsg::ivec2 screenOffset ) -> void;
+
 private:
     vsg::ref_ptr<GizmoSubgraph> _gizmo{};
 };

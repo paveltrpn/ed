@@ -12,6 +12,7 @@
 #include <vsg/ui/TouchEvent.h>
 
 #include "scenegraph.h"
+#include "manipulator.h"
 
 namespace tire {
 
@@ -25,7 +26,8 @@ struct InputHandler final : QObject {
     Q_OBJECT
 
 public:
-    InputHandler( Scenegraph* scenegraph, vsg::observer_ptr<vsg::Camera> camera, QObject* parent = nullptr );
+    InputHandler( Scenegraph* scenegraph, Manipulator* manipuilator, vsg::observer_ptr<vsg::Camera> camera,
+                  QObject* parent = nullptr );
 
     auto handler() -> const vsg::ref_ptr<Handler>;
 
@@ -40,7 +42,7 @@ private:
 struct Handler final : vsg::Visitor {
     vsg::KeySymbol closeKey = vsg::KEY_Escape;
 
-    Handler( Scenegraph* scenegraph, vsg::observer_ptr<vsg::Camera> camera );
+    Handler( Scenegraph* scenegraph, Manipulator* manipuilator, vsg::observer_ptr<vsg::Camera> camera );
 
     void apply( vsg::KeyPressEvent& keyPress ) override;
     void apply( vsg::KeyReleaseEvent& keyRelease ) override;
@@ -73,9 +75,10 @@ private:
 
 private:
     Scenegraph* _scenegraph{};
+    Manipulator* _manipulator{};
     vsg::observer_ptr<vsg::Camera> _camera{};
 
-    bool _dragActive{};
+    vsg::ivec2 _moveStart{};
 };
 
 }  // namespace tire

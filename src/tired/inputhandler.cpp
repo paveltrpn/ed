@@ -10,9 +10,10 @@ namespace tire {
 // ==================== InputHandler ====================================================
 // ======================================================================================
 
-InputHandler::InputHandler( Scenegraph* scenegraph, vsg::observer_ptr<vsg::Camera> camera, QObject* parent )
+InputHandler::InputHandler( Scenegraph* scenegraph, Manipulator* manipuilator, vsg::observer_ptr<vsg::Camera> camera,
+                            QObject* parent )
     : QObject{ parent }
-    , _handler{ new Handler{ scenegraph, camera } } {
+    , _handler{ new Handler{ scenegraph, manipuilator, camera } } {
 }
 
 auto InputHandler::handler() -> const vsg::ref_ptr<Handler> {
@@ -23,9 +24,10 @@ auto InputHandler::handler() -> const vsg::ref_ptr<Handler> {
 // ==================== Handler =========================================================
 // ======================================================================================
 
-Handler::Handler( Scenegraph* scenegraph, vsg::observer_ptr<vsg::Camera> camera )
+Handler::Handler( Scenegraph* scenegraph, Manipulator* manipuilator, vsg::observer_ptr<vsg::Camera> camera )
     : vsg::Visitor{}
     , _scenegraph{ scenegraph }
+    , _manipulator{ manipuilator }
     , _camera{ camera } {
 }
 
@@ -83,6 +85,9 @@ void Handler::apply( vsg::ButtonReleaseEvent& buttonRelease ) {
 }
 
 void Handler::apply( vsg::MoveEvent& moveEvent ) {
+    if ( _manipulator->dragActive() ) {
+        _scenegraph->gizmo()->update( { _moveStart.x - moveEvent.x, _moveStart.y - moveEvent.y } );
+    }
 }
 
 void Handler::apply( vsg::ScrollWheelEvent& scrollWheel ) {
@@ -140,9 +145,13 @@ auto Handler::collectIntersections( int32_t x, int32_t y )
 void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
     const auto& intersections = collectIntersections( pointerEvent.x, pointerEvent.y );
 
+    auto scene = _scenegraph->scene();
+    auto bound = _scenegraph->bounding();
+
     if ( intersections.empty() ) {
-        _scenegraph->bounding()->setTransformMat( vsg::mat4{} );
-        _scenegraph->scene()->setSelectedObjectUid( QUuid{}.toString() );
+        bound->setTransformMat( vsg::mat4{} );
+        scene->setSelectedObjectUid( QUuid{}.toString() );
+
         return;
     }
 
@@ -152,14 +161,15 @@ void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
         for ( auto node : intersection->nodePath ) {
             if ( auto clickedDrawable = dynamic_cast<const SceneObjectGraph*>( node ) ) {
                 auto owner = clickedDrawable->owner();
-                _scenegraph->scene()->setSelectedObjectUid( owner->uid() );
-                _scenegraph->bounding()->setOnObject( owner );
+                scene->setSelectedObjectUid( owner->uid() );
+                bound->setOnObject( owner );
 
                 handled = true;
             } else if ( auto clickedDrawable = dynamic_cast<const MoveDragger*>( node ) ) {
                 std::println( " dragger axis: {}", static_cast<int>( clickedDrawable->axis() ) );
 
-                _dragActive = true;
+                _manipulator->setDragActive( true );
+                _moveStart = vsg::ivec2{ pointerEvent.x, pointerEvent.y };
 
                 handled = true;
             }
@@ -172,23 +182,22 @@ void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
 }
 
 void Handler::onMMBPress( vsg::PointerEvent& pointerEvent ) {
-    std::println( " VSG middle button press" );
 }
 
 void Handler::onRMBPress( vsg::PointerEvent& pointerEvent ) {
-    std::println( " VSG right button press" );
 }
 
 void Handler::onLMBRelease( vsg::PointerEvent& pointerEvent ) {
-    std::println( " VSG left button release" );
+    if ( _manipulator->dragActive() ) {
+        _manipulator->setDragActive( false );
+        _moveStart = vsg::ivec2{};
+    }
 }
 
 void Handler::onMMBRelease( vsg::PointerEvent& pointerEvent ) {
-    std::println( " VSG middle button release" );
 }
 
 void Handler::onRMBRelease( vsg::PointerEvent& pointerEvent ) {
-    std::println( " VSG right button release" );
 }
 
 }  // namespace tire

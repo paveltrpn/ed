@@ -18,6 +18,10 @@ auto Gizmo::node() const -> vsg::ref_ptr<GizmoSubgraph> {
     return _gizmo;
 }
 
+auto Gizmo::update( vsg::ivec2 screenOffset ) -> void {
+    std::println( " drag move {} {}", screenOffset.x, screenOffset.y );
+}
+
 // ======================================================================================
 // ==================== GizmoSubgraph ===================================================
 // ======================================================================================
