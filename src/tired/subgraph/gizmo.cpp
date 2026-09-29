@@ -102,31 +102,40 @@ auto GizmoSubgraph::initPipeline() -> void {
 };
 
 auto GizmoSubgraph::initDraggers() -> void {
-    _xMoveDg = vsg::ref_ptr<MoveDragger>{ new MoveDragger{} };
+    _xMoveDg = vsg::ref_ptr<MoveDragger>{ new MoveDragger{ tire::DraggerAxis::X } };
+    _yMoveDg = vsg::ref_ptr<MoveDragger>{ new MoveDragger{ tire::DraggerAxis::Y } };
+    _zMoveDg = vsg::ref_ptr<MoveDragger>{ new MoveDragger{ tire::DraggerAxis::Z } };
 
     _stateGroup->addChild( _xMoveDg );
+    _stateGroup->addChild( _yMoveDg );
+    _stateGroup->addChild( _zMoveDg );
 }
 
 // ======================================================================================
 // ==================== Dragger =========================================================
 // ======================================================================================
 
-Dragger::Dragger()
-    : _dragger{ vsg::Commands::create() } {
+Dragger::Dragger( DraggerAxis axis )
+    : _dragger{ vsg::Commands::create() }
+    , _axis{ axis } {
 }
 
 auto Dragger::node() const -> vsg::ref_ptr<vsg::Commands> {
     return _dragger;
 }
 
+auto Dragger::axis() const -> DraggerAxis {
+    return _axis;
+}
+
 // ======================================================================================
 // ==================== MoveDragger =====================================================
 // ======================================================================================
 
-MoveDragger::MoveDragger()
-    : Dragger{} {
-    auto data = VsgMeshDataGenerator::cylinder( /* radius */ 1.0,
-                                                /* size */ 1.0,
+MoveDragger::MoveDragger( DraggerAxis axis )
+    : Dragger{ axis } {
+    auto data = VsgMeshDataGenerator::cylinder( /* radius */ 0.25,
+                                                /* size */ 4.0,
                                                 /* slices */ 8,
                                                 /* segments */ 4,
                                                 /* rings */ 4,
@@ -138,6 +147,24 @@ MoveDragger::MoveDragger()
     _dragger->addChild( vsg::DrawIndexed::create( data._indicesCount, 1, 0, 0, 0 ) );
 
     this->addChild( _dragger );
+
+    switch ( _axis ) {
+        case tire::DraggerAxis::X: {
+            const auto rm = vsg::rotate( vsg::radians( 90.0 ), vsg::dvec3{ 1.0, 0.0, 0.0 } );
+            this->matrix = rm;
+            break;
+        }
+        case tire::DraggerAxis::Y: {
+            const auto rm = vsg::rotate( vsg::radians( 90.0 ), vsg::dvec3{ 0.0, 1.0, 0.0 } );
+            this->matrix = rm;
+            break;
+        }
+        case tire::DraggerAxis::Z: {
+            const auto rm = vsg::rotate( vsg::radians( 90.0 ), vsg::dvec3{ 0.0, 0.0, 1.0 } );
+            this->matrix = rm;
+            break;
+        }
+    }
 }
 
 }  // namespace tire

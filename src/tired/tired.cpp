@@ -158,9 +158,9 @@ Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> view
 
     {
         auto data = CylinderObjectData{};
-        data._position = { 0.0, 0.0, 0.0 };
+        data._position = { 0.0, 4.0, 0.0 };
         data._orientation = { 0.0, 0.0, 0.0 };
-        data._scale = { 1.0, 1.0, 5.0 };
+        data._scale = { 1.0, 1.0, 3.0 };
         _scenegraph->scene()->addCylinder( data );
     }
 

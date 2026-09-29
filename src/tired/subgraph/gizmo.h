@@ -7,6 +7,8 @@
 
 namespace tire {
 
+enum class DraggerAxis { X, Y, Z };
+
 // ======================================================================================
 // ==================== Gizmo ===========================================================
 // ======================================================================================
@@ -53,12 +55,14 @@ private:
 // ======================================================================================
 
 struct Dragger : public vsg::MatrixTransform {
-    Dragger();
+    Dragger( DraggerAxis axis );
 
     auto node() const -> vsg::ref_ptr<vsg::Commands>;
+    auto axis() const -> DraggerAxis;
 
 protected:
     vsg::ref_ptr<vsg::Commands> _dragger{};
+    DraggerAxis _axis{};
 };
 
 // ======================================================================================
@@ -66,7 +70,7 @@ protected:
 // ======================================================================================
 
 struct MoveDragger : public Dragger {
-    MoveDragger();
+    MoveDragger( DraggerAxis axis );
 };
 
 }  // namespace tire
