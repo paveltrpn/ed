@@ -18,6 +18,10 @@ auto Gizmo::node() const -> vsg::ref_ptr<GizmoSubgraph> {
     return _gizmo;
 }
 
+auto Gizmo::beginDrag() -> void {
+    _dragAnchorX = _translationX;
+}
+
 auto Gizmo::update( vsg::ivec2 mouseDisplacement, DraggerAxis axis ) -> void {
     constexpr double PX_TO_WORLD{ 0.01 };
 
@@ -26,12 +30,8 @@ auto Gizmo::update( vsg::ivec2 mouseDisplacement, DraggerAxis axis ) -> void {
         return;
     }
 
-    const double dx = static_cast<double>( mouseDisplacement.x ) * PX_TO_WORLD;
-    _gizmo->_moveDraggersPivot->matrix = vsg::translate( dx, 0.0, 0.0 );
-}
-
-auto Gizmo::reset() -> void {
-    _gizmo->_moveDraggersPivot->matrix = vsg::dmat4{};
+    _translationX = _dragAnchorX + static_cast<double>( mouseDisplacement.x ) * PX_TO_WORLD;
+    _gizmo->_moveDraggersPivot->matrix = vsg::translate( _translationX, 0.0, 0.0 );
 }
 
 // ======================================================================================

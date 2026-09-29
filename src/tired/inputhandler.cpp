@@ -171,6 +171,7 @@ void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
                 _manipulator->setDragActive( true );
                 _moveStart = vsg::ivec2{ pointerEvent.x, pointerEvent.y };
                 _dragAxis = clickedDrawable->axis();
+                _scenegraph->gizmo()->beginDrag();
 
                 handled = true;
             }
@@ -190,7 +191,6 @@ void Handler::onRMBPress( vsg::PointerEvent& pointerEvent ) {
 
 void Handler::onLMBRelease( vsg::PointerEvent& pointerEvent ) {
     if ( _manipulator->dragActive() ) {
-        _scenegraph->gizmo()->reset();
         _manipulator->setDragActive( false );
         _moveStart = vsg::ivec2{};
     }
