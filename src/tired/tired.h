@@ -1,12 +1,11 @@
 
 #pragma once
 
-
 #include <QObject>
 
 #include <vsg/all.h>
 
-#include "ui/vsgwidget.h"
+#include "ui/viewer.h"
 #include "manipulator.h"
 #include "inputhandler.h"
 #include "scenegraph.h"
@@ -57,7 +56,7 @@ private:
     Tired( vsg::ref_ptr<vsg::Window> _windowAdapter, vsg::ref_ptr<Viewer> viewer, uint32_t width, uint32_t height,
            QObject* parent = nullptr );
 
-    ~Tired() = default;
+    ~Tired() override = default;
 
     inline static std::atomic<Tired*> _instance{ nullptr };
     inline static std::once_flag _initFlag;
