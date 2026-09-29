@@ -7,7 +7,11 @@ layout(push_constant) uniform PushConstants {
 } pc;
 
 layout(location = 0) in vec3 inPosition;
-layout(location = 1) in vec3 inColor;
+
+layout(set = 0, binding = 0) uniform DraggerParam {
+    vec3 color;
+    float _p1;
+} dg;
 
 layout(location = 0) out vec3 vertexColor;
 
@@ -17,5 +21,5 @@ out gl_PerVertex {
 
 void main() {
     gl_Position             = (pc.projection * pc.modelview) * vec4(inPosition, 1.0);
-    vertexColor             = inColor;
+    vertexColor             = dg.color;
 }

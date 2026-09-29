@@ -37,37 +37,44 @@ auto GizmoSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGr
 }
 
 auto GizmoSubgraph::initPipeline() -> void {
-    auto gizmoProgram = Program{ TextProgramSource{ "gizmo" } };
-    auto vertexShader =
+    const auto gizmoProgram = Program{ TextProgramSource{ "gizmo" } };
+    const auto vertexShader =
         vsg::ShaderStage::create( VK_SHADER_STAGE_VERTEX_BIT, "main", gizmoProgram.spirv( ShaderStageType::VERTEX ) );
-    auto fragmentShader = vsg::ShaderStage::create( VK_SHADER_STAGE_FRAGMENT_BIT, "main",
-                                                    gizmoProgram.spirv( ShaderStageType::FRAGMENT ) );
+    const auto fragmentShader = vsg::ShaderStage::create( VK_SHADER_STAGE_FRAGMENT_BIT, "main",
+                                                          gizmoProgram.spirv( ShaderStageType::FRAGMENT ) );
 
     if ( !vertexShader || !fragmentShader ) {
         log::fatal()( "Could not create shaders." );
     }
 
-    // set up graphics pipeline
-    vsg::DescriptorSetLayoutBindings descriptorBindings{};
+    const auto dragerParamUniformValue = vsg::floatArray::create( { 1.0, 0.0, 0.0, -1.0 } );
+    dragerParamUniformValue->properties.dataVariance = vsg::DYNAMIC_DATA;
 
-    auto descriptorSetLayout = vsg::DescriptorSetLayout::create( descriptorBindings );
+    const auto dragerParamUniformDescriptor = vsg::DescriptorBuffer::create(
+        dragerParamUniformValue, /* dstBinding */ 0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER );
+
+    // set up graphics pipeline
+    const auto descriptorBindings = vsg::DescriptorSetLayoutBindings{
+        { /* binding */ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, /* count */ 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr } };
+
+    const auto descriptorSetLayout = vsg::DescriptorSetLayout::create( descriptorBindings );
 
     vsg::PushConstantRanges pushConstantRanges{
         { VK_SHADER_STAGE_VERTEX_BIT, 0, 128 }
         // projection, view, and model matrices, actual push constant calls automatically provided by the VSG's RecordTraversal
     };
 
-    vsg::VertexInputState::Bindings vertexBindingsDescriptions{
+    const auto vertexBindingsDescriptions = vsg::VertexInputState::Bindings{
         VkVertexInputBindingDescription{ 0, sizeof( vsg::vec3 ), VK_VERTEX_INPUT_RATE_VERTEX },  // vertex data
         VkVertexInputBindingDescription{ 1, sizeof( vsg::vec3 ), VK_VERTEX_INPUT_RATE_VERTEX },  // colour data
     };
 
-    vsg::VertexInputState::Attributes vertexAttributeDescriptions{
+    const auto vertexAttributeDescriptions = vsg::VertexInputState::Attributes{
         VkVertexInputAttributeDescription{ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0 },  // vertex data
         VkVertexInputAttributeDescription{ 1, 1, VK_FORMAT_R32G32B32_SFLOAT, 0 },  // colour data
     };
 
-    auto rasterizationState = vsg::RasterizationState::create();
+    const auto rasterizationState = vsg::RasterizationState::create();
     rasterizationState->depthClampEnable = VK_FALSE;
     rasterizationState->rasterizerDiscardEnable = VK_FALSE;
     rasterizationState->polygonMode = VK_POLYGON_MODE_FILL;
@@ -79,7 +86,7 @@ auto GizmoSubgraph::initPipeline() -> void {
     rasterizationState->depthBiasSlopeFactor = 1.0f;
     rasterizationState->lineWidth = 1.0f;
 
-    vsg::GraphicsPipelineStates pipelineStates{
+    const auto pipelineStates = vsg::GraphicsPipelineStates{
         vsg::VertexInputState::create( vertexBindingsDescriptions, vertexAttributeDescriptions ),
         vsg::InputAssemblyState::create(),
         rasterizationState,
@@ -87,14 +94,15 @@ auto GizmoSubgraph::initPipeline() -> void {
         vsg::ColorBlendState::create(),
         vsg::DepthStencilState::create() };
 
-    auto pipelineLayout =
+    const auto pipelineLayout =
         vsg::PipelineLayout::create( vsg::DescriptorSetLayouts{ descriptorSetLayout }, pushConstantRanges );
-    auto graphicsPipeline = vsg::GraphicsPipeline::create(
+    const auto graphicsPipeline = vsg::GraphicsPipeline::create(
         pipelineLayout, vsg::ShaderStages{ vertexShader, fragmentShader }, pipelineStates );
-    auto bindGraphicsPipeline = vsg::BindGraphicsPipeline::create( graphicsPipeline );
+    const auto bindGraphicsPipeline = vsg::BindGraphicsPipeline::create( graphicsPipeline );
 
-    auto descriptorSet = vsg::DescriptorSet::create( descriptorSetLayout, vsg::Descriptors{} );
-    auto bindDescriptorSet =
+    const auto descriptorSet =
+        vsg::DescriptorSet::create( descriptorSetLayout, vsg::Descriptors{ dragerParamUniformDescriptor } );
+    const auto bindDescriptorSet =
         vsg::BindDescriptorSet::create( VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, descriptorSet );
 
     _stateGroup->add( bindGraphicsPipeline );
@@ -128,14 +136,18 @@ auto Dragger::axis() const -> DraggerAxis {
     return _axis;
 }
 
+auto Dragger::color() const -> vsg::vec3 {
+    return _color;
+}
+
 // ======================================================================================
 // ==================== MoveDragger =====================================================
 // ======================================================================================
 
 MoveDragger::MoveDragger( DraggerAxis axis )
     : Dragger{ axis } {
-    auto data = VsgMeshDataGenerator::cylinder( /* radius */ 0.25,
-                                                /* size */ 4.0,
+    auto data = VsgMeshDataGenerator::cylinder( /* radius */ 0.15,
+                                                /* size */ 2.0,
                                                 /* slices */ 8,
                                                 /* segments */ 4,
                                                 /* rings */ 4,
@@ -148,20 +160,31 @@ MoveDragger::MoveDragger( DraggerAxis axis )
 
     this->addChild( _dragger );
 
+    const auto offst = vsg::translate( vsg::dvec3{ 0.0, 0.0, 2.0 } );
+
     switch ( _axis ) {
         case tire::DraggerAxis::X: {
             const auto rm = vsg::rotate( vsg::radians( 90.0 ), vsg::dvec3{ 1.0, 0.0, 0.0 } );
-            this->matrix = rm;
+            this->matrix = rm * offst;
+
+            _color = vsg::vec3{ 1.0f, 0.0f, 0.0f };
+
             break;
         }
         case tire::DraggerAxis::Y: {
             const auto rm = vsg::rotate( vsg::radians( 90.0 ), vsg::dvec3{ 0.0, 1.0, 0.0 } );
-            this->matrix = rm;
+            this->matrix = rm * offst;
+
+            _color = vsg::vec3{ 0.0f, 1.0f, 0.0f };
+
             break;
         }
         case tire::DraggerAxis::Z: {
             const auto rm = vsg::rotate( vsg::radians( 90.0 ), vsg::dvec3{ 0.0, 0.0, 1.0 } );
-            this->matrix = rm;
+            this->matrix = rm * offst;
+
+            _color = vsg::vec3{ 0.0f, 0.0f, 1.0f };
+
             break;
         }
     }

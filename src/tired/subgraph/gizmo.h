@@ -59,10 +59,12 @@ struct Dragger : public vsg::MatrixTransform {
 
     auto node() const -> vsg::ref_ptr<vsg::Commands>;
     auto axis() const -> DraggerAxis;
+    auto color() const -> vsg::vec3;
 
 protected:
     vsg::ref_ptr<vsg::Commands> _dragger{};
     DraggerAxis _axis{};
+    vsg::vec3 _color{};
 };
 
 // ======================================================================================
