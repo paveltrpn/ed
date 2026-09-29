@@ -19,21 +19,16 @@ auto Gizmo::node() const -> vsg::ref_ptr<GizmoSubgraph> {
 }
 
 auto Gizmo::beginDrag() -> void {
-    _dragAnchorX = _translationX;
+    _dragAnchor = _translation;
 }
 
-auto Gizmo::update( vsg::dvec3 worldDisplacement, DraggerAxis axis ) -> void {
-    // TODO: Y / Z axis drags
-    if ( axis != DraggerAxis::X ) {
-        return;
-    }
-
-    _translationX = _dragAnchorX + worldDisplacement.x;
-    _gizmo->_moveDraggersPivot->matrix = vsg::translate( _translationX, 0.0, 0.0 );
+auto Gizmo::update( vsg::dvec3 worldDisplacement ) -> void {
+    _translation = _dragAnchor + worldDisplacement;
+    _gizmo->_moveDraggersPivot->matrix = vsg::translate( _translation );
 }
 
-auto Gizmo::translateX() const -> double {
-    return _translationX;
+auto Gizmo::translate() const -> vsg::dvec3 {
+    return _translation;
 }
 
 // ======================================================================================

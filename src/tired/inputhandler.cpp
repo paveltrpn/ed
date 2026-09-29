@@ -86,8 +86,14 @@ void Handler::apply( vsg::ButtonReleaseEvent& buttonRelease ) {
 
 void Handler::apply( vsg::MoveEvent& moveEvent ) {
     if ( _manipulator->dragActive() ) {
-        const auto worldPoint = dragPlaneIntersection( moveEvent.x, moveEvent.y );
-        _scenegraph->gizmo()->update( worldPoint - _dragStartWorld, _dragAxis );
+        const vsg::dvec2 mouseDisplacement{ moveEvent.x - _dragPressScreen.x, moveEvent.y - _dragPressScreen.y };
+
+        // Project the mouse displacement onto the axis's screen direction: the gizmo follows the
+        // cursor 1:1 along the projected axis, whatever the camera distance or orientation.
+        const auto dirLenSq = vsg::dot( _dragAxisScreenDir, _dragAxisScreenDir );
+        const double delta = dirLenSq > 1.0e-12 ? vsg::dot( mouseDisplacement, _dragAxisScreenDir ) / dirLenSq : 0.0;
+
+        _scenegraph->gizmo()->update( _dragAxisWorld * delta );
     }
 }
 
@@ -143,41 +149,19 @@ auto Handler::collectIntersections( int32_t x, int32_t y )
     return intersector->intersections;
 }
 
-auto Handler::viewDirection() -> vsg::dvec3 {
-    const auto camera = _camera.get();
-
-    const auto eyeToWorld = vsg::inverse( camera->viewMatrix->transform() );
-    return vsg::normalize( ( eyeToWorld * vsg::dvec4{ 0.0, 0.0, -1.0, 0.0 } ).xyz );
-}
-
-auto Handler::dragPlaneIntersection( int32_t x, int32_t y ) -> vsg::dvec3 {
+auto Handler::screenPosition( const vsg::dvec3& worldPoint ) -> vsg::dvec2 {
     const auto camera = _camera.get();
 
     const auto viewport = camera->getViewport();
-    const double ndcX = ( static_cast<double>( x ) - viewport.x ) / static_cast<double>( viewport.width ) * 2.0 - 1.0;
-    const double ndcY = ( static_cast<double>( y ) - viewport.y ) / static_cast<double>( viewport.height ) * 2.0 - 1.0;
 
-    const auto projection = camera->projectionMatrix->transform();
-    const auto invProjection = vsg::inverse( projection );
-    const auto eyeToWorld = vsg::inverse( camera->viewMatrix->transform() );
+    // Same projection/viewport convention as vsg::LineSegmentIntersector picking.
+    const auto clip = camera->projectionMatrix->transform() * camera->viewMatrix->transform() *
+                      vsg::dvec4{ worldPoint.x, worldPoint.y, worldPoint.z, 1.0 };
 
-    // Same near/far NDC convention as vsg::LineSegmentIntersector.
-    const bool reverseDepth = projection( 2, 2 ) > 0.0;
-    const double zNear = reverseDepth ? viewport.maxDepth : viewport.minDepth;
-    const double zFar = reverseDepth ? viewport.minDepth : viewport.maxDepth;
+    const double ndcX = clip.x / clip.w * 0.5 + 0.5;
+    const double ndcY = clip.y / clip.w * 0.5 + 0.5;
 
-    const auto near4 = eyeToWorld * invProjection * vsg::dvec4{ ndcX, ndcY, zNear, 1.0 };
-    const auto far4 = eyeToWorld * invProjection * vsg::dvec4{ ndcX, ndcY, zFar, 1.0 };
-
-    const vsg::dvec3 a{ near4.x / near4.w, near4.y / near4.w, near4.z / near4.w };
-    const vsg::dvec3 b{ far4.x / far4.w, far4.y / far4.w, far4.z / far4.w };
-
-    const vsg::dvec3 dir{ b - a };
-
-    const double denom = vsg::dot( dir, _dragPlaneNormal );
-    const double t = vsg::dot( _dragPlaneAnchor - a, _dragPlaneNormal ) / denom;
-
-    return a + dir * t;
+    return vsg::dvec2{ viewport.x + ndcX * viewport.width, viewport.y + ndcY * viewport.height };
 }
 
 void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
@@ -210,9 +194,21 @@ void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
                 _dragAxis = clickedDrawable->axis();
                 _scenegraph->gizmo()->beginDrag();
 
-                _dragPlaneAnchor = vsg::dvec3{ _scenegraph->gizmo()->translateX(), 0.0, 0.0 };
-                _dragPlaneNormal = viewDirection();
-                _dragStartWorld = dragPlaneIntersection( pointerEvent.x, pointerEvent.y );
+                _dragPressScreen = vsg::ivec2{ pointerEvent.x, pointerEvent.y };
+
+                vsg::dvec3 axisWorld{ 1.0, 0.0, 0.0 };
+                switch ( _dragAxis ) {
+                    case DraggerAxis::Y:
+                        axisWorld = vsg::dvec3{ 0.0, 1.0, 0.0 };
+                        break;
+                    case DraggerAxis::Z:
+                        axisWorld = vsg::dvec3{ 0.0, 0.0, 1.0 };
+                        break;
+                }
+                _dragAxisWorld = axisWorld;
+
+                const auto anchor = _scenegraph->gizmo()->translate();
+                _dragAxisScreenDir = screenPosition( anchor + axisWorld ) - screenPosition( anchor );
 
                 handled = true;
             }

@@ -65,8 +65,7 @@ private:
     auto collectIntersections( int32_t x, int32_t y )
         -> std::vector<vsg::ref_ptr<vsg::LineSegmentIntersector::Intersection>>;
 
-    auto viewDirection() -> vsg::dvec3;
-    auto dragPlaneIntersection( int32_t x, int32_t y ) -> vsg::dvec3;
+    auto screenPosition( const vsg::dvec3& worldPoint ) -> vsg::dvec2;
 
     void onLMBPress( vsg::PointerEvent& pointerEvent );
     void onMMBPress( vsg::PointerEvent& pointerEvent );
@@ -81,9 +80,9 @@ private:
     Manipulator* _manipulator{};
     vsg::observer_ptr<vsg::Camera> _camera{};
 
-    vsg::dvec3 _dragStartWorld{};
-    vsg::dvec3 _dragPlaneAnchor{};
-    vsg::dvec3 _dragPlaneNormal{ 0.0, -1.0, 0.0 };
+    vsg::ivec2 _dragPressScreen{};
+    vsg::dvec2 _dragAxisScreenDir{};
+    vsg::dvec3 _dragAxisWorld{};
     DraggerAxis _dragAxis{};
 };
 

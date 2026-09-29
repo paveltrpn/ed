@@ -24,14 +24,14 @@ public:
     auto node() const -> vsg::ref_ptr<GizmoSubgraph>;
 
     auto beginDrag() -> void;
-    auto update( vsg::dvec3 worldDisplacement, DraggerAxis axis ) -> void;
-    auto translateX() const -> double;
+    auto update( vsg::dvec3 worldDisplacement ) -> void;
+    auto translate() const -> vsg::dvec3;
 
 private:
     vsg::ref_ptr<GizmoSubgraph> _gizmo{};
 
-    double _translationX{ 0.0 };
-    double _dragAnchorX{ 0.0 };
+    vsg::dvec3 _translation{};
+    vsg::dvec3 _dragAnchor{};
 };
 
 // ======================================================================================
