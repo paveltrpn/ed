@@ -29,7 +29,7 @@ GizmoSubgraph::GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer )
     this->addChild( _stateGroup );
 
     initPipeline();
-    initDrawCmd();
+    initDraggers();
 }
 
 auto GizmoSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {
@@ -101,7 +101,30 @@ auto GizmoSubgraph::initPipeline() -> void {
     _stateGroup->add( bindDescriptorSet );
 };
 
-auto GizmoSubgraph::initDrawCmd() -> void {
+auto GizmoSubgraph::initDraggers() -> void {
+    _xMoveDg = vsg::ref_ptr<MoveDragger>{ new MoveDragger{} };
+
+    _stateGroup->addChild( _xMoveDg );
+}
+
+// ======================================================================================
+// ==================== Dragger =========================================================
+// ======================================================================================
+
+Dragger::Dragger()
+    : _dragger{ vsg::Commands::create() } {
+}
+
+auto Dragger::node() const -> vsg::ref_ptr<vsg::Commands> {
+    return _dragger;
+}
+
+// ======================================================================================
+// ==================== MoveDragger =====================================================
+// ======================================================================================
+
+MoveDragger::MoveDragger()
+    : Dragger{} {
     auto data = VsgMeshDataGenerator::cylinder( /* radius */ 1.0,
                                                 /* size */ 1.0,
                                                 /* slices */ 8,
@@ -110,13 +133,11 @@ auto GizmoSubgraph::initDrawCmd() -> void {
                                                 /* start */ 0.0,
                                                 /* sweep */ gml::radians( 360.0 ) );
 
-    // Setup geometry.
-    auto drawCommands = vsg::Commands::create();
-    drawCommands->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ data._vertices, data._colors } ) );
-    drawCommands->addChild( vsg::BindIndexBuffer::create( data._indices ) );
-    drawCommands->addChild( vsg::DrawIndexed::create( data._indicesCount, 1, 0, 0, 0 ) );
+    _dragger->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ data._vertices, data._colors } ) );
+    _dragger->addChild( vsg::BindIndexBuffer::create( data._indices ) );
+    _dragger->addChild( vsg::DrawIndexed::create( data._indicesCount, 1, 0, 0, 0 ) );
 
-    _stateGroup->addChild( drawCommands );
+    this->addChild( _dragger );
 }
 
 }  // namespace tire

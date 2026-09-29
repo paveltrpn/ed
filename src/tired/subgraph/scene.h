@@ -78,6 +78,7 @@ signals:
 
 private:
     vsg::ref_ptr<SceneSubgraph> _node{};
+
     ObjectsList* _objects{};
 
     QUuid _selectedObjectUid{};
