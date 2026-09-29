@@ -41,11 +41,20 @@ void Bounding::setTransformMat( vsg::mat4 value ) {
     _node->updateTransformMatUniform();
 }
 
+auto Bounding::show() -> void {
+    _node->_killSwitch->setAllChildren( true );
+}
+
+auto Bounding::hide() -> void {
+    _node->_killSwitch->setAllChildren( false );
+}
+
 void Bounding::setOnObject( const SceneObjectBase* object ) {
     if ( !object ) {
-        setTransformMat( vsg::mat4{} );
+        // setTransformMat( vsg::mat4{} );
         return;
     }
+
     const auto sogMat = object->node()->fmatrix();
     setTransformMat( sogMat );
 }
@@ -60,9 +69,11 @@ void Bounding::onSelectedObjectChanged( const SceneObjectBase* object ) {
 
 BoundingSubgraph::BoundingSubgraph( vsg::observer_ptr<vsg::Viewer> viewer )
     : Subgraph{ viewer }
-    , _stateGroup{ vsg::StateGroup::create() } {
+    , _stateGroup{ vsg::StateGroup::create() }
+    , _killSwitch{ vsg::Switch::create() } {
     //
-    this->addChild( _stateGroup );
+    _killSwitch->addChild( vsg::MASK_OFF, _stateGroup );
+    this->addChild( _killSwitch );
 }
 
 auto BoundingSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {
@@ -99,7 +110,7 @@ auto BoundingSubgraph::initPipeline() -> void {
     inputAssemblyState->topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
 
     auto rasterizationState = vsg::RasterizationState::create();
-    rasterizationState->lineWidth = 4.0f;
+    rasterizationState->lineWidth = 12.0f;
 
     auto pipelineStates = vsg::GraphicsPipelineStates{ vsg::VertexInputState::create(),
                                                        inputAssemblyState,

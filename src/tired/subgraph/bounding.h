@@ -34,6 +34,9 @@ public:
 
     void setTransformMat( vsg::mat4 value );
 
+    auto show() -> void;
+    auto hide() -> void;
+
     Q_INVOKABLE void setOnObject( const SceneObjectBase* object );
 
 public slots:
@@ -66,10 +69,11 @@ private:
 
 private:
     vsg::ref_ptr<vsg::StateGroup> _stateGroup{};
+    vsg::ref_ptr<vsg::Switch> _killSwitch{};
 
     vsg::mat4 _transformMat{};
 
-    vsg::mat4 _initialScale{ vsg::scale<float>( 1.1f, 1.1f, 1.1f ) };
+    vsg::mat4 _initialScale{ vsg::scale<float>( 1.05f, 1.05f, 1.05f ) };
 
     float _scale{ 1.0f };
     float _lineLength{ 0.25f };

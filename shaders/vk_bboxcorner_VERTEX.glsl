@@ -27,7 +27,7 @@ vec3 colors[8] = vec3[](
     vec3(0.5, 0.5, 0.5)      // 7: gray
 );
 
-const float LINE_LENGTH = 0.25;
+const float LINE_LENGTH = 0.35;
 
 mat4 getScaleMatrix(vec3 sc) {
     return mat4(
