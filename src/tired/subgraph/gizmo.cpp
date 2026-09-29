@@ -1,6 +1,7 @@
 
 #include "gizmo.h"
 #include "program/program.h"
+#include "../generatorutils.h"
 
 namespace tire {
 
@@ -11,6 +12,10 @@ namespace tire {
 Gizmo::Gizmo( vsg::observer_ptr<vsg::Viewer> viewer, const QObject* parent )
     : _gizmo{ new GizmoSubgraph{ viewer } } {
     //
+}
+
+auto Gizmo::node() const -> vsg::ref_ptr<GizmoSubgraph> {
+    return _gizmo;
 }
 
 // ======================================================================================
@@ -97,6 +102,21 @@ auto GizmoSubgraph::initPipeline() -> void {
 };
 
 auto GizmoSubgraph::initDrawCmd() -> void {
+    auto data = VsgMeshDataGenerator::cylinder( /* radius */ 1.0,
+                                                /* size */ 1.0,
+                                                /* slices */ 8,
+                                                /* segments */ 4,
+                                                /* rings */ 4,
+                                                /* start */ 0.0,
+                                                /* sweep */ gml::radians( 360.0 ) );
+
+    // Setup geometry.
+    auto drawCommands = vsg::Commands::create();
+    drawCommands->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ data._vertices, data._colors } ) );
+    drawCommands->addChild( vsg::BindIndexBuffer::create( data._indices ) );
+    drawCommands->addChild( vsg::DrawIndexed::create( data._indicesCount, 1, 0, 0, 0 ) );
+
+    _stateGroup->addChild( drawCommands );
 }
 
 }  // namespace tire

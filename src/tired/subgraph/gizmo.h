@@ -19,6 +19,8 @@ struct Gizmo final : public QObject {
 public:
     Gizmo( vsg::observer_ptr<vsg::Viewer> viewer, const QObject* parent = nullptr );
 
+    auto node() const -> vsg::ref_ptr<GizmoSubgraph>;
+
 private:
     vsg::ref_ptr<GizmoSubgraph> _gizmo{};
 };

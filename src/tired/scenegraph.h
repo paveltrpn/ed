@@ -65,8 +65,8 @@ private:
     Navbox* _navbox{};
     Grid* _grid{};
     Bounding* _bounding{};
-
     Gizmo* _gizmo{};
+
     GizmoModes _gizmoMode{ GizmoModes::GLOBAL };
 
     Scene* _scene{};
