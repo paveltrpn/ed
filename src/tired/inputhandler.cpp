@@ -1,4 +1,6 @@
 
+#include <print>
+
 #include "inputhandler.h"
 #include "scene_object/sceneobjectgraph.h"
 
@@ -67,8 +69,6 @@ void Handler::apply( vsg::FocusOutEvent& focusOut ) {
 }
 
 void Handler::apply( vsg::ButtonPressEvent& buttonPress ) {
-    // lastPointerEvent = &buttonPressEvent;
-
     if ( buttonPress.button == 1 ) {
         lineSegmentIntersector( buttonPress );
     }
@@ -112,24 +112,16 @@ void Handler::close() {
     }
 }
 
-void Handler::lineSegmentIntersector( vsg::PointerEvent& pointerEvent ) {
-    auto intersector =
-        vsg::LineSegmentIntersector::create( *_inputHandler->camera().get(), pointerEvent.x, pointerEvent.y );
-
-    auto scenegraph = _inputHandler->scenegraph();
+auto Handler::collectIntersections( int32_t x, int32_t y )
+    -> std::vector<vsg::ref_ptr<vsg::LineSegmentIntersector::Intersection>> {
+    auto intersector = vsg::LineSegmentIntersector::create( *_inputHandler->camera().get(), x, y );
 
     // const auto beforeIntersection = vsg::clock::now();
 
-    // Do all intersection work here.
+    auto scenegraph = _inputHandler->scenegraph();
     scenegraph->root()->accept( *intersector );
 
     // const auto afterIntersection = vsg::clock::now();
-
-    if ( intersector->intersections.empty() ) {
-        scenegraph->bounding()->setTransformMat( vsg::mat4{} );
-        scenegraph->scene()->setSelectedObjectUid( QUuid{}.toString() );
-        return;
-    }
 
     // Sort the intersections front to back.
     std::ranges::sort( intersector->intersections, []( auto& lhs, auto& rhs ) {
@@ -137,17 +129,39 @@ void Handler::lineSegmentIntersector( vsg::PointerEvent& pointerEvent ) {
         return lhs->ratio < rhs->ratio;
     } );
 
-    for ( auto& intersection : intersector->intersections ) {
-        for ( auto node : intersection->nodePath ) {
-            auto sog = dynamic_cast<const SceneObjectGraph*>( node );
-            if ( sog ) {
-                auto owner = sog->owner();
+    return intersector->intersections;
+}
 
+void Handler::lineSegmentIntersector( vsg::PointerEvent& pointerEvent ) {
+    const auto& intersections = collectIntersections( pointerEvent.x, pointerEvent.y );
+
+    auto scenegraph = _inputHandler->scenegraph();
+
+    if ( intersections.empty() ) {
+        scenegraph->bounding()->setTransformMat( vsg::mat4{} );
+        scenegraph->scene()->setSelectedObjectUid( QUuid{}.toString() );
+        return;
+    }
+
+    for ( auto& intersection : intersections ) {
+        auto handled = bool{ false };
+
+        for ( auto node : intersection->nodePath ) {
+            if ( auto clickedDrawable = dynamic_cast<const SceneObjectGraph*>( node ) ) {
+                auto owner = clickedDrawable->owner();
                 scenegraph->scene()->setSelectedObjectUid( owner->uid() );
                 scenegraph->bounding()->setOnObject( owner );
 
-                return;
+                handled = true;
+            } else if ( auto clickedDrawable = dynamic_cast<const MoveDragger*>( node ) ) {
+                std::println( " dragger axis: {}", static_cast<int>( clickedDrawable->axis() ) );
+
+                handled = true;
             }
+        }
+
+        if ( handled ) {
+            return;
         }
     }
 }

@@ -81,6 +81,10 @@ struct Handler final : vsg::Visitor {
 
 private:
     void close();
+
+    auto collectIntersections( int32_t x, int32_t y )
+        -> std::vector<vsg::ref_ptr<vsg::LineSegmentIntersector::Intersection>>;
+
     void lineSegmentIntersector( vsg::PointerEvent& pointerEvent );
 
 private:

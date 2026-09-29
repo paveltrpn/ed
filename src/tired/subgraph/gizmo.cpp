@@ -56,7 +56,6 @@ auto GizmoSubgraph::initPipeline() -> void {
     const auto dragerParamUniformDescriptor = vsg::DescriptorBuffer::create(
         _dragerParamUniformValue, /* dstBinding */ 0, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER );
 
-    // set up graphics pipeline
     const auto descriptorBindings = vsg::DescriptorSetLayoutBindings{
         { /* binding */ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, /* count */ 1, VK_SHADER_STAGE_VERTEX_BIT, nullptr } };
 
