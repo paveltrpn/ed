@@ -186,10 +186,9 @@ MoveDragger::MoveDragger( DraggerAxis axis )
         }
     }
 
-    const auto colorPC = vsg::PushConstants::create(
-        VK_SHADER_STAGE_VERTEX_BIT, 128, vsg::floatArray::create( { _color.r, _color.g, _color.b, -1.0 } ) );
+    _dragger->addChild( vsg::PushConstants::create(
+        VK_SHADER_STAGE_VERTEX_BIT, 128, vsg::floatArray::create( { _color.r, _color.g, _color.b, -1.0 } ) ) );
 
-    _dragger->addChild( colorPC );
     _dragger->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ data._vertices, data._colors } ) );
     _dragger->addChild( vsg::BindIndexBuffer::create( data._indices ) );
     _dragger->addChild( vsg::DrawIndexed::create( data._indicesCount, 1, 0, 0, 0 ) );
