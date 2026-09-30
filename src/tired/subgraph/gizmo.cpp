@@ -53,11 +53,11 @@ auto Gizmo::translation() const -> vsg::dvec3 {
 
 auto Gizmo::setTranslation( const vsg::dvec3& value ) -> void {
     _translation = value;
-    _gizmo->_moveDraggersPivot->matrix = vsg::translate( _translation );
+    _gizmo->_gizmoPivot->matrix = vsg::translate( _translation );
 }
 
 void Gizmo::setGizmoMode( int value ) {
-    _gizmoMode = static_cast<GizmoModes>( value );
+    _gizmoMode = static_cast<GizmoMode>( value );
     emit gizmoModeChanged();
 }
 
@@ -76,7 +76,7 @@ GizmoSubgraph::GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer )
     : Subgraph{ viewer }
     , _stateGroup{ vsg::StateGroup::create() }
     , _gizmoKillSwitch{ vsg::Switch::create() }
-    , _moveDraggersPivot{ vsg::MatrixTransform::create() } {
+    , _gizmoPivot{ vsg::MatrixTransform::create() } {
     //
     this->addChild( _stateGroup );
 
@@ -170,15 +170,38 @@ auto GizmoSubgraph::initPipeline() -> void {
 };
 
 auto GizmoSubgraph::initDraggers() -> void {
+    _moveGizmoSwitch = vsg::Switch::create();
     _xMoveDg = vsg::ref_ptr<MoveDragger>{ new MoveDragger{ tire::DraggerAxis::X } };
     _yMoveDg = vsg::ref_ptr<MoveDragger>{ new MoveDragger{ tire::DraggerAxis::Y } };
     _zMoveDg = vsg::ref_ptr<MoveDragger>{ new MoveDragger{ tire::DraggerAxis::Z } };
 
-    _moveDraggersPivot->addChild( _xMoveDg );
-    _moveDraggersPivot->addChild( _yMoveDg );
-    _moveDraggersPivot->addChild( _zMoveDg );
+    _moveGizmoSwitch->addChild( vsg::MASK_ALL, _xMoveDg );
+    _moveGizmoSwitch->addChild( vsg::MASK_ALL, _yMoveDg );
+    _moveGizmoSwitch->addChild( vsg::MASK_ALL, _zMoveDg );
 
-    _gizmoKillSwitch->addChild( vsg::MASK_ALL, _moveDraggersPivot );
+    _rotateGizmoSwitch = vsg::Switch::create();
+    _xRotateDg = vsg::ref_ptr<RotationDragger>{ new RotationDragger{ tire::DraggerAxis::X } };
+    _yRotateDg = vsg::ref_ptr<RotationDragger>{ new RotationDragger{ tire::DraggerAxis::Y } };
+    _zRotateDg = vsg::ref_ptr<RotationDragger>{ new RotationDragger{ tire::DraggerAxis::Z } };
+
+    _rotateGizmoSwitch->addChild( vsg::MASK_ALL, _xRotateDg );
+    _rotateGizmoSwitch->addChild( vsg::MASK_ALL, _yRotateDg );
+    _rotateGizmoSwitch->addChild( vsg::MASK_ALL, _zRotateDg );
+
+    _scaleGizmoSwitch = vsg::Switch::create();
+    _xScaleDg = vsg::ref_ptr<ScaleDragger>{ new ScaleDragger{ tire::DraggerAxis::X } };
+    _yScaleDg = vsg::ref_ptr<ScaleDragger>{ new ScaleDragger{ tire::DraggerAxis::Y } };
+    _zScaleDg = vsg::ref_ptr<ScaleDragger>{ new ScaleDragger{ tire::DraggerAxis::Z } };
+
+    _scaleGizmoSwitch->addChild( vsg::MASK_ALL, _xScaleDg );
+    _scaleGizmoSwitch->addChild( vsg::MASK_ALL, _yScaleDg );
+    _scaleGizmoSwitch->addChild( vsg::MASK_ALL, _zScaleDg );
+
+    _gizmoPivot->addChild( _moveGizmoSwitch );
+    _gizmoPivot->addChild( _rotateGizmoSwitch );
+    _gizmoPivot->addChild( _scaleGizmoSwitch );
+
+    _gizmoKillSwitch->addChild( vsg::MASK_ALL, _gizmoPivot );
 }
 
 // ======================================================================================
@@ -269,6 +292,22 @@ MoveDragger::MoveDragger( DraggerAxis axis )
     _dragger->addChild( vsg::DrawIndexed::create( tip._indicesCount, 1, 0, 0, 0 ) );
 
     this->addChild( _dragger );
+}
+
+// ======================================================================================
+// ==================== RotationDragger =================================================
+// ======================================================================================
+
+RotationDragger::RotationDragger( DraggerAxis axis )
+    : Dragger{ axis } {
+}
+
+// ======================================================================================
+// ==================== ScaleDragger ====================================================
+// ======================================================================================
+
+ScaleDragger::ScaleDragger( DraggerAxis axis )
+    : Dragger{ axis } {
 }
 
 }  // namespace tire

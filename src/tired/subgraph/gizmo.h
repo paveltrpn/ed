@@ -8,12 +8,24 @@
 
 namespace tire {
 
-enum class DraggerAxis { X, Y, Z };
+enum class DraggerAxis {
+    //
+    X,
+    Y,
+    Z
+};
 
-enum class GizmoModes {
+enum class GizmoMode {
     //
     LOCAL,
     GLOBAL
+};
+
+enum class GizmoType {
+    //
+    MOVE,
+    ROTATE,
+    SCALE
 };
 
 // ======================================================================================
@@ -50,7 +62,7 @@ signals:
 private:
     vsg::ref_ptr<GizmoSubgraph> _gizmo{};
 
-    GizmoModes _gizmoMode{ GizmoModes::GLOBAL };
+    GizmoMode _gizmoMode{ GizmoMode::GLOBAL };
 
     vsg::dvec3 _translation{};
     vsg::dvec3 _dragAnchor{};
@@ -62,6 +74,8 @@ private:
 
 struct Dragger;
 struct MoveDragger;
+struct RotationDragger;
+struct ScaleDragger;
 
 struct GizmoSubgraph final : public Subgraph {
     GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer );
@@ -81,11 +95,23 @@ private:
     vsg::ref_ptr<vsg::floatArray> _dragerParamUniformValue{};
 
     vsg::dvec3 _dragersPos{};
-    vsg::ref_ptr<vsg::MatrixTransform> _moveDraggersPivot{};
 
+    vsg::ref_ptr<vsg::MatrixTransform> _gizmoPivot{};
+
+    vsg::ref_ptr<vsg::Switch> _moveGizmoSwitch{};
     vsg::ref_ptr<MoveDragger> _xMoveDg{};
     vsg::ref_ptr<MoveDragger> _yMoveDg{};
     vsg::ref_ptr<MoveDragger> _zMoveDg{};
+
+    vsg::ref_ptr<vsg::Switch> _rotateGizmoSwitch{};
+    vsg::ref_ptr<RotationDragger> _xRotateDg{};
+    vsg::ref_ptr<RotationDragger> _yRotateDg{};
+    vsg::ref_ptr<RotationDragger> _zRotateDg{};
+
+    vsg::ref_ptr<vsg::Switch> _scaleGizmoSwitch{};
+    vsg::ref_ptr<ScaleDragger> _xScaleDg{};
+    vsg::ref_ptr<ScaleDragger> _yScaleDg{};
+    vsg::ref_ptr<ScaleDragger> _zScaleDg{};
 };
 
 // ======================================================================================
@@ -111,6 +137,22 @@ protected:
 
 struct MoveDragger : public Dragger {
     MoveDragger( DraggerAxis axis );
+};
+
+// ======================================================================================
+// ==================== RotationDragger =================================================
+// ======================================================================================
+
+struct RotationDragger : public Dragger {
+    RotationDragger( DraggerAxis axis );
+};
+
+// ======================================================================================
+// ==================== ScaleDragger ====================================================
+// ======================================================================================
+
+struct ScaleDragger : public Dragger {
+    ScaleDragger( DraggerAxis axis );
 };
 
 }  // namespace tire
