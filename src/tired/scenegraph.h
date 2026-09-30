@@ -10,6 +10,8 @@
 #include "subgraph/scene.h"
 #include "subgraph/bounding.h"
 #include "subgraph/gizmo.h"
+#include "tired/subgraph/boundingrender.h"
+#include "vsg/core/ref_ptr.h"
 
 namespace tire {
 
@@ -74,8 +76,9 @@ public slots:
 private:
     vsg::observer_ptr<vsg::Viewer> _viewer;
 
-    // Must be Group of StateGroups.
     vsg::ref_ptr<vsg::Group> _root{};
+
+    vsg::ref_ptr<BoundingRender> _boundingRender{};
 
     Navbox* _navbox{};
     Grid* _grid{};

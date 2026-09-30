@@ -7,6 +7,8 @@
 #include "../vsgcommands/setpolygonmode.h"
 #include "../vsgcommands/setcullmode.h"
 
+#include "boundingrender.h"
+
 namespace tire {
 
 // ======================================================================================
@@ -34,7 +36,8 @@ struct Scene final : public QObject {
     Q_PROPERTY( int showOuline READ showOuline WRITE setShowOuline NOTIFY showOulineChanged FINAL )
 
 public:
-    Scene( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent = nullptr );
+    Scene( vsg::observer_ptr<vsg::Viewer> viewer, vsg::observer_ptr<BoundingRender> boundingRender,
+           QObject* parent = nullptr );
 
     [[nodiscard]]
     auto node() const -> vsg::ref_ptr<SceneSubgraph>;
@@ -86,6 +89,8 @@ signals:
 
 private:
     vsg::ref_ptr<SceneSubgraph> _node{};
+
+    vsg::observer_ptr<BoundingRender> _boundingRender{};
 
     ObjectsList* _objects{};
 

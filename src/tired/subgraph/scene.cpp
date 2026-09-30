@@ -23,9 +23,10 @@ namespace tire {
 // ==================== SceneObjects ====================================================
 // ======================================================================================
 
-Scene::Scene( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent )
+Scene::Scene( vsg::observer_ptr<vsg::Viewer> viewer, vsg::observer_ptr<BoundingRender> boundingRender, QObject* parent )
     : QObject{ parent }
     , _node{ new SceneSubgraph{ viewer } }
+    , _boundingRender{ boundingRender }
     , _objects{ new ObjectsList{ this } } {
     //
     _node->initPipeline();

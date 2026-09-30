@@ -1,5 +1,6 @@
 
 #include "scenegraph.h"
+#include "tired/subgraph/boundingrender.h"
 
 namespace tire {
 
@@ -7,11 +8,12 @@ Scenegraph::Scenegraph( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent )
     : QObject{ parent }
     , _root{ new vsg::Group{} }
     , _viewer{ viewer }
+    , _boundingRender{ new BoundingRender{ _viewer } }
     , _grid{ new Grid{ _viewer, this } }
     , _navbox{ new Navbox{ _viewer, this } }
     , _bounding{ new Bounding{ _viewer, this } }
     , _gizmo{ new Gizmo{ _viewer, this } }
-    , _scene{ new Scene{ _viewer, this } } {
+    , _scene{ new Scene{ _viewer, vsg::observer_ptr<BoundingRender>{ _boundingRender }, this } } {
     //
     _root->addChild( _bounding->node() );
     _root->addChild( _gizmo->node() );
