@@ -38,6 +38,7 @@ struct Gizmo final : public QObject {
     Q_OBJECT
 
     Q_PROPERTY( int gizmoMode READ gizmoMode WRITE setGizmoMode NOTIFY gizmoModeChanged FINAL )
+    Q_PROPERTY( int gizmoType READ gizmoType WRITE setGizmoType NOTIFY gizmoTypeChanged FINAL )
 
 public:
     Gizmo( vsg::observer_ptr<vsg::Viewer> viewer, const QObject* parent = nullptr );
@@ -50,19 +51,23 @@ public:
     [[nodiscard]] auto translation() const -> vsg::dvec3;
     auto setTranslation( const vsg::dvec3& value ) -> void;
 
+    [[nodiscard]] auto gizmoMode() const -> int;
     auto setGizmoMode( int value ) -> void;
 
-    [[nodiscard]] auto gizmoMode() const -> int;
+    [[nodiscard]] auto gizmoType() const -> int;
+    auto setGizmoType( int value ) -> void;
 
     auto moveObject( SceneObjectBase* object ) -> void;
 
 signals:
     void gizmoModeChanged();
+    void gizmoTypeChanged();
 
 private:
     vsg::ref_ptr<GizmoSubgraph> _gizmo{};
 
     GizmoMode _gizmoMode{ GizmoMode::GLOBAL };
+    GizmoType _gizmoType{ GizmoType::MOVE };
 
     vsg::dvec3 _translation{};
     vsg::dvec3 _dragAnchor{};

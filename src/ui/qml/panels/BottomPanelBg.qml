@@ -275,10 +275,10 @@ Rectangle {
 
                     buttonLabel: "MOV"
 
-                    //checked: Tired.scenegraph.scene.renderMode == 0
+                    checked: Tired.scenegraph.gizmo.gizmoType == 0
 
                     onClicked: {
-                        //Tired.scenegraph.scene.renderMode = 0;
+                        Tired.scenegraph.gizmo.gizmoType = 0
                     }
                 }
 
@@ -290,10 +290,10 @@ Rectangle {
 
                     buttonLabel: "ROT"
 
-                    //checked: Tired.scenegraph.scene.renderMode == 1
+                    checked: Tired.scenegraph.gizmo.gizmoType == 1
 
                     onClicked: {
-                        //Tired.scenegraph.scene.renderMode = 1;
+                        Tired.scenegraph.gizmo.gizmoType = 1
                     }
                 }
 
@@ -305,10 +305,10 @@ Rectangle {
 
                     buttonLabel: "SCL"
 
-                    //checked: Tired.scenegraph.scene.renderMode == 2
+                    checked: Tired.scenegraph.gizmo.gizmoType == 2
 
                     onClicked: {
-                        //Tired.scenegraph.scene.renderMode = 2;
+                        Tired.scenegraph.gizmo.gizmoType = 2
                     }
                 }
             }
@@ -365,10 +365,7 @@ Rectangle {
 
                     enabled: false
 
-                    // checked: Tired.scenegraph.scene.lightMode == 0
-
                     onClicked: {
-                        // Tired.scenegraph.scene.lightMode = 0;
                     }
                 }
             }

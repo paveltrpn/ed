@@ -56,13 +56,22 @@ auto Gizmo::setTranslation( const vsg::dvec3& value ) -> void {
     _gizmo->_gizmoPivot->matrix = vsg::translate( _translation );
 }
 
+auto Gizmo::gizmoMode() const -> int {
+    return static_cast<int>( _gizmoMode );
+}
+
 void Gizmo::setGizmoMode( int value ) {
     _gizmoMode = static_cast<GizmoMode>( value );
     emit gizmoModeChanged();
 }
 
-auto Gizmo::gizmoMode() const -> int {
-    return static_cast<int>( _gizmoMode );
+auto Gizmo::gizmoType() const -> int {
+    return static_cast<int>( _gizmoType );
+}
+
+auto Gizmo::setGizmoType( int value ) -> void {
+    _gizmoType = static_cast<GizmoType>( value );
+    emit gizmoTypeChanged();
 }
 
 auto Gizmo::moveObject( SceneObjectBase* object ) -> void {
