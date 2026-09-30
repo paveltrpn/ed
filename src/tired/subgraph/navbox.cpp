@@ -178,8 +178,8 @@ auto NavboxSubgraph::initPipeline() -> void {
         vsg::DescriptorBuffer::create( _viewmUniformValue, /* dstBinding */ 2, 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER );
 
     vsg::PushConstantRanges pushConstantRanges{
-        { VK_SHADER_STAGE_VERTEX_BIT, 0,
-          128 }  // projection, view, and model matrices, actual push constant calls automatically provided by the VSG's RecordTraversal
+        { VK_SHADER_STAGE_VERTEX_BIT, 0, 128 }
+        // projection, view, and model matrices, actual push constant calls automatically provided by the VSG's RecordTraversal
     };
 
     vsg::VertexInputState::Bindings vertexBindingsDescriptions{};
