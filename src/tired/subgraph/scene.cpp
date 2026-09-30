@@ -49,8 +49,9 @@ auto Scene::selectedObjectUid() const -> QString {
 auto Scene::setSelectedObjectUid( const QString& value ) -> void {
     _selectedObjectUid = QUuid::fromString( value );
 
+    _boundingRender.get()->clear();
+
     if ( _selectedObjectUid.isNull() ) {
-        _boundingRender.get()->clear();
         return;
     }
 

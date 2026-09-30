@@ -5,6 +5,27 @@
 
 namespace tire {
 
+// // Создаём узел, который будет отображаться поверх (например, иконка)
+// auto iconGeometry = vsg::VertexIndexDraw::create();
+// // ... (настройка вершин, пайплайна и шейдеров) ...
+
+// auto absoluteTransform = vsg::AbsoluteTransform::create();
+
+// // В цикле обновления (viewer->update() или кастомный UpdateVisitor):
+// // Вычисляем расстояние от камеры до точки привязки (worldPos)
+// vsg::dvec3 cameraPos = view->camera->viewMatrix->transform(vsg::dvec3(0,0,0)); // позиция камеры
+// double distance = vsg::length(worldPos - cameraPos);
+
+// // Масштаб, чтобы размер в пикселях оставался постоянным:
+// // scale = distance * (2 * tan(fov/2) / viewportHeight)
+// double fovY = view->camera->projectionMatrix->getFovY(); // условный метод
+// double viewportHeight = view->camera->viewportState->getViewport().height;
+// double scale = distance * (2.0 * std::tan(fovY * 0.5) / viewportHeight);
+
+// // Матрица: перемещаем в точку + масштабируем + компенсируем масштаб родителя
+// vsg::dmat4 matrix = vsg::translate(worldPos) * vsg::scale(scale);
+// absoluteTransform->matrix = matrix;
+
 // ======================================================================================
 // ==================== Gizmo ===========================================================
 // ======================================================================================
@@ -23,12 +44,16 @@ auto Gizmo::beginDrag() -> void {
 }
 
 auto Gizmo::update( vsg::dvec3 worldDisplacement ) -> void {
-    _translation = _dragAnchor + worldDisplacement;
-    _gizmo->_moveDraggersPivot->matrix = vsg::translate( _translation );
+    setTranslation( _dragAnchor + worldDisplacement );
 }
 
-auto Gizmo::translate() const -> vsg::dvec3 {
+auto Gizmo::translation() const -> vsg::dvec3 {
     return _translation;
+}
+
+auto Gizmo::setTranslation( const vsg::dvec3& value ) -> void {
+    _translation = value;
+    _gizmo->_moveDraggersPivot->matrix = vsg::translate( _translation );
 }
 
 void Gizmo::setGizmoMode( int value ) {
@@ -38,6 +63,9 @@ void Gizmo::setGizmoMode( int value ) {
 
 auto Gizmo::gizmoMode() const -> int {
     return static_cast<int>( _gizmoMode );
+}
+
+auto Gizmo::moveObject( SceneObjectBase* object ) -> void {
 }
 
 // ======================================================================================
@@ -107,13 +135,24 @@ auto GizmoSubgraph::initPipeline() -> void {
     rasterizationState->depthBiasSlopeFactor = 1.0f;
     rasterizationState->lineWidth = 1.0f;
 
+    const auto depthStencilState = vsg::DepthStencilState::create();
+    depthStencilState->depthTestEnable = VK_TRUE;
+    depthStencilState->depthWriteEnable = VK_FALSE;
+    depthStencilState->depthCompareOp = VK_COMPARE_OP_ALWAYS;
+    depthStencilState->depthBoundsTestEnable = VK_FALSE;
+    depthStencilState->stencilTestEnable = VK_FALSE;
+    depthStencilState->front = {};
+    depthStencilState->back = {};
+    depthStencilState->minDepthBounds = 0.0f;
+    depthStencilState->maxDepthBounds = 1.0f;
+
     const auto pipelineStates = vsg::GraphicsPipelineStates{
         vsg::VertexInputState::create( vertexBindingsDescriptions, vertexAttributeDescriptions ),
         vsg::InputAssemblyState::create(),
         rasterizationState,
         vsg::MultisampleState::create(),
         vsg::ColorBlendState::create(),
-        vsg::DepthStencilState::create() };
+        depthStencilState };
 
     const auto pipelineLayout =
         vsg::PipelineLayout::create( vsg::DescriptorSetLayouts{ descriptorSetLayout }, pushConstantRanges );

@@ -206,7 +206,7 @@ void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
                     }
                 }
 
-                const auto anchor = gizmo->translate();
+                const auto anchor = gizmo->translation();
 
                 const auto screenPosition = [this]( const vsg::dvec3& worldPoint ) -> vsg::dvec2 {
                     const auto camera = _camera.get();

@@ -4,6 +4,7 @@
 #include <vsg/all.h>
 
 #include "subgraph.h"
+#include "../scene_object/sceneobjectbase.h"
 
 namespace tire {
 
@@ -29,19 +30,19 @@ struct Gizmo final : public QObject {
 public:
     Gizmo( vsg::observer_ptr<vsg::Viewer> viewer, const QObject* parent = nullptr );
 
-    [[nodiscard]]
-    auto node() const -> vsg::ref_ptr<GizmoSubgraph>;
+    [[nodiscard]] auto node() const -> vsg::ref_ptr<GizmoSubgraph>;
 
     auto beginDrag() -> void;
     auto update( vsg::dvec3 worldDisplacement ) -> void;
 
-    [[nodiscard]]
-    auto translate() const -> vsg::dvec3;
+    [[nodiscard]] auto translation() const -> vsg::dvec3;
+    auto setTranslation( const vsg::dvec3& value ) -> void;
 
     auto setGizmoMode( int value ) -> void;
 
-    [[nodiscard]]
-    auto gizmoMode() const -> int;
+    [[nodiscard]] auto gizmoMode() const -> int;
+
+    auto moveObject( SceneObjectBase* object ) -> void;
 
 signals:
     void gizmoModeChanged();

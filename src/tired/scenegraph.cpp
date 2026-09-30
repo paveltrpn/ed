@@ -16,10 +16,16 @@ Scenegraph::Scenegraph( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent )
     //
     _root->addChild( _boundingRender );
 
-    _root->addChild( _gizmo->node() );
     _root->addChild( _navbox->node() );
     _root->addChild( _scene->scene() );
     _root->addChild( _grid->node() );
+    _root->addChild( _gizmo->node() );
+
+    connect( _scene, &Scene::selectedObjectChanged, _gizmo, [this]( SceneObjectBase* object ) {
+        //
+        const auto pos = object->position();
+        _gizmo->setTranslation( vsg::dvec3{ pos.x(), pos.y(), pos.z() } );
+    } );
 }
 
 auto Scenegraph::root() const -> vsg::ref_ptr<vsg::Group> {
