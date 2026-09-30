@@ -64,6 +64,9 @@ signals:
     void gizmoTypeChanged();
 
 private:
+    auto updateGizmoVisibility() -> void;
+
+private:
     vsg::ref_ptr<GizmoSubgraph> _gizmo{};
 
     GizmoMode _gizmoMode{ GizmoMode::GLOBAL };
@@ -83,6 +86,8 @@ struct RotationDragger;
 struct ScaleDragger;
 
 struct GizmoSubgraph final : public Subgraph {
+    friend Gizmo;
+
     GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer );
 
     auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
@@ -90,7 +95,10 @@ struct GizmoSubgraph final : public Subgraph {
     auto initPipeline() -> void;
     auto initDraggers() -> void;
 
-    friend Gizmo;
+private:
+    auto showMoveGizmo() -> void;
+    auto showRotateGizmo() -> void;
+    auto showScaleGizmo() -> void;
 
 private:
     vsg::ref_ptr<vsg::StateGroup> _stateGroup{};

@@ -33,6 +33,7 @@ namespace tire {
 Gizmo::Gizmo( vsg::observer_ptr<vsg::Viewer> viewer, const QObject* parent )
     : _gizmo{ new GizmoSubgraph{ viewer } } {
     //
+    updateGizmoVisibility();
 }
 
 auto Gizmo::node() const -> vsg::ref_ptr<GizmoSubgraph> {
@@ -71,7 +72,27 @@ auto Gizmo::gizmoType() const -> int {
 
 auto Gizmo::setGizmoType( int value ) -> void {
     _gizmoType = static_cast<GizmoType>( value );
+    updateGizmoVisibility();
     emit gizmoTypeChanged();
+}
+
+auto Gizmo::updateGizmoVisibility() -> void {
+    switch ( _gizmoType ) {
+        case tire::GizmoType::MOVE: {
+            _gizmo->showMoveGizmo();
+            break;
+        }
+
+        case tire::GizmoType::ROTATE: {
+            _gizmo->showRotateGizmo();
+            break;
+        }
+
+        case tire::GizmoType::SCALE: {
+            _gizmo->showScaleGizmo();
+            break;
+        }
+    }
 }
 
 auto Gizmo::moveObject( SceneObjectBase* object ) -> void {
@@ -213,6 +234,24 @@ auto GizmoSubgraph::initDraggers() -> void {
     _gizmoKillSwitch->addChild( vsg::MASK_ALL, _gizmoPivot );
 }
 
+auto GizmoSubgraph::showMoveGizmo() -> void {
+    _moveGizmoSwitch->setAllChildren( true );
+    _rotateGizmoSwitch->setAllChildren( false );
+    _scaleGizmoSwitch->setAllChildren( false );
+}
+
+auto GizmoSubgraph::showRotateGizmo() -> void {
+    _moveGizmoSwitch->setAllChildren( false );
+    _rotateGizmoSwitch->setAllChildren( true );
+    _scaleGizmoSwitch->setAllChildren( false );
+}
+
+auto GizmoSubgraph::showScaleGizmo() -> void {
+    _moveGizmoSwitch->setAllChildren( false );
+    _rotateGizmoSwitch->setAllChildren( false );
+    _scaleGizmoSwitch->setAllChildren( true );
+}
+
 // ======================================================================================
 // ==================== Dragger =========================================================
 // ======================================================================================
@@ -241,7 +280,7 @@ auto Dragger::color() const -> vsg::vec3 {
 MoveDragger::MoveDragger( DraggerAxis axis )
     : Dragger{ axis } {
     auto shaft = VsgMeshDataGenerator::cylinder( /* radius */ 0.05,
-                                                 /* size */ 2.0,
+                                                 /* size */ 1.25,
                                                  /* slices */ 8,
                                                  /* segments */ 4,
                                                  /* rings */ 4,
@@ -257,10 +296,10 @@ MoveDragger::MoveDragger( DraggerAxis axis )
                                            /* sweep */ gml::radians( 360.0 ) );
 
     for ( size_t i{}; i < tip._vertices->size(); ++i ) {
-        ( *tip._vertices )[i] += vsg::vec3( 0.0f, 0.0f, 2.0f );
+        ( *tip._vertices )[i] += vsg::vec3( 0.0f, 0.0f, 1.0f );
     }
 
-    const auto offst = vsg::translate( vsg::dvec3{ 0.0, 0.0, 2.0 } );
+    const auto offst = vsg::translate( vsg::dvec3{ 0.0, 0.0, 1.0 } );
 
     switch ( _axis ) {
         case tire::DraggerAxis::X: {
@@ -309,6 +348,50 @@ MoveDragger::MoveDragger( DraggerAxis axis )
 
 RotationDragger::RotationDragger( DraggerAxis axis )
     : Dragger{ axis } {
+    auto torus = VsgMeshDataGenerator::torus( /* minor */ 0.08,
+                                              /* major */ 1.0,
+                                              /* slices */ 12,
+                                              /* segments */ 24,
+                                              /* minorStart */ 0.0,
+                                              /* minorSweep */ gml::radians( 360.0 ),
+                                              /* majorStart */ 0.0,
+                                              /* majorSweep */ gml::radians( 360.0 ) );
+
+    switch ( _axis ) {
+        case tire::DraggerAxis::X: {
+            const auto rm = vsg::rotate( vsg::radians( 90.0 ), vsg::dvec3{ 0.0, 1.0, 0.0 } );
+            this->matrix = rm;
+
+            _color = vsg::vec3{ 1.0f, 0.0f, 0.0f };
+
+            break;
+        }
+        case tire::DraggerAxis::Y: {
+            const auto rm = vsg::rotate( vsg::radians( 90.0 ), vsg::dvec3{ 1.0, 0.0, 0.0 } );
+            this->matrix = rm;
+
+            _color = vsg::vec3{ 0.0f, 1.0f, 0.0f };
+
+            break;
+        }
+        case tire::DraggerAxis::Z: {
+            const auto rm = vsg::rotate( vsg::radians( 0.0 ), vsg::dvec3{ 0.0, 0.0, 1.0 } );
+            this->matrix = rm;
+
+            _color = vsg::vec3{ 0.0f, 0.0f, 1.0f };
+
+            break;
+        }
+    }
+
+    _dragger->addChild( vsg::PushConstants::create(
+        VK_SHADER_STAGE_VERTEX_BIT, 128, vsg::floatArray::create( { _color.r, _color.g, _color.b, -1.0 } ) ) );
+
+    _dragger->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ torus._vertices } ) );
+    _dragger->addChild( vsg::BindIndexBuffer::create( torus._indices ) );
+    _dragger->addChild( vsg::DrawIndexed::create( torus._indicesCount, 1, 0, 0, 0 ) );
+
+    this->addChild( _dragger );
 }
 
 // ======================================================================================
@@ -317,6 +400,67 @@ RotationDragger::RotationDragger( DraggerAxis axis )
 
 ScaleDragger::ScaleDragger( DraggerAxis axis )
     : Dragger{ axis } {
+    auto shaft = VsgMeshDataGenerator::cylinder( /* radius */ 0.05,
+                                                 /* size */ 1.25,
+                                                 /* slices */ 8,
+                                                 /* segments */ 4,
+                                                 /* rings */ 4,
+                                                 /* start */ 0.0,
+                                                 /* sweep */ gml::radians( 360.0 ) );
+
+    auto tip = VsgMeshDataGenerator::cylinder( /* radius */ 0.25,
+                                               /* size */ 0.45,
+                                               /* slices */ 8,
+                                               /* segments */ 4,
+                                               /* rings */ 4,
+                                               /* start */ 0.0,
+                                               /* sweep */ gml::radians( 360.0 ) );
+
+    for ( size_t i{}; i < tip._vertices->size(); ++i ) {
+        ( *tip._vertices )[i] += vsg::vec3( 0.0f, 0.0f, 1.0f );
+    }
+
+    const auto offst = vsg::translate( vsg::dvec3{ 0.0, 0.0, 1.0 } );
+
+    switch ( _axis ) {
+        case tire::DraggerAxis::X: {
+            const auto rm = vsg::rotate( vsg::radians( 90.0 ), vsg::dvec3{ 0.0, 1.0, 0.0 } );
+            this->matrix = rm * offst;
+
+            _color = vsg::vec3{ 1.0f, 0.0f, 0.0f };
+
+            break;
+        }
+        case tire::DraggerAxis::Y: {
+            const auto rm = vsg::rotate( vsg::radians( 90.0 ), vsg::dvec3{ 1.0, 0.0, 0.0 } );
+            this->matrix = rm * offst;
+
+            _color = vsg::vec3{ 0.0f, 1.0f, 0.0f };
+
+            break;
+        }
+        case tire::DraggerAxis::Z: {
+            const auto rm = vsg::rotate( vsg::radians( 0.0 ), vsg::dvec3{ 0.0, 0.0, 1.0 } );
+            this->matrix = rm * offst;
+
+            _color = vsg::vec3{ 0.0f, 0.0f, 1.0f };
+
+            break;
+        }
+    }
+
+    _dragger->addChild( vsg::PushConstants::create(
+        VK_SHADER_STAGE_VERTEX_BIT, 128, vsg::floatArray::create( { _color.r, _color.g, _color.b, -1.0 } ) ) );
+
+    _dragger->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ shaft._vertices } ) );
+    _dragger->addChild( vsg::BindIndexBuffer::create( shaft._indices ) );
+    _dragger->addChild( vsg::DrawIndexed::create( shaft._indicesCount, 1, 0, 0, 0 ) );
+
+    _dragger->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ tip._vertices } ) );
+    _dragger->addChild( vsg::BindIndexBuffer::create( tip._indices ) );
+    _dragger->addChild( vsg::DrawIndexed::create( tip._indicesCount, 1, 0, 0, 0 ) );
+
+    this->addChild( _dragger );
 }
 
 }  // namespace tire
