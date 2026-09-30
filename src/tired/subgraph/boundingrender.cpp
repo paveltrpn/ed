@@ -85,7 +85,6 @@ auto BoundingRender::detach( vsg::ref_ptr<BoundingDraw> bounding ) -> void {
 
 auto BoundingRender::clear() -> void {
     for ( const auto& child : _boundingsGroup->children ) {
-        vsg::CompileResult cr{};
         const auto op = tire::DetachAndCompileOp::create( _viewer, _boundingsGroup, child );
         _viewer.get()->addUpdateOperation( op );
     }
