@@ -25,16 +25,16 @@ namespace tire {
 
 Scene::Scene( vsg::observer_ptr<vsg::Viewer> viewer, vsg::observer_ptr<BoundingRender> boundingRender, QObject* parent )
     : QObject{ parent }
-    , _node{ new SceneSubgraph{ viewer } }
+    , _scene{ new SceneSubgraph{ viewer } }
     , _boundingRender{ boundingRender }
     , _objects{ new ObjectsList{ this } } {
     //
-    _node->initPipeline();
+    _scene->initPipeline();
 }
 
-auto Scene::node() const -> vsg::ref_ptr<SceneSubgraph> {
+auto Scene::scene() const -> vsg::ref_ptr<SceneSubgraph> {
     //
-    return _node;
+    return _scene;
 }
 
 auto Scene::objects() const -> ObjectsList* {
@@ -69,13 +69,13 @@ auto Scene::setRenderMode( int value ) -> void {
 
     switch ( _renderMode ) {
         case ObjectsRenderMode::WIREFRAME: {
-            _node->_polygonModeCmd->mode = VK_POLYGON_MODE_LINE;
-            _node->_setCullModeCmd->mode = VK_CULL_MODE_NONE;
+            _scene->_polygonModeCmd->mode = VK_POLYGON_MODE_LINE;
+            _scene->_setCullModeCmd->mode = VK_CULL_MODE_NONE;
             break;
         }
         case ObjectsRenderMode::SOLID: {
-            _node->_polygonModeCmd->mode = VK_POLYGON_MODE_FILL;
-            _node->_setCullModeCmd->mode = VK_CULL_MODE_BACK_BIT;
+            _scene->_polygonModeCmd->mode = VK_POLYGON_MODE_FILL;
+            _scene->_setCullModeCmd->mode = VK_CULL_MODE_BACK_BIT;
             break;
         }
         case ObjectsRenderMode::SOLIDWIRE: {
@@ -89,22 +89,22 @@ auto Scene::setRenderMode( int value ) -> void {
 }
 
 auto Scene::appearnceMode() const -> int {
-    return static_cast<int>( _node->_appearnceMode );
+    return static_cast<int>( _scene->_appearnceMode );
 }
 
 auto Scene::setAppearnceMode( int value ) -> void {
-    _node->_appearnceMode = static_cast<ObjectsAppearenceMode>( value );
-    _node->updateObjectParamsUniformValue();
+    _scene->_appearnceMode = static_cast<ObjectsAppearenceMode>( value );
+    _scene->updateObjectParamsUniformValue();
     emit appearnceModeChanged();
 }
 
 auto Scene::lightMode() const -> int {
-    return static_cast<int>( _node->_lightMode );
+    return static_cast<int>( _scene->_lightMode );
 }
 
 auto Scene::setLightMode( int value ) -> void {
-    _node->_lightMode = static_cast<ObjectsLightMode>( value );
-    _node->updateObjectParamsUniformValue();
+    _scene->_lightMode = static_cast<ObjectsLightMode>( value );
+    _scene->updateObjectParamsUniformValue();
     emit lightModeChanged();
 }
 
@@ -125,7 +125,7 @@ SceneObjectBase* Scene::findObject( const QString& uid ) const {
 void Scene::addBox( const BoxObjectData& data ) {
     auto obj = std::make_shared<object::Box>( data );
 
-    _node->attach( obj );
+    _scene->attach( obj );
 
     _objects->addObject( std::move( obj ) );
 
@@ -135,7 +135,7 @@ void Scene::addBox( const BoxObjectData& data ) {
 void Scene::addSphere( const SphereObjectData& data ) {
     auto obj = std::make_shared<object::Sphere>( data );
 
-    _node->attach( obj );
+    _scene->attach( obj );
 
     _objects->addObject( std::move( obj ) );
 
@@ -145,7 +145,7 @@ void Scene::addSphere( const SphereObjectData& data ) {
 void Scene::addCylinder( const CylinderObjectData& data ) {
     auto obj = std::make_shared<object::Cylinder>( data );
 
-    _node->attach( obj );
+    _scene->attach( obj );
 
     _objects->addObject( std::move( obj ) );
 
@@ -155,7 +155,7 @@ void Scene::addCylinder( const CylinderObjectData& data ) {
 void Scene::addCapsule( const CapsuleObjectData& data ) {
     auto obj = std::make_shared<object::Capsule>( data );
 
-    _node->attach( obj );
+    _scene->attach( obj );
 
     _objects->addObject( std::move( obj ) );
 
@@ -165,7 +165,7 @@ void Scene::addCapsule( const CapsuleObjectData& data ) {
 void Scene::removeObject( const QUuid& uid ) {
     qDebug() << "=== " << uid;
     auto obj = _objects->findObject( uid );
-    _node->detach( obj );
+    _scene->detach( obj );
 
     // TODO: remove from list and model
 }

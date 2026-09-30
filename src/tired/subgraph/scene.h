@@ -40,7 +40,7 @@ public:
            QObject* parent = nullptr );
 
     [[nodiscard]]
-    auto node() const -> vsg::ref_ptr<SceneSubgraph>;
+    auto scene() const -> vsg::ref_ptr<SceneSubgraph>;
 
     Q_INVOKABLE void addBox( const BoxObjectData& data );
     Q_INVOKABLE void addSphere( const SphereObjectData& data );
@@ -88,7 +88,7 @@ signals:
     void isAnyObjectSelectedChanged();
 
 private:
-    vsg::ref_ptr<SceneSubgraph> _node{};
+    vsg::ref_ptr<SceneSubgraph> _scene{};
 
     vsg::observer_ptr<BoundingRender> _boundingRender{};
 

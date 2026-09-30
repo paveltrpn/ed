@@ -18,7 +18,7 @@ Scenegraph::Scenegraph( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent )
     _root->addChild( _bounding->node() );
     _root->addChild( _gizmo->node() );
     _root->addChild( _navbox->node() );
-    _root->addChild( _scene->node() );
+    _root->addChild( _scene->scene() );
     _root->addChild( _grid->node() );
 
     connect( _scene, &Scene::selectedObjectChanged, _bounding, &Bounding::onSelectedObjectChanged );
