@@ -39,19 +39,19 @@ Rectangle {
         Connections {
             target: Tired.scenegraph.scene
             function onSelectedObjectChanged(object) {
-                rightPanelScenemodeWrapper.selectedObjectHandle = object
+                rightPanelScenemodeWrapper.selectedObjectHandle = object;
 
                 if (object === null) {
-                    rightPanelScenemodeWrapper.position = Qt.vector3d(0, 0, 0)
-                    rightPanelScenemodeWrapper.orientation = Qt.vector3d(0, 0, 0)
-                    rightPanelScenemodeWrapper.scale = Qt.vector3d(0, 0, 0)
+                    rightPanelScenemodeWrapper.position = Qt.vector3d(0, 0, 0);
+                    rightPanelScenemodeWrapper.orientation = Qt.vector3d(0, 0, 0);
+                    rightPanelScenemodeWrapper.scale = Qt.vector3d(0, 0, 0);
 
                     return;
                 }
 
-                rightPanelScenemodeWrapper.position = object.position
-                rightPanelScenemodeWrapper.orientation = object.orientation
-                rightPanelScenemodeWrapper.scale = object.scale
+                rightPanelScenemodeWrapper.position = object.position;
+                rightPanelScenemodeWrapper.orientation = object.orientation;
+                rightPanelScenemodeWrapper.scale = object.scale;
             }
         }
 
@@ -86,12 +86,11 @@ Rectangle {
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
-                        return
+                        return;
                     }
-                    let nowScale = rightPanelScenemodeWrapper.selectedObjectHandle.scale
-                    nowScale.x = Number.parseFloat(value)
-                    rightPanelScenemodeWrapper.selectedObjectHandle.scale = nowScale
-                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
+                    let nowScale = rightPanelScenemodeWrapper.selectedObjectHandle.scale;
+                    nowScale.x = Number.parseFloat(value);
+                    rightPanelScenemodeWrapper.selectedObjectHandle.scale = nowScale;
                 }
             }
 
@@ -113,12 +112,11 @@ Rectangle {
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
-                        return
+                        return;
                     }
-                    let nowScale = rightPanelScenemodeWrapper.selectedObjectHandle.scale
-                    nowScale.y = Number.parseFloat(value)
-                    rightPanelScenemodeWrapper.selectedObjectHandle.scale = nowScale
-                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
+                    let nowScale = rightPanelScenemodeWrapper.selectedObjectHandle.scale;
+                    nowScale.y = Number.parseFloat(value);
+                    rightPanelScenemodeWrapper.selectedObjectHandle.scale = nowScale;
                 }
             }
 
@@ -140,12 +138,11 @@ Rectangle {
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
-                        return
+                        return;
                     }
-                    let nowScale = rightPanelScenemodeWrapper.selectedObjectHandle.scale
-                    nowScale.z = Number.parseFloat(value)
-                    rightPanelScenemodeWrapper.selectedObjectHandle.scale = nowScale
-                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
+                    let nowScale = rightPanelScenemodeWrapper.selectedObjectHandle.scale;
+                    nowScale.z = Number.parseFloat(value);
+                    rightPanelScenemodeWrapper.selectedObjectHandle.scale = nowScale;
                 }
             }
         }
@@ -181,12 +178,11 @@ Rectangle {
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
-                        return
+                        return;
                     }
-                    let nowRot = rightPanelScenemodeWrapper.selectedObjectHandle.orientation
-                    nowRot.x = Number.parseFloat(value)
-                    rightPanelScenemodeWrapper.selectedObjectHandle.orientation = nowRot
-                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
+                    let nowRot = rightPanelScenemodeWrapper.selectedObjectHandle.orientation;
+                    nowRot.x = Number.parseFloat(value);
+                    rightPanelScenemodeWrapper.selectedObjectHandle.orientation = nowRot;
                 }
             }
 
@@ -208,12 +204,11 @@ Rectangle {
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
-                        return
+                        return;
                     }
-                    let nowRot = rightPanelScenemodeWrapper.selectedObjectHandle.orientation
-                    nowRot.y = Number.parseFloat(value)
-                    rightPanelScenemodeWrapper.selectedObjectHandle.orientation = nowRot
-                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
+                    let nowRot = rightPanelScenemodeWrapper.selectedObjectHandle.orientation;
+                    nowRot.y = Number.parseFloat(value);
+                    rightPanelScenemodeWrapper.selectedObjectHandle.orientation = nowRot;
                 }
             }
 
@@ -235,12 +230,11 @@ Rectangle {
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
-                        return
+                        return;
                     }
-                    let nowRot = rightPanelScenemodeWrapper.selectedObjectHandle.orientation
-                    nowRot.z = Number.parseFloat(value)
-                    rightPanelScenemodeWrapper.selectedObjectHandle.orientation = nowRot
-                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
+                    let nowRot = rightPanelScenemodeWrapper.selectedObjectHandle.orientation;
+                    nowRot.z = Number.parseFloat(value);
+                    rightPanelScenemodeWrapper.selectedObjectHandle.orientation = nowRot;
                 }
             }
         }
@@ -276,12 +270,11 @@ Rectangle {
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
-                        return
+                        return;
                     }
-                    let nowPos = rightPanelScenemodeWrapper.selectedObjectHandle.position
-                    nowPos.x = Number.parseFloat(value)
-                    rightPanelScenemodeWrapper.selectedObjectHandle.position = nowPos
-                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
+                    let nowPos = rightPanelScenemodeWrapper.selectedObjectHandle.position;
+                    nowPos.x = Number.parseFloat(value);
+                    rightPanelScenemodeWrapper.selectedObjectHandle.position = nowPos;
                 }
             }
 
@@ -303,12 +296,11 @@ Rectangle {
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
-                        return
+                        return;
                     }
-                    let nowPos = rightPanelScenemodeWrapper.selectedObjectHandle.position
-                    nowPos.y = Number.parseFloat(value)
-                    rightPanelScenemodeWrapper.selectedObjectHandle.position = nowPos
-                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
+                    let nowPos = rightPanelScenemodeWrapper.selectedObjectHandle.position;
+                    nowPos.y = Number.parseFloat(value);
+                    rightPanelScenemodeWrapper.selectedObjectHandle.position = nowPos;
                 }
             }
 
@@ -330,12 +322,11 @@ Rectangle {
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
-                        return
+                        return;
                     }
-                    let nowPos = rightPanelScenemodeWrapper.selectedObjectHandle.position
-                    nowPos.z = Number.parseFloat(value)
-                    rightPanelScenemodeWrapper.selectedObjectHandle.position = nowPos
-                    Tired.scenegraph.bounding.setOnObject(rightPanelScenemodeWrapper.selectedObjectHandle)
+                    let nowPos = rightPanelScenemodeWrapper.selectedObjectHandle.position;
+                    nowPos.z = Number.parseFloat(value);
+                    rightPanelScenemodeWrapper.selectedObjectHandle.position = nowPos;
                 }
             }
         }

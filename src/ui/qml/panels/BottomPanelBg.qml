@@ -71,7 +71,7 @@ Rectangle {
                     checked: Tired.scenegraph.scene.renderMode == 0
 
                     onClicked: {
-                        Tired.scenegraph.scene.renderMode = 0
+                        Tired.scenegraph.scene.renderMode = 0;
                     }
                 }
 
@@ -86,7 +86,7 @@ Rectangle {
                     checked: Tired.scenegraph.scene.renderMode == 1
 
                     onClicked: {
-                        Tired.scenegraph.scene.renderMode = 1
+                        Tired.scenegraph.scene.renderMode = 1;
                     }
                 }
 
@@ -101,7 +101,7 @@ Rectangle {
                     checked: Tired.scenegraph.scene.renderMode == 2
 
                     onClicked: {
-                        Tired.scenegraph.scene.renderMode = 2
+                        Tired.scenegraph.scene.renderMode = 2;
                     }
                 }
 
@@ -116,7 +116,7 @@ Rectangle {
                     checked: Tired.scenegraph.scene.appearnceMode == 0
 
                     onClicked: {
-                        Tired.scenegraph.scene.appearnceMode = 0
+                        Tired.scenegraph.scene.appearnceMode = 0;
                     }
                 }
 
@@ -131,7 +131,7 @@ Rectangle {
                     checked: Tired.scenegraph.scene.appearnceMode == 1
 
                     onClicked: {
-                        Tired.scenegraph.scene.appearnceMode = 1
+                        Tired.scenegraph.scene.appearnceMode = 1;
                     }
                 }
             }
@@ -152,10 +152,10 @@ Rectangle {
 
                     buttonLabel: "LCL"
 
-                    checked: Tired.scenegraph.gizmoMode == 0
+                    checked: Tired.scenegraph.gizmo.gizmoMode == 0
 
                     onClicked: {
-                        Tired.scenegraph.gizmoMode = 0
+                        Tired.scenegraph.gizmo.gizmoMode = 0;
                     }
                 }
 
@@ -167,10 +167,10 @@ Rectangle {
 
                     buttonLabel: "GLB"
 
-                    checked: Tired.scenegraph.gizmoMode == 1
+                    checked: Tired.scenegraph.gizmo.gizmoMode == 1
 
                     onClicked: {
-                        Tired.scenegraph.gizmoMode = 1
+                        Tired.scenegraph.gizmo.gizmoMode = 1;
                     }
                 }
 
@@ -185,7 +185,7 @@ Rectangle {
                     checked: Tired.scenegraph.scene.lightMode == 0
 
                     onClicked: {
-                        Tired.scenegraph.scene.lightMode = 0
+                        Tired.scenegraph.scene.lightMode = 0;
                     }
                 }
 
@@ -200,7 +200,7 @@ Rectangle {
                     checked: Tired.scenegraph.scene.lightMode == 1
 
                     onClicked: {
-                        Tired.scenegraph.scene.lightMode = 1
+                        Tired.scenegraph.scene.lightMode = 1;
                     }
                 }
 
@@ -215,7 +215,7 @@ Rectangle {
                     checked: Tired.scenegraph.scene.lightMode == 2
 
                     onClicked: {
-                        Tired.scenegraph.scene.lightMode = 2
+                        Tired.scenegraph.scene.lightMode = 2;
                     }
                 }
             }
