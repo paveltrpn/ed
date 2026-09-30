@@ -11,17 +11,15 @@ Scenegraph::Scenegraph( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent )
     , _boundingRender{ new BoundingRender{ _viewer } }
     , _grid{ new Grid{ _viewer, this } }
     , _navbox{ new Navbox{ _viewer, this } }
-    , _bounding{ new Bounding{ _viewer, this } }
     , _gizmo{ new Gizmo{ _viewer, this } }
     , _scene{ new Scene{ _viewer, vsg::observer_ptr<BoundingRender>{ _boundingRender }, this } } {
     //
-    _root->addChild( _bounding->node() );
+    _root->addChild( _boundingRender );
+
     _root->addChild( _gizmo->node() );
     _root->addChild( _navbox->node() );
     _root->addChild( _scene->scene() );
     _root->addChild( _grid->node() );
-
-    connect( _scene, &Scene::selectedObjectChanged, _bounding, &Bounding::onSelectedObjectChanged );
 }
 
 auto Scenegraph::root() const -> vsg::ref_ptr<vsg::Group> {
@@ -38,10 +36,6 @@ auto Scenegraph::navbox() const -> Navbox* {
 
 auto Scenegraph::grid() const -> Grid* {
     return _grid;
-}
-
-auto Scenegraph::bounding() const -> Bounding* {
-    return _bounding;
 }
 
 auto Scenegraph::gizmo() const -> Gizmo* {

@@ -16,6 +16,7 @@
 #include "../scene_object/capsule.h"
 
 #include "../vsgcommands/setpolygonmode.h"
+#include "tired/subgraph/boundingdraw.h"
 
 namespace tire {
 
@@ -125,9 +126,14 @@ SceneObjectBase* Scene::findObject( const QString& uid ) const {
 void Scene::addBox( const BoxObjectData& data ) {
     auto obj = std::make_shared<object::Box>( data );
 
+    const auto b = vsg::ref_ptr<BoundingDraw>{ new BoundingDraw{} };
+    b->setTransform( vsg::mat4{ obj->node()->matrix } );
+
     _scene->attach( obj );
 
     _objects->addObject( std::move( obj ) );
+
+    _boundingRender.get()->attach( b );
 
     emit objectsChanged();
 }
@@ -135,9 +141,14 @@ void Scene::addBox( const BoxObjectData& data ) {
 void Scene::addSphere( const SphereObjectData& data ) {
     auto obj = std::make_shared<object::Sphere>( data );
 
+    const auto b = vsg::ref_ptr<BoundingDraw>{ new BoundingDraw{} };
+    b->setTransform( vsg::mat4{ obj->node()->matrix } );
+
     _scene->attach( obj );
 
     _objects->addObject( std::move( obj ) );
+
+    _boundingRender.get()->attach( b );
 
     emit objectsChanged();
 }
@@ -145,9 +156,14 @@ void Scene::addSphere( const SphereObjectData& data ) {
 void Scene::addCylinder( const CylinderObjectData& data ) {
     auto obj = std::make_shared<object::Cylinder>( data );
 
+    const auto b = vsg::ref_ptr<BoundingDraw>{ new BoundingDraw{} };
+    b->setTransform( vsg::mat4{ obj->node()->matrix } );
+
     _scene->attach( obj );
 
     _objects->addObject( std::move( obj ) );
+
+    _boundingRender.get()->attach( b );
 
     emit objectsChanged();
 }
@@ -155,9 +171,14 @@ void Scene::addCylinder( const CylinderObjectData& data ) {
 void Scene::addCapsule( const CapsuleObjectData& data ) {
     auto obj = std::make_shared<object::Capsule>( data );
 
+    const auto b = vsg::ref_ptr<BoundingDraw>{ new BoundingDraw{} };
+    b->setTransform( vsg::mat4{ obj->node()->matrix } );
+
     _scene->attach( obj );
 
     _objects->addObject( std::move( obj ) );
+
+    _boundingRender.get()->attach( b );
 
     emit objectsChanged();
 }

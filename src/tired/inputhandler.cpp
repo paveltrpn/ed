@@ -162,12 +162,9 @@ void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
     const auto& intersections = collectIntersections( pointerEvent.x, pointerEvent.y );
 
     auto scene = _scenegraph->scene();
-    auto bound = _scenegraph->bounding();
     auto gizmo = _scenegraph->gizmo();
 
     if ( intersections.empty() ) {
-        bound->hide();
-        // bound->setTransformMat( vsg::mat4{} );
         scene->setSelectedObjectUid( QUuid{}.toString() );
 
         return;
@@ -180,8 +177,6 @@ void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
             if ( auto clickedDrawable = dynamic_cast<const SceneObjectGraph*>( node ) ) {
                 auto owner = clickedDrawable->owner();
                 scene->setSelectedObjectUid( owner->uid() );
-                bound->setOnObject( owner );
-                bound->show();
 
                 handled = true;
             } else if ( auto clickedDrawable = dynamic_cast<const MoveDragger*>( node ) ) {

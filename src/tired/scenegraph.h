@@ -8,9 +8,8 @@
 #include "subgraph/grid.h"
 #include "subgraph/navbox.h"
 #include "subgraph/scene.h"
-#include "subgraph/bounding.h"
 #include "subgraph/gizmo.h"
-#include "tired/subgraph/boundingrender.h"
+#include "subgraph/boundingrender.h"
 #include "vsg/core/ref_ptr.h"
 
 namespace tire {
@@ -26,7 +25,6 @@ struct Scenegraph final : public QObject {
 
     Q_PROPERTY( QObject* navbox READ navbox NOTIFY navboxChanged FINAL )
     Q_PROPERTY( QObject* grid READ grid NOTIFY gridChanged FINAL )
-    Q_PROPERTY( QObject* bounding READ bounding NOTIFY boundingChanged FINAL )
     Q_PROPERTY( QObject* gizmo READ gizmo NOTIFY gizmoChanged FINAL )
     Q_PROPERTY( QObject* scene READ scene NOTIFY sceneChanged FINAL )
 
@@ -46,9 +44,6 @@ public:
 
     [[nodiscard]]
     auto grid() const -> Grid*;
-
-    [[nodiscard]]
-    Bounding* bounding() const;
 
     [[nodiscard]]
     auto gizmo() const -> Gizmo*;
@@ -82,12 +77,10 @@ private:
 
     Navbox* _navbox{};
     Grid* _grid{};
-    Bounding* _bounding{};
     Gizmo* _gizmo{};
+    Scene* _scene{};
 
     GizmoModes _gizmoMode{ GizmoModes::GLOBAL };
-
-    Scene* _scene{};
 };
 
 }  // namespace tire

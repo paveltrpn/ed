@@ -16,9 +16,11 @@ BoundingRender::BoundingRender( vsg::observer_ptr<vsg::Viewer> viewer )
     , _killSwitch{ vsg::Switch::create() }
     , _boundingsGroup{ vsg::Group::create() } {
     //
-    _killSwitch->addChild( vsg::MASK_OFF, _stateGroup );
-    _stateGroup->addChild( _boundingsGroup );
     this->addChild( _killSwitch );
+
+    _killSwitch->addChild( vsg::MASK_ALL, _stateGroup );
+
+    _stateGroup->addChild( _boundingsGroup );
 
     initPipeline();
 }
@@ -73,7 +75,7 @@ auto BoundingRender::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateG
 }
 
 auto BoundingRender::attach( vsg::ref_ptr<BoundingDraw> bounding ) -> void {
-    this->addChild( bounding );
+    _boundingsGroup->addChild( bounding );
 }
 
 }  // namespace tire
