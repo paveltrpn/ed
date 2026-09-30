@@ -20,7 +20,7 @@ namespace tire {
 struct TiredUI final : QMainWindow {
     Q_OBJECT
 public:
-    TiredUI( QObject *parent = nullptr );
+    TiredUI( QObject* parent = nullptr );
 
     auto writeSettings() -> void;
     auto readSettings() -> void;
@@ -37,27 +37,31 @@ public:
 
     Q_INVOKABLE void resetPanelsSize();
 
-    void closeEvent( QCloseEvent *event ) override;
+    void closeEvent( QCloseEvent* event ) override;
 
 private:
     auto registerTypes() -> void;
 
 private:
-    QSettings *_settings{};
+    QSettings* _settings{};
 
-    QQmlEngine *_engine{};
-    QQmlContext *_context{};
+    QQmlEngine* _engine{};
+    QQmlContext* _context{};
 
-    QSplitter *_columnSplitter{};
-    QSplitter *_rowSplitter{};
+    QSplitter* _columnSplitter{};
+    QSplitter* _rowSplitter{};
 
-    VsgWidget *_vsgWidget{};
-    QQuickWidget *_topPanel{};
-    QQuickWidget *_leftPanel{};
-    QQuickWidget *_bottomPanel{};
-    QQuickWidget *_rightPanel{};
+    VsgWidget* _vsgWidget{};
+    QQuickWidget* _topPanel{};
+    QQuickWidget* _leftPanel{};
+    QQuickWidget* _bottomPanel{};
+    QQuickWidget* _rightPanel{};
 
     vsg::ref_ptr<KeyboardMap> keyboardMap;
+
+private:
+    static constexpr float _columnLayoutFactor{ 0.07f };
+    static constexpr float _rowLayoutFactor{ 0.11f };
 };
 
 }  // namespace tire

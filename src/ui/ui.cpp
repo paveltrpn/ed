@@ -136,15 +136,20 @@ TiredUI::TiredUI( QObject* parent )
     // Restore previuosely saved window geometry.
     readSettings();
 
-    // Set default size of panels.
-    resetPanelsSize();
-
     hLayout->addWidget( _rowSplitter );
 }
 
 auto TiredUI::writeSettings() -> void {
     _settings->beginGroup( "MainWindow" );
     _settings->setValue( "geometry", saveGeometry() );
+    _settings->endGroup();
+
+    const auto& rowSizes = _rowSplitter->sizes();
+    const auto& colSizes = _columnSplitter->sizes();
+
+    _settings->beginGroup( "PanelsLayout" );
+    _settings->setValue( "rowSizes", QVariant::fromValue( rowSizes ) );
+    _settings->setValue( "columnSizes", QVariant::fromValue( colSizes ) );
     _settings->endGroup();
 
     _settings->sync();
@@ -154,10 +159,49 @@ auto TiredUI::readSettings() -> void {
     _settings->beginGroup( "MainWindow" );
 
     const auto geometry = _settings->value( "geometry", QByteArray() ).toByteArray();
+
     if ( geometry.isEmpty() ) {
         setGeometry( 200, 200, 1024, 768 );
     } else {
         restoreGeometry( geometry );
+    }
+
+    _settings->endGroup();
+
+    _settings->beginGroup( "PanelsLayout" );
+
+    const auto& rowSizes = _settings->value( "rowSizes", QVariant() ).toList();
+    const auto& colSizes = _settings->value( "columnSizes", QVariant() ).toList();
+
+    if ( rowSizes.isEmpty() || colSizes.isEmpty() ) {
+        // Set default size of panels.
+        resetPanelsSize();
+    } else {
+        {
+            QList<int> intList;
+            intList.reserve( 3 );
+
+            std::transform( rowSizes.begin(), rowSizes.end(), std::back_inserter( intList ),
+                            []( const QVariant& v ) -> int {
+                                //
+                                return v.toInt();
+                            } );
+
+            _rowSplitter->setSizes( intList );
+        }
+
+        {
+            QList<int> intList;
+            intList.reserve( 3 );
+
+            std::transform( colSizes.begin(), colSizes.end(), std::back_inserter( intList ),
+                            []( const QVariant& v ) -> int {
+                                //
+                                return v.toInt();
+                            } );
+
+            _columnSplitter->setSizes( intList );
+        }
     }
 
     _settings->endGroup();
@@ -191,7 +235,7 @@ void TiredUI::enlargeRightPanel( float factor ) {
     const auto g = this->geometry();
     const auto width = g.width();
 
-    const auto leftPanelWidth = static_cast<int>( width * 0.11f );
+    const auto leftPanelWidth = static_cast<int>( width * _rowLayoutFactor );
     const auto rightPanelWidth = static_cast<int>( width * factor );
     _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
 }
@@ -201,7 +245,7 @@ void TiredUI::enlargeLeftPanel( float factor ) {
     const auto width = g.width();
 
     const auto leftPanelWidth = static_cast<int>( width * factor );
-    const auto rightPanelWidth = static_cast<int>( width * 0.11f );
+    const auto rightPanelWidth = static_cast<int>( width * _rowLayoutFactor );
     _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
 }
 
@@ -210,12 +254,12 @@ void TiredUI::resetPanelsSize() {
     const auto width = g.width();
     const auto height = g.height();
 
-    const auto topPanelHeight = static_cast<int>( height * 0.07f );
-    const auto bottomPanelHeight = static_cast<int>( height * 0.07f );
+    const auto topPanelHeight = static_cast<int>( height * _columnLayoutFactor );
+    const auto bottomPanelHeight = static_cast<int>( height * _columnLayoutFactor );
     _columnSplitter->setSizes( { topPanelHeight, height - ( topPanelHeight + bottomPanelHeight ), bottomPanelHeight } );
 
-    const auto leftPanelWidth = static_cast<int>( width * 0.11f );
-    const auto rightPanelWidth = static_cast<int>( width * 0.11f );
+    const auto leftPanelWidth = static_cast<int>( width * _rowLayoutFactor );
+    const auto rightPanelWidth = static_cast<int>( width * _rowLayoutFactor );
     _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
 }
 
