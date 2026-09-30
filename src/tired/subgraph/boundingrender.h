@@ -21,6 +21,9 @@ struct BoundingRender final : public Subgraph {
     auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
 
     auto attach( vsg::ref_ptr<BoundingDraw> bounding ) -> void;
+    auto detach( vsg::ref_ptr<BoundingDraw> bounding ) -> void;
+
+    auto clear() -> void;
 
 private:
     vsg::ref_ptr<vsg::StateGroup> _stateGroup{};

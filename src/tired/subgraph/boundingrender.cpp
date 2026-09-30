@@ -79,4 +79,16 @@ auto BoundingRender::attach( vsg::ref_ptr<BoundingDraw> bounding ) -> void {
     _boundingsGroup->addChild( bounding );
 }
 
+auto BoundingRender::detach( vsg::ref_ptr<BoundingDraw> bounding ) -> void {
+    // TODO
+}
+
+auto BoundingRender::clear() -> void {
+    for ( const auto& child : _boundingsGroup->children ) {
+        vsg::CompileResult cr{};
+        const auto op = tire::DetachAndCompileOp::create( _viewer, _boundingsGroup, child );
+        _viewer.get()->addUpdateOperation( op );
+    }
+}
+
 }  // namespace tire

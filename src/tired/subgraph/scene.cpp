@@ -49,10 +49,16 @@ auto Scene::selectedObjectUid() const -> QString {
 auto Scene::setSelectedObjectUid( const QString& value ) -> void {
     _selectedObjectUid = QUuid::fromString( value );
 
-    emit selectedObjectUidChanged();
+    if ( _selectedObjectUid.isNull() ) {
+        _boundingRender.get()->clear();
+        return;
+    }
 
     auto obj = _objects->findObject( QUuid::fromString( value ) );
 
+    _boundingRender.get()->attach( obj->node()->boundingDraw() );
+
+    emit selectedObjectUidChanged();
     emit selectedObjectChanged( obj.get() );
     emit isAnyObjectSelectedChanged();
 }
@@ -126,8 +132,6 @@ SceneObjectBase* Scene::findObject( const QString& uid ) const {
 void Scene::addBox( const BoxObjectData& data ) {
     auto obj = std::make_shared<object::Box>( data );
 
-    _boundingRender.get()->attach( obj->node()->boundingDraw() );
-
     _scene->attach( obj );
 
     _objects->addObject( std::move( obj ) );
@@ -147,9 +151,6 @@ void Scene::addSphere( const SphereObjectData& data ) {
 
 void Scene::addCylinder( const CylinderObjectData& data ) {
     auto obj = std::make_shared<object::Cylinder>( data );
-
-    const auto b = vsg::ref_ptr<BoundingDraw>{ new BoundingDraw{} };
-    b->setTransform( vsg::mat4{ obj->node()->matrix } );
 
     _scene->attach( obj );
 
