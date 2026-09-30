@@ -137,8 +137,8 @@ auto GizmoSubgraph::initPipeline() -> void {
 
     const auto depthStencilState = vsg::DepthStencilState::create();
     depthStencilState->depthTestEnable = VK_TRUE;
-    depthStencilState->depthWriteEnable = VK_FALSE;
-    depthStencilState->depthCompareOp = VK_COMPARE_OP_ALWAYS;
+    depthStencilState->depthWriteEnable = VK_TRUE;
+    depthStencilState->depthCompareOp = VK_COMPARE_OP_GREATER;
     depthStencilState->depthBoundsTestEnable = VK_FALSE;
     depthStencilState->stencilTestEnable = VK_FALSE;
     depthStencilState->front = {};
