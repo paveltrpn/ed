@@ -2,6 +2,9 @@
 #pragma once
 
 #include <vsg/all.h>
+#include "vsg/core/ref_ptr.h"
+
+#include "../subgraph/boundingdraw.h"
 
 namespace tire {
 
@@ -9,12 +12,13 @@ struct SceneObjectBase;
 
 struct SceneObjectGraph : public vsg::MatrixTransform {
 public:
-    SceneObjectGraph( SceneObjectBase *owner );
+    SceneObjectGraph( SceneObjectBase* owner );
 
-    auto owner() const -> SceneObjectBase *;
+    [[nodiscard]]
+    auto owner() const -> SceneObjectBase*;
 
-    auto dmatrix() const -> vsg::dmat4;
-    auto fmatrix() const -> vsg::mat4;
+    [[nodiscard]]
+    auto boundingDraw() const -> vsg::ref_ptr<BoundingDraw>;
 
     auto setOrigin( vsg::dvec3 value ) -> void;
 
@@ -28,7 +32,9 @@ private:
     auto updateMatrix() -> void;
 
 private:
-    SceneObjectBase *_owner{};
+    SceneObjectBase* _owner{};
+
+    vsg::ref_ptr<BoundingDraw> _bounding{};
 
     vsg::dmat4 _origin{};
     vsg::dmat4 _rotation{};

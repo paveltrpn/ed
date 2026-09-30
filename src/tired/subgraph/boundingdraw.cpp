@@ -15,7 +15,8 @@ BoundingDraw::BoundingDraw() {
     const auto dc = vsg::Draw::create( 48, 1, 0, 0 );
     this->addChild( dc );
 
-    const auto pc = vsg::PushConstants::create( VK_SHADER_STAGE_VERTEX_BIT, 128, _transformArray );
+    // Push constants offset - projection + modelview, then us (transform array).
+    const auto pc = vsg::PushConstants::create( VK_SHADER_STAGE_VERTEX_BIT, 64 + 64, _transformArray );
     this->addChild( pc );
 }
 

@@ -7,10 +7,6 @@ layout(push_constant) uniform PushConstants {
     mat4 transform;
 } pc;
 
-layout(set = 0, binding = 0) uniform BoxTransformMatrix {
-    mat4 matrix;
-} boxTrnasformToObject;
-
 layout(location = 0) out vec3 fragColor;
 
 out gl_PerVertex {

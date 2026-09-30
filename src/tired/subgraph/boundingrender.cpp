@@ -40,7 +40,8 @@ auto BoundingRender::initPipeline() -> void {
     auto descriptorBindings = vsg::DescriptorSetLayoutBindings{};
     auto descriptorSetLayout = vsg::DescriptorSetLayout::create( descriptorBindings );
 
-    auto pushConstantRanges = vsg::PushConstantRanges{ { VK_SHADER_STAGE_VERTEX_BIT, 0, 128 } };
+    // Push constants - projection + modelview + bounding box transform.
+    auto pushConstantRanges = vsg::PushConstantRanges{ { VK_SHADER_STAGE_VERTEX_BIT, 0, 64 + 64 + 64 } };
 
     auto inputAssemblyState = vsg::InputAssemblyState::create();
     inputAssemblyState->topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;

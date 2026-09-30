@@ -1,23 +1,23 @@
 
 #include "sceneobjectgraph.h"
 #include "sceneobjectbase.h"
+#include "tired/subgraph/boundingdraw.h"
 
 namespace tire {
 
 SceneObjectGraph::SceneObjectGraph( SceneObjectBase* owner )
-    : _owner{ owner } {
+    : _owner{ owner }
+    , _bounding{ new BoundingDraw{} } {
+    //
+    _bounding->setTransform( vsg::mat4{ this->matrix } );
 }
 
 auto SceneObjectGraph::owner() const -> SceneObjectBase* {
     return _owner;
 }
 
-auto SceneObjectGraph::dmatrix() const -> vsg::dmat4 {
-    return this->matrix;
-}
-
-auto SceneObjectGraph::fmatrix() const -> vsg::mat4 {
-    return static_cast<vsg::mat4>( this->matrix );
+auto SceneObjectGraph::boundingDraw() const -> vsg::ref_ptr<BoundingDraw> {
+    return _bounding;
 }
 
 auto SceneObjectGraph::setOrigin( vsg::dvec3 value ) -> void {
@@ -52,6 +52,7 @@ auto SceneObjectGraph::setScale( vsg::dvec3 value ) -> void {
 
 auto SceneObjectGraph::updateMatrix() -> void {
     this->matrix = _origin * _rotation * _scale;
+    _bounding->setTransform( vsg::mat4{ this->matrix } );
 }
 
 }  // namespace tire
