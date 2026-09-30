@@ -65,8 +65,6 @@ private:
     auto collectIntersections( int32_t x, int32_t y )
         -> std::vector<vsg::ref_ptr<vsg::LineSegmentIntersector::Intersection>>;
 
-    auto screenPosition( const vsg::dvec3& worldPoint ) -> vsg::dvec2;
-
     void onLMBPress( vsg::PointerEvent& pointerEvent );
     void onMMBPress( vsg::PointerEvent& pointerEvent );
     void onRMBPress( vsg::PointerEvent& pointerEvent );

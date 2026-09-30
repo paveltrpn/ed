@@ -1,6 +1,4 @@
 
-#include <print>
-
 #include "inputhandler.h"
 #include "scene_object/sceneobjectgraph.h"
 
@@ -62,6 +60,10 @@ void Handler::apply( vsg::ButtonPressEvent& buttonPress ) {
             onRMBPress( buttonPress );
             return;
         }
+
+        default: {
+            break;
+        }
     }
 }
 
@@ -80,6 +82,10 @@ void Handler::apply( vsg::ButtonReleaseEvent& buttonRelease ) {
         case 3: {
             onRMBRelease( buttonRelease );
             return;
+        }
+
+        default: {
+            break;
         }
     }
 }
@@ -152,21 +158,6 @@ auto Handler::collectIntersections( int32_t x, int32_t y )
     return intersector->intersections;
 }
 
-auto Handler::screenPosition( const vsg::dvec3& worldPoint ) -> vsg::dvec2 {
-    const auto camera = _camera.get();
-
-    const auto viewport = camera->getViewport();
-
-    // Same projection/viewport convention as vsg::LineSegmentIntersector picking.
-    const auto clip = camera->projectionMatrix->transform() * camera->viewMatrix->transform() *
-                      vsg::dvec4{ worldPoint.x, worldPoint.y, worldPoint.z, 1.0 };
-
-    const auto ndcX = clip.x / clip.w * 0.5 + 0.5;
-    const auto ndcY = clip.y / clip.w * 0.5 + 0.5;
-
-    return { viewport.x + ndcX * viewport.width, viewport.y + ndcY * viewport.height };
-}
-
 void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
     const auto& intersections = collectIntersections( pointerEvent.x, pointerEvent.y );
 
@@ -221,6 +212,21 @@ void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
                 }
 
                 const auto anchor = gizmo->translate();
+
+                const auto screenPosition = [this]( const vsg::dvec3& worldPoint ) -> vsg::dvec2 {
+                    const auto camera = _camera.get();
+
+                    const auto viewport = camera->getViewport();
+
+                    // Same projection/viewport convention as vsg::LineSegmentIntersector picking.
+                    const auto clip = camera->projectionMatrix->transform() * camera->viewMatrix->transform() *
+                                      vsg::dvec4{ worldPoint.x, worldPoint.y, worldPoint.z, 1.0 };
+
+                    const auto ndcX = clip.x / clip.w * 0.5 + 0.5;
+                    const auto ndcY = clip.y / clip.w * 0.5 + 0.5;
+
+                    return { viewport.x + ndcX * viewport.width, viewport.y + ndcY * viewport.height };
+                };
 
                 _dragAxisScreenDir = screenPosition( anchor + _dragAxisWorld ) - screenPosition( anchor );
 

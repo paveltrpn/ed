@@ -55,7 +55,7 @@ void Scenegraph::setGizmoMode( int value ) {
     emit gizmoModeChanged();
 }
 
-int Scenegraph::gizmoMode() {
+auto Scenegraph::gizmoMode() const -> int {
     return static_cast<int>( _gizmoMode );
 }
 

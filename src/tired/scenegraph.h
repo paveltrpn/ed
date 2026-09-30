@@ -33,18 +33,31 @@ struct Scenegraph final : public QObject {
 public:
     Scenegraph( vsg::observer_ptr<vsg::Viewer>, QObject* parent = nullptr );
 
+    [[nodiscard]]
     auto root() const -> vsg::ref_ptr<vsg::Group>;
 
+    [[nodiscard]]
     auto scenegraphViewer() const -> vsg::observer_ptr<vsg::Viewer>;
 
-    Navbox* navbox() const;
-    Grid* grid() const;
-    Bounding* bounding() const;
-    Gizmo* gizmo() const;
-    Scene* scene() const;
+    [[nodiscard]]
+    auto navbox() const -> Navbox*;
 
-    void setGizmoMode( int value );
-    int gizmoMode();
+    [[nodiscard]]
+    auto grid() const -> Grid*;
+
+    [[nodiscard]]
+    Bounding* bounding() const;
+
+    [[nodiscard]]
+    auto gizmo() const -> Gizmo*;
+
+    [[nodiscard]]
+    auto scene() const -> Scene*;
+
+    auto setGizmoMode( int value ) -> void;
+
+    [[nodiscard]]
+    auto gizmoMode() const -> int;
 
 signals:
     void navboxChanged();

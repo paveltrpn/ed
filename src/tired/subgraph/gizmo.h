@@ -21,10 +21,13 @@ struct Gizmo final : public QObject {
 public:
     Gizmo( vsg::observer_ptr<vsg::Viewer> viewer, const QObject* parent = nullptr );
 
+    [[nodiscard]]
     auto node() const -> vsg::ref_ptr<GizmoSubgraph>;
 
     auto beginDrag() -> void;
     auto update( vsg::dvec3 worldDisplacement ) -> void;
+
+    [[nodiscard]]
     auto translate() const -> vsg::dvec3;
 
 private:
