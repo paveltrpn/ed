@@ -14,12 +14,6 @@
 
 namespace tire {
 
-enum class GizmoModes {
-    //
-    LOCAL,
-    GLOBAL
-};
-
 struct Scenegraph final : public QObject {
     Q_OBJECT
 
@@ -27,8 +21,6 @@ struct Scenegraph final : public QObject {
     Q_PROPERTY( QObject* grid READ grid NOTIFY gridChanged FINAL )
     Q_PROPERTY( QObject* gizmo READ gizmo NOTIFY gizmoChanged FINAL )
     Q_PROPERTY( QObject* scene READ scene NOTIFY sceneChanged FINAL )
-
-    Q_PROPERTY( int gizmoMode READ gizmoMode WRITE setGizmoMode NOTIFY gizmoModeChanged FINAL )
 
 public:
     Scenegraph( vsg::observer_ptr<vsg::Viewer>, QObject* parent = nullptr );
@@ -51,19 +43,12 @@ public:
     [[nodiscard]]
     auto scene() const -> Scene*;
 
-    auto setGizmoMode( int value ) -> void;
-
-    [[nodiscard]]
-    auto gizmoMode() const -> int;
-
 signals:
     void navboxChanged();
     void gridChanged();
     void boundingChanged();
     void gizmoChanged();
     void sceneChanged();
-
-    void gizmoModeChanged();
 
 public slots:
     void lookChanged( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up );
@@ -79,8 +64,6 @@ private:
     Grid* _grid{};
     Gizmo* _gizmo{};
     Scene* _scene{};
-
-    GizmoModes _gizmoMode{ GizmoModes::GLOBAL };
 };
 
 }  // namespace tire

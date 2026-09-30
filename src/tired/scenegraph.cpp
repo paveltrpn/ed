@@ -46,15 +46,6 @@ auto Scenegraph::scene() const -> Scene* {
     return _scene;
 }
 
-void Scenegraph::setGizmoMode( int value ) {
-    _gizmoMode = static_cast<GizmoModes>( value );
-    emit gizmoModeChanged();
-}
-
-auto Scenegraph::gizmoMode() const -> int {
-    return static_cast<int>( _gizmoMode );
-}
-
 void Scenegraph::lookChanged( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up ) {
     _navbox->updateViewMatrix( eye, cnt, up );
     _grid->updateCameraPosition( vsg::vec3{ eye } );

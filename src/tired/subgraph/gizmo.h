@@ -9,6 +9,12 @@ namespace tire {
 
 enum class DraggerAxis { X, Y, Z };
 
+enum class GizmoModes {
+    //
+    LOCAL,
+    GLOBAL
+};
+
 // ======================================================================================
 // ==================== Gizmo ===========================================================
 // ======================================================================================
@@ -17,6 +23,8 @@ struct GizmoSubgraph;
 
 struct Gizmo final : public QObject {
     Q_OBJECT
+
+    Q_PROPERTY( int gizmoMode READ gizmoMode WRITE setGizmoMode NOTIFY gizmoModeChanged FINAL )
 
 public:
     Gizmo( vsg::observer_ptr<vsg::Viewer> viewer, const QObject* parent = nullptr );
@@ -30,8 +38,18 @@ public:
     [[nodiscard]]
     auto translate() const -> vsg::dvec3;
 
+    auto setGizmoMode( int value ) -> void;
+
+    [[nodiscard]]
+    auto gizmoMode() const -> int;
+
+signals:
+    void gizmoModeChanged();
+
 private:
     vsg::ref_ptr<GizmoSubgraph> _gizmo{};
+
+    GizmoModes _gizmoMode{ GizmoModes::GLOBAL };
 
     vsg::dvec3 _translation{};
     vsg::dvec3 _dragAnchor{};

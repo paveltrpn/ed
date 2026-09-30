@@ -31,6 +31,15 @@ auto Gizmo::translate() const -> vsg::dvec3 {
     return _translation;
 }
 
+void Gizmo::setGizmoMode( int value ) {
+    _gizmoMode = static_cast<GizmoModes>( value );
+    emit gizmoModeChanged();
+}
+
+auto Gizmo::gizmoMode() const -> int {
+    return static_cast<int>( _gizmoMode );
+}
+
 // ======================================================================================
 // ==================== GizmoSubgraph ===================================================
 // ======================================================================================
