@@ -36,6 +36,7 @@ struct Scene final : public QObject {
 public:
     Scene( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent = nullptr );
 
+    [[nodiscard]]
     auto node() const -> vsg::ref_ptr<SceneSubgraph>;
 
     Q_INVOKABLE void addBox( const BoxObjectData& data );
@@ -45,22 +46,29 @@ public:
 
     Q_INVOKABLE void removeObject( const QUuid& uid );
 
+    [[nodiscard]]
     auto objects() const -> ObjectsList*;
 
+    [[nodiscard]]
     auto selectedObjectUid() const -> QString;
     auto setSelectedObjectUid( const QString& value ) -> void;
 
+    [[nodiscard]]
     auto isAnyObjectSelected() const -> bool;
 
+    [[nodiscard]]
     auto renderMode() const -> int;
     auto setRenderMode( int value ) -> void;
 
+    [[nodiscard]]
     auto appearnceMode() const -> int;
     auto setAppearnceMode( int value ) -> void;
 
+    [[nodiscard]]
     auto lightMode() const -> int;
     auto setLightMode( int value ) -> void;
 
+    [[nodiscard]]
     auto showOuline() const -> bool;
     auto setShowOuline( bool value ) -> void;
 
