@@ -145,33 +145,25 @@ Rectangle {
                 Layout.preferredHeight: parent.height / 2
 
                 SISceneControlButton {
-                    id: gimoLocalModeButton
+                    id: dummy34_ModeButton
 
                     Layout.fillWidth: true
                     Layout.preferredHeight: parent.height
 
-                    buttonLabel: "LCL"
+                    buttonLabel: "---"
 
-                    checked: Tired.scenegraph.gizmo.gizmoMode == 0
-
-                    onClicked: {
-                        Tired.scenegraph.gizmo.gizmoMode = 0;
-                    }
+                    onClicked: {}
                 }
 
                 SISceneControlButton {
-                    id: gimoGlobalModeButton
+                    id: dummy33_ModeButton
 
                     Layout.fillWidth: true
                     Layout.preferredHeight: parent.height
 
-                    buttonLabel: "GLB"
+                    buttonLabel: "---"
 
-                    checked: Tired.scenegraph.gizmo.gizmoMode == 1
-
-                    onClicked: {
-                        Tired.scenegraph.gizmo.gizmoMode = 1;
-                    }
+                    onClicked: {}
                 }
 
                 SISceneControlButton {
@@ -216,6 +208,153 @@ Rectangle {
 
                     onClicked: {
                         Tired.scenegraph.scene.lightMode = 2;
+                    }
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        id: gizmoControlButtonsBottomWrapper
+
+        anchors {
+            top: parent.top
+            topMargin: _units.scaled_4
+            right: sceneControlButtonsBottomWrapper.left
+            rightMargin: _units.scaled_4
+            bottom: parent.bottom
+            bottomMargin: _units.scaled_4
+        }
+
+        width: 168
+
+        color: "transparent"
+
+        border {
+            width: _units.scaled_2
+            color: _color.si_background_dark
+        }
+
+        ColumnLayout {
+            id: gizmoControlButtonsPanelColumn
+
+            spacing: _units.scaled_2
+
+            anchors {
+                right: parent.right
+                rightMargin: _units.scaled_4
+                left: parent.left
+                leftMargin: _units.scaled_4
+                top: parent.top
+                topMargin: _units.scaled_4
+                bottom: parent.bottom
+                bottomMargin: _units.scaled_4
+            }
+
+            RowLayout {
+                id: gizmoControlButtonstopRow
+
+                spacing: _units.scaled_2
+
+                Layout.fillWidth: true
+                Layout.preferredHeight: parent.height / 2
+
+                SISceneControlButton {
+                    id: moveGizmopMode
+
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: parent.height
+
+                    buttonLabel: "MOV"
+
+                    //checked: Tired.scenegraph.scene.renderMode == 0
+
+                    onClicked: {
+                        //Tired.scenegraph.scene.renderMode = 0;
+                    }
+                }
+
+                SISceneControlButton {
+                    id: rotateGizmopMode
+
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: parent.height
+
+                    buttonLabel: "ROT"
+
+                    //checked: Tired.scenegraph.scene.renderMode == 1
+
+                    onClicked: {
+                        //Tired.scenegraph.scene.renderMode = 1;
+                    }
+                }
+
+                SISceneControlButton {
+                    id: scaleGizmopMode
+
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: parent.height
+
+                    buttonLabel: "SCL"
+
+                    //checked: Tired.scenegraph.scene.renderMode == 2
+
+                    onClicked: {
+                        //Tired.scenegraph.scene.renderMode = 2;
+                    }
+                }
+            }
+
+            RowLayout {
+                id: gizmoControlButtonsbottomRow
+
+                spacing: _units.scaled_2
+
+                Layout.fillWidth: true
+                Layout.preferredHeight: parent.height / 2
+
+                SISceneControlButton {
+                    id: gizmoLocalModeButton
+
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: parent.height
+
+                    buttonLabel: "LCL"
+
+                    checked: Tired.scenegraph.gizmo.gizmoMode == 0
+
+                    onClicked: {
+                        Tired.scenegraph.gizmo.gizmoMode = 0;
+                    }
+                }
+
+                SISceneControlButton {
+                    id: gizmoGlobalModeButton
+
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: parent.height
+
+                    buttonLabel: "GLB"
+
+                    checked: Tired.scenegraph.gizmo.gizmoMode == 1
+
+                    onClicked: {
+                        Tired.scenegraph.gizmo.gizmoMode = 1;
+                    }
+                }
+
+                SISceneControlButton {
+                    id: dummy23_ModeButton
+
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: parent.height
+
+                    buttonLabel: "---"
+
+                    // checked: Tired.scenegraph.scene.lightMode == 0
+
+                    onClicked: {
+                        // Tired.scenegraph.scene.lightMode = 0;
                     }
                 }
             }
