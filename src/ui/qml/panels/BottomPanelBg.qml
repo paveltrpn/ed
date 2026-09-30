@@ -100,6 +100,8 @@ Rectangle {
 
                     checked: Tired.scenegraph.scene.renderMode == 2
 
+                    enabled: false
+
                     onClicked: {
                         Tired.scenegraph.scene.renderMode = 2;
                     }
@@ -152,6 +154,8 @@ Rectangle {
 
                     buttonLabel: "---"
 
+                    enabled: false
+
                     onClicked: {}
                 }
 
@@ -162,6 +166,8 @@ Rectangle {
                     Layout.preferredHeight: parent.height
 
                     buttonLabel: "---"
+
+                    enabled: false
 
                     onClicked: {}
                 }
@@ -205,6 +211,8 @@ Rectangle {
                     buttonLabel: "SCN"
 
                     checked: Tired.scenegraph.scene.lightMode == 2
+
+                    enabled: false
 
                     onClicked: {
                         Tired.scenegraph.scene.lightMode = 2;
@@ -323,6 +331,8 @@ Rectangle {
 
                     checked: Tired.scenegraph.gizmo.gizmoMode == 0
 
+                    enabled: false
+
                     onClicked: {
                         Tired.scenegraph.gizmo.gizmoMode = 0;
                     }
@@ -338,6 +348,8 @@ Rectangle {
 
                     checked: Tired.scenegraph.gizmo.gizmoMode == 1
 
+                    enabled: false
+
                     onClicked: {
                         Tired.scenegraph.gizmo.gizmoMode = 1;
                     }
@@ -350,6 +362,8 @@ Rectangle {
                     Layout.preferredHeight: parent.height
 
                     buttonLabel: "---"
+
+                    enabled: false
 
                     // checked: Tired.scenegraph.scene.lightMode == 0
 

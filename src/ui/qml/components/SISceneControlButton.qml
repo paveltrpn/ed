@@ -17,6 +17,8 @@ QuickTemplates.Button {
 
     property alias buttonLabel: buttonLabel.text
 
+    opacity: control.enabled ? 1.0 : 0.3
+
     states: [
         State {
             when: control.down
