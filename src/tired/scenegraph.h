@@ -38,7 +38,7 @@ public:
     auto grid() const -> Grid*;
 
     [[nodiscard]]
-    auto gizmo() const -> Gizmo*;
+    auto gizmo() const -> GizmoUIProxy*;
 
     [[nodiscard]]
     auto scene() const -> Scene*;
@@ -62,7 +62,7 @@ private:
 
     Navbox* _navbox{};
     Grid* _grid{};
-    Gizmo* _gizmo{};
+    GizmoUIProxy* _gizmo{};
     Scene* _scene{};
 };
 

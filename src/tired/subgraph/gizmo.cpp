@@ -30,54 +30,54 @@ namespace tire {
 // ==================== Gizmo ===========================================================
 // ======================================================================================
 
-Gizmo::Gizmo( vsg::observer_ptr<vsg::Viewer> viewer, const QObject* parent )
+GizmoUIProxy::GizmoUIProxy( vsg::observer_ptr<vsg::Viewer> viewer, const QObject* parent )
     : _gizmo{ new GizmoSubgraph{ viewer } } {
     //
     updateGizmoVisibility();
 }
 
-auto Gizmo::node() const -> vsg::ref_ptr<GizmoSubgraph> {
+auto GizmoUIProxy::node() const -> vsg::ref_ptr<GizmoSubgraph> {
     return _gizmo;
 }
 
-auto Gizmo::beginDrag() -> void {
+auto GizmoUIProxy::beginDrag() -> void {
     _dragAnchor = _translation;
 }
 
-auto Gizmo::update( vsg::dvec3 worldDisplacement ) -> void {
+auto GizmoUIProxy::update( vsg::dvec3 worldDisplacement ) -> void {
     setTranslation( _dragAnchor + worldDisplacement );
 }
 
-auto Gizmo::translation() const -> vsg::dvec3 {
+auto GizmoUIProxy::translation() const -> vsg::dvec3 {
     return _translation;
 }
 
-auto Gizmo::setTranslation( const vsg::dvec3& value ) -> void {
+auto GizmoUIProxy::setTranslation( const vsg::dvec3& value ) -> void {
     _translation = value;
     _gizmo->_gizmoPivot->matrix = vsg::translate( _translation );
 }
 
-auto Gizmo::gizmoMode() const -> int {
-    return static_cast<int>( _gizmoMode );
+auto GizmoUIProxy::gizmoMode() const -> int {
+    return static_cast<int>( _gizmo->_gizmoMode );
 }
 
-void Gizmo::setGizmoMode( int value ) {
-    _gizmoMode = static_cast<GizmoMode>( value );
+void GizmoUIProxy::setGizmoMode( int value ) {
+    _gizmo->_gizmoMode = static_cast<GizmoMode>( value );
     emit gizmoModeChanged();
 }
 
-auto Gizmo::gizmoType() const -> int {
-    return static_cast<int>( _gizmoType );
+auto GizmoUIProxy::gizmoType() const -> int {
+    return static_cast<int>( _gizmo->_gizmoType );
 }
 
-auto Gizmo::setGizmoType( int value ) -> void {
-    _gizmoType = static_cast<GizmoType>( value );
+auto GizmoUIProxy::setGizmoType( int value ) -> void {
+    _gizmo->_gizmoType = static_cast<GizmoType>( value );
     updateGizmoVisibility();
     emit gizmoTypeChanged();
 }
 
-auto Gizmo::updateGizmoVisibility() -> void {
-    switch ( _gizmoType ) {
+auto GizmoUIProxy::updateGizmoVisibility() -> void {
+    switch ( _gizmo->_gizmoType ) {
         case tire::GizmoType::MOVE: {
             _gizmo->showMoveGizmo();
             break;
@@ -95,7 +95,7 @@ auto Gizmo::updateGizmoVisibility() -> void {
     }
 }
 
-auto Gizmo::moveObject( SceneObjectBase* object ) -> void {
+auto GizmoUIProxy::moveObject( SceneObjectBase* object ) -> void {
 }
 
 // ======================================================================================

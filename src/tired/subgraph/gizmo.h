@@ -34,14 +34,14 @@ enum class GizmoType {
 
 struct GizmoSubgraph;
 
-struct Gizmo final : public QObject {
+struct GizmoUIProxy final : public QObject {
     Q_OBJECT
 
     Q_PROPERTY( int gizmoMode READ gizmoMode WRITE setGizmoMode NOTIFY gizmoModeChanged FINAL )
     Q_PROPERTY( int gizmoType READ gizmoType WRITE setGizmoType NOTIFY gizmoTypeChanged FINAL )
 
 public:
-    Gizmo( vsg::observer_ptr<vsg::Viewer> viewer, const QObject* parent = nullptr );
+    GizmoUIProxy( vsg::observer_ptr<vsg::Viewer> viewer, const QObject* parent = nullptr );
 
     [[nodiscard]] auto node() const -> vsg::ref_ptr<GizmoSubgraph>;
 
@@ -69,9 +69,6 @@ private:
 private:
     vsg::ref_ptr<GizmoSubgraph> _gizmo{};
 
-    GizmoMode _gizmoMode{ GizmoMode::GLOBAL };
-    GizmoType _gizmoType{ GizmoType::MOVE };
-
     vsg::dvec3 _translation{};
     vsg::dvec3 _dragAnchor{};
 };
@@ -86,7 +83,7 @@ struct RotationDragger;
 struct ScaleDragger;
 
 struct GizmoSubgraph final : public Subgraph {
-    friend Gizmo;
+    friend GizmoUIProxy;
 
     GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer );
 
@@ -125,6 +122,9 @@ private:
     vsg::ref_ptr<ScaleDragger> _xScaleDg{};
     vsg::ref_ptr<ScaleDragger> _yScaleDg{};
     vsg::ref_ptr<ScaleDragger> _zScaleDg{};
+
+    GizmoMode _gizmoMode{ GizmoMode::GLOBAL };
+    GizmoType _gizmoType{ GizmoType::MOVE };
 };
 
 // ======================================================================================
