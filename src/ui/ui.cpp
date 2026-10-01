@@ -235,8 +235,8 @@ void TiredUI::enlargeRightPanel( float factor ) {
     const auto g = this->geometry();
     const auto width = g.width();
 
-    const auto leftPanelWidth = static_cast<int>( width * _rowLayoutFactor );
-    const auto rightPanelWidth = static_cast<int>( width * factor );
+    const auto leftPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
+    const auto rightPanelWidth = static_cast<int>( static_cast<float>( width ) * factor );
     _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
 }
 
@@ -244,8 +244,8 @@ void TiredUI::enlargeLeftPanel( float factor ) {
     const auto g = this->geometry();
     const auto width = g.width();
 
-    const auto leftPanelWidth = static_cast<int>( width * factor );
-    const auto rightPanelWidth = static_cast<int>( width * _rowLayoutFactor );
+    const auto leftPanelWidth = static_cast<int>( static_cast<float>( width ) * factor );
+    const auto rightPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
     _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
 }
 
@@ -254,12 +254,12 @@ void TiredUI::resetPanelsSize() {
     const auto width = g.width();
     const auto height = g.height();
 
-    const auto topPanelHeight = static_cast<int>( height * _columnLayoutFactor );
-    const auto bottomPanelHeight = static_cast<int>( height * _columnLayoutFactor );
+    const auto topPanelHeight = static_cast<int>( static_cast<float>( height ) * _columnLayoutFactor );
+    const auto bottomPanelHeight = static_cast<int>( static_cast<float>( height ) * _columnLayoutFactor );
     _columnSplitter->setSizes( { topPanelHeight, height - ( topPanelHeight + bottomPanelHeight ), bottomPanelHeight } );
 
-    const auto leftPanelWidth = static_cast<int>( width * _rowLayoutFactor );
-    const auto rightPanelWidth = static_cast<int>( width * _rowLayoutFactor );
+    const int leftPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
+    const int rightPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
     _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
 }
 

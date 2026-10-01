@@ -30,7 +30,6 @@ set(QT_VERSION 6.10)
 list(APPEND CMAKE_PREFIX_PATH $ENV{LOCAL_LATEST_QT})
 find_package(Qt6 ${QT_VERSION} COMPONENTS
     Core
-    Gui
     Qml
     Quick
     QuickWidgets
@@ -128,6 +127,12 @@ set_target_properties(tired PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(tired PROPERTIES AUTOMOC TRUE)
 target_compile_options(tired PRIVATE "${CXX_STANDART}")
 target_link_libraries(tired
+    Qt::Core
+    Qt::Qml
+    Qt::Quick
+    Qt::QuickWidgets
+    Qt::QuickControls2
+    Qt::QuickLayouts
     vsg
     xcb
     vulkan
@@ -143,13 +148,6 @@ target_link_libraries(tired
     SPIRV-Tools-lint
     SPIRV-Tools-reduce
     SPIRV
-    Qt::Core
-    Qt::Gui
-    Qt::Quick
-    Qt::Qml
-    Qt::QuickWidgets
-    Qt::QuickControls2
-    Qt::QuickLayouts
     log
     image
     event
@@ -169,16 +167,15 @@ add_library(ed_ui ${MOD_TIRED_ED_UI_SRC})
 set_target_properties(ed_ui PROPERTIES AUTOMOC TRUE)
 target_compile_options(ed_ui PRIVATE "${CXX_STANDART}")
 target_link_libraries(ed_ui
-    vsg
-    xcb
-    image
     Qt::Core
-    Qt::Gui
-    Qt::Quick
     Qt::Qml
+    Qt::Quick
     Qt::QuickWidgets
     Qt::QuickControls2
     Qt::QuickLayouts
+    vsg
+    xcb
+    image
     vsg
 )
 
@@ -192,6 +189,12 @@ target_sources(${TIRE_EDITOR_EXE} PRIVATE ${EXE_ED_SRC})
 set_target_properties(${TIRE_EDITOR_EXE} PROPERTIES AUTOMOC TRUE)
 target_compile_options(${TIRE_EDITOR_EXE} PRIVATE "${CXX_STANDART}")
 target_link_libraries(${TIRE_EDITOR_EXE}
+    Qt::Core
+    Qt::Qml
+    Qt::Quick
+    Qt::QuickWidgets
+    Qt::QuickControls2
+    Qt::QuickLayouts
     vsg
     xcb
     vulkan
@@ -207,13 +210,6 @@ target_link_libraries(${TIRE_EDITOR_EXE}
     SPIRV-Tools-lint
     SPIRV-Tools-reduce
     SPIRV
-    Qt::Core
-    Qt::Gui
-    Qt::Quick
-    Qt::Qml
-    Qt::QuickWidgets
-    Qt::QuickControls2
-    Qt::QuickLayouts
     ed_ui
     tired
     ed_ui
