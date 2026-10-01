@@ -21,10 +21,11 @@
 namespace tire {
 
 // ======================================================================================
-// ==================== SceneObjects ====================================================
+// ==================== SceneUIProxy ====================================================
 // ======================================================================================
 
-Scene::Scene( vsg::observer_ptr<vsg::Viewer> viewer, vsg::observer_ptr<BoundingRender> boundingRender, QObject* parent )
+SceneUIProxy::SceneUIProxy( vsg::observer_ptr<vsg::Viewer> viewer, vsg::observer_ptr<BoundingRender> boundingRender,
+                            QObject* parent )
     : QObject{ parent }
     , _scene{ new SceneSubgraph{ viewer } }
     , _boundingRender{ boundingRender }
@@ -33,20 +34,20 @@ Scene::Scene( vsg::observer_ptr<vsg::Viewer> viewer, vsg::observer_ptr<BoundingR
     _scene->initPipeline();
 }
 
-auto Scene::scene() const -> vsg::ref_ptr<SceneSubgraph> {
+auto SceneUIProxy::sceneNode() const -> vsg::ref_ptr<SceneSubgraph> {
     //
     return _scene;
 }
 
-auto Scene::objects() const -> ObjectsList* {
+auto SceneUIProxy::objects() const -> ObjectsList* {
     return _objects;
 }
 
-auto Scene::selectedObjectUid() const -> QString {
+auto SceneUIProxy::selectedObjectUid() const -> QString {
     return _selectedObjectUid.toString();
 }
 
-auto Scene::setSelectedObjectUid( const QString& value ) -> void {
+auto SceneUIProxy::setSelectedObjectUid( const QString& value ) -> void {
     _selectedObjectUid = QUuid::fromString( value );
 
     _boundingRender.get()->clear();
@@ -64,15 +65,15 @@ auto Scene::setSelectedObjectUid( const QString& value ) -> void {
     emit isAnyObjectSelectedChanged();
 }
 
-auto Scene::isAnyObjectSelected() const -> bool {
+auto SceneUIProxy::isAnyObjectSelected() const -> bool {
     return !_selectedObjectUid.isNull();
 }
 
-auto Scene::renderMode() const -> int {
+auto SceneUIProxy::renderMode() const -> int {
     return static_cast<int>( _renderMode );
 }
 
-auto Scene::setRenderMode( int value ) -> void {
+auto SceneUIProxy::setRenderMode( int value ) -> void {
     _renderMode = static_cast<ObjectsRenderMode>( value );
 
     switch ( _renderMode ) {
@@ -96,41 +97,41 @@ auto Scene::setRenderMode( int value ) -> void {
     emit renderModeChanged();
 }
 
-auto Scene::appearnceMode() const -> int {
+auto SceneUIProxy::appearnceMode() const -> int {
     return static_cast<int>( _scene->_appearnceMode );
 }
 
-auto Scene::setAppearnceMode( int value ) -> void {
+auto SceneUIProxy::setAppearnceMode( int value ) -> void {
     _scene->_appearnceMode = static_cast<ObjectsAppearenceMode>( value );
     _scene->updateObjectParamsUniformValue();
     emit appearnceModeChanged();
 }
 
-auto Scene::lightMode() const -> int {
+auto SceneUIProxy::lightMode() const -> int {
     return static_cast<int>( _scene->_lightMode );
 }
 
-auto Scene::setLightMode( int value ) -> void {
+auto SceneUIProxy::setLightMode( int value ) -> void {
     _scene->_lightMode = static_cast<ObjectsLightMode>( value );
     _scene->updateObjectParamsUniformValue();
     emit lightModeChanged();
 }
 
-auto Scene::showOuline() const -> bool {
+auto SceneUIProxy::showOuline() const -> bool {
     return _showOuline;
 }
 
-auto Scene::setShowOuline( bool value ) -> void {
+auto SceneUIProxy::setShowOuline( bool value ) -> void {
     _showOuline = value;
     emit showOulineChanged();
 }
 
-SceneObjectBase* Scene::findObject( const QString& uid ) const {
+SceneObjectBase* SceneUIProxy::findObject( const QString& uid ) const {
     auto obj = _objects->findObject( QUuid::fromString( uid ) );
     return obj.get();
 }
 
-void Scene::addBox( const BoxObjectData& data ) {
+void SceneUIProxy::addBox( const BoxObjectData& data ) {
     auto obj = std::make_shared<object::Box>( data );
 
     _scene->attach( obj );
@@ -140,7 +141,7 @@ void Scene::addBox( const BoxObjectData& data ) {
     emit objectsChanged();
 }
 
-void Scene::addSphere( const SphereObjectData& data ) {
+void SceneUIProxy::addSphere( const SphereObjectData& data ) {
     auto obj = std::make_shared<object::Sphere>( data );
 
     _scene->attach( obj );
@@ -150,7 +151,7 @@ void Scene::addSphere( const SphereObjectData& data ) {
     emit objectsChanged();
 }
 
-void Scene::addCylinder( const CylinderObjectData& data ) {
+void SceneUIProxy::addCylinder( const CylinderObjectData& data ) {
     auto obj = std::make_shared<object::Cylinder>( data );
 
     _scene->attach( obj );
@@ -160,7 +161,7 @@ void Scene::addCylinder( const CylinderObjectData& data ) {
     emit objectsChanged();
 }
 
-void Scene::addCapsule( const CapsuleObjectData& data ) {
+void SceneUIProxy::addCapsule( const CapsuleObjectData& data ) {
     auto obj = std::make_shared<object::Capsule>( data );
 
     _scene->attach( obj );
@@ -170,7 +171,7 @@ void Scene::addCapsule( const CapsuleObjectData& data ) {
     emit objectsChanged();
 }
 
-void Scene::removeObject( const QUuid& uid ) {
+void SceneUIProxy::removeObject( const QUuid& uid ) {
     qDebug() << "=== " << uid;
     auto obj = _objects->findObject( uid );
     _scene->detach( obj );

@@ -12,10 +12,10 @@ namespace tire {
 struct NavboxSubgraph;
 
 // ======================================================================================
-// ==================== Navbox ==========================================================
+// ==================== NavboxUIProxy ===================================================
 // ======================================================================================
 
-struct Navbox final : public QObject {
+struct NavboxUIProxy final : public QObject {
     Q_OBJECT
 
     Q_PROPERTY( QVector3D boxOrigin READ boxOrigin WRITE setBoxOrigin NOTIFY boxOriginChanged FINAL )
@@ -28,9 +28,9 @@ struct Navbox final : public QObject {
     Q_PROPERTY( QVector3D lightColor READ lightColor WRITE setLightColor NOTIFY lightColorChanged FINAL )
 
 public:
-    Navbox( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent = nullptr );
+    NavboxUIProxy( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent = nullptr );
 
-    auto node() const -> vsg::ref_ptr<NavboxSubgraph>;
+    auto navboxNode() const -> vsg::ref_ptr<NavboxSubgraph>;
 
     void setBoxOrigin( QVector3D value );
     void setBoxSize( float value );
@@ -66,7 +66,7 @@ private:
     auto lookMatrix( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up ) const -> vsg::mat4;
 
 private:
-    vsg::ref_ptr<NavboxSubgraph> _node{};
+    vsg::ref_ptr<NavboxSubgraph> _navbox{};
 };
 
 // ======================================================================================
@@ -81,7 +81,7 @@ struct NavboxSubgraph final : Subgraph {
     auto initPipeline() -> void;
     auto initDrawCommand() -> void;
 
-    friend Navbox;
+    friend NavboxUIProxy;
 
 private:
     auto updateBoxUniformValue() -> void;

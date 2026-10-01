@@ -12,7 +12,7 @@
 namespace tire {
 
 // ======================================================================================
-// ==================== Scene ===========================================================
+// ==================== SceneUIProxy ====================================================
 // ======================================================================================
 
 enum class ObjectsRenderMode { WIREFRAME, SOLID, SOLIDWIRE };
@@ -21,7 +21,7 @@ enum class ObjectsLightMode { NONE, CONSTANT, INSCENE };
 
 struct SceneSubgraph;
 
-struct Scene final : public QObject {
+struct SceneUIProxy final : public QObject {
     Q_OBJECT
 
     Q_PROPERTY( ObjectsList* objects READ objects NOTIFY objectsChanged FINAL )
@@ -36,11 +36,11 @@ struct Scene final : public QObject {
     Q_PROPERTY( int showOuline READ showOuline WRITE setShowOuline NOTIFY showOulineChanged FINAL )
 
 public:
-    Scene( vsg::observer_ptr<vsg::Viewer> viewer, vsg::observer_ptr<BoundingRender> boundingRender,
-           QObject* parent = nullptr );
+    SceneUIProxy( vsg::observer_ptr<vsg::Viewer> viewer, vsg::observer_ptr<BoundingRender> boundingRender,
+                  QObject* parent = nullptr );
 
     [[nodiscard]]
-    auto scene() const -> vsg::ref_ptr<SceneSubgraph>;
+    auto sceneNode() const -> vsg::ref_ptr<SceneSubgraph>;
 
     Q_INVOKABLE void addBox( const BoxObjectData& data );
     Q_INVOKABLE void addSphere( const SphereObjectData& data );
@@ -115,7 +115,7 @@ struct SceneSubgraph final : Subgraph {
     auto attach( std::shared_ptr<SceneObjectBase> object ) -> void;
     auto detach( std::shared_ptr<SceneObjectBase> object ) -> void;
 
-    friend Scene;
+    friend SceneUIProxy;
 
 private:
     auto updateObjectParamsUniformValue() -> void;

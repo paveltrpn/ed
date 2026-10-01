@@ -10,18 +10,18 @@ Scenegraph::Scenegraph( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent )
     , _viewer{ viewer }
     , _boundingRender{ new BoundingRender{ _viewer } }
     , _grid{ new GridUIProxy{ _viewer, this } }
-    , _navbox{ new Navbox{ _viewer, this } }
+    , _navbox{ new NavboxUIProxy{ _viewer, this } }
     , _gizmo{ new GizmoUIProxy{ _viewer, this } }
-    , _scene{ new Scene{ _viewer, vsg::observer_ptr<BoundingRender>{ _boundingRender }, this } } {
+    , _scene{ new SceneUIProxy{ _viewer, vsg::observer_ptr<BoundingRender>{ _boundingRender }, this } } {
     //
     _root->addChild( _boundingRender );
 
-    _root->addChild( _navbox->node() );
-    _root->addChild( _scene->scene() );
+    _root->addChild( _navbox->navboxNode() );
+    _root->addChild( _scene->sceneNode() );
     _root->addChild( _grid->gridNode() );
     _root->addChild( _gizmo->gizmoNode() );
 
-    connect( _scene, &Scene::selectedObjectChanged, _gizmo, [this]( SceneObjectBase* object ) {
+    connect( _scene, &SceneUIProxy::selectedObjectChanged, _gizmo, [this]( SceneObjectBase* object ) {
         //
         const auto pos = object->position();
         _gizmo->setTranslation( vsg::dvec3{ pos.x(), pos.y(), pos.z() } );
@@ -36,7 +36,7 @@ auto Scenegraph::scenegraphViewer() const -> vsg::observer_ptr<vsg::Viewer> {
     return _viewer;
 }
 
-auto Scenegraph::navbox() const -> Navbox* {
+auto Scenegraph::navbox() const -> NavboxUIProxy* {
     return _navbox;
 }
 
@@ -48,7 +48,7 @@ auto Scenegraph::gizmo() const -> GizmoUIProxy* {
     return _gizmo;
 }
 
-auto Scenegraph::scene() const -> Scene* {
+auto Scenegraph::scene() const -> SceneUIProxy* {
     return _scene;
 }
 

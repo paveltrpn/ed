@@ -32,7 +32,7 @@ public:
     auto scenegraphViewer() const -> vsg::observer_ptr<vsg::Viewer>;
 
     [[nodiscard]]
-    auto navbox() const -> Navbox*;
+    auto navbox() const -> NavboxUIProxy*;
 
     [[nodiscard]]
     auto grid() const -> GridUIProxy*;
@@ -41,7 +41,7 @@ public:
     auto gizmo() const -> GizmoUIProxy*;
 
     [[nodiscard]]
-    auto scene() const -> Scene*;
+    auto scene() const -> SceneUIProxy*;
 
 signals:
     void navboxChanged();
@@ -60,10 +60,10 @@ private:
 
     vsg::ref_ptr<BoundingRender> _boundingRender{};
 
-    Navbox* _navbox{};
+    NavboxUIProxy* _navbox{};
     GridUIProxy* _grid{};
     GizmoUIProxy* _gizmo{};
-    Scene* _scene{};
+    SceneUIProxy* _scene{};
 };
 
 }  // namespace tire
