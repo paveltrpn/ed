@@ -10,10 +10,10 @@ namespace tire {
 struct GridSubgraph;
 
 // ======================================================================================
-// ==================== Grid ============================================================
+// ==================== GridUIProxy =====================================================
 // ======================================================================================
 
-struct Grid final : public QObject {
+struct GridUIProxy final : public QObject {
     Q_OBJECT
 
     Q_PROPERTY( float gridSize READ gridSize WRITE setGridSize NOTIFY gridSizeChanged FINAL )
@@ -27,9 +27,9 @@ struct Grid final : public QObject {
     Q_PROPERTY( float gridZOffset READ gridZOffset WRITE setGridZOffset NOTIFY gridZOffsetChanged FINAL )
 
 public:
-    Grid( vsg::observer_ptr<vsg::Viewer>, QObject* parent = nullptr );
+    GridUIProxy( vsg::observer_ptr<vsg::Viewer>, QObject* parent = nullptr );
 
-    auto node() const -> vsg::ref_ptr<GridSubgraph>;
+    [[nodiscard]] auto gridNode() const -> vsg::ref_ptr<GridSubgraph>;
 
     auto setGridSize( float value ) -> void;
     auto setLineThickness( float value ) -> void;
@@ -64,7 +64,7 @@ signals:
     void gridZOffsetChanged();
 
 private:
-    vsg::ref_ptr<GridSubgraph> _node{};
+    vsg::ref_ptr<GridSubgraph> _grid{};
 };
 
 // ======================================================================================
@@ -79,7 +79,7 @@ struct GridSubgraph final : public Subgraph {
     auto initPipeline() -> void;
     auto initDrawCommand() -> void;
 
-    friend Grid;
+    friend GridUIProxy;
 
 private:
     auto updateGridBufUniformValue() -> void;

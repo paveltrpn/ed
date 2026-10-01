@@ -29,7 +29,7 @@ enum class GizmoType {
 };
 
 // ======================================================================================
-// ==================== Gizmo ===========================================================
+// ==================== GizmoUIProxy ====================================================
 // ======================================================================================
 
 struct GizmoSubgraph;
@@ -43,7 +43,7 @@ struct GizmoUIProxy final : public QObject {
 public:
     GizmoUIProxy( vsg::observer_ptr<vsg::Viewer> viewer, const QObject* parent = nullptr );
 
-    [[nodiscard]] auto node() const -> vsg::ref_ptr<GizmoSubgraph>;
+    [[nodiscard]] auto gizmoNode() const -> vsg::ref_ptr<GizmoSubgraph>;
 
     auto beginDrag() -> void;
     auto update( vsg::dvec3 worldDisplacement ) -> void;

@@ -27,7 +27,7 @@ namespace tire {
 // absoluteTransform->matrix = matrix;
 
 // ======================================================================================
-// ==================== Gizmo ===========================================================
+// ==================== GizmoUIProxy ====================================================
 // ======================================================================================
 
 GizmoUIProxy::GizmoUIProxy( vsg::observer_ptr<vsg::Viewer> viewer, const QObject* parent )
@@ -36,7 +36,7 @@ GizmoUIProxy::GizmoUIProxy( vsg::observer_ptr<vsg::Viewer> viewer, const QObject
     updateGizmoVisibility();
 }
 
-auto GizmoUIProxy::node() const -> vsg::ref_ptr<GizmoSubgraph> {
+auto GizmoUIProxy::gizmoNode() const -> vsg::ref_ptr<GizmoSubgraph> {
     return _gizmo;
 }
 

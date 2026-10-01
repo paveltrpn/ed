@@ -35,7 +35,7 @@ public:
     auto navbox() const -> Navbox*;
 
     [[nodiscard]]
-    auto grid() const -> Grid*;
+    auto grid() const -> GridUIProxy*;
 
     [[nodiscard]]
     auto gizmo() const -> GizmoUIProxy*;
@@ -61,7 +61,7 @@ private:
     vsg::ref_ptr<BoundingRender> _boundingRender{};
 
     Navbox* _navbox{};
-    Grid* _grid{};
+    GridUIProxy* _grid{};
     GizmoUIProxy* _gizmo{};
     Scene* _scene{};
 };
