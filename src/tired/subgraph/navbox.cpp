@@ -10,84 +10,78 @@ namespace tire {
 // ==================== NavboxUIProxy ===================================================
 // ======================================================================================
 
-NavboxUIProxy::NavboxUIProxy( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent )
+NavboxUIProxy::NavboxUIProxy( vsg::observer_ptr<NavboxSubgraph> navbox, QObject* parent )
     : QObject{ parent }
-    , _navbox{ new NavboxSubgraph{ viewer } } {
+    , _navbox{ navbox } {
     //
-    _navbox->initPipeline();
-    _navbox->initDrawCommand();
-}
-
-auto NavboxUIProxy::navboxNode() const -> vsg::ref_ptr<NavboxSubgraph> {
-    return _navbox;
 }
 
 void NavboxUIProxy::setBoxOrigin( QVector3D value ) {
-    _navbox->_boxOrigin = vsg::vec3{ value.x(), value.y(), value.z() };
-    _navbox->updateBoxUniformValue();
+    _navbox.get()->_boxOrigin = vsg::vec3{ value.x(), value.y(), value.z() };
+    _navbox.get()->updateBoxUniformValue();
 }
 
 void NavboxUIProxy::setBoxSize( float value ) {
-    _navbox->_boxSize = value;
-    _navbox->updateBoxUniformValue();
+    _navbox.get()->_boxSize = value;
+    _navbox.get()->updateBoxUniformValue();
 }
 
 void NavboxUIProxy::setBoxAxis( QVector3D value ) {
-    _navbox->_boxAxis = vsg::vec3{ value.x(), value.y(), value.z() };
-    _navbox->updateBoxUniformValue();
+    _navbox.get()->_boxAxis = vsg::vec3{ value.x(), value.y(), value.z() };
+    _navbox.get()->updateBoxUniformValue();
 }
 
 void NavboxUIProxy::setBoxAngl( float value ) {
-    _navbox->_boxAngl = value;
-    _navbox->updateBoxUniformValue();
+    _navbox.get()->_boxAngl = value;
+    _navbox.get()->updateBoxUniformValue();
 }
 
 void NavboxUIProxy::setBoxColor( QVector3D value ) {
-    _navbox->_boxColor = vsg::vec3{ value.x(), value.y(), value.z() };
-    _navbox->updateBoxUniformValue();
+    _navbox.get()->_boxColor = vsg::vec3{ value.x(), value.y(), value.z() };
+    _navbox.get()->updateBoxUniformValue();
 }
 
 void NavboxUIProxy::setLightOrigin( QVector3D value ) {
-    _navbox->_lightOrigin = vsg::vec3{ value.x(), value.y(), value.z() };
-    _navbox->updateLightBufUniformValue();
+    _navbox.get()->_lightOrigin = vsg::vec3{ value.x(), value.y(), value.z() };
+    _navbox.get()->updateLightBufUniformValue();
 }
 
 void NavboxUIProxy::setLightColor( QVector3D value ) {
-    _navbox->_lightColor = vsg::vec3{ value.x(), value.y(), value.z() };
-    _navbox->updateLightBufUniformValue();
+    _navbox.get()->_lightColor = vsg::vec3{ value.x(), value.y(), value.z() };
+    _navbox.get()->updateLightBufUniformValue();
 }
 
 QVector3D NavboxUIProxy::boxOrigin() {
-    return QVector3D{ _navbox->_boxOrigin.x, _navbox->_boxOrigin.y, _navbox->_boxOrigin.z };
+    return QVector3D{ _navbox.get()->_boxOrigin.x, _navbox.get()->_boxOrigin.y, _navbox.get()->_boxOrigin.z };
 }
 
 float NavboxUIProxy::boxSize() {
-    return _navbox->_boxSize;
+    return _navbox.get()->_boxSize;
 }
 
 QVector3D NavboxUIProxy::boxAxis() {
-    return QVector3D{ _navbox->_boxAxis.x, _navbox->_boxAxis.y, _navbox->_boxAxis.z };
+    return QVector3D{ _navbox.get()->_boxAxis.x, _navbox.get()->_boxAxis.y, _navbox.get()->_boxAxis.z };
 }
 
 float NavboxUIProxy::boxAngl() {
-    return _navbox->_boxAngl;
+    return _navbox.get()->_boxAngl;
 }
 
 QVector3D NavboxUIProxy::boxColor() {
-    return QVector3D{ _navbox->_boxColor.x, _navbox->_boxColor.y, _navbox->_boxColor.z };
+    return QVector3D{ _navbox.get()->_boxColor.x, _navbox.get()->_boxColor.y, _navbox.get()->_boxColor.z };
 }
 
 QVector3D NavboxUIProxy::lightOrigin() {
-    return QVector3D{ _navbox->_lightOrigin.x, _navbox->_lightOrigin.y, _navbox->_lightOrigin.z };
+    return QVector3D{ _navbox.get()->_lightOrigin.x, _navbox.get()->_lightOrigin.y, _navbox.get()->_lightOrigin.z };
 }
 
 QVector3D NavboxUIProxy::lightColor() {
-    return QVector3D{ _navbox->_lightColor.x, _navbox->_lightColor.y, _navbox->_lightColor.z };
+    return QVector3D{ _navbox.get()->_lightColor.x, _navbox.get()->_lightColor.y, _navbox.get()->_lightColor.z };
 }
 
 void NavboxUIProxy::updateViewMatrix( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up ) {
-    _navbox->_viewm = lookMatrix( eye, cnt, up );
-    _navbox->updateViewMatrixBufUniformValue();
+    _navbox.get()->_viewm = lookMatrix( eye, cnt, up );
+    _navbox.get()->updateViewMatrixBufUniformValue();
 }
 
 auto NavboxUIProxy::lookMatrix( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up ) const
@@ -123,6 +117,9 @@ NavboxSubgraph::NavboxSubgraph( vsg::observer_ptr<vsg::Viewer> viewer )
     , _stateGroup{ vsg::StateGroup::create() } {
     //
     this->addChild( _stateGroup );
+
+    initPipeline();
+    initDrawCommand();
 }
 
 auto NavboxSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {

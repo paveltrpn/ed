@@ -24,14 +24,13 @@ namespace tire {
 // ==================== SceneUIProxy ====================================================
 // ======================================================================================
 
-SceneUIProxy::SceneUIProxy( vsg::observer_ptr<vsg::Viewer> viewer, vsg::observer_ptr<BoundingRender> boundingRender,
+SceneUIProxy::SceneUIProxy( vsg::observer_ptr<SceneSubgraph> scene, vsg::observer_ptr<BoundingRender> boundingRender,
                             QObject* parent )
     : QObject{ parent }
-    , _scene{ new SceneSubgraph{ viewer } }
+    , _scene{ scene }
     , _boundingRender{ boundingRender }
     , _objects{ new ObjectsList{ this } } {
     //
-    _scene->initPipeline();
 }
 
 auto SceneUIProxy::sceneNode() const -> vsg::ref_ptr<SceneSubgraph> {
@@ -78,13 +77,13 @@ auto SceneUIProxy::setRenderMode( int value ) -> void {
 
     switch ( _renderMode ) {
         case ObjectsRenderMode::WIREFRAME: {
-            _scene->_polygonModeCmd->mode = VK_POLYGON_MODE_LINE;
-            _scene->_setCullModeCmd->mode = VK_CULL_MODE_NONE;
+            _scene.get()->_polygonModeCmd->mode = VK_POLYGON_MODE_LINE;
+            _scene.get()->_setCullModeCmd->mode = VK_CULL_MODE_NONE;
             break;
         }
         case ObjectsRenderMode::SOLID: {
-            _scene->_polygonModeCmd->mode = VK_POLYGON_MODE_FILL;
-            _scene->_setCullModeCmd->mode = VK_CULL_MODE_BACK_BIT;
+            _scene.get()->_polygonModeCmd->mode = VK_POLYGON_MODE_FILL;
+            _scene.get()->_setCullModeCmd->mode = VK_CULL_MODE_BACK_BIT;
             break;
         }
         case ObjectsRenderMode::SOLIDWIRE: {
@@ -98,22 +97,22 @@ auto SceneUIProxy::setRenderMode( int value ) -> void {
 }
 
 auto SceneUIProxy::appearnceMode() const -> int {
-    return static_cast<int>( _scene->_appearnceMode );
+    return static_cast<int>( _scene.get()->_appearnceMode );
 }
 
 auto SceneUIProxy::setAppearnceMode( int value ) -> void {
-    _scene->_appearnceMode = static_cast<ObjectsAppearenceMode>( value );
-    _scene->updateObjectParamsUniformValue();
+    _scene.get()->_appearnceMode = static_cast<ObjectsAppearenceMode>( value );
+    _scene.get()->updateObjectParamsUniformValue();
     emit appearnceModeChanged();
 }
 
 auto SceneUIProxy::lightMode() const -> int {
-    return static_cast<int>( _scene->_lightMode );
+    return static_cast<int>( _scene.get()->_lightMode );
 }
 
 auto SceneUIProxy::setLightMode( int value ) -> void {
-    _scene->_lightMode = static_cast<ObjectsLightMode>( value );
-    _scene->updateObjectParamsUniformValue();
+    _scene.get()->_lightMode = static_cast<ObjectsLightMode>( value );
+    _scene.get()->updateObjectParamsUniformValue();
     emit lightModeChanged();
 }
 
@@ -134,7 +133,7 @@ SceneObjectBase* SceneUIProxy::findObject( const QString& uid ) const {
 void SceneUIProxy::addBox( const BoxObjectData& data ) {
     auto obj = std::make_shared<object::Box>( data );
 
-    _scene->attach( obj );
+    _scene.get()->attach( obj );
 
     _objects->addObject( std::move( obj ) );
 
@@ -144,7 +143,7 @@ void SceneUIProxy::addBox( const BoxObjectData& data ) {
 void SceneUIProxy::addSphere( const SphereObjectData& data ) {
     auto obj = std::make_shared<object::Sphere>( data );
 
-    _scene->attach( obj );
+    _scene.get()->attach( obj );
 
     _objects->addObject( std::move( obj ) );
 
@@ -154,7 +153,7 @@ void SceneUIProxy::addSphere( const SphereObjectData& data ) {
 void SceneUIProxy::addCylinder( const CylinderObjectData& data ) {
     auto obj = std::make_shared<object::Cylinder>( data );
 
-    _scene->attach( obj );
+    _scene.get()->attach( obj );
 
     _objects->addObject( std::move( obj ) );
 
@@ -164,7 +163,7 @@ void SceneUIProxy::addCylinder( const CylinderObjectData& data ) {
 void SceneUIProxy::addCapsule( const CapsuleObjectData& data ) {
     auto obj = std::make_shared<object::Capsule>( data );
 
-    _scene->attach( obj );
+    _scene.get()->attach( obj );
 
     _objects->addObject( std::move( obj ) );
 
@@ -174,7 +173,7 @@ void SceneUIProxy::addCapsule( const CapsuleObjectData& data ) {
 void SceneUIProxy::removeObject( const QUuid& uid ) {
     qDebug() << "=== " << uid;
     auto obj = _objects->findObject( uid );
-    _scene->detach( obj );
+    _scene.get()->detach( obj );
 
     // TODO: remove from list and model
 }
@@ -188,6 +187,8 @@ SceneSubgraph::SceneSubgraph( vsg::observer_ptr<vsg::Viewer> viewer )
     , _stateGroup{ vsg::StateGroup::create() } {
     //
     this->addChild( _stateGroup );
+
+    initPipeline();
 }
 
 auto SceneSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {

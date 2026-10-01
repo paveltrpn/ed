@@ -27,9 +27,7 @@ struct GridUIProxy final : public QObject {
     Q_PROPERTY( float gridZOffset READ gridZOffset WRITE setGridZOffset NOTIFY gridZOffsetChanged FINAL )
 
 public:
-    GridUIProxy( vsg::observer_ptr<vsg::Viewer>, QObject* parent = nullptr );
-
-    [[nodiscard]] auto gridNode() const -> vsg::ref_ptr<GridSubgraph>;
+    GridUIProxy( vsg::observer_ptr<GridSubgraph> grid, QObject* parent = nullptr );
 
     auto setGridSize( float value ) -> void;
     auto setLineThickness( float value ) -> void;
@@ -64,7 +62,7 @@ signals:
     void gridZOffsetChanged();
 
 private:
-    vsg::ref_ptr<GridSubgraph> _grid{};
+    vsg::observer_ptr<GridSubgraph> _grid{};
 };
 
 // ======================================================================================
@@ -72,7 +70,7 @@ private:
 // ======================================================================================
 
 struct GridSubgraph final : public Subgraph {
-    GridSubgraph( vsg::observer_ptr<vsg::Viewer> );
+    GridSubgraph( vsg::observer_ptr<vsg::Viewer> viewer );
 
     auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
 

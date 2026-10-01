@@ -60,9 +60,16 @@ private:
 
     vsg::ref_ptr<BoundingRender> _boundingRender{};
 
-    NavboxUIProxy* _navbox{};
+    vsg::ref_ptr<GridSubgraph> _gridNode{};
     GridUIProxy* _grid{};
+
+    vsg::ref_ptr<NavboxSubgraph> _navboxNode{};
+    NavboxUIProxy* _navbox{};
+
+    vsg::ref_ptr<GizmoSubgraph> _gizmoNode{};
     GizmoUIProxy* _gizmo{};
+
+    vsg::ref_ptr<SceneSubgraph> _sceneNode{};
     SceneUIProxy* _scene{};
 };
 

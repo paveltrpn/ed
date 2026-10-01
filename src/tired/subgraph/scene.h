@@ -36,7 +36,7 @@ struct SceneUIProxy final : public QObject {
     Q_PROPERTY( int showOuline READ showOuline WRITE setShowOuline NOTIFY showOulineChanged FINAL )
 
 public:
-    SceneUIProxy( vsg::observer_ptr<vsg::Viewer> viewer, vsg::observer_ptr<BoundingRender> boundingRender,
+    SceneUIProxy( vsg::observer_ptr<SceneSubgraph> scene, vsg::observer_ptr<BoundingRender> boundingRender,
                   QObject* parent = nullptr );
 
     [[nodiscard]]
@@ -88,7 +88,7 @@ signals:
     void isAnyObjectSelectedChanged();
 
 private:
-    vsg::ref_ptr<SceneSubgraph> _scene{};
+    vsg::observer_ptr<SceneSubgraph> _scene{};
 
     vsg::observer_ptr<BoundingRender> _boundingRender{};
 

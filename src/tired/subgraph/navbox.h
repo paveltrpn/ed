@@ -28,9 +28,7 @@ struct NavboxUIProxy final : public QObject {
     Q_PROPERTY( QVector3D lightColor READ lightColor WRITE setLightColor NOTIFY lightColorChanged FINAL )
 
 public:
-    NavboxUIProxy( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent = nullptr );
-
-    auto navboxNode() const -> vsg::ref_ptr<NavboxSubgraph>;
+    NavboxUIProxy( vsg::observer_ptr<NavboxSubgraph> navbox, QObject* parent = nullptr );
 
     void setBoxOrigin( QVector3D value );
     void setBoxSize( float value );
@@ -66,7 +64,7 @@ private:
     auto lookMatrix( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up ) const -> vsg::mat4;
 
 private:
-    vsg::ref_ptr<NavboxSubgraph> _navbox{};
+    vsg::observer_ptr<NavboxSubgraph> _navbox{};
 };
 
 // ======================================================================================

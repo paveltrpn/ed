@@ -30,14 +30,10 @@ namespace tire {
 // ==================== GizmoUIProxy ====================================================
 // ======================================================================================
 
-GizmoUIProxy::GizmoUIProxy( vsg::observer_ptr<vsg::Viewer> viewer, const QObject* parent )
-    : _gizmo{ new GizmoSubgraph{ viewer } } {
+GizmoUIProxy::GizmoUIProxy( vsg::observer_ptr<GizmoSubgraph> gizmo, const QObject* parent )
+    : _gizmo{ gizmo } {
     //
     updateGizmoVisibility();
-}
-
-auto GizmoUIProxy::gizmoNode() const -> vsg::ref_ptr<GizmoSubgraph> {
-    return _gizmo;
 }
 
 auto GizmoUIProxy::beginDrag() -> void {
@@ -54,42 +50,42 @@ auto GizmoUIProxy::translation() const -> vsg::dvec3 {
 
 auto GizmoUIProxy::setTranslation( const vsg::dvec3& value ) -> void {
     _translation = value;
-    _gizmo->_gizmoPivot->matrix = vsg::translate( _translation );
+    _gizmo.get()->_gizmoPivot->matrix = vsg::translate( _translation );
 }
 
 auto GizmoUIProxy::gizmoMode() const -> int {
-    return static_cast<int>( _gizmo->_gizmoMode );
+    return static_cast<int>( _gizmo.get()->_gizmoMode );
 }
 
 void GizmoUIProxy::setGizmoMode( int value ) {
-    _gizmo->_gizmoMode = static_cast<GizmoMode>( value );
+    _gizmo.get()->_gizmoMode = static_cast<GizmoMode>( value );
     emit gizmoModeChanged();
 }
 
 auto GizmoUIProxy::gizmoType() const -> int {
-    return static_cast<int>( _gizmo->_gizmoType );
+    return static_cast<int>( _gizmo.get()->_gizmoType );
 }
 
 auto GizmoUIProxy::setGizmoType( int value ) -> void {
-    _gizmo->_gizmoType = static_cast<GizmoType>( value );
+    _gizmo.get()->_gizmoType = static_cast<GizmoType>( value );
     updateGizmoVisibility();
     emit gizmoTypeChanged();
 }
 
 auto GizmoUIProxy::updateGizmoVisibility() -> void {
-    switch ( _gizmo->_gizmoType ) {
+    switch ( _gizmo.get()->_gizmoType ) {
         case tire::GizmoType::MOVE: {
-            _gizmo->showMoveGizmo();
+            _gizmo.get()->showMoveGizmo();
             break;
         }
 
         case tire::GizmoType::ROTATE: {
-            _gizmo->showRotateGizmo();
+            _gizmo.get()->showRotateGizmo();
             break;
         }
 
         case tire::GizmoType::SCALE: {
-            _gizmo->showScaleGizmo();
+            _gizmo.get()->showScaleGizmo();
             break;
         }
     }

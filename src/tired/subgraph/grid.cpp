@@ -10,105 +10,99 @@ namespace tire {
 // ==================== GridUIProxy =====================================================
 // ======================================================================================
 
-GridUIProxy::GridUIProxy( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent )
+GridUIProxy::GridUIProxy( vsg::observer_ptr<GridSubgraph> grid, QObject* parent )
     : QObject{ parent }
-    , _grid{ new GridSubgraph{ viewer } } {
+    , _grid{ grid } {
     //
-    _grid->initPipeline();
-    _grid->initDrawCommand();
-}
-
-auto GridUIProxy::gridNode() const -> vsg::ref_ptr<GridSubgraph> {
-    return _grid;
 }
 
 auto GridUIProxy::gridSize() const -> float {
-    return _grid->_gridSize;
+    return _grid.get()->_gridSize;
 };
 
 auto GridUIProxy::lineThickness() const -> float {
-    return _grid->_lineThickness;
+    return _grid.get()->_lineThickness;
 };
 
 auto GridUIProxy::maxRange() const -> float {
-    return _grid->_maxRange;
+    return _grid.get()->_maxRange;
 };
 
 auto GridUIProxy::zoomSensitivity() const -> float {
-    return _grid->_zoomSensitivity;
+    return _grid.get()->_zoomSensitivity;
 };
 
 auto GridUIProxy::majorDivisor() const -> float {
-    return _grid->_majorDivisor;
+    return _grid.get()->_majorDivisor;
 };
 
 auto GridUIProxy::gridScale() const -> float {
-    return _grid->_gridScale;
+    return _grid.get()->_gridScale;
 };
 
 auto GridUIProxy::gridZOffset() const -> float {
-    return _grid->_gridZOffset;
+    return _grid.get()->_gridZOffset;
 };
 
 auto GridUIProxy::setGridSize( float value ) -> void {
-    _grid->_gridSize = value;
-    _grid->updateGridBufUniformValue();
+    _grid.get()->_gridSize = value;
+    _grid.get()->updateGridBufUniformValue();
     emit gridSizeChanged();
 }
 
 auto GridUIProxy::setLineThickness( float value ) -> void {
-    _grid->_lineThickness = value;
-    _grid->updateGridBufUniformValue();
+    _grid.get()->_lineThickness = value;
+    _grid.get()->updateGridBufUniformValue();
     emit lineThicknessChanged();
 }
 
 auto GridUIProxy::setMaxRange( float value ) -> void {
-    _grid->_maxRange = value;
-    _grid->updateGridBufUniformValue();
+    _grid.get()->_maxRange = value;
+    _grid.get()->updateGridBufUniformValue();
     emit maxRangeChanged();
 }
 
 auto GridUIProxy::setZoomSensitivity( float value ) -> void {
-    _grid->_zoomSensitivity = value;
-    _grid->updateGridBufUniformValue();
+    _grid.get()->_zoomSensitivity = value;
+    _grid.get()->updateGridBufUniformValue();
     emit zoomSensitivityChanged();
 }
 
 auto GridUIProxy::setColorMajor( float r, float g, float b ) -> void {
-    _grid->_colorMajor.r = r;
-    _grid->_colorMajor.g = g;
-    _grid->_colorMajor.b = b;
-    _grid->updateGridBufUniformValue();
+    _grid.get()->_colorMajor.r = r;
+    _grid.get()->_colorMajor.g = g;
+    _grid.get()->_colorMajor.b = b;
+    _grid.get()->updateGridBufUniformValue();
 }
 
 auto GridUIProxy::setColorMinor( float r, float g, float b ) -> void {
-    _grid->_colorMinor.r = r;
-    _grid->_colorMinor.g = g;
-    _grid->_colorMinor.b = b;
-    _grid->updateGridBufUniformValue();
+    _grid.get()->_colorMinor.r = r;
+    _grid.get()->_colorMinor.g = g;
+    _grid.get()->_colorMinor.b = b;
+    _grid.get()->updateGridBufUniformValue();
 }
 
 auto GridUIProxy::setMajorDivisor( float value ) -> void {
-    _grid->_majorDivisor = value;
-    _grid->updateGridBufUniformValue();
+    _grid.get()->_majorDivisor = value;
+    _grid.get()->updateGridBufUniformValue();
     emit majorDivisorChanged();
 }
 
 auto GridUIProxy::setGridScale( float value ) -> void {
-    _grid->_gridScale = value;
-    _grid->updatePlaneBufUniformValue();
+    _grid.get()->_gridScale = value;
+    _grid.get()->updatePlaneBufUniformValue();
     emit gridScaleChanged();
 }
 
 auto GridUIProxy::setGridZOffset( float value ) -> void {
-    _grid->_gridZOffset = value;
-    _grid->updatePlaneBufUniformValue();
+    _grid.get()->_gridZOffset = value;
+    _grid.get()->updatePlaneBufUniformValue();
     emit gridZOffsetChanged();
 }
 
 auto GridUIProxy::updateCameraPosition( const vsg::vec3& value ) -> void {
-    _grid->_cameraPosition = value;
-    _grid->updateGridBufUniformValue();
+    _grid.get()->_cameraPosition = value;
+    _grid.get()->updateGridBufUniformValue();
 }
 
 // ======================================================================================
@@ -120,6 +114,9 @@ GridSubgraph::GridSubgraph( vsg::observer_ptr<vsg::Viewer> viewer )
     , _stateGroup{ vsg::StateGroup::create() } {
     //
     this->addChild( _stateGroup );
+
+    initPipeline();
+    initDrawCommand();
 }
 
 auto GridSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {

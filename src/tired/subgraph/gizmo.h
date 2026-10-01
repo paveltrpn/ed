@@ -41,9 +41,7 @@ struct GizmoUIProxy final : public QObject {
     Q_PROPERTY( int gizmoType READ gizmoType WRITE setGizmoType NOTIFY gizmoTypeChanged FINAL )
 
 public:
-    GizmoUIProxy( vsg::observer_ptr<vsg::Viewer> viewer, const QObject* parent = nullptr );
-
-    [[nodiscard]] auto gizmoNode() const -> vsg::ref_ptr<GizmoSubgraph>;
+    GizmoUIProxy( vsg::observer_ptr<GizmoSubgraph> gizmo, const QObject* parent = nullptr );
 
     auto beginDrag() -> void;
     auto update( vsg::dvec3 worldDisplacement ) -> void;
@@ -67,7 +65,7 @@ private:
     auto updateGizmoVisibility() -> void;
 
 private:
-    vsg::ref_ptr<GizmoSubgraph> _gizmo{};
+    vsg::observer_ptr<GizmoSubgraph> _gizmo{};
 
     vsg::dvec3 _translation{};
     vsg::dvec3 _dragAnchor{};

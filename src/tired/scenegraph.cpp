@@ -9,17 +9,22 @@ Scenegraph::Scenegraph( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent )
     , _root{ new vsg::Group{} }
     , _viewer{ viewer }
     , _boundingRender{ new BoundingRender{ _viewer } }
-    , _grid{ new GridUIProxy{ _viewer, this } }
-    , _navbox{ new NavboxUIProxy{ _viewer, this } }
-    , _gizmo{ new GizmoUIProxy{ _viewer, this } }
-    , _scene{ new SceneUIProxy{ _viewer, vsg::observer_ptr<BoundingRender>{ _boundingRender }, this } } {
+    , _gridNode{ new GridSubgraph{ _viewer } }
+    , _grid{ new GridUIProxy{ vsg::observer_ptr<GridSubgraph>{ _gridNode }, this } }
+    , _navboxNode{ new NavboxSubgraph{ _viewer } }
+    , _navbox{ new NavboxUIProxy{ vsg::observer_ptr<NavboxSubgraph>{ _navboxNode }, this } }
+    , _gizmoNode{ new GizmoSubgraph{ _viewer } }
+    , _gizmo{ new GizmoUIProxy{ vsg::observer_ptr<GizmoSubgraph>{ _gizmoNode }, this } }
+    , _sceneNode{ new SceneSubgraph{ _viewer } }
+    , _scene{ new SceneUIProxy{ vsg::observer_ptr<SceneSubgraph>{ _sceneNode },
+                                vsg::observer_ptr<BoundingRender>{ _boundingRender }, this } } {
     //
     _root->addChild( _boundingRender );
 
-    _root->addChild( _navbox->navboxNode() );
-    _root->addChild( _scene->sceneNode() );
-    _root->addChild( _grid->gridNode() );
-    _root->addChild( _gizmo->gizmoNode() );
+    _root->addChild( _navboxNode );
+    _root->addChild( _sceneNode );
+    _root->addChild( _gridNode );
+    _root->addChild( _gizmoNode );
 
     connect( _scene, &SceneUIProxy::selectedObjectChanged, _gizmo, [this]( SceneObjectBase* object ) {
         //
