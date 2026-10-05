@@ -35,6 +35,11 @@ public:
     auto logicalDevice() const -> VkDevice;
     auto queueFamilyIndex() const -> uint32_t;
 
+    auto vsgInstance() const -> vsg::ref_ptr<vsg::Instance>;
+    auto vsgDevice() const -> vsg::ref_ptr<vsg::Device>;
+    auto camera() const -> vsg::ref_ptr<vsg::Camera>;
+    auto sceneTransform() const -> vsg::ref_ptr<vsg::MatrixTransform>;
+
     auto viewer() const -> vsg::ref_ptr<tire::Viewer>;
 
 public:
@@ -48,6 +53,7 @@ private:
 
 private:
     vsg::ref_ptr<tire::Viewer> _viewer{};
+    vsg::ref_ptr<vsg::Camera> _camera{};
 
     vsg::ref_ptr<vsg::Instance> _instance{};
 
@@ -76,7 +82,6 @@ private:
     vsg::ref_ptr<vsg::RenderGraph> _renderGraph;
 
     vsg::ref_ptr<vsg::MatrixTransform> _sceneTransform{};
-    float _angl{};
 
     bool _needResize{ false };
 

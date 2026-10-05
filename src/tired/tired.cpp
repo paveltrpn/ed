@@ -13,14 +13,13 @@
 
 namespace tire {
 
-auto Tired::init( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> viewer, uint32_t width,
-                  uint32_t height ) -> void {
+auto Tired::init( std::shared_ptr<VsgRender> render ) -> void {
     if ( _initSuccess ) {
         log::error()( "Warning: Singleton already initialized. Ignoring new arguments." );
     }
 
     std::call_once( _initFlag, [&]() -> void {
-        _instance.store( new Tired( windowAdapter, viewer, width, height ) );
+        _instance.store( new Tired( render ) );
         _initSuccess = true;
     } );
 }
@@ -50,20 +49,11 @@ auto Tired::pointer() -> Tired* {
     return ptr;
 }
 
-Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> viewer, uint32_t width, uint32_t height,
-              QObject* parent )
+Tired::Tired( std::shared_ptr<VsgRender> render, QObject* parent )
     : QObject{ parent }
-    , _viewer{ viewer } {
-    // Setup the camera.
-    {
-        auto lookAt = vsg::LookAt::create( vsg::dvec3( 0.0, -16.0, 8.0 ), vsg::dvec3{ 0.0, 0.0, 0.0 },
-                                           vsg::dvec3( 0.0, 0.0, 1.0 ) );
-
-        vsg::ref_ptr<vsg::ProjectionMatrix> perspective =
-            vsg::Perspective::create( 30.0, static_cast<double>( width ) / static_cast<double>( height ), 0.01, 500.0 );
-
-        _camera = vsg::Camera::create( perspective, lookAt, vsg::ViewportState::create( VkExtent2D{ width, height } ) );
-    }
+    , _render{ render } {
+    _viewer = _render->viewer();
+    _camera = _render->camera();
 
     // Setup scenegraph.
     {
@@ -71,11 +61,10 @@ Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> view
         _scenegraph = new Scenegraph{ vsg::observer_ptr<vsg::Viewer>{ _viewer }, this };
     }
 
+    _render->sceneTransform()->addChild( _scenegraph->root() );
+
     // Setup manipulator object.
-    {
-        _manipulator = new Manipulator{ _camera, this };
-        _manipulator->trackball()->addWindow( windowAdapter );
-    }
+    { _manipulator = new Manipulator{ _camera, this }; }
 
     // Setup event handler object.
     {
@@ -89,13 +78,11 @@ Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> view
     {
         _viewer->addEventHandler( _manipulator->trackball() );
         _viewer->addEventHandler( _inputHandler->handler() );
-        _viewer->addRecordAndSubmitTaskAndPresentation(
-            { vsg::createCommandGraphForView( windowAdapter, _camera, _scenegraph->root() ) } );
     }
 
     {
-        vsg::ref_ptr<vsg::Instance> instance = windowAdapter->getInstance();
-        vsg::ref_ptr<vsg::Device> device = windowAdapter->getDevice();
+        vsg::ref_ptr<vsg::Instance> instance = _render->vsgInstance();
+        vsg::ref_ptr<vsg::Device> device = _render->vsgDevice();
 
         initExtFunctions( device );
 

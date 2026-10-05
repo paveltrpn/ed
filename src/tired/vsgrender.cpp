@@ -397,11 +397,11 @@ VsgRender::VsgRender( int argc, char** argv ) {
     options->add( vsgXchange::all::create() );
 #endif
 
-    auto vsg_scene = vsg::read_cast<vsg::Node>( argv[1], options );
-    if ( !vsg_scene ) {
-        std::cout << "No command graph created." << std::endl;
-        std::terminate();
-    }
+    // auto vsg_scene = vsg::read_cast<vsg::Node>( argv[1], options );
+    // if ( !vsg_scene ) {
+    //     std::cout << "No command graph created." << std::endl;
+    //     std::terminate();
+    // }
 
     // create instance
     vsg::Names instanceExtensions;
@@ -440,25 +440,25 @@ VsgRender::VsgRender( int argc, char** argv ) {
 
     _device = vsg::Device::create( _physicalDevice, queueSettings, validatedNames, deviceExtensions, deviceFeatures );
 
-    // compute the bounds of the scene graph to help position camera
-    vsg::ComputeBounds computeBounds;
-    vsg_scene->accept( computeBounds );
-    vsg::dvec3 centre = ( computeBounds.bounds.min + computeBounds.bounds.max ) * 0.5;
-    double radius = vsg::length( computeBounds.bounds.max - computeBounds.bounds.min ) * 0.6;
-    double nearFarRatio = 0.001;
+    // // compute the bounds of the scene graph to help position camera
+    // vsg::ComputeBounds computeBounds;
+    // vsg_scene->accept( computeBounds );
+    // vsg::dvec3 centre = ( computeBounds.bounds.min + computeBounds.bounds.max ) * 0.5;
+    // double radius = vsg::length( computeBounds.bounds.max - computeBounds.bounds.min ) * 0.6;
+    // double nearFarRatio = 0.001;
 
-    // set up the camera
-    auto lookAt = ( above ) ? vsg::LookAt::create( centre + vsg::dvec3( 0.0, 0.0, radius * 1.5 ), centre,
-                                                   vsg::dvec3( 0.0, 1.0, 0.0 ) )
-                            : vsg::LookAt::create( centre + vsg::dvec3( 0.0, -radius * 1.5, 0.0 ), centre,
-                                                   vsg::dvec3( 0.0, 0.0, 1.0 ) );
+    // // set up the camera
+    // auto lookAt = ( above ) ? vsg::LookAt::create( centre + vsg::dvec3( 0.0, 0.0, radius * 1.5 ), centre,
+    //                                                vsg::dvec3( 0.0, 1.0, 0.0 ) )
+    //                         : vsg::LookAt::create( centre + vsg::dvec3( 0.0, -radius * 1.5, 0.0 ), centre,
+    //                                                vsg::dvec3( 0.0, 0.0, 1.0 ) );
 
-    vsg::ref_ptr<vsg::ProjectionMatrix> perspective;
-    perspective =
-        vsg::Perspective::create( 30.0, static_cast<double>( _extent.width ) / static_cast<double>( _extent.height ),
-                                  nearFarRatio * radius, radius * 4.5 );
+    // vsg::ref_ptr<vsg::ProjectionMatrix> perspective;
+    // perspective =
+    //     vsg::Perspective::create( 30.0, static_cast<double>( _extent.width ) / static_cast<double>( _extent.height ),
+    //                               nearFarRatio * radius, radius * 4.5 );
 
-    auto camera = vsg::Camera::create( perspective, lookAt, vsg::ViewportState::create( _extent ) );
+    _camera = vsg::Camera::create( perspective, lookAt, vsg::ViewportState::create( _extent ) );
 
     // set up the RenderGraph to manage the rendering
     if ( _useDepthBuffer ) {
@@ -485,9 +485,9 @@ VsgRender::VsgRender( int argc, char** argv ) {
     _renderGraph->setClearValues( { { 0.2f, 0.6f, 0.3f, 1.0f } }, VkClearDepthStencilValue{ 0.0f, 0 } );
 
     _sceneTransform = vsg::MatrixTransform::create();
-    _sceneTransform->addChild( vsg_scene );
+    // _sceneTransform->addChild( vsg_scene );
 
-    auto view = vsg::View::create( camera, _sceneTransform );
+    auto view = vsg::View::create( _camera, _sceneTransform );
     view->addChild( vsg::createHeadlight() );
 
     vsg::CommandGraphs commandGraphs;
@@ -511,11 +511,11 @@ VsgRender::VsgRender( int argc, char** argv ) {
     if ( _colorBufferCapture ) _commandGraph->addChild( _colorBufferCapture );
     if ( _depthBufferCapture ) _commandGraph->addChild( _depthBufferCapture );
 
-    auto trackballManipulator = vsg::Trackball::create( camera );
+    auto trackballManipulator = vsg::Trackball::create( _camera );
 
     _viewer = vsg::ref_ptr<tire::Viewer>{ new tire::Viewer{} };
 
-    _viewer->addEventHandler( trackballManipulator );
+    // _viewer->addEventHandler( trackballManipulator );
 
     _viewer->assignRecordAndSubmitTaskAndPresentation( commandGraphs );
 
@@ -557,6 +557,22 @@ auto VsgRender::logicalDevice() const -> VkDevice {
 auto VsgRender::queueFamilyIndex() const -> uint32_t {
     //TODO
     return 0;
+}
+
+auto VsgRender::vsgInstance() const -> vsg::ref_ptr<vsg::Instance> {
+    return _instance;
+}
+
+auto VsgRender::vsgDevice() const -> vsg::ref_ptr<vsg::Device> {
+    return _device;
+}
+
+auto VsgRender::camera() const -> vsg::ref_ptr<vsg::Camera> {
+    return _camera;
+}
+
+auto VsgRender::sceneTransform() const -> vsg::ref_ptr<vsg::MatrixTransform> {
+    return _sceneTransform;
 }
 
 auto VsgRender::viewer() const -> vsg::ref_ptr<tire::Viewer> {
@@ -651,10 +667,6 @@ auto VsgRender::fetchImageData() -> std::optional<vsg::ref_ptr<vsg::Data>> {
 }
 
 auto VsgRender::render() -> std::optional<vsg::ref_ptr<vsg::Data>> {
-    _angl = _angl + 2.5f;
-    auto rm = vsg::rotate( vsg::radians( _angl ), vsg::vec3( 0.0, 0.0, 1.0 ) );
-    _sceneTransform->matrix = rm;
-
     this->handleResize();
 
     _viewer->advanceToNextFrame();
@@ -673,10 +685,6 @@ auto VsgRender::render() -> std::optional<vsg::ref_ptr<vsg::Data>> {
 }
 
 auto VsgRender::renderNative() -> std::optional<std::tuple<VkImage, VkExtent2D, VkImageLayout>> {
-    _angl = _angl + 2.5f;
-    auto rm = vsg::rotate( vsg::radians( _angl ), vsg::vec3( 0.0, 0.0, 1.0 ) );
-    _sceneTransform->matrix = rm;
-
     this->handleResize();
 
     _viewer->advanceToNextFrame();

@@ -9,6 +9,7 @@
 #include "manipulator.h"
 #include "inputhandler.h"
 #include "scenegraph.h"
+#include "vsgrender.h"
 
 namespace tire {
 
@@ -28,8 +29,7 @@ struct Tired final : QObject {
     Q_PROPERTY( int controlMode READ controlMode WRITE setControlMode NOTIFY controlModeChanged FINAL )
 
 public:
-    static auto init( vsg::ref_ptr<vsg::Window> _windowAdapter, vsg::ref_ptr<Viewer> viewer, uint32_t width,
-                      uint32_t height ) -> void;
+    static auto init( std::shared_ptr<VsgRender> render ) -> void;
     [[nodiscard]] static auto instance() -> Tired&;
     [[nodiscard]] static auto pointer() -> Tired*;
 
@@ -53,8 +53,7 @@ signals:
     void restorePanelsSize();
 
 private:
-    Tired( vsg::ref_ptr<vsg::Window> _windowAdapter, vsg::ref_ptr<Viewer> viewer, uint32_t width, uint32_t height,
-           QObject* parent = nullptr );
+    Tired( std::shared_ptr<VsgRender> render, QObject* parent = nullptr );
 
     ~Tired() override = default;
 
@@ -63,6 +62,8 @@ private:
     inline static bool _initSuccess{ false };
 
 private:
+    std::shared_ptr<VsgRender> _render{};
+
     vsg::ref_ptr<Viewer> _viewer{};
     vsg::ref_ptr<vsg::Camera> _camera{};
 

@@ -6,6 +6,7 @@
 
 #include "ui/ui.h"
 #include "config/config.h"
+#include <tired/tired.h>
 
 QDir workPath() {
     auto wp = QDir{ QDir::currentPath() };
@@ -20,6 +21,8 @@ auto main( int argc, char* argv[] ) -> int {
 
     //
     auto vsgRender = std::make_shared<tire::VsgRender>( argc, argv );
+
+    tire::Tired::init( vsgRender );
 
     // Force use vulkan as backend renderer API.
     QQuickWindow::setGraphicsApi( QSGRendererInterface::Vulkan );
