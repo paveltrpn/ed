@@ -66,17 +66,11 @@ private:
 private:
     std::shared_ptr<VsgRender> _render{};
 
-    vsg::ref_ptr<Viewer> _viewer{};
-    vsg::ref_ptr<vsg::Camera> _camera{};
-
     Manipulator* _manipulator{};
     InputHandler* _inputHandler{};
     Scenegraph* _scenegraph{};
 
     ControlModes _controlMode{ ControlModes::SCENE };
-
-    const vsg::InstanceExtensions* _instanceExtensions{};
-    const vsg::DeviceExtensions* _deviceExtensions{};
 };
 
 }  // namespace tire

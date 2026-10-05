@@ -52,35 +52,35 @@ auto Tired::pointer() -> Tired* {
 Tired::Tired( QObject* parent )
     : QObject{ parent }
     , _render{ std::make_shared<tire::VsgRender>() } {
-    _viewer = _render->viewer();
-    _camera = _render->camera();
+    _render->viewer();
 
     // Setup scenegraph.
     {
         //
-        _scenegraph = new Scenegraph{ vsg::observer_ptr<vsg::Viewer>{ _viewer }, this };
+        _scenegraph = new Scenegraph{ vsg::observer_ptr<vsg::Viewer>{ _render->viewer() }, this };
     }
 
     _render->sceneTransform()->addChild( _scenegraph->root() );
 
     // Setup manipulator object.
-    { _manipulator = new Manipulator{ _camera, this }; }
+    { _manipulator = new Manipulator{ _render->camera(), this }; }
 
     // Setup event handler object.
     {
         //
-        _inputHandler = new InputHandler{ _scenegraph, _manipulator, vsg::observer_ptr<vsg::Camera>{ _camera }, this };
+        _inputHandler =
+            new InputHandler{ _scenegraph, _manipulator, vsg::observer_ptr<vsg::Camera>{ _render->camera() }, this };
     }
 
     connect( _manipulator, &Manipulator::lookChanged, _scenegraph, &Scenegraph::lookChanged );
 
     // Finalize viewer object setup.
     {
-        _viewer->addEventHandler( _manipulator->trackball() );
-        _viewer->addEventHandler( _inputHandler->handler() );
+        _render->viewer()->addEventHandler( _manipulator->trackball() );
+        _render->viewer()->addEventHandler( _inputHandler->handler() );
     }
 
-    _viewer->compile();
+    _render->viewer()->compile();
 
     // Add default scene nodes.
     {
@@ -148,20 +148,12 @@ auto Tired::vsgRender() const -> std::shared_ptr<VsgRender> {
     return _render;
 }
 
-auto Tired::viewer() -> vsg::ref_ptr<Viewer> {
-    return _viewer;
-}
-
 auto Tired::manipulator() const -> QObject* {
     return _manipulator;
 }
 
 auto Tired::inputHandler() const -> QObject* {
     return _inputHandler;
-}
-
-auto Tired::camera() -> vsg::ref_ptr<vsg::Camera> {
-    return _camera;
 }
 
 auto Tired::scenegraph() const -> QObject* {
