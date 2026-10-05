@@ -59,7 +59,7 @@ private:
     int _queueFamily;
     vsg::ref_ptr<vsg::Device> _device{};
 
-    VkExtent2D _extent{ 512, 512 };
+    VkExtent2D _extent{ 1150, 870 };
     VkFormat _imageFormat{ VK_FORMAT_R8G8B8A8_UNORM };
     VkFormat _depthFormat{ VK_FORMAT_D32_SFLOAT };
 

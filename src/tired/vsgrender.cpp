@@ -423,9 +423,9 @@ VsgRender::VsgRender() {
         vsg::LookAt::create( vsg::dvec3( 0.0, -16.0, 8.0 ), vsg::dvec3{ 0.0, 0.0, 0.0 }, vsg::dvec3( 0.0, 0.0, 1.0 ) );
 
     vsg::ref_ptr<vsg::ProjectionMatrix> perspective =
-        vsg::Perspective::create( 30.0, static_cast<double>( 1280 ) / static_cast<double>( 800 ), 0.01, 500.0 );
+        vsg::Perspective::create( 30.0, static_cast<double>( 1150 ) / static_cast<double>( 872 ), 0.01, 500.0 );
 
-    _camera = vsg::Camera::create( perspective, lookAt, vsg::ViewportState::create( VkExtent2D{ 1280, 800 } ) );
+    _camera = vsg::Camera::create( perspective, lookAt, vsg::ViewportState::create( VkExtent2D{ 1150, 872 } ) );
 
     // set up the RenderGraph to manage the rendering
     if ( _useDepthBuffer ) {

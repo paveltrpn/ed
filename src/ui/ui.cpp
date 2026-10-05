@@ -55,7 +55,7 @@ TiredUI::TiredUI( std::shared_ptr<VsgRender> render, QObject* parent )
     // Setup RenderItem update interval.
     _update.setInterval( 16 );
 
-    setColor( "#0c0c1c" );
+    // setColor( "#0c0c1c" );
     // setFlags( Qt::Window | Qt::FramelessWindowHint );
 
     // Schedule actions on main component loading.
