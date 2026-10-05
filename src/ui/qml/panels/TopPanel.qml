@@ -350,69 +350,7 @@ Rectangle {
             }
         }
 
-        Rectangle {
-            id: trackBallInfoArea
-            anchors {
-                bottom: parent.bottom
-                bottomMargin: -border.width
-                left: parent.left
-                leftMargin: _units.scaled_256
-                right: parent.right
-                rightMargin: _units.scaled_256
-            }
 
-            height: parent.height * 0.25
-            color: "transparent"
-
-            border {
-                width: _units.scaled_2
-                color: _color.si_background_dark
-            }
-
-            clip: true
-
-            Text {
-                id: eyePosLabel
-                anchors {
-                    top: parent.top
-                    bottom: parent.bottom
-                    right: centerPosLabel.left
-                    rightMargin: _units.scaled_8
-                }
-
-                verticalAlignment: Text.AlignVCenter
-
-                width: implicitWidth
-
-                font: _fonts.label
-                color: _color.additional_contrast_60
-                text: {
-                    const eye = Tired.manipulator.eye;
-                    return `eye: ${eye.x.toFixed(3)}  ${eye.y.toFixed(3)}  ${eye.z.toFixed(3)}`;
-                }
-            }
-
-            Text {
-                id: centerPosLabel
-                anchors {
-                    top: parent.top
-                    bottom: parent.bottom
-                    right: parent.right
-                    rightMargin: _units.scaled_8
-                }
-
-                verticalAlignment: Text.AlignVCenter
-
-                width: implicitWidth
-
-                font: _fonts.label
-                color: _color.additional_contrast_60
-                text: {
-                    const center = Tired.manipulator.center;
-                    return `cnt: ${center.x.toFixed(3)}  ${center.y.toFixed(3)}  ${center.z.toFixed(3)}`;
-                }
-            }
-        }
         // Item {
         //     id: mainWindowDecorationWrapper
 

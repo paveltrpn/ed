@@ -1,3 +1,4 @@
+// qmllint disable unqualified
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.3
@@ -10,6 +11,10 @@ import "panels"
 Item {
     id: mainWindow
 
+    readonly property var _color: Appearence.colors.data
+    readonly property var _fonts: Appearence.fonts.data
+    readonly property var _units: Appearence.units.data
+
     // ======================================================================================
     // ==================== Render ==========================================================
     // ======================================================================================
@@ -20,12 +25,13 @@ Item {
         // height: parent.height
 
         anchors {
-            top: topPanel.bottom
+            top: viewInfoPanel.bottom
             bottom: bottomPanel.top
             left: leftPanel.right
             right: rightPanel.left
         }
     }
+
     // ======================================================================================
     // ======================================================================================
     // ======================================================================================
@@ -40,6 +46,67 @@ Item {
         }
 
         height: appStateSettings.topPanelHeight
+    }
+
+    Rectangle {
+        id: viewInfoPanel
+        anchors {
+            top: topPanel.bottom
+            left: leftPanel.right
+            right: rightPanel.left
+        }
+
+        height: _units.scaled_24
+        color: _color.si_additional_grey_faded
+
+        border {
+            width: _units.scaled_1
+            color: _color.si_background_dark
+        }
+
+        clip: true
+
+        Text {
+            id: eyePosLabel
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                right: centerPosLabel.left
+                rightMargin: _units.scaled_8
+            }
+
+            verticalAlignment: Text.AlignVCenter
+
+            width: implicitWidth
+
+            font: _fonts.label
+            color: _color.additional_contrast_60
+            text: {
+                const eye = Tired.manipulator.eye;
+                return `eye: ${eye.x.toFixed(3)}  ${eye.y.toFixed(3)}  ${eye.z.toFixed(3)}`;
+            }
+        }
+
+        Text {
+            id: centerPosLabel
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                right: parent.right
+                rightMargin: _units.scaled_8
+            }
+
+            verticalAlignment: Text.AlignVCenter
+
+            width: implicitWidth
+
+            font: _fonts.label
+            color: _color.additional_contrast_60
+            text: {
+                const center = Tired.manipulator.center;
+                return `cnt: ${center.x.toFixed(3)}  ${center.y.toFixed(3)}  ${center.z.toFixed(3)}`;
+            }
+        }
     }
 
     BottomPanel {
