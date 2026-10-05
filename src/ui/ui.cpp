@@ -46,6 +46,10 @@ TiredUI::TiredUI( std::shared_ptr<VsgRender> render, QObject* parent )
     tire::Appearance::init();
     qmlRegisterSingletonInstance( "Tire", 1, 0, "Appearence", tire::Appearance::pointer() );
 
+    _engine->addImageProvider( "TiredImageProvider", new TiredImageProvider{} );
+
+    qmlRegisterSingletonInstance( "Tire", 1, 0, "Tired", tire::Tired::pointer() );
+
     // VSG initialization.
 
     // Setup RenderItem update interval.
