@@ -7,33 +7,6 @@
 namespace tire {
 
 // ======================================================================================
-// ==================== InputHandler ====================================================
-// ======================================================================================
-
-struct InputHandler final : vsg::Visitor {
-    vsg::KeySymbol closeKey = vsg::KEY_Escape;
-
-    InputHandler();
-
-    void apply( vsg::KeyPressEvent& keyPress ) override;
-    void apply( vsg::KeyReleaseEvent& keyRelease ) override;
-    void apply( vsg::FocusInEvent& focusIn ) override;
-    void apply( vsg::FocusOutEvent& focusOut ) override;
-    void apply( vsg::ButtonPressEvent& buttonPress ) override;
-    void apply( vsg::ButtonReleaseEvent& buttonRelease ) override;
-    void apply( vsg::MoveEvent& moveEvent ) override;
-    void apply( vsg::ScrollWheelEvent& scrollWheel ) override;
-    void apply( vsg::TouchDownEvent& touchDown ) override;
-    void apply( vsg::TouchUpEvent& touchUp ) override;
-    void apply( vsg::TouchMoveEvent& touchMove ) override;
-    void apply( vsg::FrameEvent& frame ) override;
-    void apply( vsg::CloseWindowEvent& ) override;
-    void apply( vsg::TerminateEvent& ) override;
-
-private:
-};
-
-// ======================================================================================
 // ==================== VsgRender =======================================================
 // ======================================================================================
 
@@ -63,7 +36,6 @@ public:
     auto queueFamilyIndex() const -> uint32_t;
 
     auto viewer() const -> vsg::ref_ptr<tire::Viewer>;
-    auto inputHandler() const -> vsg::ref_ptr<InputHandler>;
 
 public:
     /// events buffered since the last pollEvents.
@@ -76,7 +48,6 @@ private:
 
 private:
     vsg::ref_ptr<tire::Viewer> _viewer{};
-    vsg::ref_ptr<InputHandler> _inputHandler{};
 
     vsg::ref_ptr<vsg::Instance> _instance{};
 

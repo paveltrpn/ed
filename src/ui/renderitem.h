@@ -3,12 +3,12 @@
 
 #include <memory>
 
-#include <vsg/all.h>
-
 #include <QImage>
 #include <QSGRendererInterface>
 #include <QQuickItem>
 #include <QWindow>
+
+#include <vsg/all.h>
 
 #include "keyboardmap.h"
 #include "../tired/vsgrender.h"

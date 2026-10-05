@@ -364,93 +364,6 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Buffer>> createDepthCap
 }
 
 // ======================================================================================
-// ==================== InputHandler ====================================================
-// ======================================================================================
-
-InputHandler::InputHandler()
-    : vsg::Visitor{} {
-}
-
-void InputHandler::apply( vsg::KeyPressEvent& keyPress ) {
-    if ( closeKey != vsg::KEY_Undefined && keyPress.keyBase == closeKey ) {
-    }
-}
-
-void InputHandler::apply( vsg::KeyReleaseEvent& keyRelease ) {
-}
-
-void InputHandler::apply( vsg::FocusInEvent& focusIn ) {
-}
-
-void InputHandler::apply( vsg::FocusOutEvent& focusOut ) {
-}
-
-void InputHandler::apply( vsg::ButtonPressEvent& buttonPress ) {
-    switch ( buttonPress.button ) {
-        case 1: {
-            // std::println( " ===  InputHandler ButtonPressEvent" );
-            return;
-        }
-
-        case 2: {
-            return;
-        }
-
-        case 3: {
-            return;
-        }
-
-        default: {
-            break;
-        }
-    }
-}
-
-void InputHandler::apply( vsg::ButtonReleaseEvent& buttonRelease ) {
-    switch ( buttonRelease.button ) {
-        case 1: {
-            return;
-        }
-
-        case 2: {
-            return;
-        }
-
-        case 3: {
-            return;
-        }
-
-        default: {
-            break;
-        }
-    }
-}
-
-void InputHandler::apply( vsg::MoveEvent& moveEvent ) {
-}
-
-void InputHandler::apply( vsg::ScrollWheelEvent& scrollWheel ) {
-}
-
-void InputHandler::apply( vsg::TouchDownEvent& touchDown ) {
-}
-
-void InputHandler::apply( vsg::TouchUpEvent& touchUp ) {
-}
-
-void InputHandler::apply( vsg::TouchMoveEvent& touchMove ) {
-}
-
-void InputHandler::apply( vsg::FrameEvent& frame ) {
-}
-
-void InputHandler::apply( vsg::CloseWindowEvent& ) {
-}
-
-void InputHandler::apply( vsg::TerminateEvent& ) {
-}
-
-// ======================================================================================
 // ==================== VsgRender =======================================================
 // ======================================================================================
 
@@ -554,7 +467,7 @@ VsgRender::VsgRender( int argc, char** argv ) {
         if ( _samples == VK_SAMPLE_COUNT_1_BIT ) {
             auto renderPass = createOffscreenRenderPass( _device, _imageFormat, _depthFormat, true );
             _framebuffer = vsg::Framebuffer::create( renderPass, vsg::ImageViews{ _colorImageView, _depthImageView },
-                                                    _extent.width, _extent.height, 1 );
+                                                     _extent.width, _extent.height, 1 );
         }
 
         // create support for copying the color buffer
@@ -600,11 +513,8 @@ VsgRender::VsgRender( int argc, char** argv ) {
 
     auto trackballManipulator = vsg::Trackball::create( camera );
 
-    _inputHandler = vsg::ref_ptr<InputHandler>{ new InputHandler{} };
-
     _viewer = vsg::ref_ptr<tire::Viewer>{ new tire::Viewer{} };
 
-    _viewer->addEventHandler( _inputHandler );
     _viewer->addEventHandler( trackballManipulator );
 
     _viewer->assignRecordAndSubmitTaskAndPresentation( commandGraphs );
@@ -653,10 +563,6 @@ auto VsgRender::viewer() const -> vsg::ref_ptr<tire::Viewer> {
     return _viewer;
 }
 
-auto VsgRender::inputHandler() const -> vsg::ref_ptr<InputHandler> {
-    return _inputHandler;
-}
-
 auto VsgRender::passEventsToViewer() -> void {
     if ( !_bufferedEvents.empty() ) {
         _viewer->fetchEvents( _bufferedEvents );
@@ -689,8 +595,8 @@ auto VsgRender::handleResize() -> void {
             _depthImageView = createDepthImageView( _device, _extent, _depthFormat, VK_SAMPLE_COUNT_1_BIT );
             if ( _samples == VK_SAMPLE_COUNT_1_BIT ) {
                 auto renderPass = vsg::createRenderPass( _device, _imageFormat, _depthFormat, true );
-                _framebuffer = vsg::Framebuffer::create( renderPass, vsg::ImageViews{ _colorImageView, _depthImageView },
-                                                        _extent.width, _extent.height, 1 );
+                _framebuffer = vsg::Framebuffer::create(
+                    renderPass, vsg::ImageViews{ _colorImageView, _depthImageView }, _extent.width, _extent.height, 1 );
             }
 
             _renderGraph->framebuffer = _framebuffer;

@@ -91,12 +91,6 @@ Tired::Tired( vsg::ref_ptr<vsg::Window> windowAdapter, vsg::ref_ptr<Viewer> view
         _viewer->addEventHandler( _inputHandler->handler() );
         _viewer->addRecordAndSubmitTaskAndPresentation(
             { vsg::createCommandGraphForView( windowAdapter, _camera, _scenegraph->root() ) } );
-
-        constexpr auto UPDATE_INTERVAL{ 8 };
-        _viewer->setInterval( UPDATE_INTERVAL );
-
-        constexpr auto CONTINOUS_UPDATE{ true };
-        _viewer->continuousUpdate = CONTINOUS_UPDATE;
     }
 
     {

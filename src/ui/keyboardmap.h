@@ -5,7 +5,7 @@
 
 #include <QKeyEvent>
 
-#include <vsg/ui/KeyEvent.h>
+#include <vsg/all.h>
 
 namespace tire {
 
@@ -21,6 +21,6 @@ protected:
     VirtualKeyToKeySymbolMap _keycodeMap;
 };
 
-}  // namespace tired
+}  // namespace tire
 
 EVSG_type_name( tire::KeyboardMap );
