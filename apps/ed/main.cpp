@@ -19,17 +19,16 @@ auto main( int argc, char* argv[] ) -> int {
 
     tire::Config::init( "assets/config.json" );
 
-    //
-    auto vsgRender = std::make_shared<tire::VsgRender>();
-
-    tire::Tired::init( vsgRender );
+    tire::Tired::init();
 
     // Force use vulkan as backend renderer API.
     QQuickWindow::setGraphicsApi( QSGRendererInterface::Vulkan );
 
     const QGuiApplication app( argc, argv );
 
+    auto vsgRender = tire::Tired::pointer()->vsgRender();
     QVulkanInstance* vulkanInstance = new QVulkanInstance{};
+
     vulkanInstance->setVkInstance( vsgRender->instance() );
 
     if ( !vulkanInstance->create() ) {

@@ -13,13 +13,13 @@
 
 namespace tire {
 
-auto Tired::init( std::shared_ptr<VsgRender> render ) -> void {
+auto Tired::init() -> void {
     if ( _initSuccess ) {
         log::error()( "Warning: Singleton already initialized. Ignoring new arguments." );
     }
 
     std::call_once( _initFlag, [&]() -> void {
-        _instance.store( new Tired( render ) );
+        _instance.store( new Tired{} );
         _initSuccess = true;
     } );
 }
@@ -49,9 +49,9 @@ auto Tired::pointer() -> Tired* {
     return ptr;
 }
 
-Tired::Tired( std::shared_ptr<VsgRender> render, QObject* parent )
+Tired::Tired( QObject* parent )
     : QObject{ parent }
-    , _render{ render } {
+    , _render{ std::make_shared<tire::VsgRender>() } {
     _viewer = _render->viewer();
     _camera = _render->camera();
 
@@ -143,6 +143,10 @@ Tired::Tired( std::shared_ptr<VsgRender> render, QObject* parent )
         _scenegraph->scene()->addCapsule( data );
     }
 };
+
+auto Tired::vsgRender() const -> std::shared_ptr<VsgRender> {
+    return _render;
+}
 
 auto Tired::viewer() -> vsg::ref_ptr<Viewer> {
     return _viewer;

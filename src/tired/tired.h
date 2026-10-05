@@ -29,9 +29,11 @@ struct Tired final : QObject {
     Q_PROPERTY( int controlMode READ controlMode WRITE setControlMode NOTIFY controlModeChanged FINAL )
 
 public:
-    static auto init( std::shared_ptr<VsgRender> render ) -> void;
+    static auto init() -> void;
     [[nodiscard]] static auto instance() -> Tired&;
     [[nodiscard]] static auto pointer() -> Tired*;
+
+    auto vsgRender() const -> std::shared_ptr<VsgRender>;
 
     auto viewer() -> vsg::ref_ptr<Viewer>;
     auto rootNode() -> vsg::ref_ptr<vsg::Node>;
@@ -53,7 +55,7 @@ signals:
     void restorePanelsSize();
 
 private:
-    Tired( std::shared_ptr<VsgRender> render, QObject* parent = nullptr );
+    Tired( QObject* parent = nullptr );
 
     ~Tired() override = default;
 
