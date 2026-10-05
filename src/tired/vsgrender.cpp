@@ -6,6 +6,7 @@
 
 #include "vsgrender.h"
 #include "extfunctions.h"
+#include "image/color.h"
 
 namespace tire {
 
@@ -449,7 +450,10 @@ VsgRender::VsgRender() {
     _renderGraph->framebuffer = _framebuffer;
     _renderGraph->renderArea.offset = { 0, 0 };
     _renderGraph->renderArea.extent = _extent;
-    _renderGraph->setClearValues( { { 0.2f, 0.6f, 0.3f, 1.0f } }, VkClearDepthStencilValue{ 0.0f, 0 } );
+
+    const auto clearColor = tire::Colorf{ "#92947e" };
+    _renderGraph->setClearValues( { { clearColor.r(), clearColor.r(), clearColor.b(), 1.0f } },
+                                  VkClearDepthStencilValue{ 0.0f, 0 } );
 
     _sceneTransform = vsg::MatrixTransform::create();
 
