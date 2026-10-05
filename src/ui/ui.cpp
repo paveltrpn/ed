@@ -297,7 +297,7 @@ void TiredUI::mousePressEvent( QMouseEvent* ev ) {
 }
 
 void TiredUI::mouseReleaseEvent( QMouseEvent* ev ) {
-    _renderItemHandle->mousePressEvent( ev );
+    _renderItemHandle->mouseReleaseEvent( ev );
     QQuickView::mouseReleaseEvent( ev );
 }
 
@@ -307,6 +307,15 @@ void TiredUI::resizeEvent( QResizeEvent* ev ) {
     _settings->setMainWindowRect( { { g.topLeft() }, g.size() } );
 
     QQuickView::resizeEvent( ev );
+}
+
+bool TiredUI::event( QEvent* event ) {
+    if ( event->type() == QEvent::Move ) {
+        const auto g = geometry();
+        _settings->setMainWindowRect( { { g.topLeft() }, g.size() } );
+    }
+
+    return QQuickView::event( event );
 }
 
 }  // namespace tire

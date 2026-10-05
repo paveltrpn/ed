@@ -92,6 +92,8 @@ public:
 
     Q_INVOKABLE void quitApplication();
 
+    bool event( QEvent* event ) override;
+
     void closeEvent( QCloseEvent* ev ) override;
     void keyPressEvent( QKeyEvent* ev ) override;
     void keyReleaseEvent( QKeyEvent* ev ) override;
