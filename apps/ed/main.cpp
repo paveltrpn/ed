@@ -46,7 +46,7 @@ auto main( int argc, char* argv[] ) -> int {
     tiredUI->setGraphicsDevice( device );
 
     tiredUI->setResizeMode( QQuickView::SizeRootObjectToView );
-    tiredUI->resize( 1280, 1000 );
+    tiredUI->resize( 1920, 1800 );
     tiredUI->setSource( QUrl( workPath().path() + QDir::separator() + "src/ui/qml/main.qml" ) );
     tiredUI->setPosition( 300, 300 );
 

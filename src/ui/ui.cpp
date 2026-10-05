@@ -21,9 +21,10 @@ namespace tire {
 
 TiredUI::TiredUI( std::shared_ptr<VsgRender> render, QObject* parent )
     : _settings{ new QSettings{ this } }
-    , _engine{ new QQmlEngine{ this } }
+    , _engine{ engine() }
     , _context{ _engine->rootContext() }
     , _render{ render } {
+    //
     registerTypes();
 
     // Register RenderItem qml type. We instatiate item of
@@ -45,8 +46,6 @@ TiredUI::TiredUI( std::shared_ptr<VsgRender> render, QObject* parent )
     // Register UI style provider object.
     tire::Appearance::init();
     qmlRegisterSingletonInstance( "Tire", 1, 0, "Appearence", tire::Appearance::pointer() );
-
-    _engine->addImageProvider( "TiredImageProvider", new TiredImageProvider{} );
 
     qmlRegisterSingletonInstance( "Tire", 1, 0, "Tired", tire::Tired::pointer() );
 
