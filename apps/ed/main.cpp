@@ -3,16 +3,11 @@
 
 #include <QVulkanInstance>
 #include <QQuickGraphicsDevice>
+#include <QDir>
 
 #include "ui/ui.h"
 #include "config/config.h"
-#include <tired/tired.h>
-
-QDir workPath() {
-    auto wp = QDir{ QDir::currentPath() };
-    wp.cdUp();
-    return wp;
-};
+#include "tired/tired.h"
 
 auto main( int argc, char* argv[] ) -> int {
     qputenv( "QSG_RENDER_LOOP", "basic" );
@@ -55,7 +50,11 @@ auto main( int argc, char* argv[] ) -> int {
     tiredUI.setGraphicsDevice( device );
     tiredUI.setResizeMode( QQuickView::SizeRootObjectToView );
     tiredUI.resize( 1920, 1800 );
-    tiredUI.setSource( QUrl( workPath().path() + QDir::separator() + "src/ui/qml/Main.qml" ) );
+
+    auto wp = QDir{ QDir::currentPath() };
+    wp.cdUp();
+
+    tiredUI.setSource( QUrl( wp.path() + QDir::separator() + "src/ui/qml/Main.qml" ) );
     tiredUI.setPosition( 300, 300 );
     tiredUI.show();
 

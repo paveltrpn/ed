@@ -2,30 +2,175 @@
 
 #include <vsg/all.h>
 
+#include <QQmlEngine>
 #include <QQmlContext>
-#include <QHBoxLayout>
-#include <QSplitter>
-#include <QWidget>
-#include <QApplication>
 
 #include "ui.h"
+#include "appearance.h"
 #include "log/log.h"
 #include "tired/tired.h"
-#include "config/config.h"
 
 namespace tire {
+
+// ====================================================================
+// ========== AppStateSettings ========================================
+// ====================================================================
+
+AppStateSettings::AppStateSettings( QObject* parent )
+    : QObject{ parent }
+    , _settings{ new QSettings{ this } } {};
+
+auto AppStateSettings::write() -> void {
+    // _settings->beginGroup( "MainWindow" );
+    // _settings->setValue( "geometry", saveGeometry() );
+    // _settings->endGroup();
+
+    // const auto& rowSizes = _rowSplitter->sizes();
+    // const auto& colSizes = _columnSplitter->sizes();
+
+    // _settings->beginGroup( "PanelsLayout" );
+    // _settings->setValue( "rowSizes", QVariant::fromValue( rowSizes ) );
+    // _settings->setValue( "columnSizes", QVariant::fromValue( colSizes ) );
+    // _settings->endGroup();
+
+    // _settings->sync();
+}
+
+auto AppStateSettings::restore() -> void {
+    // _settings->beginGroup( "MainWindow" );
+
+    // const auto geometry = _settings->value( "geometry", QByteArray() ).toByteArray();
+
+    // if ( geometry.isEmpty() ) {
+    //     setGeometry( 200, 200, 1024, 768 );
+    // } else {
+    //     restoreGeometry( geometry );
+    // }
+
+    // _settings->endGroup();
+
+    // _settings->beginGroup( "PanelsLayout" );
+
+    // const auto& rowSizes = _settings->value( "rowSizes", QVariant() ).toList();
+    // const auto& colSizes = _settings->value( "columnSizes", QVariant() ).toList();
+
+    // if ( rowSizes.isEmpty() || colSizes.isEmpty() ) {
+    //     // Set default size of panels.
+    //     resetPanelsSize();
+    // } else {
+    //     {
+    //         QList<int> intList;
+    //         intList.reserve( 3 );
+
+    //         std::transform( rowSizes.begin(), rowSizes.end(), std::back_inserter( intList ),
+    //                         []( const QVariant& v ) -> int {
+    //                             //
+    //                             return v.toInt();
+    //                         } );
+
+    //         _rowSplitter->setSizes( intList );
+    //     }
+
+    //     {
+    //         QList<int> intList;
+    //         intList.reserve( 3 );
+
+    //         std::transform( colSizes.begin(), colSizes.end(), std::back_inserter( intList ),
+    //                         []( const QVariant& v ) -> int {
+    //                             //
+    //                             return v.toInt();
+    //                         } );
+
+    //         _columnSplitter->setSizes( intList );
+    //     }
+    // }
+
+    // _settings->endGroup();
+}
+
+void AppStateSettings::enlargeRightPanel( float factor ) {
+    // const auto g = this->geometry();
+    // const auto width = g.width();
+
+    // const auto leftPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
+    // const auto rightPanelWidth = static_cast<int>( static_cast<float>( width ) * factor );
+    // _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
+}
+
+void AppStateSettings::enlargeLeftPanel( float factor ) {
+    // const auto g = this->geometry();
+    // const auto width = g.width();
+
+    // const auto leftPanelWidth = static_cast<int>( static_cast<float>( width ) * factor );
+    // const auto rightPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
+    // _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
+}
+
+void AppStateSettings::resetPanelsSize() {
+    // const auto g = this->geometry();
+    // const auto width = g.width();
+    // const auto height = g.height();
+
+    // const auto topPanelHeight = static_cast<int>( static_cast<float>( height ) * _columnLayoutFactor );
+    // const auto bottomPanelHeight = static_cast<int>( static_cast<float>( height ) * _columnLayoutFactor );
+    // _columnSplitter->setSizes( { topPanelHeight, height - ( topPanelHeight + bottomPanelHeight ), bottomPanelHeight } );
+
+    // const int leftPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
+    // const int rightPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
+    // _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
+}
+
+auto AppStateSettings::topPanelHeight() const -> float {
+    return _topPanelHeight;
+}
+
+auto AppStateSettings::bottomPanelHeight() const -> float {
+    return _bottomPanelHeight;
+}
+
+auto AppStateSettings::leftPanelWidth() const -> float {
+    return _leftPanelWidth;
+}
+
+auto AppStateSettings::rightPanelWidth() const -> float {
+    return _rightPanelWidth;
+}
+
+auto AppStateSettings::setTopPanelHeight( float value ) -> void {
+    _topPanelHeight = value;
+    emit topPanelHeightChanged();
+}
+
+auto AppStateSettings::setBottomPanelHeight( float value ) -> void {
+    _bottomPanelHeight = value;
+    emit bottomPanelHeightChanged();
+}
+
+auto AppStateSettings::setLeftPanelWidth( float value ) -> void {
+    _rightPanelWidth = value;
+    emit leftPanelWidthChanged();
+}
+
+auto AppStateSettings::setRightPanelWidth( float value ) -> void {
+    _rightPanelWidth = value;
+    emit rightPanelWidthChanged();
+}
 
 // ====================================================================
 // ========== TiredUi =================================================
 // ====================================================================
 
 TiredUI::TiredUI( std::shared_ptr<VsgRender> render, QObject* parent )
-    : _settings{ new QSettings{ this } }
+    : _settings{ new AppStateSettings{ this } }
     , _engine{ engine() }
     , _context{ _engine->rootContext() }
     , _render{ render } {
     //
-    registerTypes();
+    qRegisterMetaType<tire::SceneObjectTypeEnum>( "SceneObjectTypeEnum" );
+    qRegisterMetaType<tire::SceneObjectData>( "SceneObjectData" );
+    qRegisterMetaType<tire::BoxObjectData>( "BoxObject" );
+    qRegisterMetaType<tire::SphereObjectData>( "SphereObjectData" );
+    qRegisterMetaType<tire::MeshObjectData>( "MeshData" );
 
     // Register RenderItem qml type. We instatiate item of
     // of this type only once in main.qml
@@ -42,6 +187,8 @@ TiredUI::TiredUI( std::shared_ptr<VsgRender> render, QObject* parent )
     // setAttribute( Qt::WA_TranslucentBackground );
 
     _engine->addImageProvider( "TiredImageProvider", new TiredImageProvider{} );
+
+    _context->setContextProperty( "appStateSettings", _settings );
 
     // Register UI style provider object.
     tire::Appearance::init();
@@ -106,75 +253,7 @@ TiredUI::TiredUI( std::shared_ptr<VsgRender> render, QObject* parent )
     } );
 
     // Restore previuosely saved window geometry.
-    // readSettings();
-}
-
-auto TiredUI::writeSettings() -> void {
-    // _settings->beginGroup( "MainWindow" );
-    // _settings->setValue( "geometry", saveGeometry() );
-    // _settings->endGroup();
-
-    // const auto& rowSizes = _rowSplitter->sizes();
-    // const auto& colSizes = _columnSplitter->sizes();
-
-    // _settings->beginGroup( "PanelsLayout" );
-    // _settings->setValue( "rowSizes", QVariant::fromValue( rowSizes ) );
-    // _settings->setValue( "columnSizes", QVariant::fromValue( colSizes ) );
-    // _settings->endGroup();
-
-    // _settings->sync();
-}
-
-auto TiredUI::readSettings() -> void {
-    // _settings->beginGroup( "MainWindow" );
-
-    // const auto geometry = _settings->value( "geometry", QByteArray() ).toByteArray();
-
-    // if ( geometry.isEmpty() ) {
-    //     setGeometry( 200, 200, 1024, 768 );
-    // } else {
-    //     restoreGeometry( geometry );
-    // }
-
-    // _settings->endGroup();
-
-    // _settings->beginGroup( "PanelsLayout" );
-
-    // const auto& rowSizes = _settings->value( "rowSizes", QVariant() ).toList();
-    // const auto& colSizes = _settings->value( "columnSizes", QVariant() ).toList();
-
-    // if ( rowSizes.isEmpty() || colSizes.isEmpty() ) {
-    //     // Set default size of panels.
-    //     resetPanelsSize();
-    // } else {
-    //     {
-    //         QList<int> intList;
-    //         intList.reserve( 3 );
-
-    //         std::transform( rowSizes.begin(), rowSizes.end(), std::back_inserter( intList ),
-    //                         []( const QVariant& v ) -> int {
-    //                             //
-    //                             return v.toInt();
-    //                         } );
-
-    //         _rowSplitter->setSizes( intList );
-    //     }
-
-    //     {
-    //         QList<int> intList;
-    //         intList.reserve( 3 );
-
-    //         std::transform( colSizes.begin(), colSizes.end(), std::back_inserter( intList ),
-    //                         []( const QVariant& v ) -> int {
-    //                             //
-    //                             return v.toInt();
-    //                         } );
-
-    //         _columnSplitter->setSizes( intList );
-    //     }
-    // }
-
-    // _settings->endGroup();
+    _settings->restore();
 }
 
 QVector2D TiredUI::mainWindowCenter() const {
@@ -183,11 +262,11 @@ QVector2D TiredUI::mainWindowCenter() const {
 }
 
 void TiredUI::quitApplication() {
-    QApplication::quit();
+    QGuiApplication::quit();
 }
 
 void TiredUI::closeEvent( QCloseEvent* event ) {
-    writeSettings();
+    _settings->write();
 
     log::info()( "close event handled!" );
 }
@@ -228,47 +307,6 @@ void TiredUI::mouseReleaseEvent( QMouseEvent* ev ) {
 
 void TiredUI::resizeEvent( QResizeEvent* ev ) {
     QQuickView::resizeEvent( ev );
-}
-
-void TiredUI::enlargeRightPanel( float factor ) {
-    // const auto g = this->geometry();
-    // const auto width = g.width();
-
-    // const auto leftPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
-    // const auto rightPanelWidth = static_cast<int>( static_cast<float>( width ) * factor );
-    // _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
-}
-
-void TiredUI::enlargeLeftPanel( float factor ) {
-    // const auto g = this->geometry();
-    // const auto width = g.width();
-
-    // const auto leftPanelWidth = static_cast<int>( static_cast<float>( width ) * factor );
-    // const auto rightPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
-    // _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
-}
-
-void TiredUI::resetPanelsSize() {
-    // const auto g = this->geometry();
-    // const auto width = g.width();
-    // const auto height = g.height();
-
-    // const auto topPanelHeight = static_cast<int>( static_cast<float>( height ) * _columnLayoutFactor );
-    // const auto bottomPanelHeight = static_cast<int>( static_cast<float>( height ) * _columnLayoutFactor );
-    // _columnSplitter->setSizes( { topPanelHeight, height - ( topPanelHeight + bottomPanelHeight ), bottomPanelHeight } );
-
-    // const int leftPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
-    // const int rightPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
-    // _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
-}
-
-auto TiredUI::registerTypes() -> void {
-    qRegisterMetaType<tire::SceneObjectTypeEnum>( "SceneObjectTypeEnum" );
-
-    qRegisterMetaType<tire::SceneObjectData>( "SceneObjectData" );
-    qRegisterMetaType<tire::BoxObjectData>( "BoxObject" );
-    qRegisterMetaType<tire::SphereObjectData>( "SphereObjectData" );
-    qRegisterMetaType<tire::MeshObjectData>( "MeshData" );
 }
 
 }  // namespace tire

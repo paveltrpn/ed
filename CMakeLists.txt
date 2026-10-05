@@ -32,7 +32,6 @@ find_package(Qt6 ${QT_VERSION} COMPONENTS
     Core
     Qml
     Quick
-    QuickWidgets
     QuickControls2
     QuickLayouts
 )
@@ -130,7 +129,6 @@ target_link_libraries(tired
     Qt::Core
     Qt::Qml
     Qt::Quick
-    Qt::QuickWidgets
     Qt::QuickControls2
     Qt::QuickLayouts
     vsg
@@ -170,7 +168,6 @@ target_link_libraries(ed_ui
     Qt::Core
     Qt::Qml
     Qt::Quick
-    Qt::QuickWidgets
     Qt::QuickControls2
     Qt::QuickLayouts
     tired
@@ -193,7 +190,6 @@ target_link_libraries(${TIRE_EDITOR_EXE}
     Qt::Core
     Qt::Qml
     Qt::Quick
-    Qt::QuickWidgets
     Qt::QuickControls2
     Qt::QuickLayouts
     vsg
