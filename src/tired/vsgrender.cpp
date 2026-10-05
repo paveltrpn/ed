@@ -407,11 +407,13 @@ VsgRender::VsgRender() {
     auto deviceFeatures = vsg::DeviceFeatures::create();
     deviceFeatures->get().samplerAnisotropy = VK_TRUE;
     deviceFeatures->get().wideLines = VK_TRUE;
+    deviceFeatures->get().fillModeNonSolid = VK_TRUE;
     //deviceFeatures->get().geometryShader = enableGeometryShader;
 
-    auto& meshFeatures = deviceFeatures->get<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT,
-                                             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT>();
-    meshFeatures.extendedDynamicState3PolygonMode = VK_TRUE;
+    auto& dynamicState3Features =
+        deviceFeatures->get<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT,
+                            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT>();
+    dynamicState3Features.extendedDynamicState3PolygonMode = VK_TRUE;
 
     _device = vsg::Device::create( _physicalDevice, queueSettings, validatedNames, deviceExtensions, deviceFeatures );
 
