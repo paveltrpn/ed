@@ -320,7 +320,8 @@ auto SceneSubgraph::initPipeline() -> void {
         _rasterizationState,
         vsg::MultisampleState::create(),
         vsg::ColorBlendState::create(),
-        vsg::DepthStencilState::create() };
+        vsg::DepthStencilState::create(),
+        dynamicState };
 
     const auto pipelineLayout =
         vsg::PipelineLayout::create( vsg::DescriptorSetLayouts{ descriptorSetLayout }, pushConstantRanges );
