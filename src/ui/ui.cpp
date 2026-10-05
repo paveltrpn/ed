@@ -30,6 +30,9 @@ auto AppStateSettings::write() -> void {
     _settings->setValue( "leftPanelWidth", leftPanelWidth() );
     _settings->setValue( "rightPanelWidth", rightPanelWidth() );
 
+    _settings->setValue( "panelsGeometry", QVariant::fromValue( QList<float>{ topPanelHeight(), bottomPanelHeight(),
+                                                                              leftPanelWidth(), rightPanelWidth() } ) );
+
     _settings->endGroup();
 
     _settings->sync();
@@ -46,43 +49,25 @@ auto AppStateSettings::restore() -> void {
         setMainWindowRect( mainWindowRect.toRect() );
     }
 
-    const auto topPanelHeight = _settings->value( "topPanelHeight", QVariant() );
-    const auto bottomPanelHeight = _settings->value( "bottomPanelHeight", QVariant() );
-    const auto leftPanelWidth = _settings->value( "leftPanelWidth", QVariant() );
-    const auto rightPanelWidth = _settings->value( "rightPanelWidth", QVariant() );
+    const auto& panelsGeometry = _settings->value( "panelsGeometry", QVariant() ).toList();
 
-    const auto& rowSizes = _settings->value( "rowSizes", QVariant() ).toList();
-    const auto& colSizes = _settings->value( "columnSizes", QVariant() ).toList();
-
-    if ( rowSizes.isEmpty() || colSizes.isEmpty() ) {
+    if ( panelsGeometry.isEmpty() ) {
         // Set default size of panels.
         resetPanelsSize();
     } else {
-        {
-            QList<float> floatList;
-            floatList.reserve( 4 );
+        QList<float> floatList;
+        floatList.reserve( 4 );
 
-            std::transform( rowSizes.begin(), rowSizes.end(), std::back_inserter( intList ),
-                            []( const QVariant& v ) -> int {
-                                //
-                                return v.toInt();
-                            } );
+        std::transform( panelsGeometry.begin(), panelsGeometry.end(), std::back_inserter( floatList ),
+                        []( const QVariant& v ) -> int {
+                            //
+                            return v.toFloat();
+                        } );
 
-            _rowSplitter->setSizes( intList );
-        }
-
-        {
-            QList<int> intList;
-            intList.reserve( 3 );
-
-            std::transform( colSizes.begin(), colSizes.end(), std::back_inserter( intList ),
-                            []( const QVariant& v ) -> int {
-                                //
-                                return v.toInt();
-                            } );
-
-            _columnSplitter->setSizes( intList );
-        }
+        setTopPanelHeight( floatList[0] );
+        setBottomPanelHeight( floatList[1] );
+        setLeftPanelWidth( floatList[2] );
+        setRightPanelWidth( floatList[3] );
     }
 
     _settings->endGroup();
@@ -107,17 +92,15 @@ void AppStateSettings::enlargeLeftPanel( float factor ) {
 }
 
 void AppStateSettings::resetPanelsSize() {
-    // const auto g = this->geometry();
-    // const auto width = g.width();
-    // const auto height = g.height();
+    const auto rect = this->mainWindowRect().size();
+    const auto width = rect.width();
+    const auto height = rect.height();
 
-    // const auto topPanelHeight = static_cast<int>( static_cast<float>( height ) * _columnLayoutFactor );
-    // const auto bottomPanelHeight = static_cast<int>( static_cast<float>( height ) * _columnLayoutFactor );
-    // _columnSplitter->setSizes( { topPanelHeight, height - ( topPanelHeight + bottomPanelHeight ), bottomPanelHeight } );
+    setTopPanelHeight( static_cast<int>( static_cast<float>( height ) * _columnLayoutFactor ) );
+    setBottomPanelHeight( static_cast<int>( static_cast<float>( height ) * _columnLayoutFactor ) );
 
-    // const int leftPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
-    // const int rightPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
-    // _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
+    setLeftPanelWidth( static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor ) );
+    setRightPanelWidth( static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor ) );
 }
 
 auto AppStateSettings::mainWindowRect() const -> QRect {
@@ -243,6 +226,12 @@ TiredUI::TiredUI( std::shared_ptr<VsgRender> render, QObject* parent )
                 // Start update timer.
                 _update.start();
 
+                // Restore previuosely saved window geometry.
+                _settings->restore();
+
+                resize( _settings->mainWindowRect().size() );
+                setPosition( _settings->mainWindowRect().topLeft() );
+
                 // Call updateWindow to redraw qml item.
                 connect( &_update, &QTimer::timeout, _renderItemHandle, &RenderItem::updateWindow );
 
@@ -260,9 +249,6 @@ TiredUI::TiredUI( std::shared_ptr<VsgRender> render, QObject* parent )
         //
         QGuiApplication::quit();
     } );
-
-    // Restore previuosely saved window geometry.
-    _settings->restore();
 }
 
 QVector2D TiredUI::mainWindowCenter() const {

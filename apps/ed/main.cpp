@@ -49,13 +49,11 @@ auto main( int argc, char* argv[] ) -> int {
     tiredUI.setVulkanInstance( vulkanInstance );
     tiredUI.setGraphicsDevice( device );
     tiredUI.setResizeMode( QQuickView::SizeRootObjectToView );
-    tiredUI.resize( 1920, 1800 );
 
     auto wp = QDir{ QDir::currentPath() };
     wp.cdUp();
 
     tiredUI.setSource( QUrl( wp.path() + QDir::separator() + "src/ui/qml/Main.qml" ) );
-    tiredUI.setPosition( 300, 300 );
     tiredUI.show();
 
     // Start.
