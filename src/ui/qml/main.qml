@@ -5,6 +5,8 @@ import Qt5Compat.GraphicalEffects
 
 import Tire 1.0
 
+import "panels"
+
 Item {
     id: mainWindow
 
@@ -65,7 +67,7 @@ Item {
         // ======================================================================================
         // ======================================================================================
 
-        Rectangle {
+        TopPanel {
             id: topPanel
 
             anchors {
@@ -84,7 +86,7 @@ Item {
             }
         }
 
-        Rectangle {
+        BottomPanel {
             id: bottomPanel
 
             anchors {
@@ -103,7 +105,7 @@ Item {
             }
         }
 
-        Rectangle {
+        LeftPanel {
             id: leftPanel
 
             anchors {
@@ -122,7 +124,7 @@ Item {
             }
         }
 
-        Rectangle {
+        RightPanel {
             id: rightPanel
 
             anchors {
