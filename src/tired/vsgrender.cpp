@@ -402,6 +402,7 @@ VsgRender::VsgRender() {
 
     vsg::Names deviceExtensions;
     deviceExtensions.push_back( VK_KHR_SWAPCHAIN_EXTENSION_NAME );
+    deviceExtensions.push_back( "VK_EXT_extended_dynamic_state3" );
     vsg::QueueSettings queueSettings{ vsg::QueueSetting{ _queueFamily, { 1.0 } } };
 
     auto deviceFeatures = vsg::DeviceFeatures::create();
