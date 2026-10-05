@@ -48,7 +48,7 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
-                Tired.restorePanelsSize()
+                appStateSettings.resetPanelsSize()
                 uiSettingsPanelComponent.close()
             }
         }

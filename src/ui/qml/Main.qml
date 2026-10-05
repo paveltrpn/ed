@@ -10,8 +10,6 @@ import "panels"
 Item {
     id: mainWindow
 
-    property bool greenExpanded: false
-
     // ======================================================================================
     // ==================== Render ==========================================================
     // ======================================================================================
@@ -27,18 +25,6 @@ Item {
             left: leftPanel.right
             right: rightPanel.left
         }
-
-        Behavior on height {
-            NumberAnimation {
-                duration: 250
-            }
-        }
-
-        Behavior on width {
-            NumberAnimation {
-                duration: 250
-            }
-        }
     }
     // ======================================================================================
     // ======================================================================================
@@ -53,13 +39,7 @@ Item {
             top: parent.top
         }
 
-        height: mainWindow.greenExpanded ? 128 : 64
-
-        Behavior on height {
-            NumberAnimation {
-                duration: 250
-            }
-        }
+        height: appStateSettings.topPanelHeight
     }
 
     BottomPanel {
@@ -71,13 +51,7 @@ Item {
             bottom: parent.bottom
         }
 
-        height: mainWindow.greenExpanded ? 128 : 64
-
-        Behavior on height {
-            NumberAnimation {
-                duration: 250
-            }
-        }
+        height: appStateSettings.bottomPanelHeight
     }
 
     LeftPanel {
@@ -89,11 +63,42 @@ Item {
             left: parent.left
         }
 
-        width: mainWindow.greenExpanded ? 128 : 64
+        width: appStateSettings.leftPanelWidth
 
-        Behavior on width {
-            NumberAnimation {
-                duration: 250
+        property real _pressWidth: 0
+        property real _pressMouseX: 0
+
+        MouseArea {
+            id: resizeHandle
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                right: parent.right
+            }
+
+            width: 8
+
+            cursorShape: Qt.SizeHorCursor
+
+            onPressed: mouse => {
+                leftPanel._pressWidth = leftPanel.width;
+                leftPanel._pressMouseX = mouse.x;
+            }
+
+            onPositionChanged: mouse => {
+                if (!pressed)
+                    return;
+
+                // Delta since press, in MouseArea-local coords
+                const dx = mouse.x - leftPanel._pressMouseX;
+                const newWidth = leftPanel._pressWidth + dx;
+
+                appStateSettings.leftPanelWidth = newWidth;
+            }
+
+            Rectangle {
+                anchors.fill: parent
+                color: resizeHandle.containsMouse || resizeHandle.pressed ? "#80ffffff" : "transparent"
             }
         }
     }
@@ -107,53 +112,47 @@ Item {
             right: parent.right
         }
 
-        width: mainWindow.greenExpanded ? 128 : 64
-
-        Behavior on width {
-            NumberAnimation {
-                duration: 250
-            }
-        }
+        width: appStateSettings.rightPanelWidth
     }
 
-    Rectangle {
-        anchors {
-            // right: parent.right
-            // bottom: parent.bottom
+    // Rectangle {
+    //     anchors {
+    //         // right: parent.right
+    //         // bottom: parent.bottom
 
-            centerIn: parent
-        }
+    //         centerIn: parent
+    //     }
 
-        radius: 8
-        width: clickMessage.implicitWidth + 32
-        height: 64
+    //     radius: 8
+    //     width: clickMessage.implicitWidth + 32
+    //     height: 64
 
-        color: "#4cff0000"
+    //     color: "#4cff0000"
 
-        Text {
-            id: clickMessage
-            anchors {
-                fill: parent
-            }
+    //     Text {
+    //         id: clickMessage
+    //         anchors {
+    //             fill: parent
+    //         }
 
-            text: "click me"
-            color: "white"
-            font: Qt.font({
-                "pixelSize": 16,
-                "weight": Font.ExtraBold,
-                "family": "Monospace"
-            })
+    //         text: "click me"
+    //         color: "white"
+    //         font: Qt.font({
+    //             "pixelSize": 16,
+    //             "weight": Font.ExtraBold,
+    //             "family": "Monospace"
+    //         })
 
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-        }
+    //         horizontalAlignment: Text.AlignHCenter
+    //         verticalAlignment: Text.AlignVCenter
+    //     }
 
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                mainWindow.greenExpanded = !mainWindow.greenExpanded;
-                console.log(" i am clickable!!! ");
-            }
-        }
-    }
+    //     MouseArea {
+    //         anchors.fill: parent
+    //         onClicked: {
+    //             mainWindow.greenExpanded = !mainWindow.greenExpanded;
+    //             console.log(" i am clickable!!! ");
+    //         }
+    //     }
+    // }
 }

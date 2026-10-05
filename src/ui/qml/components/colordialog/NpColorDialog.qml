@@ -16,7 +16,7 @@ Window {
 
     visible: true
 
-    width: 640
+    width: 1000
     height: 480
 
     x: parent.x + 100

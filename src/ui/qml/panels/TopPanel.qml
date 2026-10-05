@@ -22,10 +22,6 @@ Rectangle {
     // topLeftRadius: _units.radiusEight
     // topRightRadius: _units.radiusEight
 
-    NpFileDialog {
-        id: fileDialog
-    }
-
     Item {
         id: topPanelMainComponentWrapper
         anchors.fill: parent

@@ -25,13 +25,12 @@ auto AppStateSettings::write() -> void {
 
     _settings->setValue( "mainWindowRect", mainWindowRect() );
 
-    _settings->setValue( "topPanelHeight", topPanelHeight() );
-    _settings->setValue( "bottomPanelHeight", bottomPanelHeight() );
-    _settings->setValue( "leftPanelWidth", leftPanelWidth() );
-    _settings->setValue( "rightPanelWidth", rightPanelWidth() );
-
     _settings->setValue( "panelsGeometry", QVariant::fromValue( QList<float>{ topPanelHeight(), bottomPanelHeight(),
                                                                               leftPanelWidth(), rightPanelWidth() } ) );
+
+    qDebug() << " ==== "
+             << QVariant::fromValue(
+                    QList<float>{ topPanelHeight(), bottomPanelHeight(), leftPanelWidth(), rightPanelWidth() } );
 
     _settings->endGroup();
 
@@ -41,7 +40,7 @@ auto AppStateSettings::write() -> void {
 auto AppStateSettings::restore() -> void {
     _settings->beginGroup( "AppStateSettings" );
 
-    const auto mainWindowRect = _settings->value( "mainWindowRect", QVariant().toRect() );
+    const auto mainWindowRect = _settings->value( "mainWindowRect" );
 
     if ( mainWindowRect.isNull() ) {
         setMainWindowRect( { QPoint{ 200, 200 }, QSize{ 1900, 1800 } } );
@@ -49,14 +48,16 @@ auto AppStateSettings::restore() -> void {
         setMainWindowRect( mainWindowRect.toRect() );
     }
 
-    const auto& panelsGeometry = _settings->value( "panelsGeometry", QVariant() ).toList();
+    const auto& panelsGeometryOption = _settings->value( "panelsGeometry" );
 
-    if ( panelsGeometry.isEmpty() ) {
+    if ( panelsGeometryOption.isNull() ) {
         // Set default size of panels.
         resetPanelsSize();
     } else {
         QList<float> floatList;
         floatList.reserve( 4 );
+
+        auto panelsGeometry = panelsGeometryOption.toList();
 
         std::transform( panelsGeometry.begin(), panelsGeometry.end(), std::back_inserter( floatList ),
                         []( const QVariant& v ) -> int {
@@ -139,7 +140,7 @@ auto AppStateSettings::setBottomPanelHeight( float value ) -> void {
 }
 
 auto AppStateSettings::setLeftPanelWidth( float value ) -> void {
-    _rightPanelWidth = value;
+    _leftPanelWidth = value;
     emit leftPanelWidthChanged();
 }
 
@@ -226,7 +227,7 @@ TiredUI::TiredUI( std::shared_ptr<VsgRender> render, QObject* parent )
                 // Start update timer.
                 _update.start();
 
-                // Restore previuosely saved window geometry.
+                // Restore previuosely saved main window geometry.
                 _settings->restore();
 
                 resize( _settings->mainWindowRect().size() );
@@ -301,6 +302,10 @@ void TiredUI::mouseReleaseEvent( QMouseEvent* ev ) {
 }
 
 void TiredUI::resizeEvent( QResizeEvent* ev ) {
+    const auto g = geometry();
+
+    _settings->setMainWindowRect( { { g.topLeft() }, g.size() } );
+
     QQuickView::resizeEvent( ev );
 }
 
