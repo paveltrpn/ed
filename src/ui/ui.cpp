@@ -21,71 +21,71 @@ AppStateSettings::AppStateSettings( QObject* parent )
     , _settings{ new QSettings{ this } } {};
 
 auto AppStateSettings::write() -> void {
-    // _settings->beginGroup( "MainWindow" );
-    // _settings->setValue( "geometry", saveGeometry() );
-    // _settings->endGroup();
+    _settings->beginGroup( "AppStateSettings" );
 
-    // const auto& rowSizes = _rowSplitter->sizes();
-    // const auto& colSizes = _columnSplitter->sizes();
+    _settings->setValue( "mainWindowRect", mainWindowRect() );
 
-    // _settings->beginGroup( "PanelsLayout" );
-    // _settings->setValue( "rowSizes", QVariant::fromValue( rowSizes ) );
-    // _settings->setValue( "columnSizes", QVariant::fromValue( colSizes ) );
-    // _settings->endGroup();
+    _settings->setValue( "topPanelHeight", topPanelHeight() );
+    _settings->setValue( "bottomPanelHeight", bottomPanelHeight() );
+    _settings->setValue( "leftPanelWidth", leftPanelWidth() );
+    _settings->setValue( "rightPanelWidth", rightPanelWidth() );
 
-    // _settings->sync();
+    _settings->endGroup();
+
+    _settings->sync();
 }
 
 auto AppStateSettings::restore() -> void {
-    // _settings->beginGroup( "MainWindow" );
+    _settings->beginGroup( "AppStateSettings" );
 
-    // const auto geometry = _settings->value( "geometry", QByteArray() ).toByteArray();
+    const auto mainWindowRect = _settings->value( "mainWindowRect", QVariant().toRect() );
 
-    // if ( geometry.isEmpty() ) {
-    //     setGeometry( 200, 200, 1024, 768 );
-    // } else {
-    //     restoreGeometry( geometry );
-    // }
+    if ( mainWindowRect.isNull() ) {
+        setMainWindowRect( { QPoint{ 200, 200 }, QSize{ 1900, 1800 } } );
+    } else {
+        setMainWindowRect( mainWindowRect.toRect() );
+    }
 
-    // _settings->endGroup();
+    const auto topPanelHeight = _settings->value( "topPanelHeight", QVariant() );
+    const auto bottomPanelHeight = _settings->value( "bottomPanelHeight", QVariant() );
+    const auto leftPanelWidth = _settings->value( "leftPanelWidth", QVariant() );
+    const auto rightPanelWidth = _settings->value( "rightPanelWidth", QVariant() );
 
-    // _settings->beginGroup( "PanelsLayout" );
+    const auto& rowSizes = _settings->value( "rowSizes", QVariant() ).toList();
+    const auto& colSizes = _settings->value( "columnSizes", QVariant() ).toList();
 
-    // const auto& rowSizes = _settings->value( "rowSizes", QVariant() ).toList();
-    // const auto& colSizes = _settings->value( "columnSizes", QVariant() ).toList();
+    if ( rowSizes.isEmpty() || colSizes.isEmpty() ) {
+        // Set default size of panels.
+        resetPanelsSize();
+    } else {
+        {
+            QList<float> floatList;
+            floatList.reserve( 4 );
 
-    // if ( rowSizes.isEmpty() || colSizes.isEmpty() ) {
-    //     // Set default size of panels.
-    //     resetPanelsSize();
-    // } else {
-    //     {
-    //         QList<int> intList;
-    //         intList.reserve( 3 );
+            std::transform( rowSizes.begin(), rowSizes.end(), std::back_inserter( intList ),
+                            []( const QVariant& v ) -> int {
+                                //
+                                return v.toInt();
+                            } );
 
-    //         std::transform( rowSizes.begin(), rowSizes.end(), std::back_inserter( intList ),
-    //                         []( const QVariant& v ) -> int {
-    //                             //
-    //                             return v.toInt();
-    //                         } );
+            _rowSplitter->setSizes( intList );
+        }
 
-    //         _rowSplitter->setSizes( intList );
-    //     }
+        {
+            QList<int> intList;
+            intList.reserve( 3 );
 
-    //     {
-    //         QList<int> intList;
-    //         intList.reserve( 3 );
+            std::transform( colSizes.begin(), colSizes.end(), std::back_inserter( intList ),
+                            []( const QVariant& v ) -> int {
+                                //
+                                return v.toInt();
+                            } );
 
-    //         std::transform( colSizes.begin(), colSizes.end(), std::back_inserter( intList ),
-    //                         []( const QVariant& v ) -> int {
-    //                             //
-    //                             return v.toInt();
-    //                         } );
+            _columnSplitter->setSizes( intList );
+        }
+    }
 
-    //         _columnSplitter->setSizes( intList );
-    //     }
-    // }
-
-    // _settings->endGroup();
+    _settings->endGroup();
 }
 
 void AppStateSettings::enlargeRightPanel( float factor ) {
@@ -120,6 +120,10 @@ void AppStateSettings::resetPanelsSize() {
     // _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
 }
 
+auto AppStateSettings::mainWindowRect() const -> QRect {
+    return _mainWindowRect;
+}
+
 auto AppStateSettings::topPanelHeight() const -> float {
     return _topPanelHeight;
 }
@@ -134,6 +138,11 @@ auto AppStateSettings::leftPanelWidth() const -> float {
 
 auto AppStateSettings::rightPanelWidth() const -> float {
     return _rightPanelWidth;
+}
+
+auto AppStateSettings::setMainWindowRect( const QRect& value ) -> void {
+    _mainWindowRect = value;
+    emit mainWindowRectChanged();
 }
 
 auto AppStateSettings::setTopPanelHeight( float value ) -> void {

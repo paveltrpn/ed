@@ -18,6 +18,8 @@ namespace tire {
 struct AppStateSettings final : public QObject {
     Q_OBJECT
 
+    Q_PROPERTY( QRect mainWindowRect READ mainWindowRect WRITE setMainWindowRect NOTIFY mainWindowRectChanged FINAL )
+
     Q_PROPERTY( float topPanelHeight READ topPanelHeight WRITE setTopPanelHeight NOTIFY topPanelHeightChanged FINAL )
     Q_PROPERTY( float bottomPanelHeight READ bottomPanelHeight WRITE setBottomPanelHeight NOTIFY
                     bottomPanelHeightChanged FINAL )
@@ -37,10 +39,14 @@ public:
 
     Q_INVOKABLE void resetPanelsSize();
 
+    auto mainWindowRect() const -> QRect;
+
     auto topPanelHeight() const -> float;
     auto bottomPanelHeight() const -> float;
     auto leftPanelWidth() const -> float;
     auto rightPanelWidth() const -> float;
+
+    auto setMainWindowRect( const QRect& value ) -> void;
 
     auto setTopPanelHeight( float value ) -> void;
     auto setBottomPanelHeight( float value ) -> void;
@@ -48,6 +54,8 @@ public:
     auto setRightPanelWidth( float value ) -> void;
 
 signals:
+    void mainWindowRectChanged();
+
     void topPanelHeightChanged();
     void bottomPanelHeightChanged();
     void leftPanelWidthChanged();
@@ -55,6 +63,8 @@ signals:
 
 private:
     QSettings* _settings{};
+
+    QRect _mainWindowRect{};
 
     float _topPanelHeight{};
     float _bottomPanelHeight{};
