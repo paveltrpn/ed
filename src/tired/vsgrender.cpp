@@ -370,8 +370,7 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Buffer>> createDepthCap
 
 VsgRender::VsgRender() {
     // if we are multisampling then to enable copying of the depth buffer we have to enable a depth buffer resolve extension for vsg::RenderPass or require a minimum vulkan version of 1.2
-    uint32_t vulkanVersion = VK_API_VERSION_1_0;
-    if ( _samples != VK_SAMPLE_COUNT_1_BIT ) vulkanVersion = VK_API_VERSION_1_2;
+    uint32_t vulkanVersion = VK_API_VERSION_1_3;
 
     // create instance
     vsg::Names instanceExtensions;
