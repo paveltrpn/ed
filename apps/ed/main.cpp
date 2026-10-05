@@ -20,7 +20,7 @@ auto main( int argc, char* argv[] ) -> int {
     tire::Config::init( "assets/config.json" );
 
     //
-    auto vsgRender = std::make_shared<tire::VsgRender>( argc, argv );
+    auto vsgRender = std::make_shared<tire::VsgRender>();
 
     tire::Tired::init( vsgRender );
 
@@ -41,10 +41,8 @@ auto main( int argc, char* argv[] ) -> int {
 
     auto tiredUI = new tire::TiredUI{ vsgRender, nullptr };
 
-    // tire::MainWindow w{ std::move( vsgRender ) };
     tiredUI->setVulkanInstance( vulkanInstance );
 
-    // Apply to the window. For QQuickRenderControl, do this before initialize().
     tiredUI->setGraphicsDevice( device );
 
     tiredUI->setResizeMode( QQuickView::SizeRootObjectToView );

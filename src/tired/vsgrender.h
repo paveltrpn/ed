@@ -12,7 +12,7 @@ namespace tire {
 
 struct VsgRender final {
 public:
-    VsgRender( int argc, char** argv );
+    VsgRender();
 
     VsgRender( const VsgRender& other ) = delete;
     VsgRender( VsgRender&& other ) = delete;
@@ -20,7 +20,6 @@ public:
     auto operator=( const VsgRender& other ) -> VsgRender& = delete;
     auto operator=( VsgRender&& other ) -> VsgRender& = delete;
 
-    auto render() -> std::optional<vsg::ref_ptr<vsg::Data>>;
     auto renderNative() -> std::optional<std::tuple<VkImage, VkExtent2D, VkImageLayout>>;
 
     auto needResize() const -> bool;
@@ -48,7 +47,6 @@ public:
 
 private:
     auto handleResize() -> void;
-    auto fetchImageData() -> std::optional<vsg::ref_ptr<vsg::Data>>;
     auto passEventsToViewer() -> void;
 
 private:

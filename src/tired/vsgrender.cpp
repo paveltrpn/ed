@@ -5,6 +5,7 @@
 #include <vsg/all.h>
 
 #include "vsgrender.h"
+#include "extfunctions.h"
 
 namespace tire {
 
@@ -367,41 +368,10 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Buffer>> createDepthCap
 // ==================== VsgRender =======================================================
 // ======================================================================================
 
-VsgRender::VsgRender( int argc, char** argv ) {
-    // set up defaults and read command line arguments to override them
-
-    vsg::CommandLine arguments( &argc, argv );
-
-    auto databasePager = vsg::DatabasePager::create_if( arguments.read( "--pager" ) );
-    auto useExecuteCommands = arguments.read( "--use-ec" );
-    if ( arguments.read( "--st" ) ) _extent = VkExtent2D{ 192, 108 };
-    bool above = arguments.read( "--above" );
-    //bool enableGeometryShader = arguments.read( "--gs" );
-
-    // if ( arguments.errors() ) return arguments.writeErrorMessages( std::cerr );
-
-    if ( argc <= 1 ) {
-        std::cout << "Please specify model to load on command line" << std::endl;
-        std::terminate();
-    }
-
+VsgRender::VsgRender() {
     // if we are multisampling then to enable copying of the depth buffer we have to enable a depth buffer resolve extension for vsg::RenderPass or require a minimum vulkan version of 1.2
     uint32_t vulkanVersion = VK_API_VERSION_1_0;
     if ( _samples != VK_SAMPLE_COUNT_1_BIT ) vulkanVersion = VK_API_VERSION_1_2;
-
-    auto options = vsg::Options::create();
-    options->fileCache = vsg::getEnv( "VSG_FILE_CACHE" );
-    options->paths = vsg::getEnvPaths( "VSG_FILE_PATH" );
-#ifdef vsgXchange_all
-    // add vsgXchange's support for reading and writing 3rd party file formats
-    options->add( vsgXchange::all::create() );
-#endif
-
-    // auto vsg_scene = vsg::read_cast<vsg::Node>( argv[1], options );
-    // if ( !vsg_scene ) {
-    //     std::cout << "No command graph created." << std::endl;
-    //     std::terminate();
-    // }
 
     // create instance
     vsg::Names instanceExtensions;
@@ -440,23 +410,7 @@ VsgRender::VsgRender( int argc, char** argv ) {
 
     _device = vsg::Device::create( _physicalDevice, queueSettings, validatedNames, deviceExtensions, deviceFeatures );
 
-    // // compute the bounds of the scene graph to help position camera
-    // vsg::ComputeBounds computeBounds;
-    // vsg_scene->accept( computeBounds );
-    // vsg::dvec3 centre = ( computeBounds.bounds.min + computeBounds.bounds.max ) * 0.5;
-    // double radius = vsg::length( computeBounds.bounds.max - computeBounds.bounds.min ) * 0.6;
-    // double nearFarRatio = 0.001;
-
-    // // set up the camera
-    // auto lookAt = ( above ) ? vsg::LookAt::create( centre + vsg::dvec3( 0.0, 0.0, radius * 1.5 ), centre,
-    //                                                vsg::dvec3( 0.0, 1.0, 0.0 ) )
-    //                         : vsg::LookAt::create( centre + vsg::dvec3( 0.0, -radius * 1.5, 0.0 ), centre,
-    //                                                vsg::dvec3( 0.0, 0.0, 1.0 ) );
-
-    // vsg::ref_ptr<vsg::ProjectionMatrix> perspective;
-    // perspective =
-    //     vsg::Perspective::create( 30.0, static_cast<double>( _extent.width ) / static_cast<double>( _extent.height ),
-    //                               nearFarRatio * radius, radius * 4.5 );
+    initExtFunctions( _device );
 
     auto lookAt =
         vsg::LookAt::create( vsg::dvec3( 0.0, -16.0, 8.0 ), vsg::dvec3{ 0.0, 0.0, 0.0 }, vsg::dvec3( 0.0, 0.0, 1.0 ) );
@@ -491,13 +445,11 @@ VsgRender::VsgRender( int argc, char** argv ) {
     _renderGraph->setClearValues( { { 0.2f, 0.6f, 0.3f, 1.0f } }, VkClearDepthStencilValue{ 0.0f, 0 } );
 
     _sceneTransform = vsg::MatrixTransform::create();
-    // _sceneTransform->addChild( vsg_scene );
 
     auto view = vsg::View::create( _camera, _sceneTransform );
-    view->addChild( vsg::createHeadlight() );
 
     vsg::CommandGraphs commandGraphs;
-    if ( useExecuteCommands ) {
+    if ( false ) {
         auto secondaryCommandGraph = vsg::SecondaryCommandGraph::create( _device, _queueFamily );
         secondaryCommandGraph->addChild( view );
         secondaryCommandGraph->framebuffer = _framebuffer;
@@ -521,11 +473,7 @@ VsgRender::VsgRender( int argc, char** argv ) {
 
     _viewer = vsg::ref_ptr<tire::Viewer>{ new tire::Viewer{} };
 
-    // _viewer->addEventHandler( trackballManipulator );
-
     _viewer->assignRecordAndSubmitTaskAndPresentation( commandGraphs );
-
-    _viewer->compile();
 }
 
 auto VsgRender::needResize() const -> bool {
@@ -633,61 +581,6 @@ auto VsgRender::handleResize() -> void {
             replace_child( _commandGraph, previous_depthBufferCapture, _depthBufferCapture );
         }
     }
-}
-
-auto VsgRender::fetchImageData() -> std::optional<vsg::ref_ptr<vsg::Data>> {
-    if ( !_copiedColorBuffer ) {
-        return std::nullopt;
-    }
-
-    _viewer->waitForFences( 0, UINT64_MAX );
-
-    VkImageSubresource subResource{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 0 };
-    VkSubresourceLayout subResourceLayout;
-    vkGetImageSubresourceLayout( *_device, _copiedColorBuffer->vk( _device->deviceID ), &subResource,
-                                 &subResourceLayout );
-
-    auto deviceMemory = _copiedColorBuffer->getDeviceMemory( _device->deviceID );
-
-    size_t destRowWidth = _extent.width * sizeof( vsg::ubvec4 );
-    vsg::ref_ptr<vsg::Data> imageData;
-    if ( destRowWidth == subResourceLayout.rowPitch ) {
-        // Map the buffer memory and assign as a vec4Array2D that will automatically unmap itself on destruction.
-        imageData = vsg::MappedData<vsg::ubvec4Array2D>::create( deviceMemory, subResourceLayout.offset, 0,
-                                                                 vsg::Data::Properties{ _imageFormat }, _extent.width,
-                                                                 _extent.height );
-    } else {
-        // Map the buffer memory and assign as a ubyteArray that will automatically unmap itself on destruction.
-        // A ubyteArray is used as the graphics buffer memory is not contiguous like vsg::Array2D, so map to a flat buffer first then copy to Array2D.
-        auto mappedData = vsg::MappedData<vsg::ubyteArray>::create( deviceMemory, subResourceLayout.offset, 0,
-                                                                    vsg::Data::Properties{ _imageFormat },
-                                                                    subResourceLayout.rowPitch * _extent.height );
-        imageData = vsg::ubvec4Array2D::create( _extent.width, _extent.height, vsg::Data::Properties{ _imageFormat } );
-        for ( uint32_t row = 0; row < _extent.height; ++row ) {
-            std::memcpy( imageData->dataPointer( row * _extent.width ),
-                         mappedData->dataPointer( row * subResourceLayout.rowPitch ), destRowWidth );
-        }
-    }
-
-    return imageData;
-}
-
-auto VsgRender::render() -> std::optional<vsg::ref_ptr<vsg::Data>> {
-    this->handleResize();
-
-    _viewer->advanceToNextFrame();
-
-    // NOTE: Vewer::advanceToNextFrame() discards previous events (see call pollEvents(true)),
-    // i.e. clear _events list in viewer, then pass window events to viewer after it.
-    this->passEventsToViewer();
-
-    _viewer->handleEvents();
-
-    _viewer->update();
-
-    _viewer->recordAndSubmit();
-
-    return this->fetchImageData();
 }
 
 auto VsgRender::renderNative() -> std::optional<std::tuple<VkImage, VkExtent2D, VkImageLayout>> {

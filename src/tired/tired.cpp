@@ -80,16 +80,6 @@ Tired::Tired( std::shared_ptr<VsgRender> render, QObject* parent )
         _viewer->addEventHandler( _inputHandler->handler() );
     }
 
-    {
-        vsg::ref_ptr<vsg::Instance> instance = _render->vsgInstance();
-        vsg::ref_ptr<vsg::Device> device = _render->vsgDevice();
-
-        initExtFunctions( device );
-
-        // _instanceExtensions = instance->getExtensions();
-        // _deviceExtensions = device->getExtensions();
-    }
-
     _viewer->compile();
 
     // Add default scene nodes.

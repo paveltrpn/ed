@@ -11,7 +11,7 @@ SetPolygonMode::SetPolygonMode( VkPolygonMode in_mode )
 }
 
 void SetPolygonMode::record( CommandBuffer& commandBuffer ) const {
-    //tire::vkCmdSetPolygonMode( commandBuffer, mode );
+    tire::vkCmdSetPolygonMode( commandBuffer, mode );
 }
 
 }  // namespace vsg
