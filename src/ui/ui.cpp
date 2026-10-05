@@ -19,20 +19,19 @@ namespace tire {
 // ========== TiredUi =================================================
 // ====================================================================
 
-TiredUI::TiredUI( QObject* parent )
+TiredUI::TiredUI( std::shared_ptr<VsgRender> render, QObject* parent )
     : _settings{ new QSettings{ this } }
     , _engine{ new QQmlEngine{ this } }
     , _context{ _engine->rootContext() }
-    , _columnSplitter{ new QSplitter{ this } }
-    , _rowSplitter{ new QSplitter{ this } }
-    , _topPanel{ new QQuickWidget{ _engine, this } }
-    , _leftPanel{ new QQuickWidget{ _engine, this } }
-    , _bottomPanel{ new QQuickWidget{ _engine, this } }
-    , _rightPanel{ new QQuickWidget{ _engine, this } } {
+    , _render{ render } {
     registerTypes();
 
+    // Register RenderItem qml type. We instatiate item of
+    // of this type only once in main.qml
+    qmlRegisterType<tire::RenderItem>( "Tire", 1, 0, "Render" );
+
     // Set empty window title displayed on native decoration.
-    setWindowTitle( " " );
+    // setWindowTitle( " " );
 
     // Remove native decoration.
     // setWindowFlags( Qt::FramelessWindowHint );
@@ -54,157 +53,131 @@ TiredUI::TiredUI( QObject* parent )
     qmlRegisterSingletonInstance( "Tire", 1, 0, "Appearence", tire::Appearance::pointer() );
 
     // VSG initialization.
-    auto windowTraits = vsg::WindowTraits::create();
-    windowTraits->vulkanVersion = VK_MAKE_API_VERSION( 0, 1, 4, 0 );
-    windowTraits->deviceExtensionNames.push_back( "VK_EXT_extended_dynamic_state3" );
 
-    try {
-        _vsgWidget = new VsgWidget( windowTraits );
-        _vsgWidget->initializeWindow();
+    // Setup RenderItem update interval.
+    _update.setInterval( 16 );
 
-        const auto clearColor = QColor{ tire::Appearance::instance().getColor( "clear_color" ) };
-        _vsgWidget->windowAdapter()->clearColor().set( clearColor.redF(), clearColor.greenF(), clearColor.blueF(),
-                                                       1.0f );
+    setColor( "#0c0c1c" );
+    // setFlags( Qt::Window | Qt::FramelessWindowHint );
 
-        tire::Tired::init( _vsgWidget->windowAdapter(), _vsgWidget->viewer(), windowTraits->width,
-                           windowTraits->height );
+    // Schedule actions on main component loading.
+    connect( this, &QQuickView::statusChanged, this, [this]( QQuickView::Status status ) {
+        switch ( status ) {
+            case QQuickView::Error: {
+                break;
+            }
 
-        connect( tire::Tired::pointer(), &tire::Tired::restorePanelsSize, this, [this]() {
-            //
-            this->resetPanelsSize();
-        } );
+            case QQuickView::Loading: {
+                break;
+            }
 
-    } catch ( vsg::Exception& e ) {
-        log::fatal()( "{}", e.message );
-    }
+            case QQuickView::Ready: {
+                // Get main renderer item handle from QML.
+                // It istatiates only once in main.qml.
+                _renderItemHandle = rootObject()->findChild<RenderItem*>();
+                if ( !_renderItemHandle ) {
+                    std::println( "can't acquire renderer handle!" );
+                    std::terminate();
+                }
 
-    qmlRegisterSingletonInstance( "Tire", 1, 0, "Tired", tire::Tired::pointer() );
+                _renderItemHandle->setVsgRender( _render );
 
-    // Qt widgets initialization.
-    _topPanel->setSource( QUrl::fromLocalFile( "../src/ui/qml/panels/TopPanel.qml" ) );
-    _topPanel->setResizeMode( QQuickWidget::SizeRootObjectToView );
+                _render->setExtent( { static_cast<uint32_t>( _renderItemHandle->width() ),
+                                      static_cast<uint32_t>( _renderItemHandle->height() ) } );
 
-    _leftPanel->setSource( QUrl::fromLocalFile( "../src/ui/qml/panels/LeftPanel.qml" ) );
-    _leftPanel->setResizeMode( QQuickWidget::SizeRootObjectToView );
+                _render->setNeedResize( true );
 
-    _bottomPanel->setSource( QUrl::fromLocalFile( "../src/ui/qml/panels/BottomPanel.qml" ) );
-    _bottomPanel->setResizeMode( QQuickWidget::SizeRootObjectToView );
+                // Start update timer.
+                _update.start();
 
-    _rightPanel->setSource( QUrl::fromLocalFile( "../src/ui/qml/panels/RightPanel.qml" ) );
-    _rightPanel->setResizeMode( QQuickWidget::SizeRootObjectToView );
+                // Call updateWindow to redraw qml item.
+                connect( &_update, &QTimer::timeout, _renderItemHandle, &RenderItem::updateWindow );
 
-    // Set qml QQuickWidgets conteiners trnsparent background color.
-    _topPanel->setClearColor( Qt::transparent );
-    _leftPanel->setClearColor( Qt::transparent );
-    _bottomPanel->setClearColor( Qt::transparent );
-    _rightPanel->setClearColor( Qt::transparent );
+                std::println( "Render QML component ready." );
+                break;
+            }
 
-    const auto splitterBorderColor = tire::Appearance::instance().getColor( "background" );
+            case QQuickView::Null: {
+                break;
+            }
+        }
+    } );
 
-    auto centralWidget = new QWidget{ this };
-    setCentralWidget( centralWidget );
-
-    auto* mainColumnLayout = new QVBoxLayout{};
-    mainColumnLayout->setContentsMargins( 0, 0, 0, 0 );
-    centralWidget->setLayout( mainColumnLayout );
-
-    _columnSplitter->setOrientation( Qt::Vertical );
-    _columnSplitter->setStyleSheet(
-        QString{ "QSplitter::handle { background-color:  %1; }" }.arg( splitterBorderColor ) );
-    _columnSplitter->setHandleWidth( 2 );
-
-    auto* hLayout = new QHBoxLayout{};
-    hLayout->setContentsMargins( 0, 0, 0, 0 );
-
-    auto middleElementsWidget = new QWidget{ this };
-    middleElementsWidget->setLayout( hLayout );
-
-    _columnSplitter->addWidget( _topPanel );
-    _columnSplitter->addWidget( middleElementsWidget );
-    _columnSplitter->addWidget( _bottomPanel );
-
-    mainColumnLayout->addWidget( _columnSplitter );
-
-    _rowSplitter->setOrientation( Qt::Horizontal );
-    _rowSplitter->setStyleSheet( QString{ "QSplitter::handle { background-color:  %1; }" }.arg( splitterBorderColor ) );
-    _rowSplitter->setHandleWidth( 2 );
-
-    _rowSplitter->addWidget( _leftPanel );
-    _rowSplitter->addWidget( _vsgWidget );
-    _rowSplitter->addWidget( _rightPanel );
+    connect( _engine, &QQmlEngine::quit, this, [this]() -> void {
+        //
+        QGuiApplication::quit();
+    } );
 
     // Restore previuosely saved window geometry.
-    readSettings();
-
-    hLayout->addWidget( _rowSplitter );
+    // readSettings();
 }
 
 auto TiredUI::writeSettings() -> void {
-    _settings->beginGroup( "MainWindow" );
-    _settings->setValue( "geometry", saveGeometry() );
-    _settings->endGroup();
+    // _settings->beginGroup( "MainWindow" );
+    // _settings->setValue( "geometry", saveGeometry() );
+    // _settings->endGroup();
 
-    const auto& rowSizes = _rowSplitter->sizes();
-    const auto& colSizes = _columnSplitter->sizes();
+    // const auto& rowSizes = _rowSplitter->sizes();
+    // const auto& colSizes = _columnSplitter->sizes();
 
-    _settings->beginGroup( "PanelsLayout" );
-    _settings->setValue( "rowSizes", QVariant::fromValue( rowSizes ) );
-    _settings->setValue( "columnSizes", QVariant::fromValue( colSizes ) );
-    _settings->endGroup();
+    // _settings->beginGroup( "PanelsLayout" );
+    // _settings->setValue( "rowSizes", QVariant::fromValue( rowSizes ) );
+    // _settings->setValue( "columnSizes", QVariant::fromValue( colSizes ) );
+    // _settings->endGroup();
 
-    _settings->sync();
+    // _settings->sync();
 }
 
 auto TiredUI::readSettings() -> void {
-    _settings->beginGroup( "MainWindow" );
+    // _settings->beginGroup( "MainWindow" );
 
-    const auto geometry = _settings->value( "geometry", QByteArray() ).toByteArray();
+    // const auto geometry = _settings->value( "geometry", QByteArray() ).toByteArray();
 
-    if ( geometry.isEmpty() ) {
-        setGeometry( 200, 200, 1024, 768 );
-    } else {
-        restoreGeometry( geometry );
-    }
+    // if ( geometry.isEmpty() ) {
+    //     setGeometry( 200, 200, 1024, 768 );
+    // } else {
+    //     restoreGeometry( geometry );
+    // }
 
-    _settings->endGroup();
+    // _settings->endGroup();
 
-    _settings->beginGroup( "PanelsLayout" );
+    // _settings->beginGroup( "PanelsLayout" );
 
-    const auto& rowSizes = _settings->value( "rowSizes", QVariant() ).toList();
-    const auto& colSizes = _settings->value( "columnSizes", QVariant() ).toList();
+    // const auto& rowSizes = _settings->value( "rowSizes", QVariant() ).toList();
+    // const auto& colSizes = _settings->value( "columnSizes", QVariant() ).toList();
 
-    if ( rowSizes.isEmpty() || colSizes.isEmpty() ) {
-        // Set default size of panels.
-        resetPanelsSize();
-    } else {
-        {
-            QList<int> intList;
-            intList.reserve( 3 );
+    // if ( rowSizes.isEmpty() || colSizes.isEmpty() ) {
+    //     // Set default size of panels.
+    //     resetPanelsSize();
+    // } else {
+    //     {
+    //         QList<int> intList;
+    //         intList.reserve( 3 );
 
-            std::transform( rowSizes.begin(), rowSizes.end(), std::back_inserter( intList ),
-                            []( const QVariant& v ) -> int {
-                                //
-                                return v.toInt();
-                            } );
+    //         std::transform( rowSizes.begin(), rowSizes.end(), std::back_inserter( intList ),
+    //                         []( const QVariant& v ) -> int {
+    //                             //
+    //                             return v.toInt();
+    //                         } );
 
-            _rowSplitter->setSizes( intList );
-        }
+    //         _rowSplitter->setSizes( intList );
+    //     }
 
-        {
-            QList<int> intList;
-            intList.reserve( 3 );
+    //     {
+    //         QList<int> intList;
+    //         intList.reserve( 3 );
 
-            std::transform( colSizes.begin(), colSizes.end(), std::back_inserter( intList ),
-                            []( const QVariant& v ) -> int {
-                                //
-                                return v.toInt();
-                            } );
+    //         std::transform( colSizes.begin(), colSizes.end(), std::back_inserter( intList ),
+    //                         []( const QVariant& v ) -> int {
+    //                             //
+    //                             return v.toInt();
+    //                         } );
 
-            _columnSplitter->setSizes( intList );
-        }
-    }
+    //         _columnSplitter->setSizes( intList );
+    //     }
+    // }
 
-    _settings->endGroup();
+    // _settings->endGroup();
 }
 
 QVector2D TiredUI::mainWindowCenter() const {
@@ -231,36 +204,65 @@ void TiredUI::resizeWindow( int edge ) {
     // this->windowHandle()->startSystemResize( e );
 }
 
-void TiredUI::enlargeRightPanel( float factor ) {
-    const auto g = this->geometry();
-    const auto width = g.width();
+void TiredUI::keyPressEvent( QKeyEvent* ev ) {
+    _renderItemHandle->keyPressEvent( ev );
+    QQuickView::keyPressEvent( ev );
+}
 
-    const auto leftPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
-    const auto rightPanelWidth = static_cast<int>( static_cast<float>( width ) * factor );
-    _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
+void TiredUI::keyReleaseEvent( QKeyEvent* ev ) {
+    _renderItemHandle->keyReleaseEvent( ev );
+    QQuickView::keyReleaseEvent( ev );
+}
+
+void TiredUI::mouseMoveEvent( QMouseEvent* ev ) {
+    _renderItemHandle->mouseMoveEvent( ev );
+    QQuickView::mouseMoveEvent( ev );
+}
+
+void TiredUI::mousePressEvent( QMouseEvent* ev ) {
+    _renderItemHandle->mousePressEvent( ev );
+    QQuickView::mousePressEvent( ev );
+}
+
+void TiredUI::mouseReleaseEvent( QMouseEvent* ev ) {
+    _renderItemHandle->mousePressEvent( ev );
+    QQuickView::mouseReleaseEvent( ev );
+}
+
+void TiredUI::resizeEvent( QResizeEvent* ev ) {
+    QQuickView::resizeEvent( ev );
+}
+
+void TiredUI::enlargeRightPanel( float factor ) {
+    // const auto g = this->geometry();
+    // const auto width = g.width();
+
+    // const auto leftPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
+    // const auto rightPanelWidth = static_cast<int>( static_cast<float>( width ) * factor );
+    // _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
 }
 
 void TiredUI::enlargeLeftPanel( float factor ) {
-    const auto g = this->geometry();
-    const auto width = g.width();
+    // const auto g = this->geometry();
+    // const auto width = g.width();
 
-    const auto leftPanelWidth = static_cast<int>( static_cast<float>( width ) * factor );
-    const auto rightPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
-    _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
+    // const auto leftPanelWidth = static_cast<int>( static_cast<float>( width ) * factor );
+    // const auto rightPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
+    // _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
 }
 
 void TiredUI::resetPanelsSize() {
-    const auto g = this->geometry();
-    const auto width = g.width();
-    const auto height = g.height();
+    // const auto g = this->geometry();
+    // const auto width = g.width();
+    // const auto height = g.height();
 
-    const auto topPanelHeight = static_cast<int>( static_cast<float>( height ) * _columnLayoutFactor );
-    const auto bottomPanelHeight = static_cast<int>( static_cast<float>( height ) * _columnLayoutFactor );
-    _columnSplitter->setSizes( { topPanelHeight, height - ( topPanelHeight + bottomPanelHeight ), bottomPanelHeight } );
+    // const auto topPanelHeight = static_cast<int>( static_cast<float>( height ) * _columnLayoutFactor );
+    // const auto bottomPanelHeight = static_cast<int>( static_cast<float>( height ) * _columnLayoutFactor );
+    // _columnSplitter->setSizes( { topPanelHeight, height - ( topPanelHeight + bottomPanelHeight ), bottomPanelHeight } );
 
-    const int leftPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
-    const int rightPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
-    _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
+    // const int leftPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
+    // const int rightPanelWidth = static_cast<int>( static_cast<float>( width ) * _rowLayoutFactor );
+    // _rowSplitter->setSizes( { leftPanelWidth, width - ( leftPanelWidth + rightPanelWidth ), rightPanelWidth } );
 }
 
 auto TiredUI::registerTypes() -> void {

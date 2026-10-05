@@ -5,7 +5,7 @@
 
 #include <vsg/all.h>
 
-#include "ui/viewer.h"
+#include "viewer.h"
 #include "manipulator.h"
 #include "inputhandler.h"
 #include "scenegraph.h"

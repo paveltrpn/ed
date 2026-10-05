@@ -173,6 +173,7 @@ target_link_libraries(ed_ui
     Qt::QuickWidgets
     Qt::QuickControls2
     Qt::QuickLayouts
+    tired
     vsg
     xcb
     image

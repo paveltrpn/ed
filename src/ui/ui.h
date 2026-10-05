@@ -3,12 +3,11 @@
 
 #include <vsg/all.h>
 
-#include <QQuickWidget>
-#include <QMainWindow>
+#include <QQuickView>
 #include <QSettings>
-#include <QSplitter>
+#include <QTimer>
 
-#include "vsgwidget.h"
+#include "renderitem.h"
 #include "appearance.h"
 
 namespace tire {
@@ -17,10 +16,12 @@ namespace tire {
 // ========== TiredUi =================================================
 // ====================================================================
 
-struct TiredUI final : QMainWindow {
+struct VsgRender;
+
+struct TiredUI final : public QQuickView {
     Q_OBJECT
 public:
-    TiredUI( QObject* parent = nullptr );
+    TiredUI( std::shared_ptr<VsgRender> render, QObject* parent = nullptr );
 
     auto writeSettings() -> void;
     auto readSettings() -> void;
@@ -37,7 +38,13 @@ public:
 
     Q_INVOKABLE void resetPanelsSize();
 
-    void closeEvent( QCloseEvent* event ) override;
+    void closeEvent( QCloseEvent* ev ) override;
+    void keyPressEvent( QKeyEvent* ev ) override;
+    void keyReleaseEvent( QKeyEvent* ev ) override;
+    void mouseMoveEvent( QMouseEvent* ev ) override;
+    void mousePressEvent( QMouseEvent* ev ) override;
+    void mouseReleaseEvent( QMouseEvent* ev ) override;
+    void resizeEvent( QResizeEvent* ev ) override;
 
 private:
     auto registerTypes() -> void;
@@ -48,16 +55,11 @@ private:
     QQmlEngine* _engine{};
     QQmlContext* _context{};
 
-    QSplitter* _columnSplitter{};
-    QSplitter* _rowSplitter{};
+    std::shared_ptr<VsgRender> _render{};
 
-    VsgWidget* _vsgWidget{};
-    QQuickWidget* _topPanel{};
-    QQuickWidget* _leftPanel{};
-    QQuickWidget* _bottomPanel{};
-    QQuickWidget* _rightPanel{};
+    RenderItem* _renderItemHandle{};
 
-    vsg::ref_ptr<KeyboardMap> keyboardMap;
+    QTimer _update{};
 
 private:
     static constexpr float _columnLayoutFactor{ 0.07f };
