@@ -7,7 +7,7 @@ namespace tire {
 
 void Config::init( const std::filesystem::path &fname ) {
     if ( _initSuccess ) {
-        log::error()( "Warning: Singleton already initialized. Ignoring new arguments." );
+        log::error()( "Warning: Config singleton already initialized. Ignoring new arguments." );
     }
 
     std::call_once( _initFlag, [&]() {
@@ -20,7 +20,7 @@ Config &Config::instance() {
     Config *ptr = _instance.load();
 
     if ( !ptr ) {
-        throw std::logic_error( "Singleton must be initialized via init() before calling getInstance()." );
+        throw std::logic_error( "Config singleton must be initialized via init() before calling getInstance()." );
     }
 
     return *ptr;

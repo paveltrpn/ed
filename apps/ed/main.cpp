@@ -16,6 +16,8 @@ QDir workPath() {
 auto main( int argc, char* argv[] ) -> int {
     qputenv( "QSG_RENDER_LOOP", "basic" );
 
+    tire::Config::init( "assets/config.json" );
+
     //
     auto vsgRender = std::make_shared<tire::VsgRender>( argc, argv );
 
@@ -30,8 +32,6 @@ auto main( int argc, char* argv[] ) -> int {
     if ( !vulkanInstance->create() ) {
         qFatal( "QVulkanInstance::create failed" );
     }
-
-    QGuiApplication application( argc, argv );
 
     QQuickGraphicsDevice device = QQuickGraphicsDevice::fromDeviceObjects(
         vsgRender->physicalDevice(), vsgRender->logicalDevice(), vsgRender->queueFamily() );
@@ -51,7 +51,5 @@ auto main( int argc, char* argv[] ) -> int {
 
     tiredUI->show();
 
-    tire::Config::init( "assets/config.json" );
-
-    application.exec();
+    app.exec();
 }

@@ -40,12 +40,6 @@ TiredUI::TiredUI( std::shared_ptr<VsgRender> render, QObject* parent )
     // specific decoration.
     // setAttribute( Qt::WA_TranslucentBackground );
 
-    // "By default, when you pass a QObject* via setContextProperty, the C++ side retains
-    // ownership (the QML engine will not delete it)."
-    //
-    // Use this object for main window position and size (in particular).
-    _context->setContextProperty( "mainWindow", this );
-
     _engine->addImageProvider( "TiredImageProvider", new TiredImageProvider{} );
 
     // Register UI style provider object.
