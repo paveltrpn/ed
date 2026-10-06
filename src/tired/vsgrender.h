@@ -46,6 +46,9 @@ public:
     vsg::UIEvents _bufferedEvents;
 
 private:
+    auto _initInstance() -> void;
+    auto _initDevice() -> void;
+
     auto handleResize() -> void;
     auto passEventsToViewer() -> void;
 
@@ -70,8 +73,6 @@ private:
     vsg::ref_ptr<vsg::Image> _copiedColorBuffer{};
     vsg::ref_ptr<vsg::Commands> _depthBufferCapture{};
     vsg::ref_ptr<vsg::Buffer> _copiedDepthBuffer{};
-
-    bool _useDepthBuffer{ true };
 
     VkSampleCountFlagBits _samples{ VK_SAMPLE_COUNT_1_BIT };
 

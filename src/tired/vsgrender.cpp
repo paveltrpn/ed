@@ -369,8 +369,7 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Buffer>> createDepthCap
 // ==================== VsgRender =======================================================
 // ======================================================================================
 
-VsgRender::VsgRender() {
-    // if we are multisampling then to enable copying of the depth buffer we have to enable a depth buffer resolve extension for vsg::RenderPass or require a minimum vulkan version of 1.2
+auto VsgRender::_initInstance() -> void {
     uint32_t vulkanVersion = VK_API_VERSION_1_3;
 
     // create instance
@@ -396,10 +395,12 @@ VsgRender::VsgRender() {
     _instance = vsg::Instance::create( instanceExtensions, validatedNames, vulkanVersion );
     std::tie( _physicalDevice, _queueFamily ) = _instance->getPhysicalDeviceAndQueueFamily( VK_QUEUE_GRAPHICS_BIT );
     if ( !_physicalDevice || _queueFamily < 0 ) {
-        std::cout << "Could not create PhysicalDevice" << std::endl;
+        std::cout << "Could not create PhysicalDevice." << std::endl;
         std::terminate();
     }
+}
 
+auto VsgRender::_initDevice() -> void {
     vsg::Names deviceExtensions;
     deviceExtensions.push_back( VK_KHR_SWAPCHAIN_EXTENSION_NAME );
     deviceExtensions.push_back( "VK_EXT_extended_dynamic_state3" );
@@ -416,20 +417,30 @@ VsgRender::VsgRender() {
                             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT>();
     dynamicState3Features.extendedDynamicState3PolygonMode = VK_TRUE;
 
+    // NOTE: Not used since Vulkan API 1.0?
+    vsg::Names validatedNames = vsg::validateInstanceLayerNames( {} );
+
     _device = vsg::Device::create( _physicalDevice, queueSettings, validatedNames, deviceExtensions, deviceFeatures );
 
     initExtFunctions( _device );
+}
 
-    auto lookAt =
-        vsg::LookAt::create( vsg::dvec3( 0.0, -16.0, 8.0 ), vsg::dvec3{ 0.0, 0.0, 0.0 }, vsg::dvec3( 0.0, 0.0, 1.0 ) );
+VsgRender::VsgRender() {
+    _initInstance();
+    _initDevice();
 
-    vsg::ref_ptr<vsg::ProjectionMatrix> perspective =
-        vsg::Perspective::create( 30.0, static_cast<double>( 1150 ) / static_cast<double>( 872 ), 0.01, 500.0 );
+    {
+        auto lookAt = vsg::LookAt::create( vsg::dvec3( 0.0, -16.0, 8.0 ), vsg::dvec3{ 0.0, 0.0, 0.0 },
+                                           vsg::dvec3( 0.0, 0.0, 1.0 ) );
 
-    _camera = vsg::Camera::create( perspective, lookAt, vsg::ViewportState::create( VkExtent2D{ 1150, 872 } ) );
+        vsg::ref_ptr<vsg::ProjectionMatrix> perspective =
+            vsg::Perspective::create( 30.0, static_cast<double>( 1150 ) / static_cast<double>( 872 ), 0.01, 500.0 );
 
-    // set up the RenderGraph to manage the rendering
-    if ( _useDepthBuffer ) {
+        _camera = vsg::Camera::create( perspective, lookAt, vsg::ViewportState::create( VkExtent2D{ 1150, 872 } ) );
+    }
+
+    // Set up the RenderGraph to manage the rendering.
+    {
         _colorImageView = createColorImageView( _device, _extent, _imageFormat, VK_SAMPLE_COUNT_1_BIT );
         _depthImageView = createDepthImageView( _device, _extent, _depthFormat, VK_SAMPLE_COUNT_1_BIT );
         if ( _samples == VK_SAMPLE_COUNT_1_BIT ) {
@@ -460,6 +471,7 @@ VsgRender::VsgRender() {
     auto view = vsg::View::create( _camera, _sceneTransform );
 
     vsg::CommandGraphs commandGraphs;
+    // NOTE: What usage of secondary command boffer in here?
     if ( false ) {
         auto secondaryCommandGraph = vsg::SecondaryCommandGraph::create( _device, _queueFamily );
         secondaryCommandGraph->addChild( view );
@@ -571,26 +583,24 @@ auto VsgRender::handleResize() -> void {
         auto previous_colorBufferCapture = _colorBufferCapture;
         auto previous_depthBufferCapture = _depthBufferCapture;
 
-        if ( _useDepthBuffer ) {
-            _colorImageView = createColorImageView( _device, _extent, _imageFormat, VK_SAMPLE_COUNT_1_BIT );
-            _depthImageView = createDepthImageView( _device, _extent, _depthFormat, VK_SAMPLE_COUNT_1_BIT );
-            if ( _samples == VK_SAMPLE_COUNT_1_BIT ) {
-                auto renderPass = vsg::createRenderPass( _device, _imageFormat, _depthFormat, true );
-                _framebuffer = vsg::Framebuffer::create(
-                    renderPass, vsg::ImageViews{ _colorImageView, _depthImageView }, _extent.width, _extent.height, 1 );
-            }
-
-            _renderGraph->framebuffer = _framebuffer;
-
-            // create new copy subgraphs
-            std::tie( _colorBufferCapture, _copiedColorBuffer ) =
-                createColorCapture( _device, _extent, _colorImageView->image, _imageFormat );
-            std::tie( _depthBufferCapture, _copiedDepthBuffer ) =
-                createDepthCapture( _device, _extent, _depthImageView->image, _depthFormat );
-
-            replace_child( _commandGraph, previous_colorBufferCapture, _colorBufferCapture );
-            replace_child( _commandGraph, previous_depthBufferCapture, _depthBufferCapture );
+        _colorImageView = createColorImageView( _device, _extent, _imageFormat, VK_SAMPLE_COUNT_1_BIT );
+        _depthImageView = createDepthImageView( _device, _extent, _depthFormat, VK_SAMPLE_COUNT_1_BIT );
+        if ( _samples == VK_SAMPLE_COUNT_1_BIT ) {
+            auto renderPass = vsg::createRenderPass( _device, _imageFormat, _depthFormat, true );
+            _framebuffer = vsg::Framebuffer::create( renderPass, vsg::ImageViews{ _colorImageView, _depthImageView },
+                                                     _extent.width, _extent.height, 1 );
         }
+
+        _renderGraph->framebuffer = _framebuffer;
+
+        // create new copy subgraphs
+        std::tie( _colorBufferCapture, _copiedColorBuffer ) =
+            createColorCapture( _device, _extent, _colorImageView->image, _imageFormat );
+        std::tie( _depthBufferCapture, _copiedDepthBuffer ) =
+            createDepthCapture( _device, _extent, _depthImageView->image, _depthFormat );
+
+        replace_child( _commandGraph, previous_colorBufferCapture, _colorBufferCapture );
+        replace_child( _commandGraph, previous_depthBufferCapture, _depthBufferCapture );
     }
 }
 
