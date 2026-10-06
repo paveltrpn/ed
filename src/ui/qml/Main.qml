@@ -144,10 +144,10 @@ Item {
         Render {
             id: render
             anchors {
-                top: viewInfoPanel.bottom
-                bottom: parent.bottom
-                left: parent.left
-                right: parent.right
+                top: topPanelResizeHandle.pressed ? undefined : viewInfoPanel.bottom
+                bottom: bottomPanelResizeHandle.pressed ? undefined : parent.bottom
+                left: leftPanelResizeHandle.pressed ? undefined : parent.left
+                right: rightPanelResizeHandle.pressed ? undefined : parent.right
             }
         }
     }
