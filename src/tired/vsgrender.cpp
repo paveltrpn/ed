@@ -176,20 +176,30 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Image>> createColorCapt
         VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }  // subresourceRange
     );
 
-#if 1
+#if 0
     // 3.b) transition swapChainImage from present to transfer source initialLayout
+    //
     // NOTE: Good for NV!
-    auto transitionSourceImageToTransferSourceLayoutBarrier =
-        vsg::ImageMemoryBarrier::create( VK_ACCESS_MEMORY_READ_BIT,             // srcAccessMask
-                                         VK_ACCESS_TRANSFER_READ_BIT,           // dstAccessMask
-                                         VK_IMAGE_LAYOUT_UNDEFINED,             // oldLayout  <-- FIX
-                                         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,  // newLayout
-                                         VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, sourceImage,
-                                         VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 } );
-#else
-    // NOTE: Make radeon works!
+    auto transitionSourceImageToTransferSourceLayoutBarrier = vsg::ImageMemoryBarrier::create(
+        VK_ACCESS_MEMORY_READ_BIT,             // srcAccessMask
+        VK_ACCESS_TRANSFER_READ_BIT,           // dstAccessMask
+        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,  // oldLayout <- matches render pass
+        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,  // newLayout <- no-op, but keeps the barrier for sync
+        VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, sourceImage,
+        VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 } );
+#elif 0
+    // NOTE: Make radeon works (but with validation errors)!
     auto transitionSourceImageToTransferSourceLayoutBarrier = vsg::ImageMemoryBarrier::create(
         VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,  // srcAccessMask
+        VK_ACCESS_TRANSFER_READ_BIT,           // dstAccessMask
+        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,  // oldLayout <- matches render pass
+        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,  // newLayout <- no-op, but keeps the barrier for sync
+        VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, sourceImage,
+        VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 } );
+#else
+    // NOTE: Make radeon works BETTER!
+    auto transitionSourceImageToTransferSourceLayoutBarrier = vsg::ImageMemoryBarrier::create(
+        VK_ACCESS_MEMORY_READ_BIT,             // srcAccessMask
         VK_ACCESS_TRANSFER_READ_BIT,           // dstAccessMask
         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,  // oldLayout <- matches render pass
         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,  // newLayout <- no-op, but keeps the barrier for sync
