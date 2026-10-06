@@ -14,7 +14,8 @@
 namespace tire {
 
 RenderItem::RenderItem( QQuickItem* parent )
-    : QQuickItem{ parent } {
+    : QQuickItem{ parent }
+    , _keyboardMap{ KeyboardMap::create() } {
     //
     setFlag( QQuickItem::ItemHasContents );
     connect( this, &QQuickItem::windowChanged, this, &RenderItem::handleWindowChanged );
@@ -25,24 +26,6 @@ auto RenderItem::setVsgRender( std::shared_ptr<VsgRender> render ) -> void {
 }
 
 auto RenderItem::updatePaintNode( QSGNode* oldNode, UpdatePaintNodeData* ) -> QSGNode* {
-    // auto* node = static_cast<QSGSimpleTextureNode*>( oldNode );
-
-    // if ( !node ) {
-    //     node = new QSGSimpleTextureNode();
-    // }
-
-    // // Удаляем старую текстуру Qt Quick, если она была создана ранее.
-    // QSGTexture* oldTexture = node->texture();
-    // delete oldTexture;
-
-    // QSGTexture* texture = window()->createTextureFromImage( _cpuSideImage );
-    // if ( texture ) {
-    //     node->setTexture( texture );
-    //     node->setRect( 0, 0, _cpuSideImage.width(), _cpuSideImage.height() );
-    // }
-
-    // return node;
-
     auto* node = static_cast<QSGSimpleTextureNode*>( oldNode );
 
     if ( !_vkImage ) {
