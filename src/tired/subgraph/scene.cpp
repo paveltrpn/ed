@@ -253,7 +253,8 @@ auto SceneSubgraph::initPipeline() -> void {
     sampler->minFilter = VK_FILTER_LINEAR;
     sampler->mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
-    const auto imageInfo = vsg::ImageInfo::create( sampler, textureImageView );
+    const auto imageInfo =
+        vsg::ImageInfo::create( sampler, textureImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
     const auto texture = vsg::DescriptorImage::create( imageInfo, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER );
 
     _objectParamsUniformValue =
