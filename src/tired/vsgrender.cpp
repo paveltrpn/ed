@@ -404,6 +404,7 @@ auto VsgRender::_initDevice() -> void {
     vsg::Names deviceExtensions;
     deviceExtensions.push_back( VK_KHR_SWAPCHAIN_EXTENSION_NAME );
     deviceExtensions.push_back( "VK_EXT_extended_dynamic_state3" );
+
     vsg::QueueSettings queueSettings{ vsg::QueueSetting{ _queueFamily, { 1.0 } } };
 
     auto deviceFeatures = vsg::DeviceFeatures::create();
@@ -439,7 +440,7 @@ VsgRender::VsgRender() {
         _camera = vsg::Camera::create( perspective, lookAt, vsg::ViewportState::create( VkExtent2D{ 1150, 872 } ) );
     }
 
-    // Set up the RenderGraph to manage the rendering.
+    // Create support for copying the color and depth buffers.
     {
         _colorImageView = createColorImageView( _device, _extent, _imageFormat, VK_SAMPLE_COUNT_1_BIT );
         _depthImageView = createDepthImageView( _device, _extent, _depthFormat, VK_SAMPLE_COUNT_1_BIT );
@@ -449,54 +450,65 @@ VsgRender::VsgRender() {
                                                      _extent.width, _extent.height, 1 );
         }
 
-        // create support for copying the color buffer
         std::tie( _colorBufferCapture, _copiedColorBuffer ) =
             createColorCapture( _device, _extent, _colorImageView->image, _imageFormat );
         std::tie( _depthBufferCapture, _copiedDepthBuffer ) =
             createDepthCapture( _device, _extent, _depthImageView->image, _depthFormat );
     }
 
-    _renderGraph = vsg::RenderGraph::create();
+    // Set up the RenderGraph to manage the rendering.
+    {
+        _renderGraph = vsg::RenderGraph::create();
 
-    _renderGraph->framebuffer = _framebuffer;
-    _renderGraph->renderArea.offset = { 0, 0 };
-    _renderGraph->renderArea.extent = _extent;
+        _renderGraph->framebuffer = _framebuffer;
+        _renderGraph->renderArea.offset = { 0, 0 };
+        _renderGraph->renderArea.extent = _extent;
 
-    const auto clearColor = tire::Colorf{ "#92947e" };
-    _renderGraph->setClearValues( { { clearColor.r(), clearColor.r(), clearColor.b(), 1.0f } },
-                                  VkClearDepthStencilValue{ 0.0f, 0 } );
+        const auto clearColor = tire::Colorf{ "#92947e" };
+        _renderGraph->setClearValues( { { clearColor.r(), clearColor.r(), clearColor.b(), 1.0f } },
+                                      VkClearDepthStencilValue{ 0.0f, 0 } );
+    }
 
     _sceneTransform = vsg::MatrixTransform::create();
 
     auto view = vsg::View::create( _camera, _sceneTransform );
 
+    // Set up the CommandGraphs.
     vsg::CommandGraphs commandGraphs;
-    // NOTE: What usage of secondary command boffer in here?
-    if ( false ) {
-        auto secondaryCommandGraph = vsg::SecondaryCommandGraph::create( _device, _queueFamily );
-        secondaryCommandGraph->addChild( view );
-        secondaryCommandGraph->framebuffer = _framebuffer;
-        commandGraphs.push_back( secondaryCommandGraph );
+    {
+        // NOTE: What usage of secondary command buffer in here?
+        if ( false ) {
+            auto secondaryCommandGraph = vsg::SecondaryCommandGraph::create( _device, _queueFamily );
+            secondaryCommandGraph->addChild( view );
+            secondaryCommandGraph->framebuffer = _framebuffer;
+            commandGraphs.push_back( secondaryCommandGraph );
 
-        auto executeCommands = vsg::ExecuteCommands::create();
-        executeCommands->connect( secondaryCommandGraph );
+            auto executeCommands = vsg::ExecuteCommands::create();
+            executeCommands->connect( secondaryCommandGraph );
 
-        _renderGraph->contents = VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS;
-        _renderGraph->addChild( executeCommands );
-    } else
-        _renderGraph->addChild( view );
+            _renderGraph->contents = VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS;
+            _renderGraph->addChild( executeCommands );
+        } else {
+            _renderGraph->addChild( view );
+        }
 
-    _commandGraph = vsg::CommandGraph::create( _device, _queueFamily );
-    _commandGraph->addChild( _renderGraph );
-    commandGraphs.push_back( _commandGraph );
-    if ( _colorBufferCapture ) _commandGraph->addChild( _colorBufferCapture );
-    if ( _depthBufferCapture ) _commandGraph->addChild( _depthBufferCapture );
+        _commandGraph = vsg::CommandGraph::create( _device, _queueFamily );
+        _commandGraph->addChild( _renderGraph );
+        commandGraphs.push_back( _commandGraph );
 
-    auto trackballManipulator = vsg::Trackball::create( _camera );
+        if ( _colorBufferCapture ) {
+            _commandGraph->addChild( _colorBufferCapture );
+        }
 
-    _viewer = vsg::ref_ptr<tire::Viewer>{ new tire::Viewer{} };
+        if ( _depthBufferCapture ) {
+            _commandGraph->addChild( _depthBufferCapture );
+        }
+    }
 
-    _viewer->assignRecordAndSubmitTaskAndPresentation( commandGraphs );
+    {
+        _viewer = vsg::ref_ptr<tire::Viewer>{ new tire::Viewer{} };
+        _viewer->assignRecordAndSubmitTaskAndPresentation( commandGraphs );
+    }
 }
 
 auto VsgRender::needResize() const -> bool {

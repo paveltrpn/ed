@@ -53,37 +53,38 @@ private:
     auto passEventsToViewer() -> void;
 
 private:
-    vsg::ref_ptr<tire::Viewer> _viewer{};
-    vsg::ref_ptr<vsg::Camera> _camera{};
-
     vsg::ref_ptr<vsg::Instance> _instance{};
-
     vsg::ref_ptr<vsg::PhysicalDevice> _physicalDevice{};
     int _queueFamily;
     vsg::ref_ptr<vsg::Device> _device{};
 
+    vsg::ref_ptr<tire::Viewer> _viewer{};
+    vsg::ref_ptr<vsg::Camera> _camera{};
+
+    // NOTE: Why this defaults works???
     VkExtent2D _extent{ 1150, 870 };
+
     VkFormat _imageFormat{ VK_FORMAT_R8G8B8A8_UNORM };
     VkFormat _depthFormat{ VK_FORMAT_D32_SFLOAT };
 
     vsg::ref_ptr<vsg::Framebuffer> _framebuffer{};
+
     vsg::ref_ptr<vsg::ImageView> _colorImageView{};
     vsg::ref_ptr<vsg::ImageView> _depthImageView{};
+
     vsg::ref_ptr<vsg::Commands> _colorBufferCapture{};
     vsg::ref_ptr<vsg::Image> _copiedColorBuffer{};
+
     vsg::ref_ptr<vsg::Commands> _depthBufferCapture{};
     vsg::ref_ptr<vsg::Buffer> _copiedDepthBuffer{};
 
     VkSampleCountFlagBits _samples{ VK_SAMPLE_COUNT_1_BIT };
 
     vsg::ref_ptr<vsg::CommandGraph> _commandGraph;
-
     vsg::ref_ptr<vsg::RenderGraph> _renderGraph;
-
     vsg::ref_ptr<vsg::MatrixTransform> _sceneTransform{};
 
     bool _needResize{ false };
-
     VkExtent2D _newExtent{};
 };
 
