@@ -15,6 +15,17 @@ Item {
     readonly property var _fonts: Appearence.fonts.data
     readonly property var _units: Appearence.units.data
 
+    property string activeBtn: ""
+
+    // Main focus eater.
+    MouseArea {
+        anchors.fill: parent
+        onClicked: {
+            parent.activeBtn = "";
+            parent.forceActiveFocus();
+        }
+    }
+
     TopPanel {
         id: topPanel
 

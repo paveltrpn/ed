@@ -13,8 +13,6 @@ import "../components/filedialog"
 Rectangle {
     id: topPanelMainComponent
 
-
-
     color: _color.si_button_shadow
 
     // topLeftRadius: _units.radiusEight
@@ -347,7 +345,6 @@ Rectangle {
                 }
             }
         }
-
 
         // Item {
         //     id: mainWindowDecorationWrapper

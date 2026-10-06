@@ -20,7 +20,14 @@ Rectangle {
 
     color: _color.si_button_shadow
 
-    property string activeBtn: ""
+    MouseArea {
+        id: closePopupsMouseArea
+        anchors.fill: parent
+        onClicked: {
+            mainWindow.activeBtn = "";
+            parent.forceActiveFocus();
+        }
+    }
 
     Item {
         id: leftPanelMainComponentWrapper
@@ -28,14 +35,6 @@ Rectangle {
             fill: parent
             leftMargin: leftPanelSceneComponent._units.scaled_2
             rightMargin: leftPanelSceneComponent._units.scaled_2
-        }
-
-        MouseArea {
-            id: closePopupsMouseArea
-            anchors.fill: parent
-            onClicked: {
-                leftPanelSceneComponent.activeBtn = "";
-            }
         }
 
         SIButtonMain {

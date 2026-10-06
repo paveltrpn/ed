@@ -22,6 +22,16 @@ Rectangle {
 
     property string activeBtn: ""
 
+    focus: true
+
+    MouseArea {
+        anchors.fill: parent
+        onClicked: {
+            parent.activeBtn = "";
+            parent.forceActiveFocus()
+        }
+    }
+
     Item {
         id: rightPanelScenemodeWrapper
         anchors {
