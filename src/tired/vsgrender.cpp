@@ -238,7 +238,7 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Image>> createColorCapt
         commands->addChild( copyImage );
     }
 
-    // 3.d) transition destination image from transfer destination layout to general layout to enable mapping to image DeviceMemory
+    // 3.d) transition destination image from transfer destination layout to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
     auto transitionDestinationImageToMemoryReadBarrier = vsg::ImageMemoryBarrier::create(
         VK_ACCESS_TRANSFER_WRITE_BIT,                                     // srcAccessMask
         VK_ACCESS_MEMORY_READ_BIT,                                        // dstAccessMask
