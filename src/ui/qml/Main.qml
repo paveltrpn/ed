@@ -15,27 +15,6 @@ Item {
     readonly property var _fonts: Appearence.fonts.data
     readonly property var _units: Appearence.units.data
 
-    // ======================================================================================
-    // ==================== Render ==========================================================
-    // ======================================================================================
-    Render {
-        id: render
-
-        // width: parent.width
-        // height: parent.height
-
-        anchors {
-            top: viewInfoPanel.bottom
-            bottom: bottomPanel.top
-            left: leftPanel.right
-            right: rightPanel.left
-        }
-    }
-
-    // ======================================================================================
-    // ======================================================================================
-    // ======================================================================================
-
     TopPanel {
         id: topPanel
 
@@ -46,68 +25,135 @@ Item {
         }
 
         height: appStateSettings.topPanelHeight
+
+        property real _pressHeight: 0
+        property real _pressMouseY: 0
+
+        Rectangle {
+            anchors {
+                left: parent.left
+                right: parent.right
+                bottom: parent.bottom
+            }
+            color: topPanelResizeHandle.containsMouse || topPanelResizeHandle.pressed ? _color.si_scrollbar_light : "transparent"
+            height: topPanelResizeHandle.height
+        }
+
+        MouseArea {
+            id: topPanelResizeHandle
+            anchors {
+                left: parent.left
+                right: parent.right
+                bottom: topPanelResizeHandle.pressed ? undefined : parent.bottom
+            }
+
+            height: _units.scaled_8
+
+            cursorShape: Qt.SizeVerCursor
+
+            onPressed: mouse => {
+                topPanel._pressHeight = topPanel.height;
+                topPanel._pressMouseY = mouse.y;
+            }
+
+            onPositionChanged: mouse => {
+                if (!pressed)
+                    return;
+
+                const dy = mouse.y - topPanel._pressMouseY;
+                const newHeight = topPanel._pressHeight + dy;
+
+                appStateSettings.topPanelHeight = newHeight;
+            }
+        }
     }
 
-    Rectangle {
-        id: viewInfoPanel
+    // ======================================================================================
+    // ==================== Render view =====================================================
+    // ======================================================================================
+    Item {
+        id: renderViewWrapper
         anchors {
             top: topPanel.bottom
+            bottom: bottomPanel.top
             left: leftPanel.right
             right: rightPanel.left
         }
 
-        height: _units.scaled_24
-        color: _color.si_additional_grey_faded
-
-        border {
-            width: _units.scaled_1
-            color: _color.si_background_dark
-        }
-
-        clip: true
-
-        Text {
-            id: eyePosLabel
+        Rectangle {
+            id: viewInfoPanel
             anchors {
                 top: parent.top
-                bottom: parent.bottom
-                right: centerPosLabel.left
-                rightMargin: _units.scaled_8
-            }
-
-            verticalAlignment: Text.AlignVCenter
-
-            width: implicitWidth
-
-            font: _fonts.label
-            color: _color.additional_contrast_60
-            text: {
-                const eye = Tired.manipulator.eye;
-                return `eye: ${eye.x.toFixed(3)}  ${eye.y.toFixed(3)}  ${eye.z.toFixed(3)}`;
-            }
-        }
-
-        Text {
-            id: centerPosLabel
-            anchors {
-                top: parent.top
-                bottom: parent.bottom
+                left: parent.left
                 right: parent.right
-                rightMargin: _units.scaled_8
             }
 
-            verticalAlignment: Text.AlignVCenter
+            height: _units.scaled_24
+            color: _color.si_additional_grey_faded
 
-            width: implicitWidth
+            border {
+                width: _units.scaled_1
+                color: _color.si_background_dark
+            }
 
-            font: _fonts.label
-            color: _color.additional_contrast_60
-            text: {
-                const center = Tired.manipulator.center;
-                return `cnt: ${center.x.toFixed(3)}  ${center.y.toFixed(3)}  ${center.z.toFixed(3)}`;
+            clip: true
+
+            Text {
+                id: eyePosLabel
+                anchors {
+                    top: parent.top
+                    bottom: parent.bottom
+                    right: centerPosLabel.left
+                    rightMargin: _units.scaled_8
+                }
+
+                verticalAlignment: Text.AlignVCenter
+
+                width: implicitWidth
+
+                font: _fonts.label
+                color: _color.additional_contrast_60
+                text: {
+                    const eye = Tired.manipulator.eye;
+                    return `eye: ${eye.x.toFixed(3)}  ${eye.y.toFixed(3)}  ${eye.z.toFixed(3)}`;
+                }
+            }
+
+            Text {
+                id: centerPosLabel
+                anchors {
+                    top: parent.top
+                    bottom: parent.bottom
+                    right: parent.right
+                    rightMargin: _units.scaled_8
+                }
+
+                verticalAlignment: Text.AlignVCenter
+
+                width: implicitWidth
+
+                font: _fonts.label
+                color: _color.additional_contrast_60
+                text: {
+                    const center = Tired.manipulator.center;
+                    return `cnt: ${center.x.toFixed(3)}  ${center.y.toFixed(3)}  ${center.z.toFixed(3)}`;
+                }
+            }
+        }
+
+        Render {
+            id: render
+            anchors {
+                top: viewInfoPanel.bottom
+                bottom: parent.bottom
+                left: parent.left
+                right: parent.right
             }
         }
     }
+    // ======================================================================================
+    // ======================================================================================
+    // ======================================================================================
 
     BottomPanel {
         id: bottomPanel
@@ -119,6 +165,47 @@ Item {
         }
 
         height: appStateSettings.bottomPanelHeight
+
+        property real _pressHeight: 0
+        property real _pressMouseY: 0
+
+        Rectangle {
+            anchors {
+                left: parent.left
+                right: parent.right
+                top: parent.top
+            }
+            color: bottomPanelResizeHandle.containsMouse || bottomPanelResizeHandle.pressed ? _color.si_scrollbar_light : "transparent"
+            height: bottomPanelResizeHandle.height
+        }
+
+        MouseArea {
+            id: bottomPanelResizeHandle
+            anchors {
+                left: parent.left
+                right: parent.right
+                top: bottomPanelResizeHandle.pressed ? undefined : parent.top
+            }
+
+            height: _units.scaled_8
+
+            cursorShape: Qt.SizeVerCursor
+
+            onPressed: mouse => {
+                bottomPanel._pressHeight = bottomPanel.height;
+                bottomPanel._pressMouseY = mouse.y;
+            }
+
+            onPositionChanged: mouse => {
+                if (!pressed)
+                    return;
+
+                const dy = mouse.y - bottomPanel._pressMouseY;
+                const newHeight = bottomPanel._pressHeight - dy;
+
+                appStateSettings.bottomPanelHeight = newHeight;
+            }
+        }
     }
 
     LeftPanel {
@@ -135,15 +222,25 @@ Item {
         property real _pressWidth: 0
         property real _pressMouseX: 0
 
-        MouseArea {
-            id: resizeHandle
+        Rectangle {
             anchors {
                 top: parent.top
                 bottom: parent.bottom
                 right: parent.right
             }
+            color: leftPanelResizeHandle.containsMouse || leftPanelResizeHandle.pressed ? _color.si_scrollbar_light : "transparent"
+            width: leftPanelResizeHandle.width
+        }
 
-            width: 8
+        MouseArea {
+            id: leftPanelResizeHandle
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                right: leftPanelResizeHandle.pressed ? undefined : parent.right
+            }
+
+            width: _units.scaled_8
 
             cursorShape: Qt.SizeHorCursor
 
@@ -156,16 +253,10 @@ Item {
                 if (!pressed)
                     return;
 
-                // Delta since press, in MouseArea-local coords
                 const dx = mouse.x - leftPanel._pressMouseX;
                 const newWidth = leftPanel._pressWidth + dx;
 
                 appStateSettings.leftPanelWidth = newWidth;
-            }
-
-            Rectangle {
-                anchors.fill: parent
-                color: resizeHandle.containsMouse || resizeHandle.pressed ? "#80ffffff" : "transparent"
             }
         }
     }
@@ -180,6 +271,47 @@ Item {
         }
 
         width: appStateSettings.rightPanelWidth
+
+        property real _pressWidth: 0
+        property real _pressMouseX: 0
+
+        Rectangle {
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                left: parent.left
+            }
+            color: rightPanelResizeHandle.containsMouse || rightPanelResizeHandle.pressed ? _color.si_scrollbar_light : "transparent"
+            width: rightPanelResizeHandle.width
+        }
+
+        MouseArea {
+            id: rightPanelResizeHandle
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                left: rightPanelResizeHandle.pressed ? undefined : parent.left
+            }
+
+            width: _units.scaled_8
+
+            cursorShape: Qt.SizeHorCursor
+
+            onPressed: mouse => {
+                rightPanel._pressWidth = rightPanel.width;
+                rightPanel._pressMouseX = mouse.x;
+            }
+
+            onPositionChanged: mouse => {
+                if (!pressed)
+                    return;
+
+                const dx = mouse.x - rightPanel._pressMouseX;
+                const newWidth = rightPanel._pressWidth - dx;
+
+                appStateSettings.rightPanelWidth = newWidth;
+            }
+        }
     }
 
     // Rectangle {
