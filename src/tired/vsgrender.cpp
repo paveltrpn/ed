@@ -139,7 +139,7 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Image>> createColorCapt
     //
     auto destinationImage = vsg::MutableFormatImage::create();
     destinationImage->imageType = VK_IMAGE_TYPE_2D;
-    destinationImage->format = VK_FORMAT_R8G8B8A8_SRGB;
+    destinationImage->format = targetImageFormat;
     destinationImage->extent.width = width;
     destinationImage->extent.height = height;
     destinationImage->extent.depth = 1;
