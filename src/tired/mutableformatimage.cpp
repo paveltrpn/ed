@@ -1,4 +1,6 @@
 
+#include <array>
+
 #include "mutableformatimage.h"
 
 namespace vsg {
@@ -10,12 +12,13 @@ VkResult MutableFormatImage::compile( Device* device ) {
         return VK_SUCCESS;
     }
 
-    VkFormat formats[] = { VK_FORMAT_R8G8B8A8_SRGB, VK_FORMAT_R8G8B8A8_UNORM };
+    auto formats = std::array<VkFormat, 2>{ VK_FORMAT_R8G8B8A8_SRGB, VK_FORMAT_R8G8B8A8_UNORM };
 
-    VkImageFormatListCreateInfo formatList{
-        .sType = VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO, .viewFormatCount = 2, .pViewFormats = formats };
+    auto formatList = VkImageFormatListCreateInfo{ .sType = VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO,
+                                                   .viewFormatCount = formats.size(),
+                                                   .pViewFormats = formats.data() };
 
-    VkImageCreateInfo info = {};
+    auto info = VkImageCreateInfo{};
     info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     info.pNext = &formatList;
     info.flags = flags | VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
@@ -36,7 +39,7 @@ VkResult MutableFormatImage::compile( Device* device ) {
 
     vd.requiresDataCopy = data.valid();
 
-    VkResult result = vkCreateImage( *vd.device, &info, vd.device->getAllocationCallbacks(), &vd.image );
+    const auto result = vkCreateImage( *vd.device, &info, vd.device->getAllocationCallbacks(), &vd.image );
 
     if ( result != VK_SUCCESS ) {
         throw Exception{ "Error: Failed to create VkImage.", result };
