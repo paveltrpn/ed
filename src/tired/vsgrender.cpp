@@ -68,7 +68,7 @@ vsg::ref_ptr<vsg::RenderPass> createOffscreenRenderPass( vsg::Device* device, Vk
 
 vsg::ref_ptr<vsg::ImageView> createColorImageView( vsg::ref_ptr<vsg::Device> device, const VkExtent2D& extent,
                                                    VkFormat imageFormat, VkSampleCountFlagBits samples ) {
-    auto colorImage = vsg::Image::create();
+    auto colorImage = vsg::MutableFormatImage::create();
     colorImage->imageType = VK_IMAGE_TYPE_2D;
     colorImage->format = imageFormat;
     colorImage->extent = VkExtent3D{ extent.width, extent.height, 1 };
@@ -78,7 +78,10 @@ vsg::ref_ptr<vsg::ImageView> createColorImageView( vsg::ref_ptr<vsg::Device> dev
     colorImage->tiling = VK_IMAGE_TILING_OPTIMAL;
     colorImage->usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     colorImage->initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+    // NOTE: VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT allready set!
     colorImage->flags = 0;
+
     colorImage->sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     return vsg::createImageView( device, colorImage, VK_IMAGE_ASPECT_COLOR_BIT );
@@ -119,14 +122,14 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Image>> createColorCapt
     vkGetPhysicalDeviceFormatProperties( *( physicalDevice ), sourceImageFormat, &srcFormatProperties );
 
     VkFormatProperties destFormatProperties;
-    vkGetPhysicalDeviceFormatProperties( *( physicalDevice ), VK_FORMAT_R8G8B8A8_UNORM, &destFormatProperties );
+    vkGetPhysicalDeviceFormatProperties( *( physicalDevice ), VK_FORMAT_R8G8B8A8_SRGB, &destFormatProperties );
 
     bool supportsBlit = ( ( srcFormatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT ) != 0 ) &&
                         ( ( destFormatProperties.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT ) != 0 );
 
     if ( supportsBlit ) {
         // we can automatically convert the image format when blit, so take advantage of it to ensure RGBA
-        targetImageFormat = VK_FORMAT_R8G8B8A8_UNORM;
+        targetImageFormat = VK_FORMAT_R8G8B8A8_SRGB;
     }
 
     //std::cout<<"supportsBlit = "<<supportsBlit<<std::endl;
@@ -134,9 +137,9 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Image>> createColorCapt
     //
     // 2) create image to write to
     //
-    auto destinationImage = vsg::Image::create();
+    auto destinationImage = vsg::MutableFormatImage::create();
     destinationImage->imageType = VK_IMAGE_TYPE_2D;
-    destinationImage->format = targetImageFormat;
+    destinationImage->format = VK_FORMAT_R8G8B8A8_SRGB;
     destinationImage->extent.width = width;
     destinationImage->extent.height = height;
     destinationImage->extent.depth = 1;
@@ -145,9 +148,8 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Image>> createColorCapt
     destinationImage->initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     destinationImage->samples = VK_SAMPLE_COUNT_1_BIT;
     destinationImage->tiling = VK_IMAGE_TILING_LINEAR;
-    destinationImage->usage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                              VK_IMAGE_USAGE_TRANSFER_DST_BIT  // NEW: for Qt's blit
-                              | VK_IMAGE_USAGE_SAMPLED_BIT;    // NEW: for Qt's sampling
+    destinationImage->usage =
+        VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 
     destinationImage->compile( device );
 
