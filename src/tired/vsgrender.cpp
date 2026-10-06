@@ -176,16 +176,17 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Image>> createColorCapt
         VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }  // subresourceRange
     );
 
+#if 1
     // 3.b) transition swapChainImage from present to transfer source initialLayout
     // NOTE: Good for NV!
-    // auto transitionSourceImageToTransferSourceLayoutBarrier =
-    //     vsg::ImageMemoryBarrier::create( VK_ACCESS_MEMORY_READ_BIT,             // srcAccessMask
-    //                                      VK_ACCESS_TRANSFER_READ_BIT,           // dstAccessMask
-    //                                      VK_IMAGE_LAYOUT_UNDEFINED,             // oldLayout  <-- FIX
-    //                                      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,  // newLayout
-    //                                      VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, sourceImage,
-    //                                      VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 } );
-
+    auto transitionSourceImageToTransferSourceLayoutBarrier =
+        vsg::ImageMemoryBarrier::create( VK_ACCESS_MEMORY_READ_BIT,             // srcAccessMask
+                                         VK_ACCESS_TRANSFER_READ_BIT,           // dstAccessMask
+                                         VK_IMAGE_LAYOUT_UNDEFINED,             // oldLayout  <-- FIX
+                                         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,  // newLayout
+                                         VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, sourceImage,
+                                         VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 } );
+#else
     // NOTE: Make radeon works!
     auto transitionSourceImageToTransferSourceLayoutBarrier = vsg::ImageMemoryBarrier::create(
         VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,  // srcAccessMask
@@ -194,6 +195,7 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Image>> createColorCapt
         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,  // newLayout <- no-op, but keeps the barrier for sync
         VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, sourceImage,
         VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 } );
+#endif
 
     auto cmd_transitionForTransferBarrier =
         vsg::PipelineBarrier::create( VK_PIPELINE_STAGE_TRANSFER_BIT,                        // srcStageMask
@@ -430,7 +432,12 @@ auto VsgRender::_initDevice() -> void {
                             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT>();
     dynamicState3Features.extendedDynamicState3PolygonMode = VK_TRUE;
 
-    // NOTE: Not used since Vulkan API 1.0?
+    // NOTE: Error if validatedNames not empty. Not used since Vulkan API 1.0?
+    // "Validation Error:
+    // vkCreateDevice(): pCreateInfo->enabledLayerCount is 1 (not zero).
+    // Device Layers have never worked since Vulkan 1.0 and only Instance Layers should be
+    // used instead: https://docs.vulkan.org/spec/latest/appendices/legacy.html#legacy-devicelayers.
+    // The Vulkan spec states: enabledLayerCount must be 0"
     vsg::Names validatedNames = vsg::validateInstanceLayerNames( {} );
 
     _device = vsg::Device::create( _physicalDevice, queueSettings, validatedNames, deviceExtensions, deviceFeatures );
