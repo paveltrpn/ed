@@ -26,59 +26,6 @@ Item {
         }
     }
 
-    TopPanel {
-        id: topPanel
-
-        anchors {
-            left: parent.left
-            right: parent.right
-            top: parent.top
-        }
-
-        height: appStateSettings.topPanelHeight
-
-        property real _pressHeight: 0
-        property real _pressMouseY: 0
-
-        Rectangle {
-            anchors {
-                left: parent.left
-                right: parent.right
-                bottom: parent.bottom
-            }
-            color: topPanelResizeHandle.containsMouse || topPanelResizeHandle.pressed ? _color.si_scrollbar_light : "transparent"
-            height: topPanelResizeHandle.height
-        }
-
-        MouseArea {
-            id: topPanelResizeHandle
-            anchors {
-                left: parent.left
-                right: parent.right
-                bottom: topPanelResizeHandle.pressed ? undefined : parent.bottom
-            }
-
-            height: _units.scaled_8
-
-            cursorShape: Qt.SizeVerCursor
-
-            onPressed: mouse => {
-                topPanel._pressHeight = topPanel.height;
-                topPanel._pressMouseY = mouse.y;
-            }
-
-            onPositionChanged: mouse => {
-                if (!pressed)
-                    return;
-
-                const dy = mouse.y - topPanel._pressMouseY;
-                const newHeight = topPanel._pressHeight + dy;
-
-                appStateSettings.topPanelHeight = newHeight;
-            }
-        }
-    }
-
     // ======================================================================================
     // ==================== Render view =====================================================
     // ======================================================================================
@@ -167,6 +114,67 @@ Item {
     // ======================================================================================
     // ======================================================================================
 
+    TopPanel {
+        id: topPanel
+
+        anchors {
+            left: parent.left
+            right: parent.right
+            top: parent.top
+        }
+
+        height: appStateSettings.topPanelHeight
+
+        property real _pressHeight: 0
+        property real _pressMouseY: 0
+        property real _newHeight: 0
+
+        Rectangle {
+            id: topPanelDragMarker
+            anchors {
+                left: parent.left
+                right: parent.right
+                bottom: topPanelResizeHandle.pressed ? undefined : parent.bottom
+            }
+            color: topPanelResizeHandle.containsMouse || topPanelResizeHandle.pressed ? _color.si_scrollbar_light : "transparent"
+            height: topPanelResizeHandle.height
+        }
+
+        MouseArea {
+            id: topPanelResizeHandle
+            anchors {
+                left: parent.left
+                right: parent.right
+                bottom: topPanelResizeHandle.pressed ? undefined : parent.bottom
+            }
+
+            height: _units.scaled_8
+
+            cursorShape: Qt.SizeVerCursor
+
+            onPressed: mouse => {
+                topPanel._newHeight = 0;
+                topPanel._pressHeight = topPanel.height;
+                topPanel._pressMouseY = mouse.y;
+            }
+
+            onReleased: {
+                appStateSettings.topPanelHeight = topPanel._newHeight;
+            }
+
+            onPositionChanged: mouse => {
+                if (!pressed) {
+                    return;
+                }
+
+                const dy = mouse.y - topPanel._pressMouseY;
+                topPanel._newHeight = topPanel._pressHeight + dy;
+
+                topPanelDragMarker.y = mouse.y + topPanel.height - (topPanelDragMarker.height + topPanelDragMarker.height / 2);
+            }
+        }
+    }
+
     BottomPanel {
         id: bottomPanel
 
@@ -180,12 +188,14 @@ Item {
 
         property real _pressHeight: 0
         property real _pressMouseY: 0
+        property real _newHeight: 0
 
         Rectangle {
+            id: buttomPanelDragMarker
             anchors {
                 left: parent.left
                 right: parent.right
-                top: parent.top
+                top: bottomPanelResizeHandle.pressed ? undefined : parent.top
             }
             color: bottomPanelResizeHandle.containsMouse || bottomPanelResizeHandle.pressed ? _color.si_scrollbar_light : "transparent"
             height: bottomPanelResizeHandle.height
@@ -204,18 +214,24 @@ Item {
             cursorShape: Qt.SizeVerCursor
 
             onPressed: mouse => {
+                bottomPanel._newHeight = 0;
                 bottomPanel._pressHeight = bottomPanel.height;
                 bottomPanel._pressMouseY = mouse.y;
             }
 
+            onReleased: {
+                appStateSettings.bottomPanelHeight = bottomPanel._newHeight;
+            }
+
             onPositionChanged: mouse => {
-                if (!pressed)
+                if (!pressed) {
                     return;
+                }
 
                 const dy = mouse.y - bottomPanel._pressMouseY;
-                const newHeight = bottomPanel._pressHeight - dy;
+                bottomPanel._newHeight = bottomPanel._pressHeight - dy;
 
-                appStateSettings.bottomPanelHeight = newHeight;
+                buttomPanelDragMarker.y = mouse.y - buttomPanelDragMarker.height / 2;
             }
         }
     }
@@ -233,12 +249,14 @@ Item {
 
         property real _pressWidth: 0
         property real _pressMouseX: 0
+        property real _newWidth: 0
 
         Rectangle {
+            id: leftPanelDragMarker
             anchors {
                 top: parent.top
                 bottom: parent.bottom
-                right: parent.right
+                right: leftPanelResizeHandle.pressed ? undefined : parent.right
             }
             color: leftPanelResizeHandle.containsMouse || leftPanelResizeHandle.pressed ? _color.si_scrollbar_light : "transparent"
             width: leftPanelResizeHandle.width
@@ -257,18 +275,24 @@ Item {
             cursorShape: Qt.SizeHorCursor
 
             onPressed: mouse => {
+                leftPanel._newWidth = 0;
                 leftPanel._pressWidth = leftPanel.width;
                 leftPanel._pressMouseX = mouse.x;
             }
 
+            onReleased: {
+                appStateSettings.leftPanelWidth = leftPanel._newWidth;
+            }
+
             onPositionChanged: mouse => {
-                if (!pressed)
+                if (!pressed) {
                     return;
+                }
 
                 const dx = mouse.x - leftPanel._pressMouseX;
-                const newWidth = leftPanel._pressWidth + dx;
+                leftPanel._newWidth = leftPanel._pressWidth + dx;
 
-                appStateSettings.leftPanelWidth = newWidth;
+                leftPanelDragMarker.x = mouse.x + leftPanel.width - (leftPanelDragMarker.width + leftPanelDragMarker.width / 2);
             }
         }
     }
@@ -286,12 +310,14 @@ Item {
 
         property real _pressWidth: 0
         property real _pressMouseX: 0
+        property real _newWidth: 0
 
         Rectangle {
+            id: rightPanelDragMarker
             anchors {
                 top: parent.top
                 bottom: parent.bottom
-                left: parent.left
+                left: rightPanelResizeHandle.pressed ? undefined : parent.left
             }
             color: rightPanelResizeHandle.containsMouse || rightPanelResizeHandle.pressed ? _color.si_scrollbar_light : "transparent"
             width: rightPanelResizeHandle.width
@@ -310,18 +336,24 @@ Item {
             cursorShape: Qt.SizeHorCursor
 
             onPressed: mouse => {
+                rightPanel._newWidth = 0;
                 rightPanel._pressWidth = rightPanel.width;
                 rightPanel._pressMouseX = mouse.x;
             }
 
+            onReleased: {
+                appStateSettings.rightPanelWidth = rightPanel._newWidth;
+            }
+
             onPositionChanged: mouse => {
-                if (!pressed)
+                if (!pressed) {
                     return;
+                }
 
                 const dx = mouse.x - rightPanel._pressMouseX;
-                const newWidth = rightPanel._pressWidth - dx;
+                rightPanel._newWidth = rightPanel._pressWidth - dx;
 
-                appStateSettings.rightPanelWidth = newWidth;
+                rightPanelDragMarker.x = mouse.x - rightPanelDragMarker.width / 2;
             }
         }
     }

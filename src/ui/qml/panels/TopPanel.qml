@@ -309,6 +309,8 @@ Rectangle {
 
                     // ControlModes::SCENE
                     Tired.controlMode = 0;
+
+                    appStateSettings.resetPanelsSize()
                 }
 
                 Component.onCompleted: {
