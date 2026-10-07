@@ -24,14 +24,6 @@ Rectangle {
 
     focus: true
 
-    MouseArea {
-        anchors.fill: parent
-        onClicked: {
-            parent.activeBtn = "";
-            parent.forceActiveFocus()
-        }
-    }
-
     Item {
         id: rightPanelScenemodeWrapper
         anchors {
@@ -354,15 +346,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Scene"
 
-            checked: rightPanelSceneComponent.activeBtn === "infoButton"
+            checked: mainWindow.panelsActiveBtn === "infoButton"
 
             onClicked: {
                 if (sceneButton.checked) {
-                    rightPanelSceneComponent.activeBtn = "";
+                    mainWindow.panelsActiveBtn = "";
                     return;
                 }
 
-                rightPanelSceneComponent.activeBtn = "infoButton";
+                mainWindow.panelsActiveBtn = "infoButton";
             }
         }
 

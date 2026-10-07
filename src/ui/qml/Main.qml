@@ -15,13 +15,13 @@ Item {
     readonly property var _fonts: Appearence.fonts.data
     readonly property var _units: Appearence.units.data
 
-    property string activeBtn: ""
+    property string panelsActiveBtn: ""
 
-    // Main focus eater.
     MouseArea {
+        id: mainWindowFocusEater
         anchors.fill: parent
-        onClicked: {
-            parent.activeBtn = "";
+        onPressed: {
+            parent.panelsActiveBtn = "";
             parent.forceActiveFocus();
         }
     }
@@ -84,6 +84,7 @@ Item {
     // ======================================================================================
     Item {
         id: renderViewWrapper
+
         anchors {
             top: topPanel.bottom
             bottom: bottomPanel.top

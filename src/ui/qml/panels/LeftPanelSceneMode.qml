@@ -20,15 +20,6 @@ Rectangle {
 
     color: _color.si_button_shadow
 
-    MouseArea {
-        id: closePopupsMouseArea
-        anchors.fill: parent
-        onClicked: {
-            mainWindow.activeBtn = "";
-            parent.forceActiveFocus();
-        }
-    }
-
     Item {
         id: leftPanelMainComponentWrapper
         anchors {
@@ -50,15 +41,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Object"
 
-            checked: leftPanelSceneComponent.activeBtn === "objectAddButton"
+            checked: mainWindow.panelsActiveBtn === "objectAddButton"
 
             onClicked: {
                 if (objectAddButton.checked) {
-                    leftPanelSceneComponent.activeBtn = "";
+                    mainWindow.panelsActiveBtn = "";
                     return;
                 }
 
-                leftPanelSceneComponent.activeBtn = "objectAddButton";
+                mainWindow.panelsActiveBtn = "objectAddButton";
             }
         }
 
@@ -88,15 +79,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Mesh"
 
-            checked: leftPanelSceneComponent.activeBtn === "meshAddButton"
+            checked: mainWindow.panelsActiveBtn === "meshAddButton"
 
             onClicked: {
                 if (meshAddButton.checked) {
-                    leftPanelSceneComponent.activeBtn = "";
+                    mainWindow.panelsActiveBtn = "";
                     return;
                 }
 
-                leftPanelSceneComponent.activeBtn = "meshAddButton";
+                mainWindow.panelsActiveBtn = "meshAddButton";
             }
         }
 
@@ -126,15 +117,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Bezier"
 
-            checked: leftPanelSceneComponent.activeBtn === "bezierAddButton"
+            checked: mainWindow.panelsActiveBtn === "bezierAddButton"
 
             onClicked: {
                 if (bezierAddButton.checked) {
-                    leftPanelSceneComponent.activeBtn = "";
+                    mainWindow.panelsActiveBtn = "";
                     return;
                 }
 
-                leftPanelSceneComponent.activeBtn = "bezierAddButton";
+                mainWindow.panelsActiveBtn = "bezierAddButton";
             }
         }
 
@@ -164,15 +155,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Implicit"
 
-            checked: leftPanelSceneComponent.activeBtn === "implicitAddButton"
+            checked: mainWindow.panelsActiveBtn === "implicitAddButton"
 
             onClicked: {
                 if (implicitAddButton.checked) {
-                    leftPanelSceneComponent.activeBtn = "";
+                    mainWindow.panelsActiveBtn = "";
                     return;
                 }
 
-                leftPanelSceneComponent.activeBtn = "implicitAddButton";
+                mainWindow.panelsActiveBtn = "implicitAddButton";
             }
         }
 
@@ -202,15 +193,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Landscape"
 
-            checked: leftPanelSceneComponent.activeBtn === "landscapeAddButton"
+            checked: mainWindow.panelsActiveBtn === "landscapeAddButton"
 
             onClicked: {
                 if (landscapeAddButton.checked) {
-                    leftPanelSceneComponent.activeBtn = "";
+                    mainWindow.panelsActiveBtn = "";
                     return;
                 }
 
-                leftPanelSceneComponent.activeBtn = "landscapeAddButton";
+                mainWindow.panelsActiveBtn = "landscapeAddButton";
             }
         }
 
@@ -240,15 +231,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Polytope"
 
-            checked: leftPanelSceneComponent.activeBtn === "polytopeAddButton"
+            checked: mainWindow.panelsActiveBtn === "polytopeAddButton"
 
             onClicked: {
                 if (polytopeAddButton.checked) {
-                    leftPanelSceneComponent.activeBtn = "";
+                    mainWindow.panelsActiveBtn = "";
                     return;
                 }
 
-                leftPanelSceneComponent.activeBtn = "polytopeAddButton";
+                mainWindow.panelsActiveBtn = "polytopeAddButton";
             }
         }
 
@@ -277,15 +268,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Settings"
 
-            checked: leftPanelSceneComponent.activeBtn === "settingsButton"
+            checked: mainWindow.panelsActiveBtn === "settingsButton"
 
             onClicked: {
                 if (settingsButton.checked) {
-                    leftPanelSceneComponent.activeBtn = "";
+                    mainWindow.panelsActiveBtn = "";
                     return;
                 }
 
-                leftPanelSceneComponent.activeBtn = "settingsButton";
+                mainWindow.panelsActiveBtn = "settingsButton";
             }
         }
 

@@ -34,7 +34,7 @@ Rectangle {
             id: closePopupsMouseArea
             anchors.fill: parent
             onClicked: {
-                leftPanelMainComponentWrapper.activeBtn = "";
+                mainWindow.panelsActiveBtn = "";
             }
         }
 
@@ -51,15 +51,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_system
             buttonLabel: "About"
 
-            checked: leftPanelMainComponentWrapper.activeBtn === "aboutButton"
+            checked: mainWindow.panelsActiveBtn === "aboutButton"
 
             onClicked: {
                 if (aboutButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = "";
+                    mainWindow.panelsActiveBtn = "";
                     return;
                 }
 
-                leftPanelMainComponentWrapper.activeBtn = "aboutButton";
+                mainWindow.panelsActiveBtn = "aboutButton";
             }
         }
 
@@ -76,7 +76,7 @@ Rectangle {
             visible: aboutButton.checked
 
             onClose: {
-                leftPanelMainComponentWrapper.activeBtn = "";
+                mainWindow.panelsActiveBtn = "";
             }
         }
 
@@ -93,15 +93,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_system
             buttonLabel: "Ui"
 
-            checked: leftPanelMainComponentWrapper.activeBtn === "uiSettingsButton"
+            checked: mainWindow.panelsActiveBtn === "uiSettingsButton"
 
             onClicked: {
                 if (uiSettingsButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = "";
+                    mainWindow.panelsActiveBtn = "";
                     return;
                 }
 
-                leftPanelMainComponentWrapper.activeBtn = "uiSettingsButton";
+                mainWindow.panelsActiveBtn = "uiSettingsButton";
             }
         }
 
@@ -118,7 +118,7 @@ Rectangle {
             visible: uiSettingsButton.checked
 
             onClose: {
-                leftPanelMainComponentWrapper.activeBtn = "";
+                mainWindow.panelsActiveBtn = "";
             }
         }
 
@@ -134,15 +134,15 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_system
             buttonLabel: "Exit"
 
-            checked: leftPanelMainComponentWrapper.activeBtn === "exitButton"
+            checked: mainWindow.panelsActiveBtn === "exitButton"
 
             onClicked: {
                 if (exitButton.checked) {
-                    leftPanelMainComponentWrapper.activeBtn = "";
+                    mainWindow.panelsActiveBtn = "";
                     return;
                 }
 
-                leftPanelMainComponentWrapper.activeBtn = "exitButton";
+                mainWindow.panelsActiveBtn = "exitButton";
             }
         }
 
@@ -162,7 +162,7 @@ Rectangle {
             }
 
             onDecline: {
-                leftPanelMainComponentWrapper.activeBtn = "";
+                mainWindow.panelsActiveBtn = "";
             }
         }
     }
