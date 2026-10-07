@@ -87,15 +87,15 @@ private:
     vsg::ref_ptr<vsg::StateGroup> _stateGroup{};
 
     float _gridSize{ 1.0f };
-    float _lineThickness{ 0.015f };
-    float _maxRange{ 256.0f };
-    float _zoomSensitivity{ 0.5f };
+    float _lineThickness{ 0.016f };
+    float _maxRange{ 512.0f };
+    float _zoomSensitivity{ 0.8f };
 
-    vsg::vec3 _colorMajor{ 19.0f / 255.0f, 19.0f / 255.0f, 17.0f / 255.0f };
-    vsg::vec3 _colorMinor{ 53.0f / 255.0f, 53.0f / 255.0f, 51.0f / 255.0f };
+    vsg::vec3 _colorMajor{ 12.0f / 255.0f, 12.0f / 255.0f, 10.0f / 255.0f };
+    vsg::vec3 _colorMinor{ 64.0f / 255.0f, 64.0f / 255.0f, 60.0f / 255.0f };
 
     float _majorDivisor{ 5.0f };
-    float _gridScale{ 512.0f };
+    float _gridScale{ 16.0f };
     float _gridZOffset{ 0.0f };
 
     vsg::vec3 _cameraPosition{ 0.0f, -16.0f, 8.0f };
