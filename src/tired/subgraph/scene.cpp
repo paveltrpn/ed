@@ -330,7 +330,7 @@ auto SceneSubgraph::initPipeline() -> void {
     _graphicsPipeline = vsg::ref_ptr<vsg::DynamicRenderGraphicsPipeline>{ new vsg::DynamicRenderGraphicsPipeline{
         pipelineLayout, vsg::ShaderStages{ vertexShader, fragmentShader }, pipelineStates } };
 
-    const auto bindGraphicsPipeline = vsg::BindGraphicsPipeline::create( _graphicsPipeline );
+    const auto bindGraphicsPipeline = vsg::BindDynamicRenderGraphicsPipeline::create( _graphicsPipeline );
 
     const auto descriptorSet =
         vsg::DescriptorSet::create( descriptorSetLayout, vsg::Descriptors{ texture, objectParamsUniformDescriptor } );

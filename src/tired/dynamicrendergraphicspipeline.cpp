@@ -180,8 +180,7 @@ DynamicRenderGraphicsPipeline::Implementation::~Implementation() {
 BindDynamicRenderGraphicsPipeline::BindDynamicRenderGraphicsPipeline(
     ref_ptr<DynamicRenderGraphicsPipeline> in_pipeline )
     : Inherit<BindGraphicsPipeline, BindDynamicRenderGraphicsPipeline>( in_pipeline )
-    ,  // slot 0
-    pipeline( in_pipeline ) {
+    , _pipeline( in_pipeline ) {
 }
 
 BindDynamicRenderGraphicsPipeline::~BindDynamicRenderGraphicsPipeline() {
@@ -192,28 +191,30 @@ int BindDynamicRenderGraphicsPipeline::compare( const Object& rhs_object ) const
     if ( result != 0 ) return result;
 
     const auto& rhs = static_cast<decltype( *this )>( rhs_object );
-    return compare_pointer( pipeline, rhs.pipeline );
+    return compare_pointer( _pipeline, rhs._pipeline );
 }
 
 void BindDynamicRenderGraphicsPipeline::read( Input& input ) {
     StateCommand::read( input );
 
-    input.readObject( "pipeline", pipeline );
+    input.readObject( "pipeline", _pipeline );
 }
 
 void BindDynamicRenderGraphicsPipeline::write( Output& output ) const {
     StateCommand::write( output );
 
-    output.writeObject( "pipeline", pipeline );
+    output.writeObject( "pipeline", _pipeline );
 }
 
 void BindDynamicRenderGraphicsPipeline::record( CommandBuffer& commandBuffer ) const {
-    vkCmdBindPipeline( commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->vk( commandBuffer.viewID ) );
-    commandBuffer.setCurrentPipelineLayout( pipeline->layout );
+    auto foo = _pipeline->vk( commandBuffer.viewID );
+
+    vkCmdBindPipeline( commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, foo );
+    commandBuffer.setCurrentPipelineLayout( BindDynamicRenderGraphicsPipeline::_pipeline->layout );
 }
 
 void BindDynamicRenderGraphicsPipeline::compile( Context& context ) {
-    if ( pipeline ) pipeline->compile( context );
+    if ( _pipeline ) _pipeline->compile( context );
 }
 
 }  // namespace vsg

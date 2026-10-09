@@ -3,6 +3,7 @@
 
 #include "boundingrender.h"
 #include "program/program.h"
+#include "../dynamicrendergraphicspipeline.h"
 
 namespace tire {
 
@@ -58,9 +59,11 @@ auto BoundingRender::initPipeline() -> void {
 
     auto pipelineLayout =
         vsg::PipelineLayout::create( vsg::DescriptorSetLayouts{ descriptorSetLayout }, pushConstantRanges );
-    auto graphicsPipeline = vsg::GraphicsPipeline::create(
-        pipelineLayout, vsg::ShaderStages{ vertexShader, fragmentShader }, pipelineStates );
-    auto bindGraphicsPipeline = vsg::BindGraphicsPipeline::create( graphicsPipeline );
+
+    auto graphicsPipeline = vsg::ref_ptr<vsg::DynamicRenderGraphicsPipeline>{ new vsg::DynamicRenderGraphicsPipeline{
+        pipelineLayout, vsg::ShaderStages{ vertexShader, fragmentShader }, pipelineStates } };
+
+    auto bindGraphicsPipeline = vsg::BindDynamicRenderGraphicsPipeline::create( graphicsPipeline );
 
     auto descriptorSet = vsg::DescriptorSet::create( descriptorSetLayout, vsg::Descriptors{} );
 

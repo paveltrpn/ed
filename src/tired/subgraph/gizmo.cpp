@@ -2,6 +2,7 @@
 #include "gizmo.h"
 #include "program/program.h"
 #include "../generatorutils.h"
+#include "../dynamicrendergraphicspipeline.h"
 
 namespace tire {
 
@@ -182,9 +183,12 @@ auto GizmoSubgraph::initPipeline() -> void {
 
     const auto pipelineLayout =
         vsg::PipelineLayout::create( vsg::DescriptorSetLayouts{ descriptorSetLayout }, pushConstantRanges );
-    const auto graphicsPipeline = vsg::GraphicsPipeline::create(
-        pipelineLayout, vsg::ShaderStages{ vertexShader, fragmentShader }, pipelineStates );
-    const auto bindGraphicsPipeline = vsg::BindGraphicsPipeline::create( graphicsPipeline );
+
+    const auto graphicsPipeline =
+        vsg::ref_ptr<vsg::DynamicRenderGraphicsPipeline>{ new vsg::DynamicRenderGraphicsPipeline{
+            pipelineLayout, vsg::ShaderStages{ vertexShader, fragmentShader }, pipelineStates } };
+
+    const auto bindGraphicsPipeline = vsg::BindDynamicRenderGraphicsPipeline::create( graphicsPipeline );
 
     const auto descriptorSet =
         vsg::DescriptorSet::create( descriptorSetLayout, vsg::Descriptors{ dragerParamUniformDescriptor } );

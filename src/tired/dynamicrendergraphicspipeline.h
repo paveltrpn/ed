@@ -16,6 +16,9 @@ public:
     DynamicRenderGraphicsPipeline( PipelineLayout* pipelineLayout, const ShaderStages& shaderStages,
                                    const GraphicsPipelineStates& pipelineStates, uint32_t subpass = 0 );
 
+    /// return the Vulkan Pipeline for specified viewID.
+    VkPipeline vk( uint32_t viewID ) const { return _implementation[viewID]->_pipeline; }
+
     int compare( const Object& rhs_object ) const override;
 
     void read( Input& input ) override;
@@ -40,7 +43,7 @@ protected:
         ref_ptr<Device> _device;
     };
 
-    std::vector<ref_ptr<Implementation>> _implementation;
+    std::vector<ref_ptr<DynamicRenderGraphicsPipeline::Implementation>> _implementation;
 };
 VSG_type_name( vsg::DynamicRenderGraphicsPipeline );
 
@@ -51,7 +54,7 @@ public:
     explicit BindDynamicRenderGraphicsPipeline( ref_ptr<DynamicRenderGraphicsPipeline> in_pipeline = {} );
 
     /// pipeline to pass in the vkCmdBindPipeline call;
-    ref_ptr<DynamicRenderGraphicsPipeline> pipeline;
+    ref_ptr<DynamicRenderGraphicsPipeline> _pipeline;
 
     int compare( const Object& rhs_object ) const override;
 
