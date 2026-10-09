@@ -10,61 +10,61 @@
 
 namespace tire {
 
-vsg::ref_ptr<vsg::RenderPass> createOffscreenRenderPass( vsg::Device* device, VkFormat imageFormat,
-                                                         VkFormat depthFormat, bool requiresDepthRead ) {
-    auto colorAttachment = vsg::defaultColorAttachment( imageFormat );
-    auto depthAttachment = vsg::defaultDepthAttachment( depthFormat );
+// vsg::ref_ptr<vsg::RenderPass> createOffscreenRenderPass( vsg::Device* device, VkFormat imageFormat,
+//                                                          VkFormat depthFormat, bool requiresDepthRead ) {
+//     auto colorAttachment = vsg::defaultColorAttachment( imageFormat );
+//     auto depthAttachment = vsg::defaultDepthAttachment( depthFormat );
 
-    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;  // difference from createRenderPass
+//     colorAttachment.finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;  // difference from createRenderPass
 
-    if ( requiresDepthRead ) {
-        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    }
+//     if ( requiresDepthRead ) {
+//         depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+//     }
 
-    vsg::RenderPass::Attachments attachments{ colorAttachment, depthAttachment };
+//     vsg::RenderPass::Attachments attachments{ colorAttachment, depthAttachment };
 
-    vsg::AttachmentReference colorAttachmentRef = {};
-    colorAttachmentRef.attachment = 0;
-    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+//     vsg::AttachmentReference colorAttachmentRef = {};
+//     colorAttachmentRef.attachment = 0;
+//     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-    vsg::AttachmentReference depthAttachmentRef = {};
-    depthAttachmentRef.attachment = 1;
-    depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+//     vsg::AttachmentReference depthAttachmentRef = {};
+//     depthAttachmentRef.attachment = 1;
+//     depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-    vsg::SubpassDescription subpass = {};
-    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachments.emplace_back( colorAttachmentRef );
-    subpass.depthStencilAttachments.emplace_back( depthAttachmentRef );
+//     vsg::SubpassDescription subpass = {};
+//     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+//     subpass.colorAttachments.emplace_back( colorAttachmentRef );
+//     subpass.depthStencilAttachments.emplace_back( depthAttachmentRef );
 
-    vsg::RenderPass::Subpasses subpasses{ subpass };
+//     vsg::RenderPass::Subpasses subpasses{ subpass };
 
-    // image layout transition
-    vsg::SubpassDependency colorDependency = {};
-    colorDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-    colorDependency.dstSubpass = 0;
-    colorDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    colorDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    colorDependency.srcAccessMask = 0;
-    colorDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-    colorDependency.dependencyFlags = 0;
+//     // image layout transition
+//     vsg::SubpassDependency colorDependency = {};
+//     colorDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+//     colorDependency.dstSubpass = 0;
+//     colorDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+//     colorDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+//     colorDependency.srcAccessMask = 0;
+//     colorDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+//     colorDependency.dependencyFlags = 0;
 
-    // depth buffer is shared between swap chain images
-    vsg::SubpassDependency depthDependency = {};
-    depthDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-    depthDependency.dstSubpass = 0;
-    depthDependency.srcStageMask =
-        VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-    depthDependency.dstStageMask =
-        VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-    depthDependency.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-    depthDependency.dstAccessMask =
-        VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-    depthDependency.dependencyFlags = 0;
+//     // depth buffer is shared between swap chain images
+//     vsg::SubpassDependency depthDependency = {};
+//     depthDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+//     depthDependency.dstSubpass = 0;
+//     depthDependency.srcStageMask =
+//         VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+//     depthDependency.dstStageMask =
+//         VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+//     depthDependency.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+//     depthDependency.dstAccessMask =
+//         VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+//     depthDependency.dependencyFlags = 0;
 
-    vsg::RenderPass::Dependencies dependencies{ colorDependency, depthDependency };
+//     vsg::RenderPass::Dependencies dependencies{ colorDependency, depthDependency };
 
-    return vsg::RenderPass::create( device, attachments, subpasses, dependencies );
-}
+//     return vsg::RenderPass::create( device, attachments, subpasses, dependencies );
+// }
 
 vsg::ref_ptr<vsg::ImageView> createColorImageView( vsg::ref_ptr<vsg::Device> device, const VkExtent2D& extent,
                                                    VkFormat imageFormat, VkSampleCountFlagBits samples ) {
@@ -479,9 +479,6 @@ VsgRender::VsgRender() {
         _colorImageView = createColorImageView( _device, _extent, _imageFormat, VK_SAMPLE_COUNT_1_BIT );
         _depthImageView = createDepthImageView( _device, _extent, _depthFormat, VK_SAMPLE_COUNT_1_BIT );
         if ( _samples == VK_SAMPLE_COUNT_1_BIT ) {
-            auto renderPass = createOffscreenRenderPass( _device, _imageFormat, _depthFormat, true );
-            _framebuffer = vsg::Framebuffer::create( renderPass, vsg::ImageViews{ _colorImageView, _depthImageView },
-                                                     _extent.width, _extent.height, 1 );
         }
 
         std::tie( _colorBufferCapture, _copiedColorBuffer ) =
@@ -512,15 +509,15 @@ VsgRender::VsgRender() {
     {
         // NOTE: What usage of secondary command buffer in here?
         if ( false ) {
-            auto secondaryCommandGraph = vsg::SecondaryCommandGraph::create( _device, _queueFamily );
-            secondaryCommandGraph->addChild( view );
-            secondaryCommandGraph->framebuffer = _framebuffer;
-            commandGraphs.push_back( secondaryCommandGraph );
+            // auto secondaryCommandGraph = vsg::SecondaryCommandGraph::create( _device, _queueFamily );
+            // secondaryCommandGraph->addChild( view );
+            // secondaryCommandGraph->framebuffer = _framebuffer;
+            // commandGraphs.push_back( secondaryCommandGraph );
 
-            auto executeCommands = vsg::ExecuteCommands::create();
-            executeCommands->connect( secondaryCommandGraph );
+            // auto executeCommands = vsg::ExecuteCommands::create();
+            // executeCommands->connect( secondaryCommandGraph );
 
-            _renderGraph->addChild( executeCommands );
+            // _renderGraph->addChild( executeCommands );
         } else {
             _renderGraph->addChild( view );
         }
@@ -529,12 +526,12 @@ VsgRender::VsgRender() {
         _commandGraph->addChild( _renderGraph );
         commandGraphs.push_back( _commandGraph );
 
-        if ( _colorBufferCapture ) {
-            _commandGraph->addChild( _colorBufferCapture );
-        }
-
         if ( _depthBufferCapture ) {
             _commandGraph->addChild( _depthBufferCapture );
+        }
+
+        if ( _colorBufferCapture ) {
+            _commandGraph->addChild( _colorBufferCapture );
         }
     }
 
@@ -612,38 +609,35 @@ auto VsgRender::handleResize() -> void {
     if ( _needResize && ( _viewer->getFrameStamp()->frameCount > 0 ) ) {
         _needResize = false;
 
-        // _viewer->deviceWaitIdle();
+        _viewer->deviceWaitIdle();
 
-        // _extent = _newExtent;
+        _extent = _newExtent;
 
-        // std::cout << "Resized to " << _extent.width << ", " << _extent.height << std::endl;
+        std::cout << "Resized to " << _extent.width << ", " << _extent.height << std::endl;
 
-        // auto replace_child = []( vsg::Group* group, vsg::ref_ptr<vsg::Node> previous,
-        //                          vsg::ref_ptr<vsg::Node> replacement ) {
-        //     for ( auto& child : group->children ) {
-        //         if ( child == previous ) child = replacement;
-        //     }
-        // };
+        auto replace_child = []( vsg::Group* group, vsg::ref_ptr<vsg::Node> previous,
+                                 vsg::ref_ptr<vsg::Node> replacement ) {
+            for ( auto& child : group->children ) {
+                if ( child == previous ) child = replacement;
+            }
+        };
 
-        // auto previous_colorBufferCapture = _colorBufferCapture;
-        // auto previous_depthBufferCapture = _depthBufferCapture;
+        auto previous_colorBufferCapture = _colorBufferCapture;
+        auto previous_depthBufferCapture = _depthBufferCapture;
 
-        // _colorImageView = createColorImageView( _device, _extent, _imageFormat, VK_SAMPLE_COUNT_1_BIT );
-        // _depthImageView = createDepthImageView( _device, _extent, _depthFormat, VK_SAMPLE_COUNT_1_BIT );
-        // if ( _samples == VK_SAMPLE_COUNT_1_BIT ) {
-        //     auto renderPass = vsg::createRenderPass( _device, _imageFormat, _depthFormat, true );
-        //     _framebuffer = vsg::Framebuffer::create( renderPass, vsg::ImageViews{ _colorImageView, _depthImageView },
-        //                                              _extent.width, _extent.height, 1 );
-        // }
+        _colorImageView = createColorImageView( _device, _extent, _imageFormat, VK_SAMPLE_COUNT_1_BIT );
+        _depthImageView = createDepthImageView( _device, _extent, _depthFormat, VK_SAMPLE_COUNT_1_BIT );
+        if ( _samples == VK_SAMPLE_COUNT_1_BIT ) {
+        }
 
-        // // create new copy subgraphs
-        // std::tie( _colorBufferCapture, _copiedColorBuffer ) =
-        //     createColorCapture( _device, _extent, _colorImageView->image, _imageFormat );
-        // std::tie( _depthBufferCapture, _copiedDepthBuffer ) =
-        //     createDepthCapture( _device, _extent, _depthImageView->image, _depthFormat );
+        // create new copy subgraphs
+        std::tie( _colorBufferCapture, _copiedColorBuffer ) =
+            createColorCapture( _device, _extent, _colorImageView->image, _imageFormat );
+        std::tie( _depthBufferCapture, _copiedDepthBuffer ) =
+            createDepthCapture( _device, _extent, _depthImageView->image, _depthFormat );
 
-        // replace_child( _commandGraph, previous_colorBufferCapture, _colorBufferCapture );
-        // replace_child( _commandGraph, previous_depthBufferCapture, _depthBufferCapture );
+        replace_child( _commandGraph, previous_colorBufferCapture, _colorBufferCapture );
+        replace_child( _commandGraph, previous_depthBufferCapture, _depthBufferCapture );
     }
 }
 

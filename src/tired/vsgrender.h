@@ -69,8 +69,6 @@ private:
     VkFormat _imageFormat{ VK_FORMAT_R8G8B8A8_SRGB };
     VkFormat _depthFormat{ VK_FORMAT_D32_SFLOAT };
 
-    vsg::ref_ptr<vsg::Framebuffer> _framebuffer{};
-
     vsg::ref_ptr<vsg::ImageView> _colorImageView{};
     vsg::ref_ptr<vsg::ImageView> _depthImageView{};
 

@@ -22,7 +22,7 @@ void DynamicRenderGraph::accept( RecordTraversal& recordTraversal ) const {
 
     auto extent = getExtent();
 
-    VkClearValue clearColor = { .color = { 0.0f, 0.0f, 0.0f, 1.0f } };
+    VkClearValue clearColor = { .color = { 0.2f, 0.2f, 0.5f, 1.0f } };
 
     // Dynamic render.
     VkRenderingAttachmentInfoKHR colorAttachmentInfo{ .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
