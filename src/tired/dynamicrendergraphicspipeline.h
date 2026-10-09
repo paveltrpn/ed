@@ -48,13 +48,12 @@ protected:
 VSG_type_name( vsg::DynamicRenderGraphicsPipeline );
 
 /// BindGraphicsPipeline state command encapsulates the vkCmdBindPipeline call for a GraphicsPipeline.
-class VSG_DECLSPEC BindDynamicRenderGraphicsPipeline
-    : public Inherit<BindGraphicsPipeline, BindDynamicRenderGraphicsPipeline> {
+class VSG_DECLSPEC BindDynamicRenderGraphicsPipeline : public Inherit<StateCommand, BindDynamicRenderGraphicsPipeline> {
 public:
     explicit BindDynamicRenderGraphicsPipeline( ref_ptr<DynamicRenderGraphicsPipeline> in_pipeline = {} );
 
     /// pipeline to pass in the vkCmdBindPipeline call;
-    ref_ptr<DynamicRenderGraphicsPipeline> _pipeline;
+    ref_ptr<DynamicRenderGraphicsPipeline> pipeline;
 
     int compare( const Object& rhs_object ) const override;
 

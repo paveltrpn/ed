@@ -615,29 +615,29 @@ auto VsgRender::handleResize() -> void {
 
         std::cout << "Resized to " << _extent.width << ", " << _extent.height << std::endl;
 
-        auto replace_child = []( vsg::Group* group, vsg::ref_ptr<vsg::Node> previous,
-                                 vsg::ref_ptr<vsg::Node> replacement ) {
-            for ( auto& child : group->children ) {
-                if ( child == previous ) child = replacement;
-            }
-        };
+        // auto replace_child = []( vsg::Group* group, vsg::ref_ptr<vsg::Node> previous,
+        //                          vsg::ref_ptr<vsg::Node> replacement ) {
+        //     for ( auto& child : group->children ) {
+        //         if ( child == previous ) child = replacement;
+        //     }
+        // };
 
-        auto previous_colorBufferCapture = _colorBufferCapture;
-        auto previous_depthBufferCapture = _depthBufferCapture;
+        // auto previous_colorBufferCapture = _colorBufferCapture;
+        // // auto previous_depthBufferCapture = _depthBufferCapture;
 
-        _colorImageView = createColorImageView( _device, _extent, _imageFormat, VK_SAMPLE_COUNT_1_BIT );
-        _depthImageView = createDepthImageView( _device, _extent, _depthFormat, VK_SAMPLE_COUNT_1_BIT );
-        if ( _samples == VK_SAMPLE_COUNT_1_BIT ) {
-        }
+        // // _colorImageView = createColorImageView( _device, _extent, _imageFormat, VK_SAMPLE_COUNT_1_BIT );
+        // // _depthImageView = createDepthImageView( _device, _extent, _depthFormat, VK_SAMPLE_COUNT_1_BIT );
+        // if ( _samples == VK_SAMPLE_COUNT_1_BIT ) {
+        // }
 
-        // create new copy subgraphs
-        std::tie( _colorBufferCapture, _copiedColorBuffer ) =
-            createColorCapture( _device, _extent, _colorImageView->image, _imageFormat );
-        std::tie( _depthBufferCapture, _copiedDepthBuffer ) =
-            createDepthCapture( _device, _extent, _depthImageView->image, _depthFormat );
+        // // create new copy subgraphs
+        // std::tie( _colorBufferCapture, _copiedColorBuffer ) =
+        //     createColorCapture( _device, _extent, _colorImageView->image, _imageFormat );
+        // // std::tie( _depthBufferCapture, _copiedDepthBuffer ) =
+        // //     createDepthCapture( _device, _extent, _depthImageView->image, _depthFormat );
 
-        replace_child( _commandGraph, previous_colorBufferCapture, _colorBufferCapture );
-        replace_child( _commandGraph, previous_depthBufferCapture, _depthBufferCapture );
+        // // replace_child( _commandGraph, previous_colorBufferCapture, _colorBufferCapture );
+        // // replace_child( _commandGraph, previous_depthBufferCapture, _depthBufferCapture );
     }
 }
 

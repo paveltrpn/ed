@@ -53,8 +53,8 @@ protected:
     vsg::ref_ptr<ImageView> _colorAttachment;
     vsg::ref_ptr<ImageView> _depthAttachment;
 
-    const uint32_t _width;
-    const uint32_t _height;
+    uint32_t _width;
+    uint32_t _height;
 };
 
 VSG_type_name( vsg::DynamicRenderGraph );

@@ -42,20 +42,23 @@ void DynamicRenderGraph::accept( RecordTraversal& recordTraversal ) const {
                                       .storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
                                       .clearValue = clearDepth };
 
-    auto renderingInfo = VkRenderingInfoKHR{ .sType = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
-                                             .renderArea = { { 0, 0 }, { extent.width, extent.height } },
-                                             .layerCount = 1,
-                                             .colorAttachmentCount = 1,
-                                             .pColorAttachments = &colorAttachmentInfo,
-                                             .pDepthAttachment = &depthAttachmentInfo };
+    auto renderingInfo = VkRenderingInfoKHR{
+        .sType = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
+        .renderArea = { { 0, 0 }, { extent.width, extent.height } },
+        .layerCount = 1,
+        .colorAttachmentCount = 1,
+        .pColorAttachments = &colorAttachmentInfo,
+        .pDepthAttachment = nullptr  //&depthAttachmentInfo
+    };
 
     recordTraversal.getState()->viewportStateHint = viewportStateHint;
 
     VkCommandBuffer vk_commandBuffer = *( recordTraversal.getState()->_commandBuffer );
-    vkCmdBeginRendering( vk_commandBuffer, &renderingInfo );
 
     // sync the viewportState and push
     viewportState->set( renderArea.offset.x, renderArea.offset.y, renderArea.extent.width, renderArea.extent.height );
+
+    vkCmdBeginRendering( vk_commandBuffer, &renderingInfo );
 
     if ( ( viewportStateHint & DYNAMIC_VIEWPORTSTATE ) ) {
         recordTraversal.getState()->pushView( viewportState );
