@@ -400,7 +400,7 @@ auto VsgRender::_initInstance() -> void {
     vsg::Names instanceExtensions;
     vsg::Names requestedLayers;
 
-    instanceExtensions.push_back( "VK_KHR_surface" );
+    instanceExtensions.push_back( VK_KHR_SURFACE_EXTENSION_NAME );
     instanceExtensions.push_back( "VK_KHR_xcb_surface" );
 
     auto debugLayer = true;
@@ -427,7 +427,8 @@ auto VsgRender::_initInstance() -> void {
 auto VsgRender::_initDevice() -> void {
     vsg::Names deviceExtensions;
     deviceExtensions.push_back( VK_KHR_SWAPCHAIN_EXTENSION_NAME );
-    deviceExtensions.push_back( "VK_EXT_extended_dynamic_state3" );
+    deviceExtensions.push_back( VK_EXT_EXTENDED_DYNAMIC_STATE_3_EXTENSION_NAME );
+    deviceExtensions.push_back( VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME );
 
     vsg::QueueSettings queueSettings{ vsg::QueueSetting{ _queueFamily, { 1.0 } } };
 
@@ -441,6 +442,10 @@ auto VsgRender::_initDevice() -> void {
         deviceFeatures->get<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT,
                             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT>();
     dynamicState3Features.extendedDynamicState3PolygonMode = VK_TRUE;
+
+    auto& dynamicRendering = deviceFeatures->get<VkPhysicalDeviceDynamicRenderingFeatures,
+                                                 VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR>();
+    dynamicRendering.dynamicRendering = VK_TRUE;
 
     // NOTE: Error if validatedNames not empty. Not used since Vulkan API 1.0?
     // "Validation Error:

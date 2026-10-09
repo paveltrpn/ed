@@ -21,7 +21,14 @@ VkResult MutableFormatImage::compile( Device* device ) {
     auto info = VkImageCreateInfo{};
     info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     info.pNext = &formatList;
-    info.flags = flags | VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
+
+    // Add MUTABLE_FORMAT bit only if not already present
+    if ( ( flags & VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT ) == 0 ) {
+        flags |= VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
+    }
+
+    info.flags = flags;
+
     info.imageType = imageType;
     info.format = format;
     info.extent = extent;
