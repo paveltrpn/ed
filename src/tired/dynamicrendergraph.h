@@ -48,7 +48,7 @@ public:
     mutable VkExtent2D previous_extent = VkExtent2D{ invalid_dimension, invalid_dimension };
 
 protected:
-    const ref_ptr<Device> _device;
+    ref_ptr<Device> _device;
 
     vsg::ref_ptr<ImageView> _colorAttachment;
     vsg::ref_ptr<ImageView> _depthAttachment;

@@ -492,9 +492,9 @@ VsgRender::VsgRender() {
 
     // Set up the RenderGraph to manage the rendering.
     {
-        _renderGraph = vsg::RenderGraph::create();
+        _renderGraph = vsg::ref_ptr<vsg::DynamicRenderGraph>{
+            new vsg::DynamicRenderGraph{ _device, _colorImageView, _depthImageView, _extent.width, _extent.height } };
 
-        _renderGraph->framebuffer = _framebuffer;
         _renderGraph->renderArea.offset = { 0, 0 };
         _renderGraph->renderArea.extent = _extent;
 
@@ -520,7 +520,6 @@ VsgRender::VsgRender() {
             auto executeCommands = vsg::ExecuteCommands::create();
             executeCommands->connect( secondaryCommandGraph );
 
-            _renderGraph->contents = VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS;
             _renderGraph->addChild( executeCommands );
         } else {
             _renderGraph->addChild( view );
@@ -636,8 +635,6 @@ auto VsgRender::handleResize() -> void {
             _framebuffer = vsg::Framebuffer::create( renderPass, vsg::ImageViews{ _colorImageView, _depthImageView },
                                                      _extent.width, _extent.height, 1 );
         }
-
-        _renderGraph->framebuffer = _framebuffer;
 
         // create new copy subgraphs
         std::tie( _colorBufferCapture, _copiedColorBuffer ) =

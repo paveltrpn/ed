@@ -21,10 +21,8 @@ DynamicRenderGraphicsPipeline::DynamicRenderGraphicsPipeline( PipelineLayout* in
                                                               const ShaderStages& in_shaderStages,
                                                               const GraphicsPipelineStates& in_pipelineStates,
                                                               uint32_t in_subpass )
-    : stages( in_shaderStages )
-    , pipelineStates( in_pipelineStates )
-    , layout( in_pipelineLayout )
-    , subpass( in_subpass ) {
+    : Inherit<GraphicsPipeline, DynamicRenderGraphicsPipeline>( in_pipelineLayout, in_shaderStages, in_pipelineStates,
+                                                                in_subpass ) {
 }
 
 DynamicRenderGraphicsPipeline::~DynamicRenderGraphicsPipeline() {
@@ -51,7 +49,7 @@ void DynamicRenderGraphicsPipeline::read( Input& input ) {
     input.read( "subpass", subpass );
 }
 
-void GraphicsPipeline::write( Output& output ) const {
+void DynamicRenderGraphicsPipeline::write( Output& output ) const {
     Object::write( output );
 
     output.writeObject( "layout", layout );
@@ -174,5 +172,48 @@ DynamicRenderGraphicsPipeline::Implementation::~Implementation() {
 }
 
 ////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////
+//
+// BindDynamicRenderGraphicsPipeline
+//
+BindDynamicRenderGraphicsPipeline::BindDynamicRenderGraphicsPipeline(
+    ref_ptr<DynamicRenderGraphicsPipeline> in_pipeline )
+    : Inherit<BindGraphicsPipeline, BindDynamicRenderGraphicsPipeline>( in_pipeline )
+    ,  // slot 0
+    pipeline( in_pipeline ) {
+}
+
+BindDynamicRenderGraphicsPipeline::~BindDynamicRenderGraphicsPipeline() {
+}
+
+int BindDynamicRenderGraphicsPipeline::compare( const Object& rhs_object ) const {
+    int result = StateCommand::compare( rhs_object );
+    if ( result != 0 ) return result;
+
+    const auto& rhs = static_cast<decltype( *this )>( rhs_object );
+    return compare_pointer( pipeline, rhs.pipeline );
+}
+
+void BindDynamicRenderGraphicsPipeline::read( Input& input ) {
+    StateCommand::read( input );
+
+    input.readObject( "pipeline", pipeline );
+}
+
+void BindDynamicRenderGraphicsPipeline::write( Output& output ) const {
+    StateCommand::write( output );
+
+    output.writeObject( "pipeline", pipeline );
+}
+
+void BindDynamicRenderGraphicsPipeline::record( CommandBuffer& commandBuffer ) const {
+    vkCmdBindPipeline( commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->vk( commandBuffer.viewID ) );
+    commandBuffer.setCurrentPipelineLayout( pipeline->layout );
+}
+
+void BindDynamicRenderGraphicsPipeline::compile( Context& context ) {
+    if ( pipeline ) pipeline->compile( context );
+}
 
 }  // namespace vsg

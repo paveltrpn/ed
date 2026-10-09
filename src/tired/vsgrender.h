@@ -4,6 +4,7 @@
 
 #include "viewer.h"
 #include "mutableformatimage.h"
+#include "dynamicrendergraph.h"
 
 namespace tire {
 
@@ -82,7 +83,7 @@ private:
     VkSampleCountFlagBits _samples{ VK_SAMPLE_COUNT_1_BIT };
 
     vsg::ref_ptr<vsg::CommandGraph> _commandGraph;
-    vsg::ref_ptr<vsg::RenderGraph> _renderGraph;
+    vsg::ref_ptr<vsg::DynamicRenderGraph> _renderGraph;
     vsg::ref_ptr<vsg::MatrixTransform> _sceneTransform{};
 
     bool _needResize{ false };

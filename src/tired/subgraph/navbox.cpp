@@ -194,8 +194,10 @@ auto NavboxSubgraph::initPipeline() -> void {
 
     auto pipelineLayout =
         vsg::PipelineLayout::create( vsg::DescriptorSetLayouts{ descriptorSetLayout }, pushConstantRanges );
+
     auto graphicsPipeline = vsg::GraphicsPipeline::create(
         pipelineLayout, vsg::ShaderStages{ vertexShader, fragmentShader }, pipelineStates );
+
     auto bindGraphicsPipeline = vsg::BindGraphicsPipeline::create( graphicsPipeline );
 
     auto descriptorSet = vsg::DescriptorSet::create(

@@ -8,6 +8,7 @@
 #include "../vsgcommands/setcullmode.h"
 
 #include "boundingrender.h"
+#include "../dynamicrendergraphicspipeline.h"
 
 namespace tire {
 
@@ -39,8 +40,7 @@ public:
     SceneUIProxy( vsg::observer_ptr<SceneSubgraph> scene, vsg::observer_ptr<BoundingRender> boundingRender,
                   QObject* parent = nullptr );
 
-    [[nodiscard]]
-    auto sceneNode() const -> vsg::ref_ptr<SceneSubgraph>;
+    [[nodiscard]] auto sceneNode() const -> vsg::ref_ptr<SceneSubgraph>;
 
     Q_INVOKABLE void addBox( const BoxObjectData& data );
     Q_INVOKABLE void addSphere( const SphereObjectData& data );
@@ -49,30 +49,23 @@ public:
 
     Q_INVOKABLE void removeObject( const QUuid& uid );
 
-    [[nodiscard]]
-    auto objects() const -> ObjectsList*;
+    [[nodiscard]] auto objects() const -> ObjectsList*;
 
-    [[nodiscard]]
-    auto selectedObjectUid() const -> QString;
+    [[nodiscard]] auto selectedObjectUid() const -> QString;
     auto setSelectedObjectUid( const QString& value ) -> void;
 
-    [[nodiscard]]
-    auto isAnyObjectSelected() const -> bool;
+    [[nodiscard]] auto isAnyObjectSelected() const -> bool;
 
-    [[nodiscard]]
-    auto renderMode() const -> int;
+    [[nodiscard]] auto renderMode() const -> int;
     auto setRenderMode( int value ) -> void;
 
-    [[nodiscard]]
-    auto appearnceMode() const -> int;
+    [[nodiscard]] auto appearnceMode() const -> int;
     auto setAppearnceMode( int value ) -> void;
 
-    [[nodiscard]]
-    auto lightMode() const -> int;
+    [[nodiscard]] auto lightMode() const -> int;
     auto setLightMode( int value ) -> void;
 
-    [[nodiscard]]
-    auto showOuline() const -> bool;
+    [[nodiscard]] auto showOuline() const -> bool;
     auto setShowOuline( bool value ) -> void;
 
     Q_INVOKABLE SceneObjectBase* findObject( const QString& uid ) const;
@@ -129,7 +122,7 @@ private:
     vsg::ref_ptr<vsg::SetLineWidth> _lineWidthCmd{};
     vsg::ref_ptr<vsg::SetCullMode> _setCullModeCmd{};
 
-    vsg::ref_ptr<vsg::GraphicsPipeline> _graphicsPipeline{};
+    vsg::ref_ptr<vsg::DynamicRenderGraphicsPipeline> _graphicsPipeline{};
 
     vsg::ref_ptr<vsg::intArray> _objectParamsUniformValue{};
 
