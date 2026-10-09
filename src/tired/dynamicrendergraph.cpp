@@ -42,14 +42,12 @@ void DynamicRenderGraph::accept( RecordTraversal& recordTraversal ) const {
                                       .storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
                                       .clearValue = clearDepth };
 
-    auto renderingInfo = VkRenderingInfoKHR{
-        .sType = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
-        .renderArea = { { 0, 0 }, { extent.width, extent.height } },
-        .layerCount = 1,
-        .colorAttachmentCount = 1,
-        .pColorAttachments = &colorAttachmentInfo,
-        .pDepthAttachment = &depthAttachmentInfo  // nullptr, если глубина не используется
-    };
+    auto renderingInfo = VkRenderingInfoKHR{ .sType = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
+                                             .renderArea = { { 0, 0 }, { extent.width, extent.height } },
+                                             .layerCount = 1,
+                                             .colorAttachmentCount = 1,
+                                             .pColorAttachments = &colorAttachmentInfo,
+                                             .pDepthAttachment = &depthAttachmentInfo };
 
     recordTraversal.getState()->viewportStateHint = viewportStateHint;
 
@@ -70,6 +68,8 @@ void DynamicRenderGraph::accept( RecordTraversal& recordTraversal ) const {
         // traverse the subgraph to place commands into the command buffer.
         traverse( recordTraversal );
     }
+
+    vkCmdEndRendering( vk_commandBuffer );
 }
 
 void DynamicRenderGraph::setClearValues( VkClearColorValue clearColor, VkClearDepthStencilValue clearDepthStencil ) {
