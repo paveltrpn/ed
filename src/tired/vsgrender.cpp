@@ -8,6 +8,8 @@
 #include "extfunctions.h"
 #include "image/color.h"
 
+#include "log/log.h"
+
 namespace tire {
 
 // vsg::ref_ptr<vsg::RenderPass> createOffscreenRenderPass( vsg::Device* device, VkFormat imageFormat,
@@ -429,6 +431,7 @@ auto VsgRender::_initDevice() -> void {
     deviceExtensions.push_back( VK_KHR_SWAPCHAIN_EXTENSION_NAME );
     deviceExtensions.push_back( VK_EXT_EXTENDED_DYNAMIC_STATE_3_EXTENSION_NAME );
     deviceExtensions.push_back( VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME );
+    // deviceExtensions.push_back( VK_KHR_UNIFIED_IMAGE_LAYOUTS_EXTENSION_NAME );
 
     vsg::QueueSettings queueSettings{ vsg::QueueSetting{ _queueFamily, { 1.0 } } };
 
@@ -436,16 +439,43 @@ auto VsgRender::_initDevice() -> void {
     deviceFeatures->get().samplerAnisotropy = VK_TRUE;
     deviceFeatures->get().wideLines = VK_TRUE;
     deviceFeatures->get().fillModeNonSolid = VK_TRUE;
-    //deviceFeatures->get().geometryShader = enableGeometryShader;
 
-    auto& dynamicState3Features =
-        deviceFeatures->get<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT,
-                            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT>();
-    dynamicState3Features.extendedDynamicState3PolygonMode = VK_TRUE;
+    {
+        auto& dynamicState3Features =
+            deviceFeatures->get<VkPhysicalDeviceExtendedDynamicState3FeaturesEXT,
+                                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT>();
 
-    auto& dynamicRendering = deviceFeatures->get<VkPhysicalDeviceDynamicRenderingFeatures,
-                                                 VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR>();
-    dynamicRendering.dynamicRendering = VK_TRUE;
+        dynamicState3Features.extendedDynamicState3PolygonMode = VK_TRUE;
+    }
+
+    {
+        auto& dynamicRendering =
+            deviceFeatures->get<VkPhysicalDeviceDynamicRenderingFeatures,
+                                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR>();
+
+        dynamicRendering.dynamicRendering = VK_TRUE;
+    }
+
+    {
+        // auto unifiedFeatures =
+        //     deviceFeatures->get<VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR,
+        //                         VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_UNIFIED_IMAGE_LAYOUTS_FEATURES_KHR>();
+
+        VkPhysicalDeviceUnifiedImageLayoutsFeaturesKHR unifiedFeatures = {
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_UNIFIED_IMAGE_LAYOUTS_FEATURES_KHR,
+        };
+
+        VkPhysicalDeviceFeatures2 features2 = {
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+            .pNext = &unifiedFeatures,
+        };
+
+        // vkGetPhysicalDeviceFeatures2( _physicalDevice->vk(), &features2 );
+
+        // if ( !unifiedFeatures.unifiedImageLayouts ) {
+        //     log::warning()( "Unified image layouts not supported on this device\n" );
+        // }
+    }
 
     // NOTE: Error if validatedNames not empty. Not used since Vulkan API 1.0?
     // "Validation Error:
@@ -526,12 +556,12 @@ VsgRender::VsgRender() {
         _commandGraph->addChild( _renderGraph );
         commandGraphs.push_back( _commandGraph );
 
-        if ( _depthBufferCapture ) {
-            _commandGraph->addChild( _depthBufferCapture );
-        }
-
         if ( _colorBufferCapture ) {
             _commandGraph->addChild( _colorBufferCapture );
+        }
+
+        if ( _depthBufferCapture ) {
+            _commandGraph->addChild( _depthBufferCapture );
         }
     }
 
@@ -539,6 +569,23 @@ VsgRender::VsgRender() {
         _viewer = vsg::ref_ptr<tire::Viewer>{ new tire::Viewer{} };
         _viewer->assignRecordAndSubmitTaskAndPresentation( commandGraphs );
     }
+
+    // ================== ONE-SHOT КОМАНДНЫЙ ГРАФ ==================
+    // auto compileTraversal = vsg::CompileTraversal::create();
+    // compileTraversal->queueFlags = VK_QUEUE_COMPUTE_BIT;
+    // compileTraversal->add( _device );
+    // auto context = compileTraversal->contexts.front();
+    // _depthBufferCapture->accept( *compileTraversal );
+
+    // auto fence = vsg::Fence::create( _device );
+
+    // auto queus = _device->getQueues();
+    // // auto computeQueue = _device->getQueue( _device->queueFamilies().computeFamily );
+
+    // vsg::submitCommandsToQueue(
+    //     context->commandPool, fence, 100000000000, queus[0],
+    //     [&]( vsg::CommandBuffer& commandBuffer ) { _depthBufferCapture->record( commandBuffer ); } );
+    // ==============================================================
 }
 
 auto VsgRender::needResize() const -> bool {
@@ -613,7 +660,7 @@ auto VsgRender::handleResize() -> void {
 
         _extent = _newExtent;
 
-        std::cout << "Resized to " << _extent.width << ", " << _extent.height << std::endl;
+        // std::cout << "Resized to " << _extent.width << ", " << _extent.height << std::endl;
 
         // auto replace_child = []( vsg::Group* group, vsg::ref_ptr<vsg::Node> previous,
         //                          vsg::ref_ptr<vsg::Node> replacement ) {
@@ -623,21 +670,21 @@ auto VsgRender::handleResize() -> void {
         // };
 
         // auto previous_colorBufferCapture = _colorBufferCapture;
-        // // auto previous_depthBufferCapture = _depthBufferCapture;
+        // auto previous_depthBufferCapture = _depthBufferCapture;
 
-        // // _colorImageView = createColorImageView( _device, _extent, _imageFormat, VK_SAMPLE_COUNT_1_BIT );
-        // // _depthImageView = createDepthImageView( _device, _extent, _depthFormat, VK_SAMPLE_COUNT_1_BIT );
+        // _colorImageView = createColorImageView( _device, _extent, _imageFormat, VK_SAMPLE_COUNT_1_BIT );
+        // _depthImageView = createDepthImageView( _device, _extent, _depthFormat, VK_SAMPLE_COUNT_1_BIT );
         // if ( _samples == VK_SAMPLE_COUNT_1_BIT ) {
         // }
 
         // // create new copy subgraphs
         // std::tie( _colorBufferCapture, _copiedColorBuffer ) =
         //     createColorCapture( _device, _extent, _colorImageView->image, _imageFormat );
-        // // std::tie( _depthBufferCapture, _copiedDepthBuffer ) =
-        // //     createDepthCapture( _device, _extent, _depthImageView->image, _depthFormat );
+        // std::tie( _depthBufferCapture, _copiedDepthBuffer ) =
+        //     createDepthCapture( _device, _extent, _depthImageView->image, _depthFormat );
 
-        // // replace_child( _commandGraph, previous_colorBufferCapture, _colorBufferCapture );
-        // // replace_child( _commandGraph, previous_depthBufferCapture, _depthBufferCapture );
+        // replace_child( _commandGraph, previous_colorBufferCapture, _colorBufferCapture );
+        // replace_child( _commandGraph, previous_depthBufferCapture, _depthBufferCapture );
     }
 }
 

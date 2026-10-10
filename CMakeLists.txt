@@ -17,7 +17,7 @@ add_subdirectory(libs/generator)
 # Add OpenMesh subdirectory.
 add_subdirectory(libs/OpenMesh)
 
-find_package(Vulkan 1.1 QUIET)
+find_package(Vulkan 1.4 REQUIRED)
 find_package(glslang 15.0 REQUIRED)
 
 include_directories(src)

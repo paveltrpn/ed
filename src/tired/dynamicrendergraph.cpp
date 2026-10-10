@@ -32,7 +32,7 @@ void DynamicRenderGraph::accept( RecordTraversal& recordTraversal ) const {
                                                       .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
                                                       .clearValue = clearColor };
 
-    VkClearValue clearDepth = { .depthStencil = { 1.0f, 0 } };
+    VkClearValue clearDepth = { .depthStencil = { 0.0f, 0 } };
 
     auto depthAttachmentInfo =
         VkRenderingAttachmentInfoKHR{ .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
@@ -42,14 +42,12 @@ void DynamicRenderGraph::accept( RecordTraversal& recordTraversal ) const {
                                       .storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
                                       .clearValue = clearDepth };
 
-    auto renderingInfo = VkRenderingInfoKHR{
-        .sType = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
-        .renderArea = { { 0, 0 }, { extent.width, extent.height } },
-        .layerCount = 1,
-        .colorAttachmentCount = 1,
-        .pColorAttachments = &colorAttachmentInfo,
-        .pDepthAttachment = nullptr  //&depthAttachmentInfo
-    };
+    auto renderingInfo = VkRenderingInfoKHR{ .sType = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
+                                             .renderArea = { { 0, 0 }, { extent.width, extent.height } },
+                                             .layerCount = 1,
+                                             .colorAttachmentCount = 1,
+                                             .pColorAttachments = &colorAttachmentInfo,
+                                             .pDepthAttachment = &depthAttachmentInfo };
 
     recordTraversal.getState()->viewportStateHint = viewportStateHint;
 
