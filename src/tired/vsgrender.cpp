@@ -183,10 +183,10 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Image>> createColorCapt
     //
     // NOTE: Good for NV!
     auto transitionSourceImageToTransferSourceLayoutBarrier =
-        vsg::ImageMemoryBarrier::create( VK_ACCESS_MEMORY_READ_BIT,             // srcAccessMask
-                                         VK_ACCESS_TRANSFER_READ_BIT,           // dstAccessMask
-                                         VK_IMAGE_LAYOUT_UNDEFINED,             // oldLayout  <-- FIX
-                                         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,  // newLayout
+        vsg::ImageMemoryBarrier::create( VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,     // srcAccessMask
+                                         VK_ACCESS_TRANSFER_READ_BIT,              // dstAccessMask
+                                         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, // oldLayout
+                                         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,     // newLayout
                                          VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, sourceImage,
                                          VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 } );
 #elif 0
@@ -210,7 +210,8 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Image>> createColorCapt
 #endif
 
     auto cmd_transitionForTransferBarrier =
-        vsg::PipelineBarrier::create( VK_PIPELINE_STAGE_TRANSFER_BIT,                        // srcStageMask
+        vsg::PipelineBarrier::create( VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
+                                          VK_PIPELINE_STAGE_TRANSFER_BIT,                    // srcStageMask
                                       VK_PIPELINE_STAGE_TRANSFER_BIT,                        // dstStageMask
                                       0,                                                     // dependencyFlags
                                       transitionDestinationImageToDestinationLayoutBarrier,  // barrier
@@ -396,7 +397,7 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Buffer>> createDepthCap
 // ======================================================================================
 
 auto VsgRender::_initInstance() -> void {
-    uint32_t vulkanVersion = VK_API_VERSION_1_3;
+    uint32_t vulkanVersion = VK_API_VERSION_1_4;
 
     // create instance
     vsg::Names instanceExtensions;
@@ -660,31 +661,33 @@ auto VsgRender::handleResize() -> void {
 
         _extent = _newExtent;
 
-        // std::cout << "Resized to " << _extent.width << ", " << _extent.height << std::endl;
+        std::cout << "Resized to " << _extent.width << ", " << _extent.height << std::endl;
 
-        // auto replace_child = []( vsg::Group* group, vsg::ref_ptr<vsg::Node> previous,
-        //                          vsg::ref_ptr<vsg::Node> replacement ) {
-        //     for ( auto& child : group->children ) {
-        //         if ( child == previous ) child = replacement;
-        //     }
-        // };
+        auto replace_child = []( vsg::Group* group, vsg::ref_ptr<vsg::Node> previous,
+                                 vsg::ref_ptr<vsg::Node> replacement ) {
+            for ( auto& child : group->children ) {
+                if ( child == previous ) child = replacement;
+            }
+        };
 
-        // auto previous_colorBufferCapture = _colorBufferCapture;
-        // auto previous_depthBufferCapture = _depthBufferCapture;
+        auto previous_colorBufferCapture = _colorBufferCapture;
+        auto previous_depthBufferCapture = _depthBufferCapture;
 
-        // _colorImageView = createColorImageView( _device, _extent, _imageFormat, VK_SAMPLE_COUNT_1_BIT );
-        // _depthImageView = createDepthImageView( _device, _extent, _depthFormat, VK_SAMPLE_COUNT_1_BIT );
-        // if ( _samples == VK_SAMPLE_COUNT_1_BIT ) {
-        // }
+        _colorImageView = createColorImageView( _device, _extent, _imageFormat, VK_SAMPLE_COUNT_1_BIT );
+        _depthImageView = createDepthImageView( _device, _extent, _depthFormat, VK_SAMPLE_COUNT_1_BIT );
+        if ( _samples == VK_SAMPLE_COUNT_1_BIT ) {
+        }
 
-        // // create new copy subgraphs
-        // std::tie( _colorBufferCapture, _copiedColorBuffer ) =
-        //     createColorCapture( _device, _extent, _colorImageView->image, _imageFormat );
-        // std::tie( _depthBufferCapture, _copiedDepthBuffer ) =
-        //     createDepthCapture( _device, _extent, _depthImageView->image, _depthFormat );
+        _renderGraph->setAttachments( _colorImageView, _depthImageView, _extent.width, _extent.height );
 
-        // replace_child( _commandGraph, previous_colorBufferCapture, _colorBufferCapture );
-        // replace_child( _commandGraph, previous_depthBufferCapture, _depthBufferCapture );
+        // Create new copy subgraphs.
+        std::tie( _colorBufferCapture, _copiedColorBuffer ) =
+            createColorCapture( _device, _extent, _colorImageView->image, _imageFormat );
+        std::tie( _depthBufferCapture, _copiedDepthBuffer ) =
+            createDepthCapture( _device, _extent, _depthImageView->image, _depthFormat );
+
+        replace_child( _commandGraph, previous_colorBufferCapture, _colorBufferCapture );
+        replace_child( _commandGraph, previous_depthBufferCapture, _depthBufferCapture );
     }
 }
 

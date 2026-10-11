@@ -41,6 +41,10 @@ public:
     /// invoke the WindowResizeHandler, called automatically when a window dimension change is detected.
     void resized();
 
+    /// update the attachments and extent after a resize.
+    void setAttachments( vsg::ref_ptr<ImageView> colorAttachment, vsg::ref_ptr<ImageView> depthAttachment,
+                         uint32_t width, uint32_t height );
+
     VkExtent2D extent2D() const { return VkExtent2D{ _width, _height }; }
 
     /// window extent at previous frame, used to track window resizes
