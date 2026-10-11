@@ -57,7 +57,8 @@ Tired::Tired( QObject* parent )
     // Setup scenegraph.
     {
         //
-        _scenegraph = new Scenegraph{ vsg::observer_ptr<vsg::Viewer>{ _render->viewer() }, this };
+        _scenegraph = new Scenegraph{ vsg::observer_ptr<vsg::Viewer>{ _render->viewer() },
+                                      vsg::observer_ptr<vsg::DynamicRenderGraph>{ _render->renderGraph() }, this };
     }
 
     _render->sceneTransform()->addChild( _scenegraph->root() );

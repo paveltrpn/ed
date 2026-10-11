@@ -40,6 +40,7 @@ public:
     auto vsgDevice() const -> vsg::ref_ptr<vsg::Device>;
     auto camera() const -> vsg::ref_ptr<vsg::Camera>;
     auto sceneTransform() const -> vsg::ref_ptr<vsg::MatrixTransform>;
+    auto renderGraph() const -> vsg::ref_ptr<vsg::DynamicRenderGraph>;
 
     auto viewer() const -> vsg::ref_ptr<tire::Viewer>;
 

@@ -99,12 +99,17 @@ auto GizmoUIProxy::moveObject( SceneObjectBase* object ) -> void {
 // ==================== GizmoSubgraph ===================================================
 // ======================================================================================
 
-GizmoSubgraph::GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer )
+GizmoSubgraph::GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer,
+                              vsg::observer_ptr<vsg::DynamicRenderGraph> renderGraph )
     : Subgraph{ viewer }
+    , _depthClear{ vsg::ClearDepthAttachment::create( renderGraph ) }
     , _stateGroup{ vsg::StateGroup::create() }
     , _gizmoKillSwitch{ vsg::Switch::create() }
     , _gizmoPivot{ vsg::MatrixTransform::create() } {
     //
+    // Depth clear must record before any gizmo geometry so the gizmo draws
+    // on top of everything recorded earlier in the pass.
+    this->addChild( _depthClear );
     this->addChild( _stateGroup );
 
     _stateGroup->addChild( _gizmoKillSwitch );

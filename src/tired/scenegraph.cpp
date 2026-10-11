@@ -4,7 +4,8 @@
 
 namespace tire {
 
-Scenegraph::Scenegraph( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent )
+Scenegraph::Scenegraph( vsg::observer_ptr<vsg::Viewer> viewer,
+                        vsg::observer_ptr<vsg::DynamicRenderGraph> renderGraph, QObject* parent )
     : QObject{ parent }
     , _root{ new vsg::Group{} }
     , _viewer{ viewer }
@@ -13,7 +14,7 @@ Scenegraph::Scenegraph( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent )
     , _grid{ new GridUIProxy{ vsg::observer_ptr<GridSubgraph>{ _gridNode }, this } }
     , _navboxNode{ new NavboxSubgraph{ _viewer } }
     , _navbox{ new NavboxUIProxy{ vsg::observer_ptr<NavboxSubgraph>{ _navboxNode }, this } }
-    , _gizmoNode{ new GizmoSubgraph{ _viewer } }
+    , _gizmoNode{ new GizmoSubgraph{ _viewer, renderGraph } }
     , _gizmo{ new GizmoUIProxy{ vsg::observer_ptr<GizmoSubgraph>{ _gizmoNode }, this } }
     , _sceneNode{ new SceneSubgraph{ _viewer } }
     , _scene{ new SceneUIProxy{ vsg::observer_ptr<SceneSubgraph>{ _sceneNode },

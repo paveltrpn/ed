@@ -23,7 +23,8 @@ struct Scenegraph final : public QObject {
     Q_PROPERTY( QObject* scene READ scene NOTIFY sceneChanged FINAL )
 
 public:
-    Scenegraph( vsg::observer_ptr<vsg::Viewer>, QObject* parent = nullptr );
+    Scenegraph( vsg::observer_ptr<vsg::Viewer>, vsg::observer_ptr<vsg::DynamicRenderGraph>,
+                QObject* parent = nullptr );
 
     [[nodiscard]]
     auto root() const -> vsg::ref_ptr<vsg::Group>;

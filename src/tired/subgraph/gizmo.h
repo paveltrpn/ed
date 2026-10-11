@@ -5,6 +5,8 @@
 
 #include "subgraph.h"
 #include "../scene_object/sceneobjectbase.h"
+#include "../dynamicrendergraph.h"
+#include "../vsgcommands/cleardepthattachment.h"
 
 namespace tire {
 
@@ -83,7 +85,8 @@ struct ScaleDragger;
 struct GizmoSubgraph final : public Subgraph {
     friend GizmoUIProxy;
 
-    GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer );
+    GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer,
+                   vsg::observer_ptr<vsg::DynamicRenderGraph> renderGraph );
 
     auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
 
@@ -96,6 +99,8 @@ private:
     auto showScaleGizmo() -> void;
 
 private:
+    vsg::ref_ptr<vsg::ClearDepthAttachment> _depthClear{};
+
     vsg::ref_ptr<vsg::StateGroup> _stateGroup{};
 
     vsg::ref_ptr<vsg::Switch> _gizmoKillSwitch{};

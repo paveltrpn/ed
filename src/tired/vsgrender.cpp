@@ -673,6 +673,10 @@ auto VsgRender::sceneTransform() const -> vsg::ref_ptr<vsg::MatrixTransform> {
     return _sceneTransform;
 }
 
+auto VsgRender::renderGraph() const -> vsg::ref_ptr<vsg::DynamicRenderGraph> {
+    return _renderGraph;
+}
+
 auto VsgRender::viewer() const -> vsg::ref_ptr<tire::Viewer> {
     return _viewer;
 }
