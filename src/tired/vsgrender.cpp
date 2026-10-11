@@ -659,6 +659,7 @@ auto VsgRender::handleResize() -> void {
 
         _viewer->deviceWaitIdle();
 
+        const auto previousExtent = _extent;
         _extent = _newExtent;
 
         std::cout << "Resized to " << _extent.width << ", " << _extent.height << std::endl;
@@ -679,6 +680,14 @@ auto VsgRender::handleResize() -> void {
         }
 
         _renderGraph->setAttachments( _colorImageView, _depthImageView, _extent.width, _extent.height );
+
+        // Update the camera like WindowResizeHandler::apply(View&) does: the record traversal
+        // pushes the camera's viewportState over the render graph's, so both the projection
+        // aspect ratio and the camera viewport must follow the new extent.
+        _camera->projectionMatrix->changeExtent( previousExtent, _extent );
+        if ( _camera->viewportState ) {
+            _camera->viewportState->set( 0, 0, _extent.width, _extent.height );
+        }
 
         // Create new copy subgraphs.
         std::tie( _colorBufferCapture, _copiedColorBuffer ) =
