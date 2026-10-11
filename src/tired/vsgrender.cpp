@@ -12,62 +12,6 @@
 
 namespace tire {
 
-// vsg::ref_ptr<vsg::RenderPass> createOffscreenRenderPass( vsg::Device* device, VkFormat imageFormat,
-//                                                          VkFormat depthFormat, bool requiresDepthRead ) {
-//     auto colorAttachment = vsg::defaultColorAttachment( imageFormat );
-//     auto depthAttachment = vsg::defaultDepthAttachment( depthFormat );
-
-//     colorAttachment.finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;  // difference from createRenderPass
-
-//     if ( requiresDepthRead ) {
-//         depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-//     }
-
-//     vsg::RenderPass::Attachments attachments{ colorAttachment, depthAttachment };
-
-//     vsg::AttachmentReference colorAttachmentRef = {};
-//     colorAttachmentRef.attachment = 0;
-//     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-//     vsg::AttachmentReference depthAttachmentRef = {};
-//     depthAttachmentRef.attachment = 1;
-//     depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-//     vsg::SubpassDescription subpass = {};
-//     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-//     subpass.colorAttachments.emplace_back( colorAttachmentRef );
-//     subpass.depthStencilAttachments.emplace_back( depthAttachmentRef );
-
-//     vsg::RenderPass::Subpasses subpasses{ subpass };
-
-//     // image layout transition
-//     vsg::SubpassDependency colorDependency = {};
-//     colorDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-//     colorDependency.dstSubpass = 0;
-//     colorDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-//     colorDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-//     colorDependency.srcAccessMask = 0;
-//     colorDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-//     colorDependency.dependencyFlags = 0;
-
-//     // depth buffer is shared between swap chain images
-//     vsg::SubpassDependency depthDependency = {};
-//     depthDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-//     depthDependency.dstSubpass = 0;
-//     depthDependency.srcStageMask =
-//         VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-//     depthDependency.dstStageMask =
-//         VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-//     depthDependency.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-//     depthDependency.dstAccessMask =
-//         VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-//     depthDependency.dependencyFlags = 0;
-
-//     vsg::RenderPass::Dependencies dependencies{ colorDependency, depthDependency };
-
-//     return vsg::RenderPass::create( device, attachments, subpasses, dependencies );
-// }
-
 vsg::ref_ptr<vsg::ImageView> createColorImageView( vsg::ref_ptr<vsg::Device> device, const VkExtent2D& extent,
                                                    VkFormat imageFormat, VkSampleCountFlagBits samples ) {
     auto colorImage = vsg::MutableFormatImage::create();
