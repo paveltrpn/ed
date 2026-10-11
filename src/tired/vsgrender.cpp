@@ -391,6 +391,49 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Buffer>> createDepthCap
     return { commands, destinationBuffer };
 }
 
+vsg::ref_ptr<vsg::Commands> dynamicRenderingTransitionCommands( vsg::ref_ptr<vsg::Image> colorImage,
+                                                                vsg::ref_ptr<vsg::Image> depthImage,
+                                                                VkFormat depthSourceImageFormat ) {
+    auto commands = vsg::Commands::create();
+
+    // Transition attachments into the layouts declared for dynamic rendering.
+
+    auto color_dynamicRenderingBarrier = vsg::ImageMemoryBarrier::create(
+        VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,  // srcAccessMask
+        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,                                // dstAccessMask
+        VK_IMAGE_LAYOUT_UNDEFINED,                                           // oldLayout
+        VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,                            // newLayout
+        VK_QUEUE_FAMILY_IGNORED,                                             // srcQueueFamilyIndex
+        VK_QUEUE_FAMILY_IGNORED,                                             // dstQueueFamilyIndex
+        colorImage,                                                          // image
+        VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }     // subresourceRange
+    );
+
+    auto depth_dynamicRenderingBarrier = vsg::ImageMemoryBarrier::create(
+        VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,                  // srcAccessMask
+        VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,  // dstAccessMask
+        VK_IMAGE_LAYOUT_UNDEFINED,                                                                   // oldLayout
+        VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,                                            // newLayout
+        VK_QUEUE_FAMILY_IGNORED,                                       // srcQueueFamilyIndex
+        VK_QUEUE_FAMILY_IGNORED,                                       // dstQueueFamilyIndex
+        depthImage,                                                    // image
+        VkImageSubresourceRange{ depthSourceImageFormat, 0, 1, 0, 1 }  // subresourceRange
+    );
+
+    auto cmd_transitionForDynamicRenderingBarrier = vsg::PipelineBarrier::create(
+        VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
+            VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,                                               // srcStageMask
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,  // dstStageMask
+        0,                                                                                           // dependencyFlags
+        color_dynamicRenderingBarrier,
+        depth_dynamicRenderingBarrier  // barrier
+    );
+
+    commands->addChild( cmd_transitionForDynamicRenderingBarrier );
+
+    return commands;
+}
+
 // ======================================================================================
 // ==================== VsgRender =======================================================
 // ======================================================================================
@@ -515,6 +558,9 @@ VsgRender::VsgRender() {
             createColorCapture( _device, _extent, _colorImageView->image, _imageFormat );
         std::tie( _depthBufferCapture, _copiedDepthBuffer ) =
             createDepthCapture( _device, _extent, _depthImageView->image, _depthFormat );
+
+        _dynamicRenderingTransition =
+            dynamicRenderingTransitionCommands( _colorImageView->image, _depthImageView->image, _depthFormat );
     }
 
     // Set up the RenderGraph to manage the rendering.
@@ -563,6 +609,8 @@ VsgRender::VsgRender() {
         if ( _depthBufferCapture ) {
             _commandGraph->addChild( _depthBufferCapture );
         }
+
+        _commandGraph->addChild( _dynamicRenderingTransition );
     }
 
     {
@@ -671,6 +719,7 @@ auto VsgRender::handleResize() -> void {
 
         auto previous_colorBufferCapture = _colorBufferCapture;
         auto previous_depthBufferCapture = _depthBufferCapture;
+        auto previous_dynamicRenderingTransition = _dynamicRenderingTransition;
 
         _colorImageView = createColorImageView( _device, _extent, _imageFormat, VK_SAMPLE_COUNT_1_BIT );
         _depthImageView = createDepthImageView( _device, _extent, _depthFormat, VK_SAMPLE_COUNT_1_BIT );
@@ -693,8 +742,12 @@ auto VsgRender::handleResize() -> void {
         std::tie( _depthBufferCapture, _copiedDepthBuffer ) =
             createDepthCapture( _device, _extent, _depthImageView->image, _depthFormat );
 
+        _dynamicRenderingTransition =
+            dynamicRenderingTransitionCommands( _colorImageView->image, _depthImageView->image, _depthFormat );
+
         replace_child( _commandGraph, previous_colorBufferCapture, _colorBufferCapture );
         replace_child( _commandGraph, previous_depthBufferCapture, _depthBufferCapture );
+        replace_child( _commandGraph, previous_dynamicRenderingTransition, _dynamicRenderingTransition );
     }
 }
 

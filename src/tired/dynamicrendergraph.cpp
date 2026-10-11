@@ -43,7 +43,7 @@ void DynamicRenderGraph::accept( RecordTraversal& recordTraversal ) const {
                                       .imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                                       .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
                                       .storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-                                       .clearValue = _clearDepthValue };
+                                      .clearValue = _clearDepthValue };
 
     auto renderingInfo = VkRenderingInfoKHR{ .sType = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
                                              .renderArea = { { 0, 0 }, { extent.width, extent.height } },
@@ -61,35 +61,35 @@ void DynamicRenderGraph::accept( RecordTraversal& recordTraversal ) const {
     // because both attachments use VK_ATTACHMENT_LOAD_OP_CLEAR.
     std::array<VkImageMemoryBarrier, 2> barriers{};
 
-    barriers[0] =
-        VkImageMemoryBarrier{ .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-                              .pNext = nullptr,
-                              .srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                              .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                              .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-                              .newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                              .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                              .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-                              .image = _colorAttachment->image->vk( _device->deviceID ),
-                              .subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 } };
+    // barriers[0] =
+    //     VkImageMemoryBarrier{ .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+    //                           .pNext = nullptr,
+    //                           .srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+    //                           .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+    //                           .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+    //                           .newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+    //                           .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+    //                           .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+    //                           .image = _colorAttachment->image->vk( _device->deviceID ),
+    //                           .subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 } };
 
-    barriers[1] = VkImageMemoryBarrier{
-        .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-        .pNext = nullptr,
-        .srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-        .dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-        .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-        .newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
-        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .image = _depthAttachment->image->vk( _device->deviceID ),
-        .subresourceRange = { vsg::computeAspectFlagsForFormat( _depthAttachment->image->format ), 0, 1, 0, 1 } };
+    // barriers[1] = VkImageMemoryBarrier{
+    //     .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+    //     .pNext = nullptr,
+    //     .srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+    //     .dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+    //     .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+    //     .newLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+    //     .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+    //     .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+    //     .image = _depthAttachment->image->vk( _device->deviceID ),
+    //     .subresourceRange = { vsg::computeAspectFlagsForFormat( _depthAttachment->image->format ), 0, 1, 0, 1 } };
 
-    vkCmdPipelineBarrier( vk_commandBuffer,
-                          VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
-                              VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
-                          VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, 0,
-                          0, nullptr, 0, nullptr, 2, barriers.data() );
+    // vkCmdPipelineBarrier( vk_commandBuffer,
+    //                       VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
+    //                           VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+    //                       VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, 0,
+    //                       0, nullptr, 0, nullptr, 2, barriers.data() );
 
     // sync the viewportState and push
     viewportState->set( renderArea.offset.x, renderArea.offset.y, renderArea.extent.width, renderArea.extent.height );

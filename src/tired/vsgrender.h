@@ -77,6 +77,8 @@ private:
     vsg::ref_ptr<vsg::Commands> _depthBufferCapture{};
     vsg::ref_ptr<vsg::Buffer> _copiedDepthBuffer{};
 
+    vsg::ref_ptr<vsg::Commands> _dynamicRenderingTransition{};
+
     VkSampleCountFlagBits _samples{ VK_SAMPLE_COUNT_1_BIT };
 
     vsg::ref_ptr<vsg::CommandGraph> _commandGraph;
