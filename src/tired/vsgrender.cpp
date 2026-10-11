@@ -183,10 +183,10 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Image>> createColorCapt
     //
     // NOTE: Good for NV!
     auto transitionSourceImageToTransferSourceLayoutBarrier =
-        vsg::ImageMemoryBarrier::create( VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,     // srcAccessMask
-                                         VK_ACCESS_TRANSFER_READ_BIT,              // dstAccessMask
-                                         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, // oldLayout
-                                         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,     // newLayout
+        vsg::ImageMemoryBarrier::create( VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,      // srcAccessMask
+                                         VK_ACCESS_TRANSFER_READ_BIT,               // dstAccessMask
+                                         VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,  // oldLayout
+                                         VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,      // newLayout
                                          VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, sourceImage,
                                          VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 } );
 #elif 0
@@ -209,14 +209,13 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Image>> createColorCapt
         VkImageSubresourceRange{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 } );
 #endif
 
-    auto cmd_transitionForTransferBarrier =
-        vsg::PipelineBarrier::create( VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
-                                          VK_PIPELINE_STAGE_TRANSFER_BIT,                    // srcStageMask
-                                      VK_PIPELINE_STAGE_TRANSFER_BIT,                        // dstStageMask
-                                      0,                                                     // dependencyFlags
-                                      transitionDestinationImageToDestinationLayoutBarrier,  // barrier
-                                      transitionSourceImageToTransferSourceLayoutBarrier     // barrier
-        );
+    auto cmd_transitionForTransferBarrier = vsg::PipelineBarrier::create(
+        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT,  // srcStageMask
+        VK_PIPELINE_STAGE_TRANSFER_BIT,                                                  // dstStageMask
+        0,                                                                               // dependencyFlags
+        transitionDestinationImageToDestinationLayoutBarrier,                            // barrier
+        transitionSourceImageToTransferSourceLayoutBarrier                               // barrier
+    );
 
     commands->addChild( cmd_transitionForTransferBarrier );
 
@@ -397,7 +396,7 @@ std::pair<vsg::ref_ptr<vsg::Commands>, vsg::ref_ptr<vsg::Buffer>> createDepthCap
 // ======================================================================================
 
 auto VsgRender::_initInstance() -> void {
-    uint32_t vulkanVersion = VK_API_VERSION_1_4;
+    uint32_t vulkanVersion = VK_API_VERSION_1_3;
 
     // create instance
     vsg::Names instanceExtensions;
