@@ -17,43 +17,41 @@ public:
     ~DynamicRenderGraph() override{};
 
     DynamicRenderGraph( Device* in_device, vsg::ref_ptr<ImageView> colorAttachment,
-                        vsg::ref_ptr<ImageView> depthAttachment, uint32_t width, uint32_t height );
+                        vsg::ref_ptr<ImageView> depthAttachment, VkExtent2D extent );
 
     using Group::accept;
 
     void accept( RecordTraversal& recordTraversal ) const override;
 
-    VkExtent2D getExtent() const { return extent2D(); };
+    VkExtent2D getExtent() const { return _extent; };
 
-    VkRect2D renderArea;
-
-    // Default ViewportState to use for graphics pipelines under this RenderGraph, this be will synced with the renderArea.
-    ref_ptr<ViewportState> viewportState;
-
-    using ClearValues = std::vector<VkClearValue>;
-    ClearValues clearValues;  // initialize window colour and depth/stencil
-
-    void setClearValues( VkClearColorValue clearColor = { { 0.2f, 0.2f, 0.4f, 1.0f } },
+    void setClearValues( VkClearColorValue clearColor = { { 0.0f, 0.2f, 0.4f, 1.0f } },
                          VkClearDepthStencilValue clearDepthStencil = { 0.0f, 0 } );
-
-    uint32_t viewportStateHint = DYNAMIC_VIEWPORTSTATE;
-
-    /// Callback used to automatically update viewports, scissors, renderArea and clears when the window is resized.
-    /// By default resize handling is done.
-    ref_ptr<WindowResizeHandler> windowResizeHandler;
 
     /// invoke the WindowResizeHandler, called automatically when a window dimension change is detected.
     void resized();
 
     /// update the attachments and extent after a resize.
     void setAttachments( vsg::ref_ptr<ImageView> colorAttachment, vsg::ref_ptr<ImageView> depthAttachment,
-                         uint32_t width, uint32_t height );
+                         VkExtent2D extent );
 
-    VkExtent2D extent2D() const { return VkExtent2D{ _width, _height }; }
+public:
+    uint32_t viewportStateHint{ DYNAMIC_VIEWPORTSTATE };
+
+    // Default ViewportState to use for graphics pipelines under this RenderGraph, this be will synced with the renderArea.
+    ref_ptr<ViewportState> viewportState{};
 
     /// window extent at previous frame, used to track window resizes
     constexpr static uint32_t invalid_dimension = std::numeric_limits<uint32_t>::max();
     mutable VkExtent2D previous_extent = VkExtent2D{ invalid_dimension, invalid_dimension };
+
+    /// Callback used to automatically update viewports, scissors, renderArea and clears when the window is resized.
+    /// By default resize handling is done.
+    ref_ptr<WindowResizeHandler> windowResizeHandler;
+
+    VkRect2D renderArea{};
+
+    VkExtent2D _extent{};
 
 protected:
     ref_ptr<Device> _device;
@@ -61,8 +59,7 @@ protected:
     vsg::ref_ptr<ImageView> _colorAttachment;
     vsg::ref_ptr<ImageView> _depthAttachment;
 
-    uint32_t _width;
-    uint32_t _height;
+    VkClearValue _clearValue{};
 };
 
 VSG_type_name( vsg::DynamicRenderGraph );

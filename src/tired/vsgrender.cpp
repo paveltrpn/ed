@@ -498,10 +498,10 @@ VsgRender::VsgRender() {
         auto lookAt = vsg::LookAt::create( vsg::dvec3( 0.0, -16.0, 8.0 ), vsg::dvec3{ 0.0, 0.0, 0.0 },
                                            vsg::dvec3( 0.0, 0.0, 1.0 ) );
 
-        vsg::ref_ptr<vsg::ProjectionMatrix> perspective =
-            vsg::Perspective::create( 30.0, static_cast<double>( 1150 ) / static_cast<double>( 872 ), 0.01, 500.0 );
+        vsg::ref_ptr<vsg::ProjectionMatrix> perspective = vsg::Perspective::create(
+            30.0, static_cast<double>( _extent.width ) / static_cast<double>( _extent.height ), 0.01, 500.0 );
 
-        _camera = vsg::Camera::create( perspective, lookAt, vsg::ViewportState::create( VkExtent2D{ 1150, 872 } ) );
+        _camera = vsg::Camera::create( perspective, lookAt, vsg::ViewportState::create( _extent ) );
     }
 
     // Create support for copying the color and depth buffers.
@@ -520,13 +520,13 @@ VsgRender::VsgRender() {
     // Set up the RenderGraph to manage the rendering.
     {
         _renderGraph = vsg::ref_ptr<vsg::DynamicRenderGraph>{
-            new vsg::DynamicRenderGraph{ _device, _colorImageView, _depthImageView, _extent.width, _extent.height } };
+            new vsg::DynamicRenderGraph{ _device, _colorImageView, _depthImageView, _extent } };
 
         _renderGraph->renderArea.offset = { 0, 0 };
         _renderGraph->renderArea.extent = _extent;
 
         const auto clearColor = tire::Colorf{ "#92947e" };
-        _renderGraph->setClearValues( { { clearColor.r(), clearColor.r(), clearColor.b(), 1.0f } },
+        _renderGraph->setClearValues( { { clearColor.r(), clearColor.g(), clearColor.b(), 1.0f } },
                                       VkClearDepthStencilValue{ 0.0f, 0 } );
     }
 
@@ -570,7 +570,7 @@ VsgRender::VsgRender() {
         _viewer->assignRecordAndSubmitTaskAndPresentation( commandGraphs );
     }
 
-    // ================== ONE-SHOT КОМАНДНЫЙ ГРАФ ==================
+    // ONE-SHOT КОМАНДНЫЙ ГРАФ
     // auto compileTraversal = vsg::CompileTraversal::create();
     // compileTraversal->queueFlags = VK_QUEUE_COMPUTE_BIT;
     // compileTraversal->add( _device );
@@ -585,7 +585,6 @@ VsgRender::VsgRender() {
     // vsg::submitCommandsToQueue(
     //     context->commandPool, fence, 100000000000, queus[0],
     //     [&]( vsg::CommandBuffer& commandBuffer ) { _depthBufferCapture->record( commandBuffer ); } );
-    // ==============================================================
 }
 
 auto VsgRender::needResize() const -> bool {
@@ -678,7 +677,7 @@ auto VsgRender::handleResize() -> void {
         if ( _samples == VK_SAMPLE_COUNT_1_BIT ) {
         }
 
-        _renderGraph->setAttachments( _colorImageView, _depthImageView, _extent.width, _extent.height );
+        _renderGraph->setAttachments( _colorImageView, _depthImageView, _extent );
 
         // Update the camera like WindowResizeHandler::apply(View&) does: the record traversal
         // pushes the camera's viewportState over the render graph's, so both the projection

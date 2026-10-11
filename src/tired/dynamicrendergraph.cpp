@@ -14,14 +14,13 @@ namespace vsg {
 // ======================================================================================
 
 DynamicRenderGraph::DynamicRenderGraph( Device* in_device, vsg::ref_ptr<ImageView> colorAttachment,
-                                        vsg::ref_ptr<ImageView> depthAttachment, uint32_t width, uint32_t height )
+                                        vsg::ref_ptr<ImageView> depthAttachment, VkExtent2D extent )
     : viewportState( ViewportState::create() )
     , windowResizeHandler( WindowResizeHandler::create() )
     , _device( in_device )
     , _colorAttachment( colorAttachment )
     , _depthAttachment( depthAttachment )
-    , _width( width )
-    , _height( height ) {
+    , _extent( extent ) {
 }
 
 void DynamicRenderGraph::accept( RecordTraversal& recordTraversal ) const {
@@ -30,17 +29,13 @@ void DynamicRenderGraph::accept( RecordTraversal& recordTraversal ) const {
 
     auto extent = getExtent();
 
-    VkClearValue clearColor = { .color = { 0.2f, 0.2f, 0.5f, 1.0f } };
-
     // Dynamic render.
     VkRenderingAttachmentInfoKHR colorAttachmentInfo{ .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
                                                       .imageView = _colorAttachment->vk( _device->deviceID ),
                                                       .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                                       .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
                                                       .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-                                                      .clearValue = clearColor };
-
-    VkClearValue clearDepth = { .depthStencil = { 0.0f, 0 } };
+                                                      .clearValue = _clearValue };
 
     auto depthAttachmentInfo =
         VkRenderingAttachmentInfoKHR{ .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
@@ -48,7 +43,7 @@ void DynamicRenderGraph::accept( RecordTraversal& recordTraversal ) const {
                                       .imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                                       .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
                                       .storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-                                      .clearValue = clearDepth };
+                                      .clearValue = _clearValue };
 
     auto renderingInfo = VkRenderingInfoKHR{ .sType = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
                                              .renderArea = { { 0, 0 }, { extent.width, extent.height } },
@@ -104,12 +99,10 @@ void DynamicRenderGraph::accept( RecordTraversal& recordTraversal ) const {
     if ( ( viewportStateHint & DYNAMIC_VIEWPORTSTATE ) ) {
         recordTraversal.getState()->pushView( viewportState );
 
-        // traverse the subgraph to place commands into the command buffer.
         traverse( recordTraversal );
 
         recordTraversal.getState()->popView( viewportState );
     } else {
-        // traverse the subgraph to place commands into the command buffer.
         traverse( recordTraversal );
     }
 
@@ -117,18 +110,19 @@ void DynamicRenderGraph::accept( RecordTraversal& recordTraversal ) const {
 }
 
 void DynamicRenderGraph::setClearValues( VkClearColorValue clearColor, VkClearDepthStencilValue clearDepthStencil ) {
+    _clearValue.color = clearColor;
+    _clearValue.depthStencil = clearDepthStencil;
 }
 
 void DynamicRenderGraph::resized() {
 }
 
 void DynamicRenderGraph::setAttachments( vsg::ref_ptr<ImageView> colorAttachment,
-                                         vsg::ref_ptr<ImageView> depthAttachment, uint32_t width, uint32_t height ) {
+                                         vsg::ref_ptr<ImageView> depthAttachment, VkExtent2D extent ) {
     _colorAttachment = colorAttachment;
     _depthAttachment = depthAttachment;
-    _width = width;
-    _height = height;
-    renderArea.extent = { width, height };
+    _extent = extent;
+    renderArea.extent = _extent;
 }
 
 }  // namespace vsg
