@@ -59,7 +59,8 @@ protected:
     vsg::ref_ptr<ImageView> _colorAttachment;
     vsg::ref_ptr<ImageView> _depthAttachment;
 
-    VkClearValue _clearValue{};
+    VkClearValue _clearColorValue{};
+    VkClearValue _clearDepthValue{};
 };
 
 VSG_type_name( vsg::DynamicRenderGraph );

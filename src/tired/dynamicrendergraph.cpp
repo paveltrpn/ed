@@ -35,7 +35,7 @@ void DynamicRenderGraph::accept( RecordTraversal& recordTraversal ) const {
                                                       .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                                       .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
                                                       .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-                                                      .clearValue = _clearValue };
+                                                      .clearValue = _clearColorValue };
 
     auto depthAttachmentInfo =
         VkRenderingAttachmentInfoKHR{ .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
@@ -43,7 +43,7 @@ void DynamicRenderGraph::accept( RecordTraversal& recordTraversal ) const {
                                       .imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                                       .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
                                       .storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-                                      .clearValue = _clearValue };
+                                       .clearValue = _clearDepthValue };
 
     auto renderingInfo = VkRenderingInfoKHR{ .sType = VK_STRUCTURE_TYPE_RENDERING_INFO_KHR,
                                              .renderArea = { { 0, 0 }, { extent.width, extent.height } },
@@ -110,8 +110,8 @@ void DynamicRenderGraph::accept( RecordTraversal& recordTraversal ) const {
 }
 
 void DynamicRenderGraph::setClearValues( VkClearColorValue clearColor, VkClearDepthStencilValue clearDepthStencil ) {
-    _clearValue.color = clearColor;
-    _clearValue.depthStencil = clearDepthStencil;
+    _clearColorValue.color = clearColor;
+    _clearDepthValue.depthStencil = clearDepthStencil;
 }
 
 void DynamicRenderGraph::resized() {
