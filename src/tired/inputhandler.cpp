@@ -162,7 +162,6 @@ void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
     const auto& intersections = collectIntersections( pointerEvent.x, pointerEvent.y );
 
     auto scene = _scenegraph->scene();
-    auto gizmo = _scenegraph->gizmo();
 
     if ( intersections.empty() ) {
         scene->setSelectedObjectUid( QUuid{}.toString() );
@@ -170,69 +169,78 @@ void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
         return;
     }
 
+    // The gizmo renders on top of everything else (depth is cleared before it),
+    // so a dragger visible on screen must win the pick even when scene geometry
+    // is closer along the ray. Check draggers in a dedicated first pass.
     for ( auto& intersection : intersections ) {
-        auto handled = bool{ false };
+        for ( auto node : intersection->nodePath ) {
+            if ( auto clickedDragger = dynamic_cast<const MoveDragger*>( node ) ) {
+                beginGizmoDrag( clickedDragger, pointerEvent );
 
+                return;
+            }
+        }
+    }
+
+    for ( auto& intersection : intersections ) {
         for ( auto node : intersection->nodePath ) {
             if ( auto clickedDrawable = dynamic_cast<const SceneObjectGraph*>( node ) ) {
                 auto owner = clickedDrawable->owner();
                 scene->setSelectedObjectUid( owner->uid() );
 
-                handled = true;
-            } else if ( auto clickedDrawable = dynamic_cast<const MoveDragger*>( node ) ) {
-                _manipulator->setDragActive( true );
-
-                _dragAxis = clickedDrawable->axis();
-
-                gizmo->beginDrag();
-
-                _dragPressScreen = vsg::ivec2{ pointerEvent.x, pointerEvent.y };
-
-                switch ( _dragAxis ) {
-                    case DraggerAxis::X: {
-                        _dragAxisWorld = vsg::dvec3{ 1.0, 0.0, 0.0 };
-                        break;
-                    }
-                    case DraggerAxis::Y: {
-                        _dragAxisWorld = vsg::dvec3{ 0.0, 1.0, 0.0 };
-                        break;
-                    }
-                    case DraggerAxis::Z: {
-                        _dragAxisWorld = vsg::dvec3{ 0.0, 0.0, 1.0 };
-                        break;
-                    }
-                    default: {
-                        return;
-                    }
-                }
-
-                const auto anchor = gizmo->translation();
-
-                const auto screenPosition = [this]( const vsg::dvec3& worldPoint ) -> vsg::dvec2 {
-                    const auto camera = _camera.get();
-
-                    const auto viewport = camera->getViewport();
-
-                    // Same projection/viewport convention as vsg::LineSegmentIntersector picking.
-                    const auto clip = camera->projectionMatrix->transform() * camera->viewMatrix->transform() *
-                                      vsg::dvec4{ worldPoint.x, worldPoint.y, worldPoint.z, 1.0 };
-
-                    const auto ndcX = clip.x / clip.w * 0.5 + 0.5;
-                    const auto ndcY = clip.y / clip.w * 0.5 + 0.5;
-
-                    return { viewport.x + ndcX * viewport.width, viewport.y + ndcY * viewport.height };
-                };
-
-                _dragAxisScreenDir = screenPosition( anchor + _dragAxisWorld ) - screenPosition( anchor );
-
-                handled = true;
+                return;
             }
         }
+    }
+}
 
-        if ( handled ) {
+void Handler::beginGizmoDrag( const MoveDragger* dragger, vsg::PointerEvent& pointerEvent ) {
+    auto gizmo = _scenegraph->gizmo();
+
+    _manipulator->setDragActive( true );
+
+    _dragAxis = dragger->axis();
+
+    gizmo->beginDrag();
+
+    _dragPressScreen = vsg::ivec2{ pointerEvent.x, pointerEvent.y };
+
+    switch ( _dragAxis ) {
+        case DraggerAxis::X: {
+            _dragAxisWorld = vsg::dvec3{ 1.0, 0.0, 0.0 };
+            break;
+        }
+        case DraggerAxis::Y: {
+            _dragAxisWorld = vsg::dvec3{ 0.0, 1.0, 0.0 };
+            break;
+        }
+        case DraggerAxis::Z: {
+            _dragAxisWorld = vsg::dvec3{ 0.0, 0.0, 1.0 };
+            break;
+        }
+        default: {
             return;
         }
     }
+
+    const auto anchor = gizmo->translation();
+
+    const auto screenPosition = [this]( const vsg::dvec3& worldPoint ) -> vsg::dvec2 {
+        const auto camera = _camera.get();
+
+        const auto viewport = camera->getViewport();
+
+        // Same projection/viewport convention as vsg::LineSegmentIntersector picking.
+        const auto clip = camera->projectionMatrix->transform() * camera->viewMatrix->transform() *
+                          vsg::dvec4{ worldPoint.x, worldPoint.y, worldPoint.z, 1.0 };
+
+        const auto ndcX = clip.x / clip.w * 0.5 + 0.5;
+        const auto ndcY = clip.y / clip.w * 0.5 + 0.5;
+
+        return { viewport.x + ndcX * viewport.width, viewport.y + ndcY * viewport.height };
+    };
+
+    _dragAxisScreenDir = screenPosition( anchor + _dragAxisWorld ) - screenPosition( anchor );
 }
 
 void Handler::onMMBPress( vsg::PointerEvent& pointerEvent ) {

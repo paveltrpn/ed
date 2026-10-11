@@ -66,6 +66,7 @@ private:
         -> std::vector<vsg::ref_ptr<vsg::LineSegmentIntersector::Intersection>>;
 
     void onLMBPress( vsg::PointerEvent& pointerEvent );
+    void beginGizmoDrag( const MoveDragger* dragger, vsg::PointerEvent& pointerEvent );
     void onMMBPress( vsg::PointerEvent& pointerEvent );
     void onRMBPress( vsg::PointerEvent& pointerEvent );
 
