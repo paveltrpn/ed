@@ -83,12 +83,11 @@ struct AttachAndCompileOp : public vsg::Inherit<vsg::Operation, AttachAndCompile
 
         _attachmentPoint->addChild( _node );
 
-        auto ct = vsg::CompileTraversal::create( *ref_viewer );
-
-        ct->compile( _attachmentPoint );
-
-        // TODO: need to update viewer?
-        // updateViewer( *ref_viewer, _compileResult );
+        if ( ref_viewer && !ref_viewer->recordAndSubmitTasks.empty() ) {
+            auto device = ref_viewer->recordAndSubmitTasks.front()->device;
+            auto ct = vsg::CompileTraversal::create( device );
+            ct->compile( _node );
+        }
     }
 
 private:
@@ -116,10 +115,6 @@ struct DetachAndCompileOp : public vsg::Inherit<vsg::Operation, DetachAndCompile
                 _detachmentPoint->children.erase( it );
 
                 vsg::ref_ptr<vsg::Viewer> ref_viewer = _viewer;
-
-                auto ct = vsg::CompileTraversal::create( *ref_viewer );
-
-                ct->compile( _detachmentPoint );
 
                 ref_viewer->addUpdateOperation( DeferredDeleteOp::create( _viewer, _node ),
                                                 vsg::UpdateOperations::ALL_FRAMES );

@@ -19,10 +19,10 @@ Scenegraph::Scenegraph( vsg::observer_ptr<vsg::Viewer> viewer, QObject* parent )
     , _scene{ new SceneUIProxy{ vsg::observer_ptr<SceneSubgraph>{ _sceneNode },
                                 vsg::observer_ptr<BoundingRender>{ _boundingRender }, this } } {
     //
-    // _root->addChild( _boundingRender );
+    _root->addChild( _boundingRender );
 
     _root->addChild( _navboxNode );
-    // _root->addChild( _sceneNode );
+    _root->addChild( _sceneNode );
     _root->addChild( _gridNode );
     _root->addChild( _gizmoNode );
 
