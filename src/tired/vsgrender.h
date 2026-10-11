@@ -64,7 +64,7 @@ private:
     vsg::ref_ptr<vsg::Camera> _camera{};
 
     // NOTE: Why this defaults works???
-    VkExtent2D _extent{ 1150, 870 };
+    VkExtent2D _extent{ 800, 600 };
 
     VkFormat _imageFormat{ VK_FORMAT_R8G8B8A8_SRGB };
     VkFormat _depthFormat{ VK_FORMAT_D32_SFLOAT };

@@ -8,6 +8,10 @@
 
 namespace vsg {
 
+// ======================================================================================
+// ==================== DynamicRenderGraph ==============================================
+// ======================================================================================
+
 class VSG_DECLSPEC DynamicRenderGraph : public Inherit<Group, DynamicRenderGraph> {
 public:
     ~DynamicRenderGraph() override{};

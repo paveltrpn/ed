@@ -8,7 +8,10 @@
 
 namespace vsg {
 
-/// GraphicsPipeline encapsulates graphics VkPipeline and the VkGraphicsPipelineCreateInfo settings used to set it up.
+// ======================================================================================
+// ==================== DynamicRenderGraphicsPipeline ===================================
+// ======================================================================================
+
 class VSG_DECLSPEC DynamicRenderGraphicsPipeline : public Inherit<GraphicsPipeline, DynamicRenderGraphicsPipeline> {
 public:
     DynamicRenderGraphicsPipeline();
@@ -24,7 +27,6 @@ public:
     void read( Input& input ) override;
     void write( Output& output ) const override;
 
-    // compile the Vulkan object, context parameter used for Device
     void compile( Context& context );
 
 protected:
@@ -45,9 +47,13 @@ protected:
 
     std::vector<ref_ptr<DynamicRenderGraphicsPipeline::Implementation>> _implementation;
 };
+
 VSG_type_name( vsg::DynamicRenderGraphicsPipeline );
 
-/// BindGraphicsPipeline state command encapsulates the vkCmdBindPipeline call for a GraphicsPipeline.
+// ======================================================================================
+// ==================== BindDynamicRenderGraphicsPipeline ===============================
+// ======================================================================================
+
 class VSG_DECLSPEC BindDynamicRenderGraphicsPipeline : public Inherit<StateCommand, BindDynamicRenderGraphicsPipeline> {
 public:
     explicit BindDynamicRenderGraphicsPipeline( ref_ptr<DynamicRenderGraphicsPipeline> in_pipeline = {} );
@@ -62,12 +68,12 @@ public:
 
     void record( CommandBuffer& commandBuffer ) const override;
 
-    // compile the Vulkan object, context parameter used for Device
     void compile( Context& context ) override;
 
 public:
     ~BindDynamicRenderGraphicsPipeline() override;
 };
+
 VSG_type_name( vsg::BindDynamicRenderGraphicsPipeline );
 
 }  // namespace vsg

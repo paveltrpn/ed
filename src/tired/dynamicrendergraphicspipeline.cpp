@@ -10,10 +10,11 @@
 #include "dynamicrendergraphicspipeline.h"
 
 namespace vsg {
-////////////////////////////////////////////////////////////////////////
-//
-// DynamicRenderGraphicsPipeline
-//
+
+// ======================================================================================
+// ==================== DynamicRenderGraphicsPipeline ===================================
+// ======================================================================================
+
 DynamicRenderGraphicsPipeline::DynamicRenderGraphicsPipeline() {
 }
 
@@ -30,13 +31,25 @@ DynamicRenderGraphicsPipeline::~DynamicRenderGraphicsPipeline() {
 
 int DynamicRenderGraphicsPipeline::compare( const Object& rhs_object ) const {
     int result = Object::compare( rhs_object );
-    if ( result != 0 ) return result;
+
+    if ( result != 0 ) {
+        return result;
+    }
 
     const auto& rhs = static_cast<decltype( *this )>( rhs_object );
 
-    if ( ( result = compare_pointer_container( stages, rhs.stages ) ) ) return result;
-    if ( ( result = compare_pointer_container( pipelineStates, rhs.pipelineStates ) ) ) return result;
-    if ( ( result = compare_pointer( layout, rhs.layout ) ) ) return result;
+    if ( ( result = compare_pointer_container( stages, rhs.stages ) ) ) {
+        return result;
+    }
+
+    if ( ( result = compare_pointer_container( pipelineStates, rhs.pipelineStates ) ) ) {
+        return result;
+    }
+
+    if ( ( result = compare_pointer( layout, rhs.layout ) ) ) {
+        return result;
+    }
+
     return compare_value( subpass, rhs.subpass );
 }
 
@@ -110,10 +123,6 @@ void DynamicRenderGraphicsPipeline::compile( Context& context ) {
     }
 }
 
-////////////////////////////////////////////////////////////////////////
-//
-// GraphicsPipeline::Implementation
-//
 DynamicRenderGraphicsPipeline::Implementation::Implementation( Context& context, Device* device,
                                                                const PipelineLayout* pipelineLayout,
                                                                const ShaderStages& shaderStages,
@@ -171,12 +180,10 @@ DynamicRenderGraphicsPipeline::Implementation::~Implementation() {
     vkDestroyPipeline( *_device, _pipeline, _device->getAllocationCallbacks() );
 }
 
-////////////////////////////////////////////////////////////////////////
+// ======================================================================================
+// ==================== BindDynamicRenderGraphicsPipeline ===============================
+// ======================================================================================
 
-////////////////////////////////////////////////////////////////////////
-//
-// BindDynamicRenderGraphicsPipeline
-//
 BindDynamicRenderGraphicsPipeline::BindDynamicRenderGraphicsPipeline(
     ref_ptr<DynamicRenderGraphicsPipeline> in_pipeline )
     : Inherit{ 0 }

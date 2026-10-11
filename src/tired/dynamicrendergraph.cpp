@@ -9,6 +9,10 @@
 
 namespace vsg {
 
+// ======================================================================================
+// ==================== DynamicRenderGraph ==============================================
+// ======================================================================================
+
 DynamicRenderGraph::DynamicRenderGraph( Device* in_device, vsg::ref_ptr<ImageView> colorAttachment,
                                         vsg::ref_ptr<ImageView> depthAttachment, uint32_t width, uint32_t height )
     : viewportState( ViewportState::create() )
