@@ -15,6 +15,7 @@
 #include "../sceneobject/cylinder.h"
 #include "../sceneobject/capsule.h"
 #include "../sceneobject/cone.h"
+#include "../sceneobject/torus.h"
 
 #include "../vsgcommands/setpolygonmode.h"
 #include "tired/subgraph/boundingdraw.h"
@@ -205,6 +206,26 @@ void SceneUIProxy::addCone( std::string name, std::string uid, vsg::dvec3 positi
                                                       slices, segments, rings, start, sweep } };
 
     auto object = std::make_shared<ConeObject>( node );
+
+    _scene.get()->attach( node );
+
+    node->setOwner( object.get() );
+
+    _objects->addObject( std::move( object ) );
+
+    emit objectsChanged();
+}
+
+void SceneUIProxy::addTorus( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                             vsg::dvec3 scale, vsg::vec4 color, double minor, double major, int slices,
+                             int segments, double minorStart, double minorSweep, double majorStart,
+                             double majorSweep ) {
+    auto node = vsg::ref_ptr<TorusNode>{ new TorusNode{ name,       uid,        position,   orientation,
+                                                        scale,      color,      minor,      major,
+                                                        slices,     segments,   minorStart, minorSweep,
+                                                        majorStart, majorSweep } };
+
+    auto object = std::make_shared<TorusObject>( node );
 
     _scene.get()->attach( node );
 
