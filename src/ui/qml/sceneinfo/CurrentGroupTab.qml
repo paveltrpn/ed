@@ -15,6 +15,7 @@ Rectangle {
     readonly property var _units: Appearence.units.data
 
     property var selectedObject: null
+    property int loadedObjectType: 0
 
     bottomLeftRadius: _units.radiusEight
     bottomRightRadius: _units.radiusEight
@@ -76,7 +77,8 @@ Rectangle {
                         }
                     }
 
-                    if (objectInfoLoader.source !== wantedSource) {
+                    if (selectedInfoComponent.loadedObjectType !== object.type) {
+                        selectedInfoComponent.loadedObjectType = object.type;
                         objectInfoLoader.source = wantedSource;
                     } else if (objectInfoLoader.status === Loader.Ready) {
                         objectInfoLoader.item.object = object;
