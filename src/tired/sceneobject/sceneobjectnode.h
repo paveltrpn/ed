@@ -4,6 +4,7 @@
 #include <vsg/all.h>
 #include "vsg/core/ref_ptr.h"
 
+#include "sceneobjectdata.h"
 #include "../subgraph/boundingdraw.h"
 
 namespace tire {
@@ -18,11 +19,9 @@ struct SceneObjectNode : public vsg::MatrixTransform {
 public:
     SceneObjectNode( SceneObjectBase* owner );
 
-    [[nodiscard]]
-    auto owner() const -> SceneObjectBase*;
+    [[nodiscard]] auto owner() const -> SceneObjectBase*;
 
-    [[nodiscard]]
-    auto boundingDraw() const -> vsg::ref_ptr<BoundingDraw>;
+    [[nodiscard]] auto boundingDraw() const -> vsg::ref_ptr<BoundingDraw>;
 
     auto setOrigin( vsg::dvec3 value ) -> void;
 
@@ -36,13 +35,22 @@ private:
     auto updateMatrix() -> void;
 
 private:
+    SceneObjectTypeEnum _type{};
+    std::string _name{};
+    std::string _uid{};
+    vsg::dvec3 _position{};
+    vsg::dvec3 _orientation{};
+    vsg::dvec3 _scale{};
+    vsg::vec4 _color{};
+
+private:
     SceneObjectBase* _owner{};
 
     vsg::ref_ptr<BoundingDraw> _bounding{};
 
-    vsg::dmat4 _origin{};
-    vsg::dmat4 _rotation{};
-    vsg::dmat4 _scale{};
+    vsg::dmat4 _originMatrix{};
+    vsg::dmat4 _rotationMatrix{};
+    vsg::dmat4 _scaleMatrix{};
 };
 
 }  // namespace tire

@@ -25,7 +25,7 @@ auto SceneObjectNode::boundingDraw() const -> vsg::ref_ptr<BoundingDraw> {
 }
 
 auto SceneObjectNode::setOrigin( vsg::dvec3 value ) -> void {
-    _origin = vsg::translate( value );
+    _originMatrix = vsg::translate( value );
     updateMatrix();
 }
 
@@ -34,7 +34,7 @@ auto SceneObjectNode::setRotation( vsg::dvec3 value ) -> void {
     const auto rtY = vsg::rotate( vsg::radians( value.y ), vsg::dvec3{ 0.0, 1.0, 0.0 } );
     const auto rtZ = vsg::rotate( vsg::radians( value.z ), vsg::dvec3{ 0.0, 0.0, 1.0 } );
 
-    _rotation = rtX * rtY * rtZ;
+    _rotationMatrix = rtX * rtY * rtZ;
 
     updateMatrix();
 }
@@ -50,12 +50,12 @@ auto SceneObjectNode::setRotation( vsg::dvec3 ax, double angl ) -> void {
 }
 
 auto SceneObjectNode::setScale( vsg::dvec3 value ) -> void {
-    _scale = vsg::scale( value );
+    _scaleMatrix = vsg::scale( value );
     updateMatrix();
 }
 
 auto SceneObjectNode::updateMatrix() -> void {
-    this->matrix = _origin * _rotation * _scale;
+    this->matrix = _originMatrix * _rotationMatrix * _scaleMatrix;
     _bounding->setTransform( vsg::mat4{ this->matrix } );
 }
 
