@@ -26,9 +26,11 @@ QuickTemplates.Button {
 
     height: _units.scaled_48
 
+    opacity: enabled ? 1.0 : 0.3
+
     states: [
         State {
-            when: control.down
+            when: enabled && control.down
             PropertyChanges {
                 target: control
                 backgroundColor: control.modeRelatedBgColor
@@ -44,7 +46,7 @@ QuickTemplates.Button {
             }
         },
         State {
-            when: control.hovered && !control.checked
+            when: enabled && (control.hovered && !control.checked)
             PropertyChanges {
                 target: control
                 backgroundColor: control.modeRelatedBgColor
@@ -55,7 +57,7 @@ QuickTemplates.Button {
             }
         },
         State {
-            when: control.checked
+            when: enabled && control.checked
             PropertyChanges {
                 target: control
                 backgroundColor: control.modeRelatedBgColor

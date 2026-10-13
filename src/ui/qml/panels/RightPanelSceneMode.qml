@@ -390,6 +390,8 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_scene
             buttonLabel: "Deselect"
 
+            enabled: Tired.scenegraph.scene.isAnyObjectSelected
+
             onClicked: {
                 Tired.scenegraph.scene.selectedObjectUid = ""
                 mainWindow.panelsActiveBtn = "";
