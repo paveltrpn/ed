@@ -26,7 +26,7 @@ QuickTemplates.Button {
 
     height: _units.scaled_48
 
-    opacity: enabled ? 1.0 : 0.3
+    opacity: enabled ? 1.0 : 0.64
 
     states: [
         State {
