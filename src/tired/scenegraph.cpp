@@ -4,8 +4,8 @@
 
 namespace tire {
 
-Scenegraph::Scenegraph( vsg::observer_ptr<vsg::Viewer> viewer,
-                        vsg::observer_ptr<vsg::DynamicRenderGraph> renderGraph, QObject* parent )
+Scenegraph::Scenegraph( vsg::observer_ptr<vsg::Viewer> viewer, vsg::observer_ptr<vsg::DynamicRenderGraph> renderGraph,
+                        QObject* parent )
     : QObject{ parent }
     , _root{ new vsg::Group{} }
     , _viewer{ viewer }
@@ -27,8 +27,10 @@ Scenegraph::Scenegraph( vsg::observer_ptr<vsg::Viewer> viewer,
     _root->addChild( _gridNode );
     _root->addChild( _gizmoNode );
 
-    connect( _scene, &SceneUIProxy::selectedObjectChanged, _gizmo,
-             [this]( SceneObjectBase* object ) { _gizmo->setDragTarget( object ); } );
+    connect( _scene, &SceneUIProxy::selectedObjectChanged, _gizmo, [this]( SceneObjectBase* object ) -> void {
+        //
+        _gizmo->setDragTarget( object );
+    } );
 }
 
 auto Scenegraph::root() const -> vsg::ref_ptr<vsg::Group> {

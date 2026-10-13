@@ -57,15 +57,16 @@ auto SceneUIProxy::setSelectedObjectUid( const QString& value ) -> void {
         emit selectedObjectUidChanged();
         emit selectedObjectChanged( nullptr );
         emit isAnyObjectSelectedChanged();
+
         return;
     }
 
-    auto obj = _objects->findObject( QUuid::fromString( value ) );
+    auto selectedObject = _objects->findObject( QUuid::fromString( value ) );
 
-    _boundingRender.get()->attach( obj->node()->boundingDraw() );
+    _boundingRender.get()->attach( selectedObject->node()->boundingDraw() );
 
     emit selectedObjectUidChanged();
-    emit selectedObjectChanged( obj.get() );
+    emit selectedObjectChanged( selectedObject.get() );
     emit isAnyObjectSelectedChanged();
 }
 
@@ -220,13 +221,11 @@ void SceneUIProxy::addCone( std::string name, std::string uid, vsg::dvec3 positi
 }
 
 void SceneUIProxy::addTorus( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                             vsg::dvec3 scale, vsg::vec4 color, double minor, double major, int slices,
-                             int segments, double minorStart, double minorSweep, double majorStart,
-                             double majorSweep ) {
-    auto node = vsg::ref_ptr<TorusNode>{ new TorusNode{ name,       uid,        position,   orientation,
-                                                        scale,      color,      minor,      major,
-                                                        slices,     segments,   minorStart, minorSweep,
-                                                        majorStart, majorSweep } };
+                             vsg::dvec3 scale, vsg::vec4 color, double minor, double major, int slices, int segments,
+                             double minorStart, double minorSweep, double majorStart, double majorSweep ) {
+    auto node =
+        vsg::ref_ptr<TorusNode>{ new TorusNode{ name, uid, position, orientation, scale, color, minor, major, slices,
+                                                segments, minorStart, minorSweep, majorStart, majorSweep } };
 
     auto object = std::make_shared<TorusObject>( node );
 

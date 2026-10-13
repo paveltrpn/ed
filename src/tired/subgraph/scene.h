@@ -58,13 +58,12 @@ public:
                                  int segments, int rings, double start, double sweep );
 
     Q_INVOKABLE void addCone( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                              vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices,
-                              int segments, int rings, double start, double sweep );
+                              vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices, int segments,
+                              int rings, double start, double sweep );
 
     Q_INVOKABLE void addTorus( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                               vsg::dvec3 scale, vsg::vec4 color, double minor, double major, int slices,
-                               int segments, double minorStart, double minorSweep, double majorStart,
-                               double majorSweep );
+                               vsg::dvec3 scale, vsg::vec4 color, double minor, double major, int slices, int segments,
+                               double minorStart, double minorSweep, double majorStart, double majorSweep );
 
     Q_INVOKABLE void removeObject( const QUuid& uid );
 

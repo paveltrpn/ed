@@ -63,7 +63,10 @@ Tired::Tired( QObject* parent )
 
     _render->sceneTransform()->addChild( _scenegraph->root() );
 
-    _render->setFrameUpdateCallback( [this]( const vsg::Camera& camera ) { _scenegraph->frameUpdate( camera ); } );
+    _render->setFrameUpdateCallback( [this]( const vsg::Camera& camera ) -> void {
+        //
+        _scenegraph->frameUpdate( camera );
+    } );
 
     // Setup manipulator object.
     { _manipulator = new Manipulator{ _render->camera(), this }; }
@@ -103,16 +106,16 @@ Tired::Tired( QObject* parent )
                                   { 0.5, 0.5, 0.5 }, { 1, 1, 1 } );
 
     _scenegraph->scene()->addSphere( "OBJECT", QUuid::createUuid().toString().toStdString(), { 0.0, 2.0, 0.0 },
-                                     { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 16,
-                                     8, 0.0, gml::radians( 360.0 ), 0.0, gml::radians( 180.0 ) );
+                                     { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 16, 8, 0.0,
+                                     gml::radians( 360.0 ), 0.0, gml::radians( 180.0 ) );
 
     _scenegraph->scene()->addCylinder( "OBJECT", QUuid::createUuid().toString().toStdString(), { 0.0, 4.0, 0.0 },
-                                       { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 3.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5,
-                                       0.5, 16, 8, 4, 0.0, gml::radians( 360.0 ) );
+                                       { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 3.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 0.5, 16,
+                                       8, 4, 0.0, gml::radians( 360.0 ) );
 
     _scenegraph->scene()->addCapsule( "OBJECT", QUuid::createUuid().toString().toStdString(), { 0.0, -2.0, 0.0 },
-                                      { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5,
-                                      0.5, 16, 8, 4, 0.0, gml::radians( 360.0 ) );
+                                      { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 0.5, 16, 8,
+                                      4, 0.0, gml::radians( 360.0 ) );
 };
 
 auto Tired::vsgRender() const -> std::shared_ptr<VsgRender> {

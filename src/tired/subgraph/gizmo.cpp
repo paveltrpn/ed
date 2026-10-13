@@ -90,8 +90,8 @@ auto GizmoUIProxy::updateScale( DraggerAxis axis, double delta ) -> void {
             }
         }
 
-        _dragTarget->setScale( QVector3D{ static_cast<float>( scale.x ), static_cast<float>( scale.y ),
-                                          static_cast<float>( scale.z ) } );
+        _dragTarget->setScale(
+            QVector3D{ static_cast<float>( scale.x ), static_cast<float>( scale.y ), static_cast<float>( scale.z ) } );
     }
 }
 
