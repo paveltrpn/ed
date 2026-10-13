@@ -10,9 +10,13 @@ namespace tire {
 
 struct SceneObjectBase;
 
-struct SceneObjectGraph : public vsg::MatrixTransform {
+// ======================================================================================
+// ==================== SceneObjectNode =================================================
+// ======================================================================================
+
+struct SceneObjectNode : public vsg::MatrixTransform {
 public:
-    SceneObjectGraph( SceneObjectBase* owner );
+    SceneObjectNode( SceneObjectBase* owner );
 
     [[nodiscard]]
     auto owner() const -> SceneObjectBase*;

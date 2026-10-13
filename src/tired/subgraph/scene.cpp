@@ -9,11 +9,11 @@
 
 #include "program/program.h"
 #include "config/config.h"
-#include "../scene_object/sceneobjectdata.h"
-#include "../scene_object/box.h"
-#include "../scene_object/sphere.h"
-#include "../scene_object/cylinder.h"
-#include "../scene_object/capsule.h"
+#include "../sceneobject/sceneobjectdata.h"
+#include "../sceneobject/box.h"
+#include "../sceneobject/sphere.h"
+#include "../sceneobject/cylinder.h"
+#include "../sceneobject/capsule.h"
 
 #include "../vsgcommands/setpolygonmode.h"
 #include "tired/subgraph/boundingdraw.h"

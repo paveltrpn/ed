@@ -6,7 +6,7 @@
 
 #include <vsg/all.h>
 
-#include "sceneobjectgraph.h"
+#include "sceneobjectnode.h"
 #include "sceneobjectdata.h"
 
 namespace tire {
@@ -35,47 +35,40 @@ public:
     SceneObjectBase& operator=( const SceneObjectBase& other ) = delete;
     SceneObjectBase& operator=( SceneObjectBase&& other ) = delete;
 
-    [[nodiscard]]
-    SceneObjectTypeEnum type() const {
+    [[nodiscard]] SceneObjectTypeEnum type() const {
         //
         return _type;
     }
 
-    [[nodiscard]]
-    QString name() const {
+    [[nodiscard]] QString name() const {
         //
         return _name;
     }
 
-    [[nodiscard]]
-    QString uid() const {
+    [[nodiscard]] QString uid() const {
         //
         return _uid.toString();
     }
 
-    [[nodiscard]]
-    QVector3D position() const {
+    [[nodiscard]] QVector3D position() const {
         //
         return QVector3D{ static_cast<float>( _position.x ), static_cast<float>( _position.y ),
                           static_cast<float>( _position.z ) };
     }
 
-    [[nodiscard]]
-    QVector3D orientation() const {
+    [[nodiscard]] QVector3D orientation() const {
         //
         return QVector3D{ static_cast<float>( _orientation.x ), static_cast<float>( _orientation.y ),
                           static_cast<float>( _orientation.z ) };
     }
 
-    [[nodiscard]]
-    QVector3D scale() const {
+    [[nodiscard]] QVector3D scale() const {
         //
         return QVector3D{ static_cast<float>( _scale.x ), static_cast<float>( _scale.y ),
                           static_cast<float>( _scale.z ) };
     }
 
-    [[nodiscard]]
-    QVector4D color() const {
+    [[nodiscard]] QVector4D color() const {
         //
         return QVector4D{ static_cast<float>( _color.r ), static_cast<float>( _color.g ),
                           static_cast<float>( _color.b ), static_cast<float>( _color.a ) };
@@ -108,8 +101,7 @@ public:
         _color = vsg::dvec4{ value.x(), value.y(), value.z(), value.w() };
     }
 
-    [[nodiscard]]
-    auto node() const -> vsg::ref_ptr<SceneObjectGraph>;
+    [[nodiscard]] auto node() const -> vsg::ref_ptr<SceneObjectNode>;
 
 private:
     auto init() -> void;
@@ -124,7 +116,7 @@ signals:
     void colorChanged();
 
 protected:
-    vsg::ref_ptr<SceneObjectGraph> _node{};
+    vsg::ref_ptr<SceneObjectNode> _node{};
 
 protected:
     SceneObjectTypeEnum _type{};

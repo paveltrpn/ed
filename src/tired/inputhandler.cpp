@@ -1,6 +1,6 @@
 
 #include "inputhandler.h"
-#include "scene_object/sceneobjectgraph.h"
+#include "sceneobject/sceneobjectnode.h"
 
 namespace tire {
 
@@ -184,7 +184,7 @@ void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
 
     for ( auto& intersection : intersections ) {
         for ( auto node : intersection->nodePath ) {
-            if ( auto clickedDrawable = dynamic_cast<const SceneObjectGraph*>( node ) ) {
+            if ( auto clickedDrawable = dynamic_cast<const SceneObjectNode*>( node ) ) {
                 auto owner = clickedDrawable->owner();
                 scene->setSelectedObjectUid( owner->uid() );
 

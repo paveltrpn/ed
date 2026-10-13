@@ -4,7 +4,7 @@
 
 #include <QAbstractListModel>
 
-#include "../scene_object/sceneobjectbase.h"
+#include "../sceneobject/sceneobjectbase.h"
 
 namespace tire {
 

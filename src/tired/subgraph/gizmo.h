@@ -4,7 +4,7 @@
 #include <vsg/all.h>
 
 #include "subgraph.h"
-#include "../scene_object/sceneobjectbase.h"
+#include "../sceneobject/sceneobjectbase.h"
 #include "../dynamicrendergraph.h"
 #include "../vsgcommands/cleardepthattachment.h"
 
@@ -85,8 +85,7 @@ struct ScaleDragger;
 struct GizmoSubgraph final : public Subgraph {
     friend GizmoUIProxy;
 
-    GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer,
-                   vsg::observer_ptr<vsg::DynamicRenderGraph> renderGraph );
+    GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer, vsg::observer_ptr<vsg::DynamicRenderGraph> renderGraph );
 
     auto stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> override;
 

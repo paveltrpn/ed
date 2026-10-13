@@ -5,11 +5,11 @@ namespace tire {
 
 SceneObjectBase::SceneObjectBase( QObject* parent )
     : QObject{ parent }
-    , _node{ new SceneObjectGraph{ this } } {
+    , _node{ new SceneObjectNode{ this } } {
 }
 
 SceneObjectBase::SceneObjectBase( const SceneObjectData& data )
-    : _node{ new SceneObjectGraph{ this } }
+    : _node{ new SceneObjectNode{ this } }
     , _type{ data._type }
     , _name{ data._name }
     , _uid{ data._uid }
@@ -22,7 +22,7 @@ SceneObjectBase::SceneObjectBase( const SceneObjectData& data )
 
 SceneObjectBase::SceneObjectBase( SceneObjectTypeEnum type, const QString& name, const QUuid& uid, vsg::dvec3 position,
                                   vsg::dvec3 orientation, vsg::dvec3 scale, vsg::dvec4 color )
-    : _node{ new SceneObjectGraph{ this } }
+    : _node{ new SceneObjectNode{ this } }
     , _type{ type }
     , _name{ name }
     , _uid{ uid }
@@ -33,7 +33,7 @@ SceneObjectBase::SceneObjectBase( SceneObjectTypeEnum type, const QString& name,
     init();
 }
 
-auto SceneObjectBase::node() const -> vsg::ref_ptr<SceneObjectGraph> {
+auto SceneObjectBase::node() const -> vsg::ref_ptr<SceneObjectNode> {
     return _node;
 }
 
