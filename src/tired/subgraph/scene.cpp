@@ -241,9 +241,20 @@ void SceneUIProxy::addTorus( std::string name, std::string uid, vsg::dvec3 posit
 
 void SceneUIProxy::removeObject( const QUuid& uid ) {
     auto obj = _objects->findObject( uid );
+
+    if ( !obj ) {
+        return;
+    }
+
+    if ( uid == _selectedObjectUid ) {
+        setSelectedObjectUid( QUuid{}.toString() );
+    }
+
     _scene.get()->detach( obj->node() );
 
-    // TODO: remove from list and model
+    _objects->removeObject( obj );
+
+    emit objectsChanged();
 }
 
 // ======================================================================================

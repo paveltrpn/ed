@@ -31,11 +31,20 @@ auto ObjectsList::addObject( std::shared_ptr<SceneObjectBase> object ) -> void {
 }
 
 auto ObjectsList::removeObject( std::shared_ptr<SceneObjectBase> object ) -> void {
-    // beginRemoveRows( parentIndex, row, row );
+    const auto it = std::find( _objectsList.begin(), _objectsList.end(), object );
 
-    // _objectsList.push_back( object );
+    if ( it == _objectsList.end() ) {
+        return;
+    }
 
-    // endInsertRows();
+    const int row = static_cast<int>( std::distance( _objectsList.begin(), it ) );
+    const QModelIndex parentIndex = QModelIndex();
+
+    beginRemoveRows( parentIndex, row, row );
+
+    _objectsList.erase( it );
+
+    endRemoveRows();
 }
 
 auto ObjectsList::findObject( const QUuid &uid ) const -> std::shared_ptr<SceneObjectBase> {
