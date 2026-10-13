@@ -98,9 +98,13 @@ auto GizmoUIProxy::updateScale( DraggerAxis axis, double delta ) -> void {
 auto GizmoUIProxy::setDragTarget( SceneObjectBase* object ) -> void {
     _dragTarget = object;
 
-    if ( _dragTarget ) {
-        setTranslation( _dragTarget->node()->_position );
+    if ( !object ) {
+        _gizmo.get()->hideGizmo();
+        return;
     }
+
+    setTranslation( _dragTarget->node()->_position );
+    _gizmo.get()->showGizmo();
 }
 
 auto GizmoUIProxy::translation() const -> vsg::dvec3 {
@@ -171,6 +175,9 @@ GizmoSubgraph::GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer,
 
     initPipeline();
     initDraggers();
+
+    // Gizmo hidden by default.
+    hideGizmo();
 }
 
 auto GizmoSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {
@@ -320,6 +327,14 @@ auto GizmoSubgraph::initDraggers() -> void {
     _gizmoPivot->addChild( _scaleGizmoSwitch );
 
     _gizmoKillSwitch->addChild( vsg::MASK_ALL, _gizmoPivot );
+}
+
+auto GizmoSubgraph::showGizmo() -> void {
+    _gizmoKillSwitch->setAllChildren( true );
+}
+
+auto GizmoSubgraph::hideGizmo() -> void {
+    _gizmoKillSwitch->setAllChildren( false );
 }
 
 auto GizmoSubgraph::showMoveGizmo() -> void {

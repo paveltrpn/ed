@@ -104,6 +104,9 @@ struct GizmoSubgraph final : public Subgraph {
     auto setPivotPosition( const vsg::dvec3& position ) -> void;
     auto updateScreenTransform( const vsg::Camera* camera ) -> void;
 
+    auto showGizmo() -> void;
+    auto hideGizmo() -> void;
+
 private:
     auto showMoveGizmo() -> void;
     auto showRotateGizmo() -> void;
