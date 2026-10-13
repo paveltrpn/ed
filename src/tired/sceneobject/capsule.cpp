@@ -4,17 +4,28 @@
 #include "capsule.h"
 #include "../generatorutils.h"
 
-namespace tire::object {
+namespace tire {
 
-Capsule::Capsule( const CapsuleObjectData& data )
-    : SceneObjectBase{ data }
-    , _data{ data } {
+// ======================================================================================
+// ==================== CapsuleNode =====================================================
+// ======================================================================================
+
+CapsuleNode::CapsuleNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                          vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices,
+                          int segments, int rings, double start, double sweep, SceneObjectBase* owner )
+    : SceneObjectNode{ SceneObjectTypeEnum::CAPSULE, name, uid, position, orientation, scale, color, owner }
+    , _radius{ radius }
+    , _size{ size }
+    , _slices{ slices }
+    , _segments{ segments }
+    , _rings{ rings }
+    , _start{ start }
+    , _sweep{ sweep } {
     init();
 }
 
-auto Capsule::init() -> void {
-    auto data = VsgMeshDataGenerator::capsule( _data._radius, _data._size, _data._slices, _data._segments, _data._rings,
-                                               _data._start, _data._sweep );
+auto CapsuleNode::init() -> void {
+    auto data = VsgMeshDataGenerator::capsule( _radius, _size, _slices, _segments, _rings, _start, _sweep );
 
     // Setup geometry.
     auto drawCommands = vsg::Commands::create();
@@ -23,6 +34,16 @@ auto Capsule::init() -> void {
     drawCommands->addChild( vsg::BindIndexBuffer::create( data._indices ) );
     drawCommands->addChild( vsg::DrawIndexed::create( data._indicesCount, 1, 0, 0, 0 ) );
 
-    _node->addChild( drawCommands );
+    this->addChild( drawCommands );
 }
-}  // namespace tire::object
+
+// ======================================================================================
+// ==================== CapsuleObject ===================================================
+// ======================================================================================
+
+CapsuleObject::CapsuleObject( vsg::ref_ptr<CapsuleNode> node )
+    : SceneObjectBase{}
+    , _node{ node } {
+}
+
+}  // namespace tire

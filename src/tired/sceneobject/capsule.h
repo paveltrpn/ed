@@ -1,11 +1,43 @@
 
 #pragma once
 
+#include <vsg/all.h>
+
 #include "sceneobjectbase.h"
 
-namespace tire::object {
+namespace tire {
 
-struct Capsule final : public SceneObjectBase {
+struct CapsuleObject;
+
+// ======================================================================================
+// ==================== CapsuleNode =====================================================
+// ======================================================================================
+
+struct CapsuleNode final : public SceneObjectNode {
+    friend CapsuleObject;
+
+    CapsuleNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                 vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices, int segments,
+                 int rings, double start, double sweep, SceneObjectBase* owner );
+
+private:
+    auto init() -> void;
+
+private:
+    double _radius{ 0.5 };
+    double _size{ 0.5 };
+    int _slices{ 16 };
+    int _segments{ 8 };
+    int _rings{ 4 };
+    double _start{ 0.0 };
+    double _sweep{ gml::radians( 360.0 ) };
+};
+
+// ======================================================================================
+// ==================== CapsuleObject ===================================================
+// ======================================================================================
+
+struct CapsuleObject final : public SceneObjectBase {
     Q_OBJECT
 
     Q_PROPERTY( double radius READ radius WRITE setRadius NOTIFY radiusChanged FINAL )
@@ -17,82 +49,101 @@ struct Capsule final : public SceneObjectBase {
     Q_PROPERTY( double sweep READ sweep WRITE setSweep NOTIFY sweepChanged FINAL )
 
 public:
-    Capsule( const CapsuleObjectData& data );
+    CapsuleObject( vsg::ref_ptr<CapsuleNode> node );
 
-    Capsule( const Capsule& other ) = delete;
-    Capsule( Capsule&& other ) = delete;
+    CapsuleObject( const CapsuleObject& other ) = delete;
+    CapsuleObject( CapsuleObject&& other ) = delete;
 
-    Capsule& operator=( const Capsule& other ) = delete;
-    Capsule& operator=( Capsule&& other ) = delete;
+    CapsuleObject& operator=( const CapsuleObject& other ) = delete;
+    CapsuleObject& operator=( CapsuleObject&& other ) = delete;
 
     auto radius() const -> double {
         //
-        return _data._radius;
+        return _node->_radius;
     }
 
     auto size() const -> double {
         //
-        return _data._size;
+        return _node->_size;
     }
 
     auto slices() const -> int {
         //
-        return _data._slices;
+        return _node->_slices;
     }
 
     auto segments() const -> int {
         //
-        return _data._segments;
+        return _node->_segments;
     }
 
     auto rings() const -> int {
         //
-        return _data._rings;
+        return _node->_rings;
     }
 
     auto start() const -> double {
         //
-        return _data._start;
+        return _node->_start;
     }
 
     auto sweep() const -> double {
         //
-        return _data._sweep;
+        return _node->_sweep;
     }
 
     auto setRadius( double value ) -> void {
         //
-        _data._radius = value;
+        if ( _node->_radius == value ) return;
+        _node->_radius = value;
+        emit radiusChanged();
     }
 
     auto setSize( double value ) -> void {
         //
-        _data._size = value;
+        if ( _node->_size == value ) return;
+        _node->_size = value;
+        emit sizeChanged();
     }
 
     auto setSlices( int value ) -> void {
         //
-        _data._slices = value;
+        if ( _node->_slices == value ) return;
+        _node->_slices = value;
+        emit slicesChanged();
     }
 
     auto setSegments( int value ) -> void {
         //
-        _data._segments = value;
+        if ( _node->_segments == value ) return;
+        _node->_segments = value;
+        emit segmentsChanged();
     }
 
     auto setRings( int value ) -> void {
         //
-        _data._rings = value;
+        if ( _node->_rings == value ) return;
+        _node->_rings = value;
+        emit ringsChanged();
     }
 
     auto setStart( double value ) -> void {
         //
-        _data._start = value;
+        if ( _node->_start == value ) return;
+        _node->_start = value;
+        emit startChanged();
     }
 
     auto setSweep( double value ) -> void {
         //
-        _data._sweep = value;
+        if ( _node->_sweep == value ) return;
+        _node->_sweep = value;
+        emit sweepChanged();
+    }
+
+    [[nodiscard]] virtual auto node() const -> vsg::ref_ptr<SceneObjectNode> {
+        //
+        return _node;
     }
 
 signals:
@@ -108,7 +159,7 @@ private:
     auto init() -> void;
 
 private:
-    CapsuleObjectData _data{};
+    vsg::ref_ptr<CapsuleNode> _node{};
 };
 
-}  // namespace tire::object
+}  // namespace tire

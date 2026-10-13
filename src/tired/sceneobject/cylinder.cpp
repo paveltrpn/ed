@@ -4,17 +4,28 @@
 #include "cylinder.h"
 #include "../generatorutils.h"
 
-namespace tire::object {
+namespace tire {
 
-Cylinder::Cylinder( const CylinderObjectData& data )
-    : SceneObjectBase{ data }
-    , _data{ data } {
+// ======================================================================================
+// ==================== CylinderNode ====================================================
+// ======================================================================================
+
+CylinderNode::CylinderNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                            vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices,
+                            int segments, int rings, double start, double sweep, SceneObjectBase* owner )
+    : SceneObjectNode{ SceneObjectTypeEnum::CYLINDER, name, uid, position, orientation, scale, color, owner }
+    , _radius{ radius }
+    , _size{ size }
+    , _slices{ slices }
+    , _segments{ segments }
+    , _rings{ rings }
+    , _start{ start }
+    , _sweep{ sweep } {
     init();
 }
 
-auto Cylinder::init() -> void {
-    auto data = VsgMeshDataGenerator::cylinder( _data._radius, _data._size, _data._slices, _data._segments,
-                                                _data._rings, _data._start, _data._sweep );
+auto CylinderNode::init() -> void {
+    auto data = VsgMeshDataGenerator::cylinder( _radius, _size, _slices, _segments, _rings, _start, _sweep );
 
     // Setup geometry.
     auto drawCommands = vsg::Commands::create();
@@ -23,7 +34,16 @@ auto Cylinder::init() -> void {
     drawCommands->addChild( vsg::BindIndexBuffer::create( data._indices ) );
     drawCommands->addChild( vsg::DrawIndexed::create( data._indicesCount, 1, 0, 0, 0 ) );
 
-    _node->addChild( drawCommands );
+    this->addChild( drawCommands );
 }
 
-}  // namespace tire::object
+// ======================================================================================
+// ==================== CylinderObject ==================================================
+// ======================================================================================
+
+CylinderObject::CylinderObject( vsg::ref_ptr<CylinderNode> node )
+    : SceneObjectBase{}
+    , _node{ node } {
+}
+
+}  // namespace tire

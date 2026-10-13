@@ -4,15 +4,46 @@
 #include "cone.h"
 #include "../generatorutils.h"
 
-namespace tire::object {
+namespace tire {
 
-Cone::Cone( const ConeObjectData& data )
-    : SceneObjectBase{ data }
-    , _data{ data } {
+// ======================================================================================
+// ==================== ConeNode ========================================================
+// ======================================================================================
+
+ConeNode::ConeNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                    vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices, int segments,
+                    int rings, double start, double sweep, SceneObjectBase* owner )
+    : SceneObjectNode{ SceneObjectTypeEnum::CONE, name, uid, position, orientation, scale, color, owner }
+    , _radius{ radius }
+    , _size{ size }
+    , _slices{ slices }
+    , _segments{ segments }
+    , _rings{ rings }
+    , _start{ start }
+    , _sweep{ sweep } {
     init();
 }
 
-auto Cone::init() -> void {
+auto ConeNode::init() -> void {
+    auto data = VsgMeshDataGenerator::cone( _radius, _size, _slices, _segments, _rings, _start, _sweep );
+
+    // Setup geometry.
+    auto drawCommands = vsg::Commands::create();
+    drawCommands->addChild( vsg::BindVertexBuffers::create(
+        0, vsg::DataList{ data._vertices, data._colors, data._texcrds, data._normals } ) );
+    drawCommands->addChild( vsg::BindIndexBuffer::create( data._indices ) );
+    drawCommands->addChild( vsg::DrawIndexed::create( data._indicesCount, 1, 0, 0, 0 ) );
+
+    this->addChild( drawCommands );
 }
 
-}  // namespace tire::object
+// ======================================================================================
+// ==================== ConeObject ======================================================
+// ======================================================================================
+
+ConeObject::ConeObject( vsg::ref_ptr<ConeNode> node )
+    : SceneObjectBase{}
+    , _node{ node } {
+}
+
+}  // namespace tire
