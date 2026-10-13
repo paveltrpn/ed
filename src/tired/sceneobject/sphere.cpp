@@ -4,17 +4,30 @@
 #include "sphere.h"
 #include "../generatorutils.h"
 
-namespace tire::object {
+namespace tire {
 
-Sphere::Sphere( const SphereObjectData& data )
-    : SceneObjectBase{ data }
-    , _data{ data } {
+// ======================================================================================
+// ==================== SphereNode ======================================================
+// ======================================================================================
+
+SphereNode::SphereNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                        vsg::dvec3 scale, vsg::vec4 color, double radius, int slices, int segments,
+                        double sliceStart, double sliceSweep, double segmentStart, double segmentSweep,
+                        SceneObjectBase* owner )
+    : SceneObjectNode{ SceneObjectTypeEnum::SPHERE, name, uid, position, orientation, scale, color, owner }
+    , _radius{ radius }
+    , _slices{ slices }
+    , _segments{ segments }
+    , _sliceStart{ sliceStart }
+    , _sliceSweep{ sliceSweep }
+    , _segmentStart{ segmentStart }
+    , _segmentSweep{ segmentSweep } {
     init();
 }
 
-auto Sphere::init() -> void {
-    auto data = VsgMeshDataGenerator::sphere( _data._radius, _data._slices, _data._segments, _data._sliceStart,
-                                              _data._sliceSweep, _data._segmentStart, _data._segmentSweep );
+auto SphereNode::init() -> void {
+    auto data = VsgMeshDataGenerator::sphere( _radius, _slices, _segments, _sliceStart, _sliceSweep,
+                                              _segmentStart, _segmentSweep );
 
     // Setup geometry.
     auto drawCommands = vsg::Commands::create();
@@ -23,7 +36,16 @@ auto Sphere::init() -> void {
     drawCommands->addChild( vsg::BindIndexBuffer::create( data._indices ) );
     drawCommands->addChild( vsg::DrawIndexed::create( data._indicesCount, 1, 0, 0, 0 ) );
 
-    _node->addChild( drawCommands );
+    this->addChild( drawCommands );
 }
 
-}  // namespace tire::object
+// ======================================================================================
+// ==================== SphereObject ====================================================
+// ======================================================================================
+
+SphereObject::SphereObject( vsg::ref_ptr<SphereNode> node )
+    : SceneObjectBase{}
+    , _node{ node } {
+}
+
+}  // namespace tire

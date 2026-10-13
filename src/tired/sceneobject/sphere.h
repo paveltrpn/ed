@@ -1,11 +1,43 @@
 
 #pragma once
 
+#include <vsg/all.h>
+
 #include "sceneobjectbase.h"
 
-namespace tire::object {
+namespace tire {
 
-struct Sphere final : public SceneObjectBase {
+struct SphereObject;
+
+// ======================================================================================
+// ==================== SphereNode ======================================================
+// ======================================================================================
+
+struct SphereNode final : public SceneObjectNode {
+    friend SphereObject;
+
+    SphereNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
+                vsg::vec4 color, double radius, int slices, int segments, double sliceStart, double sliceSweep,
+                double segmentStart, double segmentSweep, SceneObjectBase* owner );
+
+private:
+    auto init() -> void;
+
+private:
+    double _radius{ 0.5 };
+    int _slices{ 16 };
+    int _segments{ 8 };
+    double _sliceStart{ 0.0 };
+    double _sliceSweep{ gml::radians( 360.0 ) };
+    double _segmentStart{ 0.0 };
+    double _segmentSweep{ gml::radians( 180.0 ) };
+};
+
+// ======================================================================================
+// ==================== SphereObject ====================================================
+// ======================================================================================
+
+struct SphereObject final : public SceneObjectBase {
     Q_OBJECT
 
     Q_PROPERTY( double radius READ radius WRITE setRadius NOTIFY radiusChanged FINAL )
@@ -17,82 +49,101 @@ struct Sphere final : public SceneObjectBase {
     Q_PROPERTY( double segmentSweep READ segmentSweep WRITE setSegmentSweep NOTIFY segmentSweepChanged FINAL )
 
 public:
-    Sphere( const SphereObjectData& data );
+    SphereObject( vsg::ref_ptr<SphereNode> node );
 
-    Sphere( const Sphere& other ) = delete;
-    Sphere( Sphere&& other ) = delete;
+    SphereObject( const SphereObject& other ) = delete;
+    SphereObject( SphereObject&& other ) = delete;
 
-    Sphere& operator=( const Sphere& other ) = delete;
-    Sphere& operator=( Sphere&& other ) = delete;
+    SphereObject& operator=( const SphereObject& other ) = delete;
+    SphereObject& operator=( SphereObject&& other ) = delete;
 
     auto radius() const -> double {
         //
-        return _data._radius;
+        return _node->_radius;
     }
 
     auto slices() const -> int {
         //
-        return _data._slices;
+        return _node->_slices;
     }
 
     auto segments() const -> int {
         //
-        return _data._segments;
+        return _node->_segments;
     }
 
     auto sliceStart() const -> double {
         //
-        return _data._sliceStart;
+        return _node->_sliceStart;
     }
 
     auto sliceSweep() const -> double {
         //
-        return _data._sliceSweep;
+        return _node->_sliceSweep;
     }
 
     auto segmentStart() const -> double {
         //
-        return _data._segmentStart;
+        return _node->_segmentStart;
     }
 
     auto segmentSweep() const -> double {
         //
-        return _data._segmentSweep;
+        return _node->_segmentSweep;
     }
 
     auto setRadius( double value ) -> void {
         //
-        _data._radius = value;
+        if ( _node->_radius == value ) return;
+        _node->_radius = value;
+        emit radiusChanged();
     }
 
     auto setSlices( int value ) -> void {
         //
-        _data._slices = value;
+        if ( _node->_slices == value ) return;
+        _node->_slices = value;
+        emit slicesChanged();
     }
 
     auto setSegments( int value ) -> void {
         //
-        _data._segments = value;
+        if ( _node->_segments == value ) return;
+        _node->_segments = value;
+        emit segmentsChanged();
     }
 
     auto setSliceStart( double value ) -> void {
         //
-        _data._sliceStart = value;
+        if ( _node->_sliceStart == value ) return;
+        _node->_sliceStart = value;
+        emit sliceStartChanged();
     }
 
     auto setSliceSweep( double value ) -> void {
         //
-        _data._sliceSweep = value;
+        if ( _node->_sliceSweep == value ) return;
+        _node->_sliceSweep = value;
+        emit sliceSweepChanged();
     }
 
     auto setSegmentStart( double value ) -> void {
         //
-        _data._segmentStart = value;
+        if ( _node->_segmentStart == value ) return;
+        _node->_segmentStart = value;
+        emit segmentStartChanged();
     }
 
     auto setSegmentSweep( double value ) -> void {
         //
-        _data._segmentSweep = value;
+        if ( _node->_segmentSweep == value ) return;
+        _node->_segmentSweep = value;
+        emit segmentSweepChanged();
+    }
+
+    [[nodiscard]] virtual auto node() const -> vsg::ref_ptr<SceneObjectNode> {
+        //
+        return _node;
     }
 
 signals:
@@ -108,7 +159,7 @@ private:
     auto init() -> void;
 
 private:
-    SphereObjectData _data{};
+    vsg::ref_ptr<SphereNode> _node{};
 };
 
-}  // namespace tire::object
+}  // namespace tire
