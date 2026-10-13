@@ -20,7 +20,12 @@ public:
     friend SceneObjectBase;
 
     SceneObjectNode( SceneObjectTypeEnum type, std::string name, std::string uid, vsg::dvec3 position,
-                     vsg::dvec3 orientation, vsg::dvec3 scale, vsg::vec4 color, SceneObjectBase* owner );
+                     vsg::dvec3 orientation, vsg::dvec3 scale, vsg::vec4 color );
+
+    auto setOwner( SceneObjectBase* owner ) -> void {
+        //
+        _owner = owner;
+    };
 
     [[nodiscard]] auto owner() const -> SceneObjectBase*;
 

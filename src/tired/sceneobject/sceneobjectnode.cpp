@@ -10,7 +10,7 @@ namespace tire {
 // ======================================================================================
 
 SceneObjectNode::SceneObjectNode( SceneObjectTypeEnum type, std::string name, std::string uid, vsg::dvec3 position,
-                                  vsg::dvec3 orientation, vsg::dvec3 scale, vsg::vec4 color, SceneObjectBase* owner )
+                                  vsg::dvec3 orientation, vsg::dvec3 scale, vsg::vec4 color )
     : _type{ type }
     , _name{ name }
     , _uid{ uid }
@@ -18,7 +18,6 @@ SceneObjectNode::SceneObjectNode( SceneObjectTypeEnum type, std::string name, st
     , _orientation{ orientation }
     , _scale{ scale }
     , _color{ color }
-    , _owner{ owner }
     , _bounding{ new BoundingDraw{} } {
     //
     _bounding->setTransform( vsg::mat4{ this->matrix } );

@@ -17,7 +17,7 @@ struct BoxNode final : public SceneObjectNode {
     friend BoxObject;
 
     BoxNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
-             vsg::vec4 color, vsg::dvec3 size, vsg::ivec3 segments, SceneObjectBase* owner );
+             vsg::vec4 color, vsg::dvec3 size, vsg::ivec3 segments );
 
 private:
     auto init() -> void;

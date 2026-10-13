@@ -130,12 +130,17 @@ SceneObjectBase* SceneUIProxy::findObject( const QString& uid ) const {
     return obj.get();
 }
 
-void SceneUIProxy::addBox( const BoxObjectData& data ) {
-    auto obj = std::make_shared<object::Box>( data );
+void SceneUIProxy::addBox( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                           vsg::dvec3 scale, vsg::vec4 color, vsg::dvec3 size, vsg::ivec3 segments ) {
+    auto node = vsg::ref_ptr<BoxNode>{ new BoxNode{ name, uid, position, orientation, scale, color, size, segments } };
 
-    _scene.get()->attach( obj );
+    auto object = std::make_shared<BoxObject>( node );
 
-    _objects->addObject( std::move( obj ) );
+    _scene.get()->attach( node );
+
+    node->setOwner( object.get() );
+
+    _objects->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -195,18 +200,18 @@ auto SceneSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGr
     return { _stateGroup };
 }
 
-auto SceneSubgraph::attach( std::shared_ptr<SceneObjectBase> object ) -> void {
+auto SceneSubgraph::attach( vsg::ref_ptr<SceneObjectNode> object ) -> void {
     vsg::CompileResult cr{};
 
-    const auto op = tire::AttachAndCompileOp::create( _viewer, _stateGroup, object->node(), cr );
+    const auto op = tire::AttachAndCompileOp::create( _viewer, _stateGroup, object, cr );
 
     _viewer.get()->addUpdateOperation( op );
 }
 
-auto SceneSubgraph::detach( std::shared_ptr<SceneObjectBase> object ) -> void {
+auto SceneSubgraph::detach( vsg::ref_ptr<SceneObjectNode> object ) -> void {
     vsg::CompileResult cr{};
 
-    const auto op = tire::DetachAndCompileOp::create( _viewer, _stateGroup, object->node() );
+    const auto op = tire::DetachAndCompileOp::create( _viewer, _stateGroup, object );
 
     _viewer.get()->addUpdateOperation( op );
 }

@@ -42,7 +42,9 @@ public:
 
     [[nodiscard]] auto sceneNode() const -> vsg::ref_ptr<SceneSubgraph>;
 
-    Q_INVOKABLE void addBox( const BoxObjectData& data );
+    Q_INVOKABLE void addBox( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                             vsg::dvec3 scale, vsg::vec4 color, vsg::dvec3 size, vsg::ivec3 segments );
+
     Q_INVOKABLE void addSphere( const SphereObjectData& data );
     Q_INVOKABLE void addCylinder( const CylinderObjectData& data );
     Q_INVOKABLE void addCapsule( const CapsuleObjectData& data );
@@ -105,8 +107,8 @@ struct SceneSubgraph final : Subgraph {
 
     auto initPipeline() -> void;
 
-    auto attach( std::shared_ptr<SceneObjectBase> object ) -> void;
-    auto detach( std::shared_ptr<SceneObjectBase> object ) -> void;
+    auto attach( vsg::ref_ptr<SceneObjectNode> object ) -> void;
+    auto detach( vsg::ref_ptr<SceneObjectNode> object ) -> void;
 
     friend SceneUIProxy;
 
