@@ -32,10 +32,6 @@ Rectangle {
             rightMargin: rightPanelSceneComponent._units.scaled_2
         }
 
-        property vector3d position: Qt.vector3d(0, 0, 0)
-        property vector3d orientation: Qt.vector3d(0, 0, 0)
-        property vector3d scale: Qt.vector3d(0, 0, 0)
-
         property var selectedObjectHandle: null
 
         Connections {
@@ -44,17 +40,65 @@ Rectangle {
                 rightPanelScenemodeWrapper.selectedObjectHandle = object;
 
                 if (object === null) {
-                    rightPanelScenemodeWrapper.position = Qt.vector3d(0, 0, 0);
-                    rightPanelScenemodeWrapper.orientation = Qt.vector3d(0, 0, 0);
-                    rightPanelScenemodeWrapper.scale = Qt.vector3d(0, 0, 0);
+                    scaleXButton.text = "0.000";
+                    scaleYButton.text = "0.000";
+                    scaleZButton.text = "0.000";
+                    rotXButton.text = "0.000";
+                    rotYButton.text = "0.000";
+                    rotZButton.text = "0.000";
+                    transXButton.text = "0.000";
+                    transYButton.text = "0.000";
+                    transZButton.text = "0.000";
 
                     return;
                 }
 
-                rightPanelScenemodeWrapper.position = object.position;
-                rightPanelScenemodeWrapper.orientation = object.orientation;
-                rightPanelScenemodeWrapper.scale = object.scale;
+                rightPanelScenemodeWrapper.syncTexts();
             }
+        }
+
+        Connections {
+            target: rightPanelScenemodeWrapper.selectedObjectHandle
+
+            function onPositionChanged() {
+                rightPanelScenemodeWrapper.syncTexts();
+            }
+
+            function onOrientationChanged() {
+                rightPanelScenemodeWrapper.syncTexts();
+            }
+
+            function onScaleChanged() {
+                rightPanelScenemodeWrapper.syncTexts();
+            }
+        }
+
+        function syncTexts() {
+            const o = selectedObjectHandle;
+
+            if (o === null)
+                return;
+
+            if (!scaleXButton.inputActiveFocus)
+                scaleXButton.text = o.scale.x.toFixed(3);
+            if (!scaleYButton.inputActiveFocus)
+                scaleYButton.text = o.scale.y.toFixed(3);
+            if (!scaleZButton.inputActiveFocus)
+                scaleZButton.text = o.scale.z.toFixed(3);
+
+            if (!rotXButton.inputActiveFocus)
+                rotXButton.text = o.orientation.x.toFixed(3);
+            if (!rotYButton.inputActiveFocus)
+                rotYButton.text = o.orientation.y.toFixed(3);
+            if (!rotZButton.inputActiveFocus)
+                rotZButton.text = o.orientation.z.toFixed(3);
+
+            if (!transXButton.inputActiveFocus)
+                transXButton.text = o.position.x.toFixed(3);
+            if (!transYButton.inputActiveFocus)
+                transYButton.text = o.position.y.toFixed(3);
+            if (!transZButton.inputActiveFocus)
+                transZButton.text = o.position.z.toFixed(3);
         }
 
         Item {
@@ -84,7 +128,7 @@ Rectangle {
 
                 buttonLabel: "ScaleX"
 
-                text: rightPanelScenemodeWrapper.scale.x.toFixed(3)
+                text: "1.000"
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
@@ -110,7 +154,7 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "ScaleY"
 
-                text: rightPanelScenemodeWrapper.scale.y.toFixed(3)
+                text: "1.000"
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
@@ -136,7 +180,7 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "ScaleZ"
 
-                text: rightPanelScenemodeWrapper.scale.z.toFixed(3)
+                text: "1.000"
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
@@ -176,7 +220,7 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "RotX"
 
-                text: rightPanelScenemodeWrapper.orientation.x.toFixed(3)
+                text: "0.000"
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
@@ -202,7 +246,7 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "RotY"
 
-                text: rightPanelScenemodeWrapper.orientation.y.toFixed(3)
+                text: "0.000"
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
@@ -228,7 +272,7 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "RotZ"
 
-                text: rightPanelScenemodeWrapper.orientation.z.toFixed(3)
+                text: "0.000"
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
@@ -268,7 +312,7 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "TransX"
 
-                text: rightPanelScenemodeWrapper.position.x.toFixed(3)
+                text: "0.000"
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
@@ -294,7 +338,7 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "TransY"
 
-                text: rightPanelScenemodeWrapper.position.y.toFixed(3)
+                text: "0.000"
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {
@@ -320,7 +364,7 @@ Rectangle {
                 modeRelatedBgColor: _color.si_mode_scene
                 buttonLabel: "TransZ"
 
-                text: rightPanelScenemodeWrapper.position.z.toFixed(3)
+                text: "0.000"
 
                 onTextValueChanged: function (value) {
                     if (rightPanelScenemodeWrapper.selectedObjectHandle === null) {

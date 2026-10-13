@@ -18,6 +18,7 @@ Item {
 
     property alias buttonLabel: buttonLabel.text
     property alias text: textInputComponent.text
+    readonly property alias inputActiveFocus: textInputComponent.activeFocus
 
     property string modeRelatedBgColor
 
