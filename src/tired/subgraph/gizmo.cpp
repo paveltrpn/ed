@@ -39,10 +39,28 @@ GizmoUIProxy::GizmoUIProxy( vsg::observer_ptr<GizmoSubgraph> gizmo, const QObjec
 
 auto GizmoUIProxy::beginDrag() -> void {
     _dragAnchor = _translation;
+
+    if ( _dragTarget ) {
+        _objectAnchor = _dragTarget->node()->_position;
+    }
 }
 
 auto GizmoUIProxy::update( vsg::dvec3 worldDisplacement ) -> void {
     setTranslation( _dragAnchor + worldDisplacement );
+
+    if ( _dragTarget ) {
+        const auto position = _objectAnchor + worldDisplacement;
+        _dragTarget->setPosition( QVector3D{ static_cast<float>( position.x ), static_cast<float>( position.y ),
+                                             static_cast<float>( position.z ) } );
+    }
+}
+
+auto GizmoUIProxy::setDragTarget( SceneObjectBase* object ) -> void {
+    _dragTarget = object;
+
+    if ( _dragTarget ) {
+        setTranslation( _dragTarget->node()->_position );
+    }
 }
 
 auto GizmoUIProxy::translation() const -> vsg::dvec3 {
@@ -90,9 +108,6 @@ auto GizmoUIProxy::updateGizmoVisibility() -> void {
             break;
         }
     }
-}
-
-auto GizmoUIProxy::moveObject( SceneObjectBase* object ) -> void {
 }
 
 // ======================================================================================

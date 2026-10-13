@@ -27,11 +27,8 @@ Scenegraph::Scenegraph( vsg::observer_ptr<vsg::Viewer> viewer,
     _root->addChild( _gridNode );
     _root->addChild( _gizmoNode );
 
-    connect( _scene, &SceneUIProxy::selectedObjectChanged, _gizmo, [this]( SceneObjectBase* object ) {
-        //
-        const auto pos = object->position();
-        _gizmo->setTranslation( vsg::dvec3{ pos.x(), pos.y(), pos.z() } );
-    } );
+    connect( _scene, &SceneUIProxy::selectedObjectChanged, _gizmo,
+             [this]( SceneObjectBase* object ) { _gizmo->setDragTarget( object ); } );
 }
 
 auto Scenegraph::root() const -> vsg::ref_ptr<vsg::Group> {

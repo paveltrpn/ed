@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <QPointer>
+
 #include <vsg/all.h>
 
 #include "subgraph.h"
@@ -48,6 +50,8 @@ public:
     auto beginDrag() -> void;
     auto update( vsg::dvec3 worldDisplacement ) -> void;
 
+    auto setDragTarget( SceneObjectBase* object ) -> void;
+
     [[nodiscard]] auto translation() const -> vsg::dvec3;
     auto setTranslation( const vsg::dvec3& value ) -> void;
 
@@ -56,8 +60,6 @@ public:
 
     [[nodiscard]] auto gizmoType() const -> int;
     auto setGizmoType( int value ) -> void;
-
-    auto moveObject( SceneObjectBase* object ) -> void;
 
 signals:
     void gizmoModeChanged();
@@ -69,8 +71,11 @@ private:
 private:
     vsg::observer_ptr<GizmoSubgraph> _gizmo{};
 
+    QPointer<SceneObjectBase> _dragTarget{};
+
     vsg::dvec3 _translation{};
     vsg::dvec3 _dragAnchor{};
+    vsg::dvec3 _objectAnchor{};
 };
 
 // ======================================================================================

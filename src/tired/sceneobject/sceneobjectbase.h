@@ -81,19 +81,34 @@ public:
 
     void setPosition( QVector3D value ) {
         const auto position = vsg::dvec3{ value.x(), value.y(), value.z() };
+        if ( node()->_position == position ) {
+            return;
+        }
+        node()->_position = position;
         node()->setOrigin( position );
+        emit positionChanged();
     }
 
     void setOrientation( QVector3D value ) {
         //
         const auto orientation = vsg::dvec3{ value.x(), value.y(), value.z() };
+        if ( node()->_orientation == orientation ) {
+            return;
+        }
+        node()->_orientation = orientation;
         node()->setRotation( orientation );
+        emit orientationChanged();
     }
 
     void setScale( QVector3D value ) {
         //
         const auto scale = vsg::dvec3{ value.x(), value.y(), value.z() };
+        if ( node()->_scale == scale ) {
+            return;
+        }
+        node()->_scale = scale;
         node()->setScale( scale );
+        emit scaleChanged();
     }
 
     void setColor( QVector4D value ) {

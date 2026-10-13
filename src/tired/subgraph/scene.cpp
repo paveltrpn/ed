@@ -54,6 +54,9 @@ auto SceneUIProxy::setSelectedObjectUid( const QString& value ) -> void {
     _boundingRender.get()->clear();
 
     if ( _selectedObjectUid.isNull() ) {
+        emit selectedObjectUidChanged();
+        emit selectedObjectChanged( nullptr );
+        emit isAnyObjectSelectedChanged();
         return;
     }
 
