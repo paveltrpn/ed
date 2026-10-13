@@ -42,6 +42,8 @@ auto GizmoUIProxy::beginDrag() -> void {
 
     if ( _dragTarget ) {
         _objectAnchor = _dragTarget->node()->_position;
+        _objectOrientationAnchor = _dragTarget->node()->_orientation;
+        _objectScaleAnchor = _dragTarget->node()->_scale;
     }
 }
 
@@ -52,6 +54,55 @@ auto GizmoUIProxy::update( vsg::dvec3 worldDisplacement ) -> void {
         const auto position = _objectAnchor + worldDisplacement;
         _dragTarget->setPosition( QVector3D{ static_cast<float>( position.x ), static_cast<float>( position.y ),
                                              static_cast<float>( position.z ) } );
+    }
+}
+
+auto GizmoUIProxy::updateRotate( DraggerAxis axis, double degrees ) -> void {
+    if ( _dragTarget ) {
+        auto orientation = _objectOrientationAnchor;
+
+        switch ( axis ) {
+            case DraggerAxis::X: {
+                orientation.x += degrees;
+                break;
+            }
+            case DraggerAxis::Y: {
+                orientation.y += degrees;
+                break;
+            }
+            case DraggerAxis::Z: {
+                orientation.z += degrees;
+                break;
+            }
+        }
+
+        _dragTarget->setOrientation( QVector3D{ static_cast<float>( orientation.x ),
+                                                static_cast<float>( orientation.y ),
+                                                static_cast<float>( orientation.z ) } );
+    }
+}
+
+auto GizmoUIProxy::updateScale( DraggerAxis axis, double delta ) -> void {
+    if ( _dragTarget ) {
+        auto scale = _objectScaleAnchor;
+
+        switch ( axis ) {
+            case DraggerAxis::X: {
+                scale.x += delta;
+                break;
+            }
+            case DraggerAxis::Y: {
+                scale.y += delta;
+                break;
+            }
+            case DraggerAxis::Z: {
+                scale.z += delta;
+                break;
+            }
+        }
+
+        _dragTarget->setScale( QVector3D{ static_cast<float>( scale.x ), static_cast<float>( scale.y ),
+                                          static_cast<float>( scale.z ) } );
     }
 }
 

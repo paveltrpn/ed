@@ -49,6 +49,8 @@ public:
 
     auto beginDrag() -> void;
     auto update( vsg::dvec3 worldDisplacement ) -> void;
+    auto updateRotate( DraggerAxis axis, double degrees ) -> void;
+    auto updateScale( DraggerAxis axis, double delta ) -> void;
 
     auto setDragTarget( SceneObjectBase* object ) -> void;
 
@@ -76,6 +78,8 @@ private:
     vsg::dvec3 _translation{};
     vsg::dvec3 _dragAnchor{};
     vsg::dvec3 _objectAnchor{};
+    vsg::dvec3 _objectOrientationAnchor{};
+    vsg::dvec3 _objectScaleAnchor{};
 };
 
 // ======================================================================================

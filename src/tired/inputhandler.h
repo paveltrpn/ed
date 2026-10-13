@@ -66,7 +66,9 @@ private:
         -> std::vector<vsg::ref_ptr<vsg::LineSegmentIntersector::Intersection>>;
 
     void onLMBPress( vsg::PointerEvent& pointerEvent );
-    void beginGizmoDrag( const MoveDragger* dragger, vsg::PointerEvent& pointerEvent );
+    void beginGizmoDrag( const Dragger* dragger, GizmoType type, vsg::PointerEvent& pointerEvent );
+
+    [[nodiscard]] auto worldToScreen( const vsg::dvec3& worldPoint ) const -> vsg::dvec2;
     void onMMBPress( vsg::PointerEvent& pointerEvent );
     void onRMBPress( vsg::PointerEvent& pointerEvent );
 
@@ -83,6 +85,11 @@ private:
     vsg::dvec2 _dragAxisScreenDir{};
     vsg::dvec3 _dragAxisWorld{};
     DraggerAxis _dragAxis{};
+    GizmoType _dragGizmoType{ GizmoType::MOVE };
+    vsg::dvec2 _dragGizmoCenterScreen{};
+    vsg::dvec2 _dragLastScreenPos{};
+    double _dragAngleAccum{};
+    double _dragRotateSign{ 1.0 };
 };
 
 }  // namespace tire

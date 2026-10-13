@@ -92,16 +92,51 @@ void Handler::apply( vsg::ButtonReleaseEvent& buttonRelease ) {
 
 void Handler::apply( vsg::MoveEvent& moveEvent ) {
     if ( _manipulator->dragActive() ) {
-        const auto mouseDisplacement = vsg::dvec2{ static_cast<double>( moveEvent.x ) - _dragPressScreen.x,
-                                                   static_cast<double>( moveEvent.y ) - _dragPressScreen.y };
+        switch ( _dragGizmoType ) {
+            case GizmoType::MOVE:
+            case GizmoType::SCALE: {
+                const auto mouseDisplacement =
+                    vsg::dvec2{ static_cast<double>( moveEvent.x ) - _dragPressScreen.x,
+                                static_cast<double>( moveEvent.y ) - _dragPressScreen.y };
 
-        // Project the mouse displacement onto the axis's screen direction: the gizmo follows the
-        // cursor 1:1 along the projected axis, whatever the camera distance or orientation.
-        const auto dirLenSq = vsg::dot( _dragAxisScreenDir, _dragAxisScreenDir );
+                // Project the mouse displacement onto the axis's screen direction: the gizmo follows the
+                // cursor 1:1 along the projected axis, whatever the camera distance or orientation.
+                const auto dirLenSq = vsg::dot( _dragAxisScreenDir, _dragAxisScreenDir );
 
-        if ( dirLenSq > std::numeric_limits<double>::epsilon() ) {
-            const auto delta = vsg::dot( mouseDisplacement, _dragAxisScreenDir ) / dirLenSq;
-            _scenegraph->gizmo()->update( _dragAxisWorld * delta );
+                if ( dirLenSq > std::numeric_limits<double>::epsilon() ) {
+                    const auto delta = vsg::dot( mouseDisplacement, _dragAxisScreenDir ) / dirLenSq;
+
+                    if ( _dragGizmoType == GizmoType::MOVE ) {
+                        _scenegraph->gizmo()->update( _dragAxisWorld * delta );
+                    } else {
+                        _scenegraph->gizmo()->updateScale( _dragAxis, delta );
+                    }
+                }
+
+                break;
+            }
+
+            case GizmoType::ROTATE: {
+                const auto currentPos = vsg::dvec2{ static_cast<double>( moveEvent.x ),
+                                                    static_cast<double>( moveEvent.y ) };
+
+                const auto prev = _dragLastScreenPos - _dragGizmoCenterScreen;
+                const auto cur = currentPos - _dragGizmoCenterScreen;
+
+                if ( vsg::length( prev ) < 4.0 || vsg::length( cur ) < 4.0 ) {
+                    return;
+                }
+
+                const auto dAngle =
+                    vsg::degrees( std::atan2( prev.x * cur.y - prev.y * cur.x, vsg::dot( prev, cur ) ) );
+
+                _dragAngleAccum += _dragRotateSign * dAngle;
+                _dragLastScreenPos = currentPos;
+
+                _scenegraph->gizmo()->updateRotate( _dragAxis, _dragAngleAccum );
+
+                break;
+            }
         }
     }
 }
@@ -174,8 +209,14 @@ void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
     // is closer along the ray. Check draggers in a dedicated first pass.
     for ( auto& intersection : intersections ) {
         for ( auto node : intersection->nodePath ) {
-            if ( auto clickedDragger = dynamic_cast<const MoveDragger*>( node ) ) {
-                beginGizmoDrag( clickedDragger, pointerEvent );
+            if ( auto clickedDragger = dynamic_cast<const Dragger*>( node ) ) {
+                if ( dynamic_cast<const MoveDragger*>( node ) ) {
+                    beginGizmoDrag( clickedDragger, GizmoType::MOVE, pointerEvent );
+                } else if ( dynamic_cast<const RotationDragger*>( node ) ) {
+                    beginGizmoDrag( clickedDragger, GizmoType::ROTATE, pointerEvent );
+                } else if ( dynamic_cast<const ScaleDragger*>( node ) ) {
+                    beginGizmoDrag( clickedDragger, GizmoType::SCALE, pointerEvent );
+                }
 
                 return;
             }
@@ -194,12 +235,28 @@ void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
     }
 }
 
-void Handler::beginGizmoDrag( const MoveDragger* dragger, vsg::PointerEvent& pointerEvent ) {
+auto Handler::worldToScreen( const vsg::dvec3& worldPoint ) const -> vsg::dvec2 {
+    const auto camera = _camera.get();
+
+    const auto viewport = camera->getViewport();
+
+    // Same projection/viewport convention as vsg::LineSegmentIntersector picking.
+    const auto clip = camera->projectionMatrix->transform() * camera->viewMatrix->transform() *
+                      vsg::dvec4{ worldPoint.x, worldPoint.y, worldPoint.z, 1.0 };
+
+    const auto ndcX = clip.x / clip.w * 0.5 + 0.5;
+    const auto ndcY = clip.y / clip.w * 0.5 + 0.5;
+
+    return { viewport.x + ndcX * viewport.width, viewport.y + ndcY * viewport.height };
+}
+
+void Handler::beginGizmoDrag( const Dragger* dragger, GizmoType type, vsg::PointerEvent& pointerEvent ) {
     auto gizmo = _scenegraph->gizmo();
 
     _manipulator->setDragActive( true );
 
     _dragAxis = dragger->axis();
+    _dragGizmoType = type;
 
     gizmo->beginDrag();
 
@@ -225,22 +282,20 @@ void Handler::beginGizmoDrag( const MoveDragger* dragger, vsg::PointerEvent& poi
 
     const auto anchor = gizmo->translation();
 
-    const auto screenPosition = [this]( const vsg::dvec3& worldPoint ) -> vsg::dvec2 {
-        const auto camera = _camera.get();
+    _dragAxisScreenDir = worldToScreen( anchor + _dragAxisWorld ) - worldToScreen( anchor );
 
-        const auto viewport = camera->getViewport();
+    if ( _dragGizmoType == GizmoType::ROTATE ) {
+        _dragGizmoCenterScreen = worldToScreen( anchor );
+        _dragLastScreenPos = vsg::dvec2{ static_cast<double>( pointerEvent.x ),
+                                         static_cast<double>( pointerEvent.y ) };
+        _dragAngleAccum = 0.0;
 
-        // Same projection/viewport convention as vsg::LineSegmentIntersector picking.
-        const auto clip = camera->projectionMatrix->transform() * camera->viewMatrix->transform() *
-                          vsg::dvec4{ worldPoint.x, worldPoint.y, worldPoint.z, 1.0 };
-
-        const auto ndcX = clip.x / clip.w * 0.5 + 0.5;
-        const auto ndcY = clip.y / clip.w * 0.5 + 0.5;
-
-        return { viewport.x + ndcX * viewport.width, viewport.y + ndcY * viewport.height };
-    };
-
-    _dragAxisScreenDir = screenPosition( anchor + _dragAxisWorld ) - screenPosition( anchor );
+        // vsg camera looks down -Z in view space; axis pointing away from the camera means
+        // screen-CCW cursor motion is a positive right-hand rotation about that axis.
+        const auto axisView = _camera.get()->viewMatrix->transform() *
+                              vsg::dvec4{ _dragAxisWorld.x, _dragAxisWorld.y, _dragAxisWorld.z, 0.0 };
+        _dragRotateSign = axisView.z < 0.0 ? 1.0 : -1.0;
+    }
 }
 
 void Handler::onMMBPress( vsg::PointerEvent& pointerEvent ) {
