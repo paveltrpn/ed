@@ -20,6 +20,10 @@ SceneObjectNode::SceneObjectNode( SceneObjectTypeEnum type, std::string name, st
     , _color{ color }
     , _bounding{ new BoundingDraw{} } {
     //
+    setOrigin( _position );
+    setRotation( _orientation );
+    setScale( _scale );
+
     _bounding->setTransform( vsg::mat4{ this->matrix } );
 }
 
