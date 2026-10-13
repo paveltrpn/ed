@@ -27,11 +27,7 @@ struct SceneObjectBase : public QObject {
     Q_PROPERTY( QVector4D color READ color WRITE setColor NOTIFY colorChanged FINAL )
 
 public:
-    SceneObjectBase( QObject* parent = nullptr );
-
-    SceneObjectBase( const SceneObjectData& data );
-    SceneObjectBase( SceneObjectTypeEnum type, const QString& name, const QUuid& uid, vsg::dvec3 position,
-                     vsg::dvec3 orientation, vsg::dvec3 scale, vsg::dvec4 color );
+    SceneObjectBase( /* QObject* parent = nullptr*/ ) = default;
 
     SceneObjectBase( const SceneObjectBase& other ) = delete;
     SceneObjectBase( SceneObjectBase&& other ) = delete;
@@ -41,71 +37,71 @@ public:
 
     [[nodiscard]] SceneObjectTypeEnum type() const {
         //
-        return _type;
+        return node()->_type;
     }
 
     [[nodiscard]] QString name() const {
         //
-        return _name;
+        return QString::fromStdString( node()->_name );
     }
 
     [[nodiscard]] QString uid() const {
         //
-        return _uid.toString();
+        return QString::fromStdString( node()->_uid );
     }
 
     [[nodiscard]] QVector3D position() const {
         //
-        return QVector3D{ static_cast<float>( _position.x ), static_cast<float>( _position.y ),
-                          static_cast<float>( _position.z ) };
+        return QVector3D{ static_cast<float>( node()->_position.x ), static_cast<float>( node()->_position.y ),
+                          static_cast<float>( node()->_position.z ) };
     }
 
     [[nodiscard]] QVector3D orientation() const {
         //
-        return QVector3D{ static_cast<float>( _orientation.x ), static_cast<float>( _orientation.y ),
-                          static_cast<float>( _orientation.z ) };
+        return QVector3D{ static_cast<float>( node()->_orientation.x ), static_cast<float>( node()->_orientation.y ),
+                          static_cast<float>( node()->_orientation.z ) };
     }
 
     [[nodiscard]] QVector3D scale() const {
         //
-        return QVector3D{ static_cast<float>( _scale.x ), static_cast<float>( _scale.y ),
-                          static_cast<float>( _scale.z ) };
+        return QVector3D{ static_cast<float>( node()->_scale.x ), static_cast<float>( node()->_scale.y ),
+                          static_cast<float>( node()->_scale.z ) };
     }
 
     [[nodiscard]] QVector4D color() const {
         //
-        return QVector4D{ static_cast<float>( _color.r ), static_cast<float>( _color.g ),
-                          static_cast<float>( _color.b ), static_cast<float>( _color.a ) };
+        return QVector4D{ static_cast<float>( node()->_color.r ), static_cast<float>( node()->_color.g ),
+                          static_cast<float>( node()->_color.b ), static_cast<float>( node()->_color.a ) };
     }
 
     void setName( const QString& value ) {
         //
-        _name = value;
+        node()->_name = value.toStdString();
     }
 
     void setPosition( QVector3D value ) {
-        _position = vsg::dvec3{ value.x(), value.y(), value.z() };
-        _node->setOrigin( _position );
+        const auto position = vsg::dvec3{ value.x(), value.y(), value.z() };
+        node()->setOrigin( position );
     }
 
     void setOrientation( QVector3D value ) {
         //
-        _orientation = vsg::dvec3{ value.x(), value.y(), value.z() };
-        _node->setRotation( _orientation );
+        const auto orientation = vsg::dvec3{ value.x(), value.y(), value.z() };
+        node()->setRotation( orientation );
     }
 
     void setScale( QVector3D value ) {
         //
-        _scale = vsg::dvec3{ value.x(), value.y(), value.z() };
-        _node->setScale( _scale );
+        const auto scale = vsg::dvec3{ value.x(), value.y(), value.z() };
+        node()->setScale( scale );
     }
 
     void setColor( QVector4D value ) {
         //
-        _color = vsg::dvec4{ value.x(), value.y(), value.z(), value.w() };
+        node()->_color = vsg::dvec4{ value.x(), value.y(), value.z(), value.w() };
     }
 
-    [[nodiscard]] auto node() const -> vsg::ref_ptr<SceneObjectNode>;
+    [[nodiscard]] virtual auto node() const -> vsg::ref_ptr<SceneObjectNode> = 0;
 
 private:
     auto init() -> void;
@@ -118,18 +114,6 @@ signals:
     void orientationChanged();
     void scaleChanged();
     void colorChanged();
-
-protected:
-    vsg::ref_ptr<SceneObjectNode> _node{};
-
-protected:
-    SceneObjectTypeEnum _type{};
-    QString _name{};
-    QUuid _uid{};
-    vsg::dvec3 _position{};
-    vsg::dvec3 _orientation{};
-    vsg::dvec3 _scale{};
-    vsg::vec4 _color{};
 };
 
 }  // namespace tire

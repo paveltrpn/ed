@@ -4,17 +4,22 @@
 #include "box.h"
 #include "../generatorutils.h"
 
-namespace tire::object {
+namespace tire {
 
-Box::Box( const BoxObjectData& data )
-    : SceneObjectBase{ data }
-    , _data{ data } {
+// ======================================================================================
+// ==================== BoxNode =========================================================
+// ======================================================================================
+
+BoxNode::BoxNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
+                  vsg::vec4 color, vsg::dvec3 size, vsg::ivec3 segments, SceneObjectBase* owner )
+    : SceneObjectNode{ SceneObjectTypeEnum::BOX, name, uid, position, orientation, scale, color, owner }
+    , _size{ size }
+    , _segments{ segments } {
     init();
 }
 
-auto Box::init() -> void {
-    auto data = VsgMeshDataGenerator::box( { _data._sizeX, _data._sizeY, _data._sizeZ },
-                                           { _data._segmentsX, _data._segmentsY, _data._segmentsZ } );
+auto BoxNode::init() -> void {
+    auto data = VsgMeshDataGenerator::box( { _size.x, _size.y, _size.z }, { _segments.x, _segments.y, _segments.z } );
 
     // Setup geometry.
     auto drawCommands = vsg::Commands::create();
@@ -23,7 +28,16 @@ auto Box::init() -> void {
     drawCommands->addChild( vsg::BindIndexBuffer::create( data._indices ) );
     drawCommands->addChild( vsg::DrawIndexed::create( data._indicesCount, 1, 0, 0, 0 ) );
 
-    _node->addChild( drawCommands );
+    this->addChild( drawCommands );
 }
 
-}  // namespace tire::object
+// ======================================================================================
+// ==================== BoxObject =======================================================
+// ======================================================================================
+
+BoxObject::BoxObject( vsg::ref_ptr<BoxNode> node )
+    : SceneObjectBase{}
+    , _node{ node } {
+}
+
+}  // namespace tire

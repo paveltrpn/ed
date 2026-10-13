@@ -17,7 +17,10 @@ struct SceneObjectBase;
 
 struct SceneObjectNode : public vsg::MatrixTransform {
 public:
-    SceneObjectNode( SceneObjectBase* owner );
+    friend SceneObjectBase;
+
+    SceneObjectNode( SceneObjectTypeEnum type, std::string name, std::string uid, vsg::dvec3 position,
+                     vsg::dvec3 orientation, vsg::dvec3 scale, vsg::vec4 color, SceneObjectBase* owner );
 
     [[nodiscard]] auto owner() const -> SceneObjectBase*;
 

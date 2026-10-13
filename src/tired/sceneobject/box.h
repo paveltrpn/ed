@@ -1,57 +1,132 @@
 
 #pragma once
 
+#include <vsg/all.h>
+
 #include "sceneobjectbase.h"
 
-namespace tire::object {
+namespace tire {
 
-struct Box final : public SceneObjectBase {
+struct BoxObject;
+
+// ======================================================================================
+// ==================== BoxNode =========================================================
+// ======================================================================================
+
+struct BoxNode final : public SceneObjectNode {
+    friend BoxObject;
+
+    BoxNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
+             vsg::vec4 color, vsg::dvec3 size, vsg::ivec3 segments, SceneObjectBase* owner );
+
+private:
+    auto init() -> void;
+
+private:
+    vsg::dvec3 _size{ 0.5, 0.5, 0.5 };
+    vsg::ivec3 _segments{ 1, 1, 1 };
+};
+
+// ======================================================================================
+// ==================== BoxObject =======================================================
+// ======================================================================================
+
+struct BoxObject final : public SceneObjectBase {
     Q_OBJECT
+
+    Q_PROPERTY( double sizeX READ sizeX WRITE setSizeX NOTIFY sizeXChanged FINAL )
+    Q_PROPERTY( double sizeY READ sizeY WRITE setSizeY NOTIFY sizeYChanged FINAL )
+    Q_PROPERTY( double sizeZ READ sizeZ WRITE setSizeZ NOTIFY sizeZChanged FINAL )
 
     Q_PROPERTY( int segmentsX READ segmentsX WRITE setSegmentsX NOTIFY segmentsXChanged FINAL )
     Q_PROPERTY( int segmentsY READ segmentsY WRITE setSegmentsY NOTIFY segmentsYChanged FINAL )
     Q_PROPERTY( int segmentsZ READ segmentsZ WRITE setSegmentsZ NOTIFY segmentsZChanged FINAL )
 
 public:
-    Box( const BoxObjectData& data );
+    BoxObject( vsg::ref_ptr<BoxNode> node );
 
-    Box( const Box& other ) = delete;
-    Box( Box&& other ) = delete;
+    BoxObject( const BoxObject& other ) = delete;
+    BoxObject( BoxObject&& other ) = delete;
 
-    Box& operator=( const Box& other ) = delete;
-    Box& operator=( Box&& other ) = delete;
+    BoxObject& operator=( const BoxObject& other ) = delete;
+    BoxObject& operator=( BoxObject&& other ) = delete;
+
+    auto sizeX() const -> double {
+        //
+        return _node->_size.x;
+    }
+
+    auto sizeY() const -> double {
+        //
+        return _node->_size.y;
+    }
+
+    auto sizeZ() const -> double {
+        //
+        return _node->_size.z;
+    }
 
     auto segmentsX() const -> int {
         //
-        return _data._segmentsX;
+        return _node->_segments.x;
     }
 
     auto segmentsY() const -> int {
         //
-        return _data._segmentsY;
+        return _node->_segments.y;
     }
 
     auto segmentsZ() const -> int {
         //
-        return _data._segmentsZ;
+        return _node->_segments.z;
+    }
+
+    auto setSizeX( double value ) -> void {
+        //
+        if ( _node->_size.x == value ) return;
+        _node->_size.x = value;
+        emit sizeXChanged();
+    }
+
+    auto setSizeY( double value ) -> void {
+        //
+        if ( _node->_size.y == value ) return;
+        _node->_size.y = value;
+        emit sizeYChanged();
+    }
+
+    auto setSizeZ( double value ) -> void {
+        //
+        if ( _node->_size.z == value ) return;
+        _node->_size.z = value;
+        emit sizeZChanged();
     }
 
     auto setSegmentsX( int value ) -> void {
         //
-        _data._segmentsX = value;
+        _node->_segments.x = value;
     }
 
     auto setSegmentsY( int value ) -> void {
         //
-        _data._segmentsY = value;
+        _node->_segments.y = value;
     }
 
     auto setSegmentsZ( int value ) -> void {
         //
-        _data._segmentsZ = value;
+        _node->_segments.z = value;
+    }
+
+    [[nodiscard]] virtual auto node() const -> vsg::ref_ptr<SceneObjectNode> {
+        //
+        return _node;
     }
 
 signals:
+    void sizeXChanged();
+    void sizeYChanged();
+    void sizeZChanged();
+
     void segmentsXChanged();
     void segmentsYChanged();
     void segmentsZChanged();
@@ -60,7 +135,7 @@ private:
     auto init() -> void;
 
 private:
-    BoxObjectData _data{};
+    vsg::ref_ptr<BoxNode> _node{};
 };
 
-}  // namespace tire::object
+}  // namespace tire
