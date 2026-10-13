@@ -39,6 +39,14 @@ private:
 // ==================== Handler =========================================================
 // ======================================================================================
 
+enum class HandlerClickStates {
+    //
+    UNDEFINED,
+    PRESSED,
+    VIEW_MOVED,
+    INTERSECTED
+};
+
 struct Handler final : vsg::Visitor {
     vsg::KeySymbol closeKey = vsg::KEY_Escape;
 
@@ -68,7 +76,6 @@ private:
     void onLMBPress( vsg::PointerEvent& pointerEvent );
     void beginGizmoDrag( const Dragger* dragger, GizmoType type, vsg::PointerEvent& pointerEvent );
 
-    [[nodiscard]] auto worldToScreen( const vsg::dvec3& worldPoint ) const -> vsg::dvec2;
     void onMMBPress( vsg::PointerEvent& pointerEvent );
     void onRMBPress( vsg::PointerEvent& pointerEvent );
 
@@ -90,6 +97,8 @@ private:
     vsg::dvec2 _dragLastScreenPos{};
     double _dragAngleAccum{};
     double _dragRotateSign{ 1.0 };
+
+    HandlerClickStates _clickState{ HandlerClickStates::UNDEFINED };
 };
 
 }  // namespace tire

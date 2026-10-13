@@ -378,6 +378,25 @@ Rectangle {
         }
 
         SIButtonMain {
+            id: deselectObjectsButton
+
+            anchors {
+                bottom: sceneButton.top
+                bottomMargin: _units.eight
+                left: parent.left
+                right: parent.right
+            }
+
+            modeRelatedBgColor: _color.si_mode_scene
+            buttonLabel: "Deselect"
+
+            onClicked: {
+                Tired.scenegraph.scene.selectedObjectUid = ""
+                mainWindow.panelsActiveBtn = "";
+            }
+        }
+
+        SIButtonMain {
             id: sceneButton
 
             anchors {
