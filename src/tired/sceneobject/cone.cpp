@@ -12,8 +12,8 @@ namespace tire {
 
 ConeNode::ConeNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
                     vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices, int segments,
-                    int rings, double start, double sweep, SceneObjectBase* owner )
-    : SceneObjectNode{ SceneObjectTypeEnum::CONE, name, uid, position, orientation, scale, color, owner }
+                    int rings, double start, double sweep )
+    : SceneObjectNode{ SceneObjectTypeEnum::CONE, name, uid, position, orientation, scale, color }
     , _radius{ radius }
     , _size{ size }
     , _slices{ slices }

@@ -18,7 +18,7 @@ struct CylinderNode final : public SceneObjectNode {
 
     CylinderNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
                   vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices, int segments,
-                  int rings, double start, double sweep, SceneObjectBase* owner );
+                  int rings, double start, double sweep );
 
 private:
     auto init() -> void;

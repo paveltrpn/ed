@@ -18,7 +18,7 @@ struct SphereNode final : public SceneObjectNode {
 
     SphereNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
                 vsg::vec4 color, double radius, int slices, int segments, double sliceStart, double sliceSweep,
-                double segmentStart, double segmentSweep, SceneObjectBase* owner );
+                double segmentStart, double segmentSweep );
 
 private:
     auto init() -> void;

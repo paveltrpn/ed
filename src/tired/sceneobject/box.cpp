@@ -11,8 +11,8 @@ namespace tire {
 // ======================================================================================
 
 BoxNode::BoxNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
-                  vsg::vec4 color, vsg::dvec3 size, vsg::ivec3 segments, SceneObjectBase* owner )
-    : SceneObjectNode{ SceneObjectTypeEnum::BOX, name, uid, position, orientation, scale, color, owner }
+                  vsg::vec4 color, vsg::dvec3 size, vsg::ivec3 segments )
+    : SceneObjectNode{ SceneObjectTypeEnum::BOX, name, uid, position, orientation, scale, color }
     , _size{ size }
     , _segments{ segments } {
     init();

@@ -12,9 +12,8 @@ namespace tire {
 
 SphereNode::SphereNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
                         vsg::dvec3 scale, vsg::vec4 color, double radius, int slices, int segments,
-                        double sliceStart, double sliceSweep, double segmentStart, double segmentSweep,
-                        SceneObjectBase* owner )
-    : SceneObjectNode{ SceneObjectTypeEnum::SPHERE, name, uid, position, orientation, scale, color, owner }
+                        double sliceStart, double sliceSweep, double segmentStart, double segmentSweep )
+    : SceneObjectNode{ SceneObjectTypeEnum::SPHERE, name, uid, position, orientation, scale, color }
     , _radius{ radius }
     , _slices{ slices }
     , _segments{ segments }

@@ -45,9 +45,21 @@ public:
     Q_INVOKABLE void addBox( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
                              vsg::dvec3 scale, vsg::vec4 color, vsg::dvec3 size, vsg::ivec3 segments );
 
-    Q_INVOKABLE void addSphere( const SphereObjectData& data );
-    Q_INVOKABLE void addCylinder( const CylinderObjectData& data );
-    Q_INVOKABLE void addCapsule( const CapsuleObjectData& data );
+    Q_INVOKABLE void addSphere( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                                vsg::dvec3 scale, vsg::vec4 color, double radius, int slices, int segments,
+                                double sliceStart, double sliceSweep, double segmentStart, double segmentSweep );
+
+    Q_INVOKABLE void addCylinder( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                                  vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices,
+                                  int segments, int rings, double start, double sweep );
+
+    Q_INVOKABLE void addCapsule( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                                 vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices,
+                                 int segments, int rings, double start, double sweep );
+
+    Q_INVOKABLE void addCone( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                              vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices,
+                              int segments, int rings, double start, double sweep );
 
     Q_INVOKABLE void removeObject( const QUuid& uid );
 

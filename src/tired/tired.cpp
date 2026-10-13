@@ -84,65 +84,33 @@ Tired::Tired( QObject* parent )
     _render->viewer()->compile();
 
     // Add default scene nodes.
-    {
-        auto data = BoxObjectData{};
-        data._position = { -2.0, 2.0, 0.0 };
-        data._orientation = {
-            22.0,
-            45.0,
-            12.0,
-        };
-        data._scale = { 1.0, 1.3, 1.30 };
-        _scenegraph->scene()->addBox( data );
-    }
+    _scenegraph->scene()->addBox( "OBJECT", QUuid::createUuid().toString().toStdString(), { -2.0, 2.0, 0.0 },
+                                  { 22.0, 45.0, 12.0 }, { 1.0, 1.3, 1.30 }, { 1.0f, 1.0f, 1.0f, 1.0f },
+                                  { 0.5, 0.5, 0.5 }, { 1, 1, 1 } );
 
-    {
-        auto data = BoxObjectData{};
-        data._position = { -2.0, -2.0, 0.0 };
-        data._orientation = { 72.0, 25.0, -91.0 };
-        data._scale = { 2.0, 1.3, 1.3 };
-        _scenegraph->scene()->addBox( data );
-    }
+    _scenegraph->scene()->addBox( "OBJECT", QUuid::createUuid().toString().toStdString(), { -2.0, -2.0, 0.0 },
+                                  { 72.0, 25.0, -91.0 }, { 2.0, 1.3, 1.3 }, { 1.0f, 1.0f, 1.0f, 1.0f },
+                                  { 0.5, 0.5, 0.5 }, { 1, 1, 1 } );
 
-    {
-        auto data = BoxObjectData{};
-        data._position = { 2.0, 2.0, 0.0 };
-        data._orientation = { 32.0, 225.0, -191.0 };
-        data._scale = { 2.0, 1.3, 1.3 };
-        _scenegraph->scene()->addBox( data );
-    }
+    _scenegraph->scene()->addBox( "OBJECT", QUuid::createUuid().toString().toStdString(), { 2.0, 2.0, 0.0 },
+                                  { 32.0, 225.0, -191.0 }, { 2.0, 1.3, 1.3 }, { 1.0f, 1.0f, 1.0f, 1.0f },
+                                  { 0.5, 0.5, 0.5 }, { 1, 1, 1 } );
 
-    {
-        auto data = BoxObjectData{};
-        data._position = { 2.0, -2.0, 0.0 };
-        data._orientation = { 12.0, 65.0, 121.0 };
-        data._scale = { 2.0, 1.3, 1.3 };
-        _scenegraph->scene()->addBox( data );
-    }
+    _scenegraph->scene()->addBox( "OBJECT", QUuid::createUuid().toString().toStdString(), { 2.0, -2.0, 0.0 },
+                                  { 12.0, 65.0, 121.0 }, { 2.0, 1.3, 1.3 }, { 1.0f, 1.0f, 1.0f, 1.0f },
+                                  { 0.5, 0.5, 0.5 }, { 1, 1, 1 } );
 
-    {
-        auto data = SphereObjectData{};
-        data._position = { 0.0, 2.0, 0.0 };
-        data._orientation = { 0.0, 0.0, 0.0 };
-        data._scale = { 1.0, 1.0, 1.0 };
-        _scenegraph->scene()->addSphere( data );
-    }
+    _scenegraph->scene()->addSphere( "OBJECT", QUuid::createUuid().toString().toStdString(), { 0.0, 2.0, 0.0 },
+                                     { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 16,
+                                     8, 0.0, gml::radians( 360.0 ), 0.0, gml::radians( 180.0 ) );
 
-    {
-        auto data = CylinderObjectData{};
-        data._position = { 0.0, 4.0, 0.0 };
-        data._orientation = { 0.0, 0.0, 0.0 };
-        data._scale = { 1.0, 1.0, 3.0 };
-        _scenegraph->scene()->addCylinder( data );
-    }
+    _scenegraph->scene()->addCylinder( "OBJECT", QUuid::createUuid().toString().toStdString(), { 0.0, 4.0, 0.0 },
+                                       { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 3.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5,
+                                       0.5, 16, 8, 4, 0.0, gml::radians( 360.0 ) );
 
-    {
-        auto data = CapsuleObjectData{};
-        data._position = { 0.0, -2.0, 0.0 };
-        data._orientation = { 0.0, 0.0, 0.0 };
-        data._scale = { 1.0, 1.0, 1.0 };
-        _scenegraph->scene()->addCapsule( data );
-    }
+    _scenegraph->scene()->addCapsule( "OBJECT", QUuid::createUuid().toString().toStdString(), { 0.0, -2.0, 0.0 },
+                                      { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5,
+                                      0.5, 16, 8, 4, 0.0, gml::radians( 360.0 ) );
 };
 
 auto Tired::vsgRender() const -> std::shared_ptr<VsgRender> {

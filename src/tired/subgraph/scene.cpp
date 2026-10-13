@@ -14,6 +14,7 @@
 #include "../sceneobject/sphere.h"
 #include "../sceneobject/cylinder.h"
 #include "../sceneobject/capsule.h"
+#include "../sceneobject/cone.h"
 
 #include "../vsgcommands/setpolygonmode.h"
 #include "tired/subgraph/boundingdraw.h"
@@ -145,40 +146,78 @@ void SceneUIProxy::addBox( std::string name, std::string uid, vsg::dvec3 positio
     emit objectsChanged();
 }
 
-void SceneUIProxy::addSphere( const SphereObjectData& data ) {
-    auto obj = std::make_shared<object::Sphere>( data );
+void SceneUIProxy::addSphere( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                              vsg::dvec3 scale, vsg::vec4 color, double radius, int slices, int segments,
+                              double sliceStart, double sliceSweep, double segmentStart, double segmentSweep ) {
+    auto node =
+        vsg::ref_ptr<SphereNode>{ new SphereNode{ name, uid, position, orientation, scale, color, radius, slices,
+                                                  segments, sliceStart, sliceSweep, segmentStart, segmentSweep } };
 
-    _scene.get()->attach( obj );
+    auto object = std::make_shared<SphereObject>( node );
 
-    _objects->addObject( std::move( obj ) );
+    _scene.get()->attach( node );
 
-    emit objectsChanged();
-}
+    node->setOwner( object.get() );
 
-void SceneUIProxy::addCylinder( const CylinderObjectData& data ) {
-    auto obj = std::make_shared<object::Cylinder>( data );
-
-    _scene.get()->attach( obj );
-
-    _objects->addObject( std::move( obj ) );
+    _objects->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
 
-void SceneUIProxy::addCapsule( const CapsuleObjectData& data ) {
-    auto obj = std::make_shared<object::Capsule>( data );
+void SceneUIProxy::addCylinder( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                                vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices, int segments,
+                                int rings, double start, double sweep ) {
+    auto node = vsg::ref_ptr<CylinderNode>{ new CylinderNode{ name, uid, position, orientation, scale, color, radius,
+                                                              size, slices, segments, rings, start, sweep } };
 
-    _scene.get()->attach( obj );
+    auto object = std::make_shared<CylinderObject>( node );
 
-    _objects->addObject( std::move( obj ) );
+    _scene.get()->attach( node );
+
+    node->setOwner( object.get() );
+
+    _objects->addObject( std::move( object ) );
+
+    emit objectsChanged();
+}
+
+void SceneUIProxy::addCapsule( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                               vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices, int segments,
+                               int rings, double start, double sweep ) {
+    auto node = vsg::ref_ptr<CapsuleNode>{ new CapsuleNode{ name, uid, position, orientation, scale, color, radius,
+                                                            size, slices, segments, rings, start, sweep } };
+
+    auto object = std::make_shared<CapsuleObject>( node );
+
+    _scene.get()->attach( node );
+
+    node->setOwner( object.get() );
+
+    _objects->addObject( std::move( object ) );
+
+    emit objectsChanged();
+}
+
+void SceneUIProxy::addCone( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                            vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices, int segments,
+                            int rings, double start, double sweep ) {
+    auto node = vsg::ref_ptr<ConeNode>{ new ConeNode{ name, uid, position, orientation, scale, color, radius, size,
+                                                      slices, segments, rings, start, sweep } };
+
+    auto object = std::make_shared<ConeObject>( node );
+
+    _scene.get()->attach( node );
+
+    node->setOwner( object.get() );
+
+    _objects->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
 
 void SceneUIProxy::removeObject( const QUuid& uid ) {
-    qDebug() << "=== " << uid;
     auto obj = _objects->findObject( uid );
-    _scene.get()->detach( obj );
+    _scene.get()->detach( obj->node() );
 
     // TODO: remove from list and model
 }
