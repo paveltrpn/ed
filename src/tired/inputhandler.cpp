@@ -261,23 +261,7 @@ void Handler::beginGizmoDrag( const Dragger* dragger, GizmoType type, vsg::Point
 
     _dragPressScreen = vsg::ivec2{ pointerEvent.x, pointerEvent.y };
 
-    switch ( _dragAxis ) {
-        case DraggerAxis::X: {
-            _dragAxisWorld = vsg::dvec3{ 1.0, 0.0, 0.0 };
-            break;
-        }
-        case DraggerAxis::Y: {
-            _dragAxisWorld = vsg::dvec3{ 0.0, 1.0, 0.0 };
-            break;
-        }
-        case DraggerAxis::Z: {
-            _dragAxisWorld = vsg::dvec3{ 0.0, 0.0, 1.0 };
-            break;
-        }
-        default: {
-            return;
-        }
-    }
+    _dragAxisWorld = gizmo->dragAxisWorld( _dragAxis );
 
     const auto anchor = gizmo->translation();
 

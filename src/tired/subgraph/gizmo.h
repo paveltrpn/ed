@@ -52,6 +52,8 @@ public:
     auto updateRotate( DraggerAxis axis, double degrees ) -> void;
     auto updateScale( DraggerAxis axis, double delta ) -> void;
 
+    [[nodiscard]] auto dragAxisWorld( DraggerAxis axis ) const -> vsg::dvec3;
+
     auto setDragTarget( SceneObjectBase* object ) -> void;
 
     [[nodiscard]] auto translation() const -> vsg::dvec3;
@@ -69,6 +71,8 @@ signals:
 
 private:
     auto updateGizmoVisibility() -> void;
+    auto updatePivotRotation() -> void;
+    [[nodiscard]] auto objectRotation() const -> vsg::dmat4;
 
 private:
     vsg::observer_ptr<GizmoSubgraph> _gizmo{};
@@ -80,6 +84,7 @@ private:
     vsg::dvec3 _objectAnchor{};
     vsg::dvec3 _objectOrientationAnchor{};
     vsg::dvec3 _objectScaleAnchor{};
+    vsg::dmat4 _objectRotationAnchor{};
 };
 
 // ======================================================================================
@@ -102,6 +107,7 @@ struct GizmoSubgraph final : public Subgraph {
     auto initDraggers() -> void;
 
     auto setPivotPosition( const vsg::dvec3& position ) -> void;
+    auto setPivotRotation( const vsg::dmat4& rotation ) -> void;
     auto updateScreenTransform( const vsg::Camera* camera ) -> void;
 
     auto showGizmo() -> void;
@@ -111,6 +117,8 @@ private:
     auto showMoveGizmo() -> void;
     auto showRotateGizmo() -> void;
     auto showScaleGizmo() -> void;
+
+    [[nodiscard]] auto pivotBaseTransform() const -> vsg::dmat4;
 
 private:
     vsg::ref_ptr<vsg::ClearDepthAttachment> _depthClear{};
@@ -124,6 +132,7 @@ private:
     vsg::dvec3 _dragersPos{};
 
     vsg::dvec3 _pivotPosition{};
+    vsg::dmat4 _pivotRotation{};
 
     vsg::ref_ptr<vsg::AbsoluteTransform> _gizmoPivot{};
 

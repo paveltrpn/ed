@@ -331,8 +331,6 @@ Rectangle {
 
                     checked: Tired.scenegraph.gizmo.gizmoMode == 0
 
-                    enabled: false
-
                     onClicked: {
                         Tired.scenegraph.gizmo.gizmoMode = 0;
                     }
@@ -347,8 +345,6 @@ Rectangle {
                     buttonLabel: "GLB"
 
                     checked: Tired.scenegraph.gizmo.gizmoMode == 1
-
-                    enabled: false
 
                     onClicked: {
                         Tired.scenegraph.gizmo.gizmoMode = 1;

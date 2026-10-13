@@ -14,6 +14,48 @@ namespace {
 constexpr double kGizmoScreenFraction{ 0.18 };
 constexpr double kGizmoGeometryExtent{ 1.75 };
 
+auto eulerToMatrix( const vsg::dvec3& degrees ) -> vsg::dmat4 {
+    const auto rtX = vsg::rotate( vsg::radians( degrees.x ), vsg::dvec3{ 1.0, 0.0, 0.0 } );
+    const auto rtY = vsg::rotate( vsg::radians( degrees.y ), vsg::dvec3{ 0.0, 1.0, 0.0 } );
+    const auto rtZ = vsg::rotate( vsg::radians( degrees.z ), vsg::dvec3{ 0.0, 0.0, 1.0 } );
+
+    return rtX * rtY * rtZ;
+}
+
+auto matrixToEuler( const vsg::dmat4& m ) -> vsg::dvec3 {
+    const auto sb = std::clamp( m[2][0], -1.0, 1.0 );
+    const auto b = std::asin( sb );
+
+    double a{};
+    double c{};
+
+    if ( std::abs( sb ) < 1.0 - 1e-9 ) {
+        a = std::atan2( -m[2][1], m[2][2] );
+        c = std::atan2( -m[1][0], m[0][0] );
+    } else {
+        c = 0.0;
+        a = std::atan2( m[1][2], m[1][1] );
+    }
+
+    return { vsg::degrees( a ), vsg::degrees( b ), vsg::degrees( c ) };
+}
+
+auto localAxisVector( DraggerAxis axis ) -> vsg::dvec3 {
+    switch ( axis ) {
+        case DraggerAxis::X: {
+            return { 1.0, 0.0, 0.0 };
+        }
+        case DraggerAxis::Y: {
+            return { 0.0, 1.0, 0.0 };
+        }
+        case DraggerAxis::Z: {
+            return { 0.0, 0.0, 1.0 };
+        }
+    }
+
+    return {};
+}
+
 }  // namespace
 
 // ======================================================================================
@@ -28,6 +70,7 @@ GizmoUIProxy::GizmoUIProxy( vsg::observer_ptr<GizmoSubgraph> gizmo, const QObjec
 
 auto GizmoUIProxy::beginDrag() -> void {
     _dragAnchor = _translation;
+    _objectRotationAnchor = objectRotation();
 
     if ( _dragTarget ) {
         _objectAnchor = _dragTarget->node()->_position;
@@ -48,27 +91,50 @@ auto GizmoUIProxy::update( vsg::dvec3 worldDisplacement ) -> void {
 
 auto GizmoUIProxy::updateRotate( DraggerAxis axis, double degrees ) -> void {
     if ( _dragTarget ) {
-        auto orientation = _objectOrientationAnchor;
+        const auto delta = vsg::rotate( vsg::radians( degrees ), localAxisVector( axis ) );
 
-        switch ( axis ) {
-            case DraggerAxis::X: {
-                orientation.x += degrees;
-                break;
-            }
-            case DraggerAxis::Y: {
-                orientation.y += degrees;
-                break;
-            }
-            case DraggerAxis::Z: {
-                orientation.z += degrees;
-                break;
-            }
-        }
+        const auto rotated = _gizmo.get()->_gizmoMode == GizmoMode::LOCAL
+                                 ? _objectRotationAnchor * delta
+                                 : delta * _objectRotationAnchor;
+
+        const auto orientation = matrixToEuler( rotated );
 
         _dragTarget->setOrientation( QVector3D{ static_cast<float>( orientation.x ),
                                                 static_cast<float>( orientation.y ),
                                                 static_cast<float>( orientation.z ) } );
+
+        updatePivotRotation();
     }
+}
+
+auto GizmoUIProxy::dragAxisWorld( DraggerAxis axis ) const -> vsg::dvec3 {
+    const auto localAxis = localAxisVector( axis );
+
+    const auto followObject = _gizmo.get()->_gizmoType == GizmoType::SCALE ||
+                              _gizmo.get()->_gizmoMode == GizmoMode::LOCAL;
+
+    if ( !followObject ) {
+        return localAxis;
+    }
+
+    const auto rotated = objectRotation() * vsg::dvec4{ localAxis.x, localAxis.y, localAxis.z, 0.0 };
+
+    return vsg::normalize( vsg::dvec3{ rotated.x, rotated.y, rotated.z } );
+}
+
+auto GizmoUIProxy::objectRotation() const -> vsg::dmat4 {
+    if ( !_dragTarget ) {
+        return vsg::dmat4{};
+    }
+
+    return eulerToMatrix( _dragTarget->node()->_orientation );
+}
+
+auto GizmoUIProxy::updatePivotRotation() -> void {
+    const auto followObject = _gizmo.get()->_gizmoType == GizmoType::SCALE ||
+                              _gizmo.get()->_gizmoMode == GizmoMode::LOCAL;
+
+    _gizmo.get()->setPivotRotation( followObject ? objectRotation() : vsg::dmat4{} );
 }
 
 auto GizmoUIProxy::updateScale( DraggerAxis axis, double delta ) -> void {
@@ -98,6 +164,8 @@ auto GizmoUIProxy::updateScale( DraggerAxis axis, double delta ) -> void {
 auto GizmoUIProxy::setDragTarget( SceneObjectBase* object ) -> void {
     _dragTarget = object;
 
+    updatePivotRotation();
+
     if ( !object ) {
         _gizmo.get()->hideGizmo();
         return;
@@ -122,6 +190,7 @@ auto GizmoUIProxy::gizmoMode() const -> int {
 
 void GizmoUIProxy::setGizmoMode( int value ) {
     _gizmo.get()->_gizmoMode = static_cast<GizmoMode>( value );
+    updatePivotRotation();
     emit gizmoModeChanged();
 }
 
@@ -132,6 +201,7 @@ auto GizmoUIProxy::gizmoType() const -> int {
 auto GizmoUIProxy::setGizmoType( int value ) -> void {
     _gizmo.get()->_gizmoType = static_cast<GizmoType>( value );
     updateGizmoVisibility();
+    updatePivotRotation();
     emit gizmoTypeChanged();
 }
 
@@ -184,10 +254,20 @@ auto GizmoSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGr
     return { _stateGroup };
 }
 
+auto GizmoSubgraph::pivotBaseTransform() const -> vsg::dmat4 {
+    return vsg::translate( _pivotPosition ) * _pivotRotation;
+}
+
 auto GizmoSubgraph::setPivotPosition( const vsg::dvec3& position ) -> void {
     _pivotPosition = position;
 
-    _gizmoPivot->matrix = vsg::translate( _pivotPosition );
+    _gizmoPivot->matrix = pivotBaseTransform();
+}
+
+auto GizmoSubgraph::setPivotRotation( const vsg::dmat4& rotation ) -> void {
+    _pivotRotation = rotation;
+
+    _gizmoPivot->matrix = pivotBaseTransform();
 }
 
 auto GizmoSubgraph::updateScreenTransform( const vsg::Camera* camera ) -> void {
@@ -209,7 +289,7 @@ auto GizmoSubgraph::updateScreenTransform( const vsg::Camera* camera ) -> void {
     const auto worldPerHeight = 2.0 * distance * std::tan( vsg::radians( perspective->fieldOfViewY ) * 0.5 );
     const auto s = kGizmoScreenFraction * worldPerHeight / kGizmoGeometryExtent;
 
-    _gizmoPivot->matrix = view * vsg::translate( _pivotPosition ) * vsg::scale( s );
+    _gizmoPivot->matrix = view * pivotBaseTransform() * vsg::scale( s );
 }
 
 auto GizmoSubgraph::initPipeline() -> void {
