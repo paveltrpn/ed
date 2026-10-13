@@ -28,10 +28,6 @@ auto AppStateSettings::write() -> void {
     _settings->setValue( "panelsGeometry", QVariant::fromValue( QList<float>{ topPanelHeight(), bottomPanelHeight(),
                                                                               leftPanelWidth(), rightPanelWidth() } ) );
 
-    qDebug() << " ==== "
-             << QVariant::fromValue(
-                    QList<float>{ topPanelHeight(), bottomPanelHeight(), leftPanelWidth(), rightPanelWidth() } );
-
     _settings->endGroup();
 
     _settings->sync();
