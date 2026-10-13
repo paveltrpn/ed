@@ -44,6 +44,8 @@ public:
     [[nodiscard]]
     auto scene() const -> SceneUIProxy*;
 
+    auto frameUpdate( const vsg::Camera& camera ) -> void;
+
 signals:
     void navboxChanged();
     void gridChanged();

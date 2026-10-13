@@ -1,4 +1,7 @@
 
+#include <algorithm>
+#include <cmath>
+
 #include "gizmo.h"
 #include "program/program.h"
 #include "../generatorutils.h"
@@ -6,26 +9,12 @@
 
 namespace tire {
 
-// // Создаём узел, который будет отображаться поверх (например, иконка)
-// auto iconGeometry = vsg::VertexIndexDraw::create();
-// // ... (настройка вершин, пайплайна и шейдеров) ...
+namespace {
 
-// auto absoluteTransform = vsg::AbsoluteTransform::create();
+constexpr double kGizmoScreenFraction{ 0.18 };
+constexpr double kGizmoGeometryExtent{ 1.75 };
 
-// // В цикле обновления (viewer->update() или кастомный UpdateVisitor):
-// // Вычисляем расстояние от камеры до точки привязки (worldPos)
-// vsg::dvec3 cameraPos = view->camera->viewMatrix->transform(vsg::dvec3(0,0,0)); // позиция камеры
-// double distance = vsg::length(worldPos - cameraPos);
-
-// // Масштаб, чтобы размер в пикселях оставался постоянным:
-// // scale = distance * (2 * tan(fov/2) / viewportHeight)
-// double fovY = view->camera->projectionMatrix->getFovY(); // условный метод
-// double viewportHeight = view->camera->viewportState->getViewport().height;
-// double scale = distance * (2.0 * std::tan(fovY * 0.5) / viewportHeight);
-
-// // Матрица: перемещаем в точку + масштабируем + компенсируем масштаб родителя
-// vsg::dmat4 matrix = vsg::translate(worldPos) * vsg::scale(scale);
-// absoluteTransform->matrix = matrix;
+}  // namespace
 
 // ======================================================================================
 // ==================== GizmoUIProxy ====================================================
@@ -120,7 +109,7 @@ auto GizmoUIProxy::translation() const -> vsg::dvec3 {
 
 auto GizmoUIProxy::setTranslation( const vsg::dvec3& value ) -> void {
     _translation = value;
-    _gizmo.get()->_gizmoPivot->matrix = vsg::translate( _translation );
+    _gizmo.get()->setPivotPosition( value );
 }
 
 auto GizmoUIProxy::gizmoMode() const -> int {
@@ -171,7 +160,7 @@ GizmoSubgraph::GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer,
     , _depthClear{ vsg::ClearDepthAttachment::create( renderGraph ) }
     , _stateGroup{ vsg::StateGroup::create() }
     , _gizmoKillSwitch{ vsg::Switch::create() }
-    , _gizmoPivot{ vsg::MatrixTransform::create() } {
+    , _gizmoPivot{ vsg::AbsoluteTransform::create() } {
     //
     // Depth clear must record before any gizmo geometry so the gizmo draws
     // on top of everything recorded earlier in the pass.
@@ -186,6 +175,34 @@ GizmoSubgraph::GizmoSubgraph( vsg::observer_ptr<vsg::Viewer> viewer,
 
 auto GizmoSubgraph::stateGroups() const -> std::vector<vsg::ref_ptr<vsg::StateGroup>> {
     return { _stateGroup };
+}
+
+auto GizmoSubgraph::setPivotPosition( const vsg::dvec3& position ) -> void {
+    _pivotPosition = position;
+
+    _gizmoPivot->matrix = vsg::translate( _pivotPosition );
+}
+
+auto GizmoSubgraph::updateScreenTransform( const vsg::Camera* camera ) -> void {
+    const auto perspective = camera->projectionMatrix->cast<vsg::Perspective>();
+    if ( !perspective ) {
+        return;
+    }
+
+    const auto viewportHeight = static_cast<double>( camera->getViewport().height );
+    if ( viewportHeight <= 0.0 ) {
+        return;
+    }
+
+    const auto view = camera->viewMatrix->transform();
+    const auto eyeHom = vsg::inverse( view ) * vsg::dvec4{ 0.0, 0.0, 0.0, 1.0 };
+    const auto eye = vsg::dvec3{ eyeHom.x, eyeHom.y, eyeHom.z };
+
+    const auto distance = std::max( vsg::length( eye - _pivotPosition ), 1e-6 );
+    const auto worldPerHeight = 2.0 * distance * std::tan( vsg::radians( perspective->fieldOfViewY ) * 0.5 );
+    const auto s = kGizmoScreenFraction * worldPerHeight / kGizmoGeometryExtent;
+
+    _gizmoPivot->matrix = view * vsg::translate( _pivotPosition ) * vsg::scale( s );
 }
 
 auto GizmoSubgraph::initPipeline() -> void {

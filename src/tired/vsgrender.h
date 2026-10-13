@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include <vsg/all.h>
 
 #include "viewer.h"
@@ -43,6 +45,8 @@ public:
     auto renderGraph() const -> vsg::ref_ptr<vsg::DynamicRenderGraph>;
 
     auto viewer() const -> vsg::ref_ptr<tire::Viewer>;
+
+    auto setFrameUpdateCallback( std::function<void( const vsg::Camera& )> callback ) -> void;
 
 public:
     /// events buffered since the last pollEvents.
@@ -88,6 +92,8 @@ private:
 
     bool _needResize{ false };
     VkExtent2D _newExtent{};
+
+    std::function<void( const vsg::Camera& )> _frameUpdateCallback{};
 };
 
 }  // namespace tire

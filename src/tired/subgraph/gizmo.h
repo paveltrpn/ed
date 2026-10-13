@@ -101,6 +101,9 @@ struct GizmoSubgraph final : public Subgraph {
     auto initPipeline() -> void;
     auto initDraggers() -> void;
 
+    auto setPivotPosition( const vsg::dvec3& position ) -> void;
+    auto updateScreenTransform( const vsg::Camera* camera ) -> void;
+
 private:
     auto showMoveGizmo() -> void;
     auto showRotateGizmo() -> void;
@@ -117,7 +120,9 @@ private:
 
     vsg::dvec3 _dragersPos{};
 
-    vsg::ref_ptr<vsg::MatrixTransform> _gizmoPivot{};
+    vsg::dvec3 _pivotPosition{};
+
+    vsg::ref_ptr<vsg::AbsoluteTransform> _gizmoPivot{};
 
     vsg::ref_ptr<vsg::Switch> _moveGizmoSwitch{};
     vsg::ref_ptr<MoveDragger> _xMoveDg{};

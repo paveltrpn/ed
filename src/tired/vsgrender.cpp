@@ -681,6 +681,10 @@ auto VsgRender::viewer() const -> vsg::ref_ptr<tire::Viewer> {
     return _viewer;
 }
 
+auto VsgRender::setFrameUpdateCallback( std::function<void( const vsg::Camera& )> callback ) -> void {
+    _frameUpdateCallback = std::move( callback );
+}
+
 auto VsgRender::passEventsToViewer() -> void {
     if ( !_bufferedEvents.empty() ) {
         _viewer->fetchEvents( _bufferedEvents );
@@ -752,6 +756,10 @@ auto VsgRender::renderNative() -> std::optional<std::tuple<VkImage, VkExtent2D, 
     _viewer->handleEvents();
 
     _viewer->update();
+
+    if ( _frameUpdateCallback ) {
+        _frameUpdateCallback( *_camera );
+    }
 
     _viewer->recordAndSubmit();
 

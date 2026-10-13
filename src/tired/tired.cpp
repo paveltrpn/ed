@@ -63,6 +63,8 @@ Tired::Tired( QObject* parent )
 
     _render->sceneTransform()->addChild( _scenegraph->root() );
 
+    _render->setFrameUpdateCallback( [this]( const vsg::Camera& camera ) { _scenegraph->frameUpdate( camera ); } );
+
     // Setup manipulator object.
     { _manipulator = new Manipulator{ _render->camera(), this }; }
 

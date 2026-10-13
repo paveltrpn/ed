@@ -55,6 +55,10 @@ auto Scenegraph::scene() const -> SceneUIProxy* {
     return _scene;
 }
 
+auto Scenegraph::frameUpdate( const vsg::Camera& camera ) -> void {
+    _gizmoNode->updateScreenTransform( &camera );
+}
+
 void Scenegraph::lookChanged( const vsg::dvec3& eye, const vsg::dvec3& cnt, const vsg::dvec3& up ) {
     _navbox->updateViewMatrix( eye, cnt, up );
     _grid->updateCameraPosition( vsg::vec3{ eye } );
