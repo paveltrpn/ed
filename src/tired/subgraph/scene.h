@@ -16,9 +16,25 @@ namespace tire {
 // ==================== SceneUIProxy ====================================================
 // ======================================================================================
 
-enum class ObjectsRenderMode { WIREFRAME, SOLID, SOLIDWIRE };
-enum class ObjectsAppearenceMode { COLOR, TEXTURE };
-enum class ObjectsLightMode { NONE, CONSTANT, INSCENE };
+enum class ObjectsRenderMode {
+    //
+    WIREFRAME,
+    SOLID,
+    SOLIDWIRE
+};
+
+enum class ObjectsAppearenceMode {
+    //
+    COLOR,
+    TEXTURE
+};
+
+enum class ObjectsLightMode {
+    //
+    NONE,
+    CONSTANT,
+    INSCENE
+};
 
 struct SceneSubgraph;
 
