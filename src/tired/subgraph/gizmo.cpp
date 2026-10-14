@@ -26,8 +26,8 @@ auto matrixToEuler( const vsg::dmat4& m ) -> vsg::dvec3 {
     const auto sb = std::clamp( m[2][0], -1.0, 1.0 );
     const auto b = std::asin( sb );
 
-    double a{};
-    double c{};
+    auto a{ 0.0 };
+    auto c{ 0.0 };
 
     if ( std::abs( sb ) < 1.0 - 1e-9 ) {
         a = std::atan2( -m[2][1], m[2][2] );
@@ -93,9 +93,8 @@ auto GizmoUIProxy::updateRotate( DraggerAxis axis, double degrees ) -> void {
     if ( _dragTarget ) {
         const auto delta = vsg::rotate( vsg::radians( degrees ), localAxisVector( axis ) );
 
-        const auto rotated = _gizmo.get()->_gizmoMode == GizmoMode::LOCAL
-                                 ? _objectRotationAnchor * delta
-                                 : delta * _objectRotationAnchor;
+        const auto rotated = _gizmo.get()->_gizmoMode == GizmoMode::LOCAL ? _objectRotationAnchor * delta
+                                                                          : delta * _objectRotationAnchor;
 
         const auto orientation = matrixToEuler( rotated );
 
@@ -110,8 +109,8 @@ auto GizmoUIProxy::updateRotate( DraggerAxis axis, double degrees ) -> void {
 auto GizmoUIProxy::dragAxisWorld( DraggerAxis axis ) const -> vsg::dvec3 {
     const auto localAxis = localAxisVector( axis );
 
-    const auto followObject = _gizmo.get()->_gizmoType == GizmoType::SCALE ||
-                              _gizmo.get()->_gizmoMode == GizmoMode::LOCAL;
+    const auto followObject =
+        _gizmo.get()->_gizmoType == GizmoType::SCALE || _gizmo.get()->_gizmoMode == GizmoMode::LOCAL;
 
     if ( !followObject ) {
         return localAxis;
@@ -131,8 +130,11 @@ auto GizmoUIProxy::objectRotation() const -> vsg::dmat4 {
 }
 
 auto GizmoUIProxy::updatePivotRotation() -> void {
-    const auto followObject = _gizmo.get()->_gizmoType == GizmoType::SCALE ||
-                              _gizmo.get()->_gizmoMode == GizmoMode::LOCAL;
+    auto followObject{ false };
+
+    if ( ( _gizmo.get()->_gizmoType == GizmoType::SCALE ) || ( _gizmo.get()->_gizmoMode == GizmoMode::LOCAL ) ) {
+        followObject = true;
+    }
 
     _gizmo.get()->setPivotRotation( followObject ? objectRotation() : vsg::dmat4{} );
 }
@@ -147,7 +149,8 @@ auto GizmoUIProxy::updateScale( DraggerAxis axis, double delta ) -> void {
                 break;
             }
             case DraggerAxis::Y: {
-                scale.y += delta;
+                // NOTE: Y axis scale gizmo factor is negative!
+                scale.y -= delta;
                 break;
             }
             case DraggerAxis::Z: {
@@ -190,7 +193,9 @@ auto GizmoUIProxy::gizmoMode() const -> int {
 
 void GizmoUIProxy::setGizmoMode( int value ) {
     _gizmo.get()->_gizmoMode = static_cast<GizmoMode>( value );
+
     updatePivotRotation();
+
     emit gizmoModeChanged();
 }
 
@@ -200,8 +205,10 @@ auto GizmoUIProxy::gizmoType() const -> int {
 
 auto GizmoUIProxy::setGizmoType( int value ) -> void {
     _gizmo.get()->_gizmoType = static_cast<GizmoType>( value );
+
     updateGizmoVisibility();
     updatePivotRotation();
+
     emit gizmoTypeChanged();
 }
 

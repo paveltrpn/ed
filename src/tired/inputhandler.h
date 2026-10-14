@@ -52,36 +52,36 @@ struct Handler final : vsg::Visitor {
 
     Handler( Scenegraph* scenegraph, Manipulator* manipuilator, vsg::observer_ptr<vsg::Camera> camera );
 
-    void apply( vsg::KeyPressEvent& keyPress ) override;
-    void apply( vsg::KeyReleaseEvent& keyRelease ) override;
-    void apply( vsg::FocusInEvent& focusIn ) override;
-    void apply( vsg::FocusOutEvent& focusOut ) override;
-    void apply( vsg::ButtonPressEvent& buttonPress ) override;
-    void apply( vsg::ButtonReleaseEvent& buttonRelease ) override;
-    void apply( vsg::MoveEvent& moveEvent ) override;
-    void apply( vsg::ScrollWheelEvent& scrollWheel ) override;
-    void apply( vsg::TouchDownEvent& touchDown ) override;
-    void apply( vsg::TouchUpEvent& touchUp ) override;
-    void apply( vsg::TouchMoveEvent& touchMove ) override;
-    void apply( vsg::FrameEvent& frame ) override;
-    void apply( vsg::CloseWindowEvent& ) override;
-    void apply( vsg::TerminateEvent& ) override;
+    auto apply( vsg::KeyPressEvent& keyPress ) -> void override;
+    auto apply( vsg::KeyReleaseEvent& keyRelease ) -> void override;
+    auto apply( vsg::FocusInEvent& focusIn ) -> void override;
+    auto apply( vsg::FocusOutEvent& focusOut ) -> void override;
+    auto apply( vsg::ButtonPressEvent& buttonPress ) -> void override;
+    auto apply( vsg::ButtonReleaseEvent& buttonRelease ) -> void override;
+    auto apply( vsg::MoveEvent& moveEvent ) -> void override;
+    auto apply( vsg::ScrollWheelEvent& scrollWheel ) -> void override;
+    auto apply( vsg::TouchDownEvent& touchDown ) -> void override;
+    auto apply( vsg::TouchUpEvent& touchUp ) -> void override;
+    auto apply( vsg::TouchMoveEvent& touchMove ) -> void override;
+    auto apply( vsg::FrameEvent& frame ) -> void override;
+    auto apply( vsg::CloseWindowEvent& ) -> void override;
+    auto apply( vsg::TerminateEvent& ) -> void override;
 
 private:
-    void close();
+    auto close() -> void;
 
     auto collectIntersections( int32_t x, int32_t y )
         -> std::vector<vsg::ref_ptr<vsg::LineSegmentIntersector::Intersection>>;
 
-    void onLMBPress( vsg::PointerEvent& pointerEvent );
-    void beginGizmoDrag( const Dragger* dragger, GizmoType type, vsg::PointerEvent& pointerEvent );
+    auto onLMBPress( vsg::PointerEvent& pointerEvent ) -> void;
+    auto beginGizmoDrag( const Dragger* dragger, GizmoType type, vsg::PointerEvent& pointerEvent ) -> void;
 
-    void onMMBPress( vsg::PointerEvent& pointerEvent );
-    void onRMBPress( vsg::PointerEvent& pointerEvent );
+    auto onMMBPress( vsg::PointerEvent& pointerEvent ) -> void;
+    auto onRMBPress( vsg::PointerEvent& pointerEvent ) -> void;
 
-    void onLMBRelease( vsg::PointerEvent& pointerEvent );
-    void onMMBRelease( vsg::PointerEvent& pointerEvent );
-    void onRMBRelease( vsg::PointerEvent& pointerEvent );
+    auto onLMBRelease( vsg::PointerEvent& pointerEvent ) -> void;
+    auto onMMBRelease( vsg::PointerEvent& pointerEvent ) -> void;
+    auto onRMBRelease( vsg::PointerEvent& pointerEvent ) -> void;
 
 private:
     Scenegraph* _scenegraph{};
