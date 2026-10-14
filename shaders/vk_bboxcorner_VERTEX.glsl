@@ -13,7 +13,7 @@ out gl_PerVertex {
     vec4 gl_Position;
 };
 
-vec3 colors[8] = vec3[](
+vec3 edgeColors[12] = vec3[](
     vec3(1.0, 0.0, 0.0),     // 0: red
     vec3(0.0, 1.0, 0.0),     // 1: green
     vec3(0.0, 0.0, 1.0),     // 2: blue
@@ -21,61 +21,34 @@ vec3 colors[8] = vec3[](
     vec3(1.0, 0.0, 1.0),     // 4: magenta
     vec3(0.0, 1.0, 1.0),     // 5: cyan
     vec3(1.0, 0.5, 0.0),     // 6: orange
-    vec3(0.5, 0.5, 0.5)      // 7: gray
+    vec3(0.5, 0.5, 0.5),     // 7: gray
+    vec3(1.0, 0.0, 0.0),     // 8: red
+    vec3(0.0, 1.0, 0.0),     // 9: green
+    vec3(0.0, 0.0, 1.0),     // 10: blue
+    vec3(1.0, 1.0, 0.0)      // 11: yellow
 );
 
-const float LINE_LENGTH = 0.35;
-
-mat4 getScaleMatrix(vec3 sc) {
-    return mat4(
-        sc.x, 0.0,  0.0,  0.0,  // Column 1
-        0.0,  sc.y, 0.0,  0.0,  // Column 2
-        0.0,  0.0,  sc.z, 0.0,  // Column 3
-        0.0,  0.0,  0.0,  1.0   // Column 4
-    );
-}
-
-vec3 lineVerts[48] = vec3[](
-    // Corner 0 (-0.5,-0.5,-0.5) back-bottom-left - red
-    vec3(-0.5, -0.5, -0.5), vec3(-0.5 + LINE_LENGTH, -0.5, -0.5),  // +X edge toward corner 1
-    vec3(-0.5, -0.5, -0.5), vec3(-0.5, -0.5 + LINE_LENGTH, -0.5),  // +Y edge toward corner 3
-    vec3(-0.5, -0.5, -0.5), vec3(-0.5, -0.5, -0.5 + LINE_LENGTH),  // +Z edge toward corner 4
-    // Corner 1 (0.5,-0.5,-0.5) back-bottom-right - green
-    vec3( 0.5, -0.5, -0.5), vec3( 0.5 - LINE_LENGTH, -0.5, -0.5),  // -X edge toward corner 0
-    vec3( 0.5, -0.5, -0.5), vec3( 0.5, -0.5 + LINE_LENGTH, -0.5),  // +Y edge toward corner 2
-    vec3( 0.5, -0.5, -0.5), vec3( 0.5, -0.5, -0.5 + LINE_LENGTH),  // +Z edge toward corner 5
-    // Corner 2 (0.5,0.5,-0.5) back-top-right - blue
-    vec3( 0.5,  0.5, -0.5), vec3( 0.5 - LINE_LENGTH,  0.5, -0.5),  // -X edge toward corner 3
-    vec3( 0.5,  0.5, -0.5), vec3( 0.5,  0.5 - LINE_LENGTH, -0.5),  // -Y edge toward corner 1
-    vec3( 0.5,  0.5, -0.5), vec3( 0.5,  0.5, -0.5 + LINE_LENGTH),  // +Z edge toward corner 6
-    // Corner 3 (-0.5,0.5,-0.5) back-top-left - yellow
-    vec3(-0.5,  0.5, -0.5), vec3(-0.5 + LINE_LENGTH,  0.5, -0.5),  // +X edge toward corner 2
-    vec3(-0.5,  0.5, -0.5), vec3(-0.5,  0.5 - LINE_LENGTH, -0.5),  // -Y edge toward corner 0
-    vec3(-0.5,  0.5, -0.5), vec3(-0.5,  0.5, -0.5 + LINE_LENGTH),  // +Z edge toward corner 7
-    // Corner 4 (-0.5,-0.5,0.5) front-bottom-left - magenta
-    vec3(-0.5, -0.5,  0.5), vec3(-0.5 + LINE_LENGTH, -0.5,  0.5),  // +X edge toward corner 5
-    vec3(-0.5, -0.5,  0.5), vec3(-0.5, -0.5 + LINE_LENGTH,  0.5),  // +Y edge toward corner 7
-    vec3(-0.5, -0.5,  0.5), vec3(-0.5, -0.5,  0.5 - LINE_LENGTH),  // -Z edge toward corner 0
-    // Corner 5 (0.5,-0.5,0.5) front-bottom-right - cyan
-    vec3( 0.5, -0.5,  0.5), vec3( 0.5 - LINE_LENGTH, -0.5,  0.5),  // -X edge toward corner 4
-    vec3( 0.5, -0.5,  0.5), vec3( 0.5, -0.5 + LINE_LENGTH,  0.5),  // +Y edge toward corner 6
-    vec3( 0.5, -0.5,  0.5), vec3( 0.5, -0.5,  0.5 - LINE_LENGTH),  // -Z edge toward corner 1
-    // Corner 6 (0.5,0.5,0.5) front-top-right - orange
-    vec3( 0.5,  0.5,  0.5), vec3( 0.5 - LINE_LENGTH,  0.5,  0.5),  // -X edge toward corner 7
-    vec3( 0.5,  0.5,  0.5), vec3( 0.5,  0.5 - LINE_LENGTH,  0.5),  // -Y edge toward corner 5
-    vec3( 0.5,  0.5,  0.5), vec3( 0.5,  0.5,  0.5 - LINE_LENGTH),  // -Z edge toward corner 2
-    // Corner 7 (-0.5,0.5,0.5) front-top-left - gray
-    vec3(-0.5,  0.5,  0.5), vec3(-0.5 + LINE_LENGTH,  0.5,  0.5),  // +X edge toward corner 6
-    vec3(-0.5,  0.5,  0.5), vec3(-0.5,  0.5 - LINE_LENGTH,  0.5),  // -Y edge toward corner 4
-    vec3(-0.5,  0.5,  0.5), vec3(-0.5,  0.5,  0.5 - LINE_LENGTH)   // -Z edge toward corner 3
+vec3 lineVerts[24] = vec3[](
+    // Back face (z = -0.5)
+    vec3(-0.5, -0.5, -0.5), vec3( 0.5, -0.5, -0.5),  // edge 0-1
+    vec3( 0.5, -0.5, -0.5), vec3( 0.5,  0.5, -0.5),  // edge 1-2
+    vec3( 0.5,  0.5, -0.5), vec3(-0.5,  0.5, -0.5),  // edge 2-3
+    vec3(-0.5,  0.5, -0.5), vec3(-0.5, -0.5, -0.5),  // edge 3-0
+    // Front face (z = +0.5)
+    vec3(-0.5, -0.5,  0.5), vec3( 0.5, -0.5,  0.5),  // edge 4-5
+    vec3( 0.5, -0.5,  0.5), vec3( 0.5,  0.5,  0.5),  // edge 5-6
+    vec3( 0.5,  0.5,  0.5), vec3(-0.5,  0.5,  0.5),  // edge 6-7
+    vec3(-0.5,  0.5,  0.5), vec3(-0.5, -0.5,  0.5),  // edge 7-4
+    // Pillars
+    vec3(-0.5, -0.5, -0.5), vec3(-0.5, -0.5,  0.5),  // edge 0-4
+    vec3( 0.5, -0.5, -0.5), vec3( 0.5, -0.5,  0.5),  // edge 1-5
+    vec3( 0.5,  0.5, -0.5), vec3( 0.5,  0.5,  0.5),  // edge 2-6
+    vec3(-0.5,  0.5, -0.5), vec3(-0.5,  0.5,  0.5)   // edge 3-7
 );
 
 void main() {
-    // vec3 scaleFactors = vec3(2.0, 2.0, 2.0);
-    // mat4 scaleMatrix = getScaleMatrix(scaleFactors);
-
     vec4 vertex = pc.transform * vec4(lineVerts[gl_VertexIndex], 1.0);
     gl_Position = pc.projection * pc.modelview * vertex;
 
-    fragColor = colors[gl_VertexIndex / 6];
+    fragColor = edgeColors[gl_VertexIndex / 2];
 }

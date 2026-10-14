@@ -31,7 +31,7 @@ public:
 
     [[nodiscard]] auto owner() const -> SceneObjectBase*;
 
-    [[nodiscard]] auto boundingDraw() const -> vsg::ref_ptr<BoundingDraw>;
+    [[nodiscard]] auto boundingDraw() -> vsg::ref_ptr<BoundingDraw>;
 
     auto setOrigin( vsg::dvec3 value ) -> void;
 
@@ -43,6 +43,8 @@ public:
 
 private:
     auto updateMatrix() -> void;
+    auto computeLocalBounds() -> void;
+    auto updateBoundingDraw() -> void;
 
 private:
     SceneObjectTypeEnum _type{};
@@ -61,6 +63,9 @@ private:
     vsg::dmat4 _originMatrix{};
     vsg::dmat4 _rotationMatrix{};
     vsg::dmat4 _scaleMatrix{};
+
+    vsg::dbox _localBounds{};
+    bool _localBoundsValid{ false };
 };
 
 }  // namespace tire

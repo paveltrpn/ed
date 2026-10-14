@@ -17,7 +17,7 @@ BoundingDraw::BoundingDraw()
     const auto pc = vsg::PushConstants::create( VK_SHADER_STAGE_VERTEX_BIT, 64 + 64, _transformArray );
     this->addChild( pc );
 
-    const auto dc = vsg::Draw::create( 48, 1, 0, 0 );
+    const auto dc = vsg::Draw::create( 24, 1, 0, 0 );
     this->addChild( dc );
 }
 

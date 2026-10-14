@@ -23,15 +23,14 @@ SceneObjectNode::SceneObjectNode( SceneObjectTypeEnum type, std::string name, st
     setOrigin( _position );
     setRotation( _orientation );
     setScale( _scale );
-
-    _bounding->setTransform( vsg::mat4{ this->matrix } );
 }
 
 auto SceneObjectNode::owner() const -> SceneObjectBase* {
     return _owner;
 }
 
-auto SceneObjectNode::boundingDraw() const -> vsg::ref_ptr<BoundingDraw> {
+auto SceneObjectNode::boundingDraw() -> vsg::ref_ptr<BoundingDraw> {
+    updateBoundingDraw();
     return _bounding;
 }
 
@@ -67,7 +66,48 @@ auto SceneObjectNode::setScale( vsg::dvec3 value ) -> void {
 
 auto SceneObjectNode::updateMatrix() -> void {
     this->matrix = _originMatrix * _rotationMatrix * _scaleMatrix;
-    _bounding->setTransform( vsg::mat4{ this->matrix } );
+    updateBoundingDraw();
+}
+
+auto SceneObjectNode::computeLocalBounds() -> void {
+    if ( _localBoundsValid ) {
+        return;
+    }
+
+    vsg::ComputeBounds cb{};
+    for ( const auto& child : children ) {
+        child->accept( cb );
+    }
+
+    if ( cb.bounds.valid() ) {
+        _localBounds = cb.bounds;
+        _localBoundsValid = true;
+    }
+}
+
+auto SceneObjectNode::updateBoundingDraw() -> void {
+    computeLocalBounds();
+
+    auto bounds = _localBounds;
+    if ( !_localBoundsValid ) {
+        bounds = vsg::dbox{ { -0.5, -0.5, -0.5 }, { 0.5, 0.5, 0.5 } };
+    }
+
+    vsg::dbox world{};
+    for ( auto i = 0; i < 8; ++i ) {
+        const vsg::dvec3 corner{ ( i & 1 ) ? bounds.max.x : bounds.min.x,
+                                 ( i & 2 ) ? bounds.max.y : bounds.min.y,
+                                 ( i & 4 ) ? bounds.max.z : bounds.min.z };
+        world.add( this->matrix * corner );
+    }
+
+    const auto center = ( world.min + world.max ) * 0.5;
+    auto extent = world.max - world.min;
+    extent.x = std::max( extent.x, 1e-6 );
+    extent.y = std::max( extent.y, 1e-6 );
+    extent.z = std::max( extent.z, 1e-6 );
+
+    _bounding->setTransform( vsg::mat4{ vsg::translate( center ) * vsg::scale( extent ) } );
 }
 
 }  // namespace tire
