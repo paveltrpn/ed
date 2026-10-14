@@ -123,6 +123,43 @@ Rectangle {
         }
 
         SIButtonMain {
+            id: settingsButton
+
+            anchors {
+                bottom: settingsPanelItem.top
+                bottomMargin: _units.quarter
+                left: parent.left
+                right: parent.right
+            }
+
+            modeRelatedBgColor: _color.si_mode_scene
+            buttonLabel: "Settings"
+
+            checked: mainWindow.panelsActiveBtn === "settingsButton"
+
+            onClicked: {
+                if (settingsButton.checked) {
+                    mainWindow.panelsActiveBtn = "";
+                    return;
+                }
+
+                mainWindow.panelsActiveBtn = "settingsButton";
+            }
+        }
+
+        SettingsPanel {
+            id: settingsPanelItem
+            anchors {
+                bottom: exitButton.top
+                bottomMargin: visible ? _units.half : 0
+                left: parent.left
+                right: parent.right
+            }
+
+            visible: settingsButton.checked
+        }
+
+        SIButtonMain {
             id: exitButton
 
             anchors {

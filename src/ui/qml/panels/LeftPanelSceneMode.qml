@@ -257,39 +257,39 @@ Rectangle {
         }
 
         SIButtonMain {
-            id: settingsButton
+            id: loadSceneButton
 
             anchors {
-                bottom: settingsPanelItem.top
+                bottom: saveSceneButton.top
+                bottomMargin: _units.quarter
                 left: parent.left
                 right: parent.right
             }
 
-            modeRelatedBgColor: _color.si_mode_scene
-            buttonLabel: "Settings"
-
-            checked: mainWindow.panelsActiveBtn === "settingsButton"
+            modeRelatedBgColor: _color.si_mode_system
+            buttonLabel: "Load"
 
             onClicked: {
-                if (settingsButton.checked) {
-                    mainWindow.panelsActiveBtn = "";
-                    return;
-                }
-
-                mainWindow.panelsActiveBtn = "settingsButton";
+                mainWindow.panelsActiveBtn = "";
             }
         }
 
-        SettingsPanel {
-            id: settingsPanelItem
+        SIButtonMain {
+            id: saveSceneButton
+
             anchors {
                 bottom: parent.bottom
-                bottomMargin: visible ? _units.half : 0
+                bottomMargin: _units.quarter
                 left: parent.left
                 right: parent.right
             }
 
-            visible: settingsButton.checked
+            modeRelatedBgColor: _color.si_mode_system
+            buttonLabel: "Save"
+
+            onClicked: {
+                mainWindow.panelsActiveBtn = "";
+            }
         }
 
         // SettingsComponent {

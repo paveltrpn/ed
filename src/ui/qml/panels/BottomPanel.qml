@@ -22,6 +22,8 @@ Rectangle {
     // bottomLeftRadius:  _units.radiusEight
     // bottomRightRadius: _units.radiusEight
 
+    clip: true
+
     Rectangle {
         id: bottomPanelMainComponentWrapper
         anchors.fill: parent
