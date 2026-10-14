@@ -102,6 +102,11 @@ void main() {
 
     gl_Position             = pc.projection * boxOffset * viewMatrix.m * boxScale * vec4( positions[gl_VertexIndex], 1.0 );
 
+    // Anchor to the right edge: adding w shifts NDC x by +1, so the box's
+    // on-screen offset from the right border scales with viewport height only
+    // (like its size) and stays constant across aspect-ratio changes.
+    gl_Position.x += gl_Position.w;
+
     vec3 nrmRotated = ( inverse(transpose(boxRot)) * vec4( normals[gl_VertexIndex], 0.0 ) ).xyz;
     vec4 nrmTransformed     = inverse(transpose( pc.modelview * viewMatrix.m)) * vec4( nrmRotated, 0.0 );
 
