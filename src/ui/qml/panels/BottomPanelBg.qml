@@ -278,7 +278,7 @@ Rectangle {
                     checked: Tired.scenegraph.gizmo.gizmoType == 0
 
                     onClicked: {
-                        Tired.scenegraph.gizmo.gizmoType = 0
+                        Tired.scenegraph.gizmo.gizmoType = 0;
                     }
                 }
 
@@ -293,7 +293,7 @@ Rectangle {
                     checked: Tired.scenegraph.gizmo.gizmoType == 1
 
                     onClicked: {
-                        Tired.scenegraph.gizmo.gizmoType = 1
+                        Tired.scenegraph.gizmo.gizmoType = 1;
                     }
                 }
 
@@ -308,7 +308,11 @@ Rectangle {
                     checked: Tired.scenegraph.gizmo.gizmoType == 2
 
                     onClicked: {
-                        Tired.scenegraph.gizmo.gizmoType = 2
+                        Tired.scenegraph.gizmo.gizmoType = 2;
+
+                        // Switch to lacal gizmo mode when activate
+                        // scale gizmo.
+                        Tired.scenegraph.gizmo.gizmoMode = 0;
                     }
                 }
             }
@@ -331,6 +335,10 @@ Rectangle {
 
                     checked: Tired.scenegraph.gizmo.gizmoMode == 0
 
+                    // Disable gixmo mode switching on scale gizmo - it is
+                    // always local.
+                    enabled: Tired.scenegraph.gizmo.gizmoType !== 2
+
                     onClicked: {
                         Tired.scenegraph.gizmo.gizmoMode = 0;
                     }
@@ -345,6 +353,8 @@ Rectangle {
                     buttonLabel: "GLB"
 
                     checked: Tired.scenegraph.gizmo.gizmoMode == 1
+
+                    enabled: Tired.scenegraph.gizmo.gizmoType !== 2
 
                     onClicked: {
                         Tired.scenegraph.gizmo.gizmoMode = 1;
@@ -361,8 +371,7 @@ Rectangle {
 
                     enabled: false
 
-                    onClicked: {
-                    }
+                    onClicked: {}
                 }
             }
         }
