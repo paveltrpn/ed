@@ -40,11 +40,11 @@ struct vector2 final {
     value_type y() { return data_[1]; }
 
     void plus( const self &b ) {
-        for ( size_t i = 0; i < 3; ++i ) data_[i] += b.data_[i];
+        for ( size_t i = 0; i < 2; ++i ) data_[i] += b.data_[i];
     };
 
     void minus( const self &b ) {
-        for ( size_t i = 0; i < 3; ++i ) data_[i] -= b.data_[i];
+        for ( size_t i = 0; i < 2; ++i ) data_[i] -= b.data_[i];
     };
 
     template <typename U>
@@ -63,7 +63,7 @@ struct vector2 final {
     value_type dot( const self &b ) const {
         value_type rt{};
 
-        for ( size_t i = 0; i < 3; ++i ) rt += data_[i] * b.data_[i];
+        for ( size_t i = 0; i < 2; ++i ) rt += data_[i] * b.data_[i];
 
         return rt;
     }
@@ -79,7 +79,7 @@ struct vector2 final {
         value_type len = length();
 
         if ( len > 0.0 ) {
-            for ( size_t i{}; i < 3; ++i ) {
+            for ( size_t i{}; i < 2; ++i ) {
                 data_[i] /= len;
             }
         }

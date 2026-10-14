@@ -5,6 +5,7 @@
 #include <cmath>
 #include <type_traits>
 #include <array>
+#include <utility>
 
 #include "common.h"
 #include "concepts.h"
@@ -13,6 +14,9 @@
 
 namespace tire::algebra {
 
+// Storage convention: OpenGL column-major — data_[c*4 + r] is column c, row r,
+// translation lives in data_[12..14]. Matches vsg::mat4 memory layout.
+// Column-vector convention: transformed point = M * v.
 template <Algebraic T>
 struct matrix4 final {
     using value_type = T;
@@ -168,11 +172,11 @@ struct matrix4 final {
                           this32 * rhs[2, 3] + ( *this )[3, 3] * rhs[3, 3];*/
         std::array<T, 16> temp;
 
-        for ( int i = 0; i < 4; ++i ) {
-            for ( int j = 0; j < 4; ++j ) {
-                temp[i * 4 + j] = 0;
+        for ( int c = 0; c < 4; ++c ) {
+            for ( int r = 0; r < 4; ++r ) {
+                temp[c * 4 + r] = 0;
                 for ( int k = 0; k < 4; ++k ) {
-                    temp[i * 4 + j] += data_[i * 4 + k] * rhs[k * 4 + j];
+                    temp[c * 4 + r] += data_[k * 4 + r] * rhs[c * 4 + k];
                 }
             }
         }
@@ -182,18 +186,19 @@ struct matrix4 final {
         }
     }
 
-    auto operator*( const self& rhs ) -> self& {
-        this->multiply( rhs );
-        return *this;
+    auto operator*( const self& rhs ) const -> self {
+        auto tmp{ *this };
+        tmp.multiply( rhs );
+        return tmp;
     }
 
     [[nodiscard]] auto mult_vector3( const vector3<value_type>& v ) const -> vector3<value_type> {
         value_type w{};
 
-        auto rx = v.x() * ( *this )[0] + v.y() * ( *this )[1] + v.z() * ( *this )[2] + ( *this )[3];
-        auto ry = v.x() * ( *this )[4] + v.y() * ( *this )[5] + v.z() * ( *this )[6] + ( *this )[7];
-        auto rz = v.x() * ( *this )[8] + v.y() * ( *this )[9] + v.z() * ( *this )[10] + ( *this )[11];
-        w = v.x() * ( *this )[12] + v.y() * ( *this )[13] + v.z() * ( *this )[14] + ( *this )[15];
+        auto rx = v.x() * ( *this )[0] + v.y() * ( *this )[4] + v.z() * ( *this )[8] + ( *this )[12];
+        auto ry = v.x() * ( *this )[1] + v.y() * ( *this )[5] + v.z() * ( *this )[9] + ( *this )[13];
+        auto rz = v.x() * ( *this )[2] + v.y() * ( *this )[6] + v.z() * ( *this )[10] + ( *this )[14];
+        w = v.x() * ( *this )[3] + v.y() * ( *this )[7] + v.z() * ( *this )[11] + ( *this )[15];
 
         // Normalize if w is different than 1 (convert from homogeneous to Cartesian
         // coordinates).
@@ -209,21 +214,37 @@ struct matrix4 final {
     [[nodiscard]] auto mult_vector4( const vector4<value_type>& v ) const -> vector4<value_type> {
         vector4<value_type> rt;
 
-        rt[0] = v[0] * ( *this )[0] + v[1] * ( *this )[1] + v[2] * ( *this )[2] + ( *this )[3];
-        rt[1] = v[0] * ( *this )[4] + v[1] * ( *this )[5] + v[2] * ( *this )[6] + ( *this )[7];
-        rt[2] = v[0] * ( *this )[8] + v[1] * ( *this )[9] + v[2] * ( *this )[10] + ( *this )[11];
-        rt[3] = v[0] * ( *this )[12] + v[1] * ( *this )[13] + v[2] * ( *this )[14] + ( *this )[15];
+        rt[0] = v[0] * ( *this )[0] + v[1] * ( *this )[4] + v[2] * ( *this )[8] + v[3] * ( *this )[12];
+        rt[1] = v[0] * ( *this )[1] + v[1] * ( *this )[5] + v[2] * ( *this )[9] + v[3] * ( *this )[13];
+        rt[2] = v[0] * ( *this )[2] + v[1] * ( *this )[6] + v[2] * ( *this )[10] + v[3] * ( *this )[14];
+        rt[3] = v[0] * ( *this )[3] + v[1] * ( *this )[7] + v[2] * ( *this )[11] + v[3] * ( *this )[15];
 
         return rt;
     }
 
-    // NOTE: LLM ganerated.
-    [[nodiscard]] auto determinant() -> value_type {
-        return data_[0] * ( data_[5] * data_[10] - data_[6] * data_[9] ) -
-               data_[1] * ( data_[4] * data_[10] - data_[6] * data_[8] ) +
-               data_[2] * ( data_[4] * data_[9] - data_[5] * data_[8] );
+    // Full 4x4 determinant via cofactor expansion along row 0.
+    [[nodiscard]] auto determinant() const -> value_type {
+        auto m = [this]( size_t r, size_t c ) -> value_type { return data_[c * 4 + r]; };
+        auto det3 = []( value_type a, value_type b, value_type c, value_type d, value_type e, value_type f,
+                        value_type g, value_type h, value_type i ) {
+            return a * ( e * i - f * h ) - b * ( d * i - f * g ) + c * ( d * h - e * g );
+        };
+
+        return m( 0, 0 ) * det3( m( 1, 1 ), m( 1, 2 ), m( 1, 3 ), m( 2, 1 ), m( 2, 2 ), m( 2, 3 ), m( 3, 1 ),
+                                 m( 3, 2 ), m( 3, 3 ) ) -
+               m( 0, 1 ) * det3( m( 1, 0 ), m( 1, 2 ), m( 1, 3 ), m( 2, 0 ), m( 2, 2 ), m( 2, 3 ), m( 3, 0 ),
+                                 m( 3, 2 ), m( 3, 3 ) ) +
+               m( 0, 2 ) * det3( m( 1, 0 ), m( 1, 1 ), m( 1, 3 ), m( 2, 0 ), m( 2, 1 ), m( 2, 3 ), m( 3, 0 ),
+                                 m( 3, 1 ), m( 3, 3 ) ) -
+               m( 0, 3 ) * det3( m( 1, 0 ), m( 1, 1 ), m( 1, 2 ), m( 2, 0 ), m( 2, 1 ), m( 2, 2 ), m( 3, 0 ),
+                                 m( 3, 1 ), m( 3, 2 ) );
     }
 
+    // Angles in radians. Column-major equivalent of the former row-major
+    // Rz(yaw)*Rx(pitch)*Rz(roll) composition; transposing flips application
+    // order, so the result applies yaw first, then pitch, then roll to a
+    // column vector (equivalent to Rz(-roll)*Rx(-pitch)*Rz(-yaw) in the old
+    // convention).
     auto rotation( value_type yaw, value_type pitch, value_type roll ) -> void {
         auto siny = std::sin( yaw );
         auto cosy = std::cos( yaw );
@@ -233,23 +254,23 @@ struct matrix4 final {
         auto cosr = std::cos( roll );
 
         data_[0] = cosy * cosr - siny * cosp * sinr;
-        data_[1] = -cosy * sinr - siny * cosp * cosr;
-        data_[2] = siny * sinp;
-        data_[3] = 0.0;
-
-        data_[4] = siny * cosr + cosy * cosp * sinr;
-        data_[5] = -siny * sinr + cosy * cosp * cosr;
-        data_[6] = -cosy * sinp;
-        data_[7] = 0.0;
-
-        data_[8] = sinp * sinr;
-        data_[9] = sinp * cosr;
-        data_[10] = cosp;
-        data_[11] = 0.0;
-
+        data_[4] = -cosy * sinr - siny * cosp * cosr;
+        data_[8] = siny * sinp;
         data_[12] = 0.0;
+
+        data_[1] = siny * cosr + cosy * cosp * sinr;
+        data_[5] = -siny * sinr + cosy * cosp * cosr;
+        data_[9] = -cosy * sinp;
         data_[13] = 0.0;
+
+        data_[2] = sinp * sinr;
+        data_[6] = sinp * cosr;
+        data_[10] = cosp;
         data_[14] = 0.0;
+
+        data_[3] = 0.0;
+        data_[7] = 0.0;
+        data_[11] = 0.0;
         data_[15] = 1.0;
     }
 
@@ -499,17 +520,17 @@ struct matrix4 final {
     auto translate( const vector3<value_type>& offset ) -> void {
         idtt();
 
-        data_[3] = offset.x();
-        data_[7] = offset.y();
-        data_[11] = offset.z();
+        data_[12] = offset.x();
+        data_[13] = offset.y();
+        data_[14] = offset.z();
     }
 
     auto translate( value_type dx, value_type dy, value_type dz ) -> void {
         idtt();
 
-        data_[3] = dx;
-        data_[7] = dy;
-        data_[11] = dz;
+        data_[12] = dx;
+        data_[13] = dy;
+        data_[14] = dz;
     }
 
     auto rotation_yaw( value_type angl ) -> void {
@@ -526,8 +547,8 @@ struct matrix4 final {
         }
 
         data_[5] = ca;
-        data_[6] = -sa;
-        data_[9] = sa;
+        data_[9] = -sa;
+        data_[6] = sa;
         data_[10] = ca;
     }
 
@@ -545,8 +566,8 @@ struct matrix4 final {
         }
 
         data_[0] = ca;
-        data_[2] = sa;
-        data_[8] = -sa;
+        data_[8] = sa;
+        data_[2] = -sa;
         data_[10] = ca;
     }
 
@@ -564,8 +585,8 @@ struct matrix4 final {
         }
 
         data_[0] = ca;
-        data_[1] = -sa;
-        data_[4] = sa;
+        data_[4] = -sa;
+        data_[1] = sa;
         data_[5] = ca;
     }
 
@@ -592,17 +613,17 @@ struct matrix4 final {
         vz = ax.z();
 
         data_[0] = cosphi + ( 1.0 - cosphi ) * vx * vx;
-        data_[1] = ( 1.0 - cosphi ) * vxvy - sinphi * vz;
-        data_[2] = ( 1.0 - cosphi ) * vxvz + sinphi * vy;
+        data_[1] = ( 1.0 - cosphi ) * vxvy + sinphi * vz;
+        data_[2] = ( 1.0 - cosphi ) * vxvz - sinphi * vy;
         data_[3] = 0.0f;
 
-        data_[4] = ( 1.0 - cosphi ) * vxvy + sinphi * vz;
+        data_[4] = ( 1.0 - cosphi ) * vxvy - sinphi * vz;
         data_[5] = cosphi + ( 1.0 - cosphi ) * vy * vy;
-        data_[6] = ( 1.0 - cosphi ) * vyvz - sinphi * vx;
+        data_[6] = ( 1.0 - cosphi ) * vyvz + sinphi * vx;
         data_[7] = 0.0f;
 
-        data_[8] = ( 1.0 - cosphi ) * vxvz - sinphi * vy;
-        data_[9] = ( 1.0 - cosphi ) * vyvz + sinphi * vx;
+        data_[8] = ( 1.0 - cosphi ) * vxvz + sinphi * vy;
+        data_[9] = ( 1.0 - cosphi ) * vyvz - sinphi * vx;
         data_[10] = cosphi + ( 1.0 - cosphi ) * vz * vz;
         data_[11] = 0.0f;
 
@@ -681,10 +702,8 @@ private:
 };
 
 template <typename T>
-auto transpose( matrix4<T>& arg ) -> decltype( auto ) {
-    matrix4<T> rt{ arg };
-    rt.transpose();
-    return rt;
+auto transpose( const matrix4<T>& arg ) -> matrix4<T> {
+    return arg.transpose();
 }
 
 template <typename T>

@@ -137,7 +137,7 @@ requires Algebraic<T> struct vector4 final {
     auto dot( const self &b ) const -> value_type {
         value_type rt{};
 
-        for ( size_t i = 0; i < 3; ++i ) rt += data_[i] * b.data_[i];
+        for ( size_t i = 0; i < 4; ++i ) rt += data_[i] * b.data_[i];
 
         return rt;
     }
@@ -156,7 +156,7 @@ requires Algebraic<T> struct vector4 final {
         value_type len = length();
 
         if ( len > 0.0 ) {
-            for ( size_t i{}; i < 3; ++i ) {
+            for ( size_t i{}; i < 4; ++i ) {
                 data_[i] /= len;
             }
         }

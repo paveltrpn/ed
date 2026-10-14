@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <initializer_list>
 #include <array>
+#include <utility>
 
 
 #include "concepts.h"
@@ -62,47 +63,34 @@ struct matrix2 final {
         return data_.data();
     }
 
+    // Storage convention: row-major, data_[i*2 + j] is row i, column j.
     [[nodiscard]] auto transpose() -> self {
-        value_type tmp;
         auto rt = *this;
-
-        for ( size_t i = 0; i < 2; ++i ) {
-            for ( size_t j = 0; j < i; ++j ) {
-                tmp = rt[j, i];
-                rt[j, i] = rt[i, j];
-                rt[i, j] = tmp;
-            }
-        }
-
+        std::swap( rt.data_[1], rt.data_[2] );
         return rt;
     }
 
     auto transposeSelf() -> void {
-        value_type tmp;
-        for ( size_t i = 0; i < 2; ++i ) {
-            for ( size_t j = 0; j < i; ++j ) {
-                tmp = ( *this )[j, i];
-                ( *this )[j, i] = ( *this )[i, j];
-                ( *this )[i, j] = tmp;
-            }
-        }
+        std::swap( data_[1], data_[2] );
     }
 
     auto multiply( const self& rhs ) -> void {
-        auto data0 = data_[0];
-        auto data1 = data_[1];
-        data_[0] = rhs[0] * data_[0] + rhs[1] * data_[2];
-        data_[1] = rhs[0] * data_[1] + rhs[1] * data_[3];
-        data_[2] = rhs[2] * data0 + rhs[3] * data_[2];
-        data_[3] = rhs[2] * data1 + rhs[3] * data_[3];
+        std::array<value_type, 4> tmp{};
+        for ( size_t i = 0; i < 2; ++i ) {
+            for ( size_t j = 0; j < 2; ++j ) {
+                for ( size_t k = 0; k < 2; ++k ) {
+                    tmp[i * 2 + j] += data_[i * 2 + k] * rhs[k * 2 + j];
+                }
+            }
+        }
+        data_ = tmp;
     }
 
     [[nodiscard]]
-    auto operator*( const self& rhs ) -> self {
+    auto operator*( const self& rhs ) const -> self {
         auto tmp{ *this };
         tmp.multiply( rhs );
-        *this = tmp;
-        return *this;
+        return tmp;
     }
 
     [[nodiscard]]

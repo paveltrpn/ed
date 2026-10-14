@@ -5,6 +5,7 @@
 #include <initializer_list>
 #include <cmath>
 #include <array>
+#include <utility>
 
 #include "concepts.h"
 #include "vector3.h"
@@ -87,79 +88,46 @@ struct matrix3 final {
         }
     }
 
+    // Storage convention: row-major, data_[i*3 + j] is row i, column j.
     [[nodiscard]]
     auto transpose() -> self {
-        value_type tmp;
         auto rt = *this;
-
-        for ( size_t i = 0; i < 3; ++i ) {
-            for ( size_t j = 0; j < i; ++j ) {
-                tmp = rt[j, i];
-                rt[j, i] = rt[i, j];
-                rt[i, j] = tmp;
-            }
-        }
-
+        rt.transposeSelf();
         return rt;
     }
 
     auto transposeSelf() -> void {
-        value_type tmp;
         for ( size_t i = 0; i < 3; ++i ) {
-            for ( size_t j = 0; j < i; ++j ) {
-                tmp = ( *this )[j, i];
-                ( *this )[j, i] = ( *this )[i, j];
-                ( *this )[i, j] = tmp;
+            for ( size_t j = i + 1; j < 3; ++j ) {
+                std::swap( data_[i * 3 + j], data_[j * 3 + i] );
             }
         }
     }
 
     auto multiply( const self& rhs ) -> void {
-        /*auto this00 = ( *this )[0, 0];
-        auto this01 = ( *this )[0, 1];
-
-        ( *this )[0, 0] = this00 * rhs[0, 0] + this01 * rhs[1, 0] +
-                          ( *this )[0, 2] * rhs[2, 0];
-        ( *this )[0, 1] = this00 * rhs[0, 1] + this01 * rhs[1, 1] +
-                          ( *this )[0, 2] * rhs[2, 1];
-        ( *this )[0, 2] = this00 * rhs[0, 2] + this01 * rhs[1, 2] +
-                          ( *this )[0, 2] * rhs[2, 2];
-
-        auto this10 = ( *this )[1, 0];
-        auto this11 = ( *this )[1, 1];
-
-        ( *this )[1, 0] = this10 * rhs[0, 0] + this11 * rhs[1, 0] +
-                          ( *this )[1, 2] * rhs[2, 0];
-        ( *this )[1, 1] = this10 * rhs[0, 1] + this11 * rhs[1, 1] +
-                          ( *this )[1, 2] * rhs[2, 1];
-        ( *this )[1, 2] = this10 * rhs[0, 2] + this11 * rhs[1, 2] +
-                          ( *this )[1, 2] * rhs[2, 2];
-
-        auto this20 = ( *this )[2, 0];
-        auto this21 = ( *this )[2, 1];
-
-        ( *this )[2, 0] = this20 * rhs[0, 0] + this21 * rhs[1, 0] +
-                          ( *this )[2, 2] * rhs[2, 0];
-        ( *this )[2, 1] = this20 * rhs[0, 1] + this21 * rhs[1, 1] +
-                          ( *this )[2, 2] * rhs[2, 1];
-        ( *this )[2, 2] = this20 * rhs[0, 2] + this21 * rhs[1, 2] +
-                          ( *this )[2, 2] * rhs[2, 2];*/
+        std::array<value_type, 9> tmp{};
+        for ( size_t i = 0; i < 3; ++i ) {
+            for ( size_t j = 0; j < 3; ++j ) {
+                for ( size_t k = 0; k < 3; ++k ) {
+                    tmp[i * 3 + j] += data_[i * 3 + k] * rhs[k * 3 + j];
+                }
+            }
+        }
+        data_ = tmp;
     }
 
-    auto operator*( const self& rhs ) -> self {
+    auto operator*( const self& rhs ) const -> self {
         auto tmp{ *this };
         tmp.multiply( rhs );
-        *this = tmp;
-        return *this;
+        return tmp;
     }
 
     auto mult_vector3( const vector3<value_type>& v ) -> vector3<value_type> {
         vector3<value_type> rt;
-        value_type w;
 
         rt[0] = v[0] * ( *this )[0] + v[1] * ( *this )[1] + v[2] * ( *this )[2];
         rt[1] = v[0] * ( *this )[3] + v[1] * ( *this )[4] + v[2] * ( *this )[5];
-        rt[2] = v[0] * ( *this )[6] + v[1] * ( *this )[6] + v[2] * ( *this )[8];
+        rt[2] = v[0] * ( *this )[6] + v[1] * ( *this )[7] + v[2] * ( *this )[8];
 
         return rt;
     }

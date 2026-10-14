@@ -7,6 +7,7 @@
 
 #include "common.h"
 #include "concepts.h"
+#include "vector3.h"
 
 namespace tire::algebra {
 
@@ -110,6 +111,21 @@ struct quaternion_base {
         data_[1] = cpv.y();
         data_[2] = cpv.z();
         data_[3] = sqrt( ( a.sqLength() ) * ( b.sqLength() ) ) + a.dot( b );
+
+        if ( length() <= 0.0 ) {
+            // Antiparallel vectors: pick any axis orthogonal to a, 180 degree turn.
+            algebra::vector3<value_type> axis = std::fabs( a.x() ) < value_type{ 0.9 }
+                                                    ? a.cross( { value_type{ 1 }, value_type{ 0 }, value_type{ 0 } } )
+                                                    : a.cross( { value_type{ 0 }, value_type{ 1 }, value_type{ 0 } } );
+            axis.normalizeSelf();
+            data_[0] = axis.x();
+            data_[1] = axis.y();
+            data_[2] = axis.z();
+            data_[3] = value_type{ 0 };
+            return;
+        }
+
+        normalizeSelf();
     }
 
     std::array<value_type, 3> toEuler() const {
@@ -158,8 +174,12 @@ struct quaternion_base {
                                 data_[2] + rhs[2], data_[3] + rhs[3] };
     }
 
-    quaternion_base operator+=( const quaternion_base& rhs ) {
-        return *this + rhs;
+    quaternion_base& operator+=( const quaternion_base& rhs ) {
+        data_[0] += rhs.data_[0];
+        data_[1] += rhs.data_[1];
+        data_[2] += rhs.data_[2];
+        data_[3] += rhs.data_[3];
+        return *this;
     }
 
     quaternion_base operator-( const quaternion_base& rhs ) {
@@ -167,8 +187,12 @@ struct quaternion_base {
                                 data_[2] - rhs[2], data_[3] - rhs[3] };
     }
 
-    quaternion_base operator-=( const quaternion_base& rhs ) {
-        return *this - rhs;
+    quaternion_base& operator-=( const quaternion_base& rhs ) {
+        data_[0] -= rhs.data_[0];
+        data_[1] -= rhs.data_[1];
+        data_[2] -= rhs.data_[2];
+        data_[3] -= rhs.data_[3];
+        return *this;
     }
 
     quaternion_base& operator=( quaternion_base&& rhs ) = delete;
