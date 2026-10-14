@@ -185,13 +185,22 @@ auto NavboxSubgraph::initPipeline() -> void {
 
     vsg::VertexInputState::Attributes vertexAttributeDescriptions{};
 
+    // Navbox is an overlay: disable depth test/write so it renders on top of
+    // all previously recorded geometry (scene, grid, gizmo).
+    //
+    // The cube doesn't need depth testing against itself because
+    // back-face culling already removes the occluded faces.
+    const auto depthStencilState = vsg::DepthStencilState::create();
+    depthStencilState->depthTestEnable = VK_FALSE;
+    depthStencilState->depthWriteEnable = VK_FALSE;
+
     vsg::GraphicsPipelineStates pipelineStates{
         vsg::VertexInputState::create( vertexBindingsDescriptions, vertexAttributeDescriptions ),
         vsg::InputAssemblyState::create(),
         vsg::RasterizationState::create(),
         vsg::MultisampleState::create(),
         vsg::ColorBlendState::create(),
-        vsg::DepthStencilState::create() };
+        depthStencilState };
 
     auto pipelineLayout =
         vsg::PipelineLayout::create( vsg::DescriptorSetLayouts{ descriptorSetLayout }, pushConstantRanges );

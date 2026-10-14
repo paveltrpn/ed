@@ -22,10 +22,13 @@ Scenegraph::Scenegraph( vsg::observer_ptr<vsg::Viewer> viewer, vsg::observer_ptr
     //
     _root->addChild( _boundingRender );
 
-    _root->addChild( _navboxNode );
     _root->addChild( _sceneNode );
     _root->addChild( _gridNode );
     _root->addChild( _gizmoNode );
+
+    // Navbox records last: with depth testing disabled on its pipeline it
+    // paints over all geometry recorded earlier in the pass, gizmo included.
+    _root->addChild( _navboxNode );
 
     connect( _scene, &SceneUIProxy::selectedObjectChanged, _gizmo, [this]( SceneObjectBase* object ) -> void {
         //
