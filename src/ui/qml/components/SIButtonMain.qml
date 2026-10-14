@@ -24,7 +24,7 @@ QuickTemplates.Button {
     // "1" - from right to left.
     property int pressAreaAlignment: 0
 
-    height: _units.scaled_48
+    height: _units.scaled_42
 
     opacity: enabled ? 1.0 : 0.64
 
@@ -86,10 +86,10 @@ QuickTemplates.Button {
             color: _color.si_button_shadow
             anchors {
                 fill: parent
-                topMargin: 10
-                bottomMargin: 6
-                leftMargin: (pressAreaAlignment === 0) ? 6 : 10
-                rightMargin: (pressAreaAlignment === 0) ? 10 : 6
+                topMargin: _units.scaled_10
+                bottomMargin: _units.scaled_6
+                leftMargin: (pressAreaAlignment === 0) ? _units.scaled_6 : _units.scaled_10
+                rightMargin: (pressAreaAlignment === 0) ? _units.scaled_10 : _units.scaled_6
             }
             Rectangle {
                 id: pressAreaRect
@@ -98,14 +98,15 @@ QuickTemplates.Button {
                 width: shadowRect.width
                 height: shadowRect.height
 
-                x: pressAreaAlignment === 0 ? 4 : -4
-                y: -4
+                x: pressAreaAlignment === 0 ? _units.scaled_4 : -_units.scaled_4
+                y: -_units.scaled_4
 
                 Text {
                     id: buttonLabel
                     anchors {
                         fill: parent
-                        margins: 2
+                        margins: _units.scaled_2
+                        topMargin: _units.scaled_6
                     }
 
                     verticalAlignment: Text.AlignVCenter
