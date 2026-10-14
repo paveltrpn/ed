@@ -270,7 +270,28 @@ Rectangle {
             buttonLabel: "Load"
 
             onClicked: {
+                loadSceneDialogItem.visible = true
                 mainWindow.panelsActiveBtn = "";
+            }
+        }
+
+        SIEmbeddedWidget {
+            id: loadSceneDialogItem
+            visible: false
+
+            width: 640
+            height: 480
+
+            title: "Load scene"
+
+            onVisibleChanged: {
+                if (loadSceneDialogItem.visible) {
+                    const centerX =  mainWindow.width / 2;
+                    const centerY =  mainWindow.height / 2;
+
+                    loadSceneDialogItem.x = centerX - loadSceneDialogItem.width / 2;
+                    loadSceneDialogItem.y = centerY - loadSceneDialogItem.height / 2;
+                }
             }
         }
 
@@ -288,7 +309,28 @@ Rectangle {
             buttonLabel: "Save"
 
             onClicked: {
+                saveSceneDialogItem.visible = true
                 mainWindow.panelsActiveBtn = "";
+            }
+        }
+
+        SIEmbeddedWidget {
+            id: saveSceneDialogItem
+            visible: false
+
+            width: 640
+            height: 480
+
+            title: "Save scene"
+
+            onVisibleChanged: {
+                if (saveSceneDialogItem.visible) {
+                    const centerX =  mainWindow.width / 2;
+                    const centerY =  mainWindow.height / 2;
+
+                    saveSceneDialogItem.x = centerX - saveSceneDialogItem.width / 2;
+                    saveSceneDialogItem.y = centerY - saveSceneDialogItem.height / 2;
+                }
             }
         }
 
