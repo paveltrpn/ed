@@ -29,22 +29,22 @@ Handler::Handler( Scenegraph* scenegraph, Manipulator* manipuilator, vsg::observ
     , _camera{ camera } {
 }
 
-void Handler::apply( vsg::KeyPressEvent& keyPress ) {
+auto Handler::apply( vsg::KeyPressEvent& keyPress ) -> void {
     if ( closeKey != vsg::KEY_Undefined && keyPress.keyBase == closeKey ) {
         close();
     }
 }
 
-void Handler::apply( vsg::KeyReleaseEvent& keyRelease ) {
+auto Handler::apply( vsg::KeyReleaseEvent& keyRelease ) -> void {
 }
 
-void Handler::apply( vsg::FocusInEvent& focusIn ) {
+auto Handler::apply( vsg::FocusInEvent& focusIn ) -> void {
 }
 
-void Handler::apply( vsg::FocusOutEvent& focusOut ) {
+auto Handler::apply( vsg::FocusOutEvent& focusOut ) -> void {
 }
 
-void Handler::apply( vsg::ButtonPressEvent& buttonPress ) {
+auto Handler::apply( vsg::ButtonPressEvent& buttonPress ) -> void {
     switch ( buttonPress.button ) {
         case 1: {
             onLMBPress( buttonPress );
@@ -67,7 +67,7 @@ void Handler::apply( vsg::ButtonPressEvent& buttonPress ) {
     }
 }
 
-void Handler::apply( vsg::ButtonReleaseEvent& buttonRelease ) {
+auto Handler::apply( vsg::ButtonReleaseEvent& buttonRelease ) -> void {
     switch ( buttonRelease.button ) {
         case 1: {
             onLMBRelease( buttonRelease );
@@ -90,7 +90,7 @@ void Handler::apply( vsg::ButtonReleaseEvent& buttonRelease ) {
     }
 }
 
-void Handler::apply( vsg::MoveEvent& moveEvent ) {
+auto Handler::apply( vsg::MoveEvent& moveEvent ) -> void {
     switch ( _clickState ) {
         case HandlerClickStates::INTERSECTED: {
             _clickState = HandlerClickStates::UNDEFINED;
@@ -152,30 +152,30 @@ void Handler::apply( vsg::MoveEvent& moveEvent ) {
     }
 }
 
-void Handler::apply( vsg::ScrollWheelEvent& scrollWheel ) {
+auto Handler::apply( vsg::ScrollWheelEvent& scrollWheel ) -> void {
 }
 
-void Handler::apply( vsg::TouchDownEvent& touchDown ) {
+auto Handler::apply( vsg::TouchDownEvent& touchDown ) -> void {
 }
 
-void Handler::apply( vsg::TouchUpEvent& touchUp ) {
+auto Handler::apply( vsg::TouchUpEvent& touchUp ) -> void {
 }
 
-void Handler::apply( vsg::TouchMoveEvent& touchMove ) {
+auto Handler::apply( vsg::TouchMoveEvent& touchMove ) -> void {
 }
 
-void Handler::apply( vsg::FrameEvent& frame ) {
+auto Handler::apply( vsg::FrameEvent& frame ) -> void {
 }
 
-void Handler::apply( vsg::CloseWindowEvent& ) {
+auto Handler::apply( vsg::CloseWindowEvent& ) -> void {
     close();
 }
 
-void Handler::apply( vsg::TerminateEvent& ) {
+auto Handler::apply( vsg::TerminateEvent& ) -> void {
     close();
 }
 
-void Handler::close() {
+auto Handler::close() -> void {
     // take a ref_ptr<> of the observer_ptr<> to be able to safely access it
     vsg::ref_ptr<vsg::Viewer> viewer = _scenegraph->scenegraphViewer();
     if ( viewer ) {
@@ -204,7 +204,7 @@ auto Handler::collectIntersections( int32_t x, int32_t y )
     return intersector->intersections;
 }
 
-void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
+auto Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) -> void {
     const auto& intersections = collectIntersections( pointerEvent.x, pointerEvent.y );
 
     auto scene = _scenegraph->scene();
@@ -249,7 +249,7 @@ void Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) {
     }
 }
 
-void Handler::beginGizmoDrag( const Dragger* dragger, GizmoType type, vsg::PointerEvent& pointerEvent ) {
+auto Handler::beginGizmoDrag( const Dragger* dragger, GizmoType type, vsg::PointerEvent& pointerEvent ) -> void {
     auto gizmo = _scenegraph->gizmo();
 
     _manipulator->setDragActive( true );
@@ -296,13 +296,13 @@ void Handler::beginGizmoDrag( const Dragger* dragger, GizmoType type, vsg::Point
     }
 }
 
-void Handler::onMMBPress( vsg::PointerEvent& pointerEvent ) {
+auto Handler::onMMBPress( vsg::PointerEvent& pointerEvent ) -> void {
 }
 
-void Handler::onRMBPress( vsg::PointerEvent& pointerEvent ) {
+auto Handler::onRMBPress( vsg::PointerEvent& pointerEvent ) -> void {
 }
 
-void Handler::onLMBRelease( vsg::PointerEvent& pointerEvent ) {
+auto Handler::onLMBRelease( vsg::PointerEvent& pointerEvent ) -> void {
     switch ( _clickState ) {
         case HandlerClickStates::PRESSED: {
             auto scene = _scenegraph->scene();
@@ -322,10 +322,10 @@ void Handler::onLMBRelease( vsg::PointerEvent& pointerEvent ) {
     }
 }
 
-void Handler::onMMBRelease( vsg::PointerEvent& pointerEvent ) {
+auto Handler::onMMBRelease( vsg::PointerEvent& pointerEvent ) -> void {
 }
 
-void Handler::onRMBRelease( vsg::PointerEvent& pointerEvent ) {
+auto Handler::onRMBRelease( vsg::PointerEvent& pointerEvent ) -> void {
 }
 
 }  // namespace tire
