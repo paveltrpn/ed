@@ -14,7 +14,7 @@ const float bayer4[16] = float[16](
    15.5f / 16.0f,  7.5f / 16.0f, 13.5f / 16.0f,  5.5f / 16.0f );
 
 // Constant screen-door opacity for the gizmo overlay.
-const float opacity = 0.5f;
+const float opacity = 0.6f;
 
 void main() {
     ivec2 bayerIndex = ivec2( mod(gl_FragCoord.xy, 4.0) );
@@ -22,7 +22,7 @@ void main() {
 
     // Discard so culled pixels leave color and depth untouched,
     // letting the scene show through the holes.
-    if (opacity <= threshold) {
+    if (threshold > opacity) {
         discard;
     }
 
