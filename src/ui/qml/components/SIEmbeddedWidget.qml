@@ -19,7 +19,7 @@ Rectangle {
 
     property alias contentSource: widgetContentLoader.source
 
-    signal aboutToClose()
+    signal aboutToClose
 
     Rectangle {
         id: widgetBody
@@ -102,6 +102,7 @@ Rectangle {
                 id: widgetContentLoader
                 anchors {
                     fill: parent
+                    margins: _units.scaled_4
                 }
             }
         }

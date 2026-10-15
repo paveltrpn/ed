@@ -16,9 +16,7 @@ Item {
         top: parent.top
         bottom: parent.bottom
         left: parent.left
-        leftMargin: _units.scaled_1
         right: parent.right
-        rightMargin: _units.scaled_1
     }
 
     height: visible ? (sceneInfoTabBar.height + sceneInfoTabLayout.implicitHeight) : 0

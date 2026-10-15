@@ -27,11 +27,8 @@ Rectangle {
 
         anchors {
             left: parent.left
-            leftMargin: _units.scaled_4
             top: parent.top
-            topMargin: _units.scaled_4
             bottom: parent.bottom
-            bottomMargin: _units.scaled_4
         }
 
         width: 512
@@ -163,11 +160,8 @@ Rectangle {
             left: filesListPanel.right
             leftMargin: _units.scaled_4
             right: parent.right
-            rightMargin: _units.scaled_4
             top: parent.top
-            topMargin: _units.scaled_4
             bottom: parent.bottom
-            bottomMargin: _units.scaled_4
         }
 
         border {
