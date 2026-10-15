@@ -11,6 +11,10 @@ FilesystemItem::FilesystemItem( QQuickItem* parent )
     , _nowDirectory{ QDir::homePath() } {
     //
     _filesystemModel->setRootPath( _nowDirectory.path() );
+
+    _filesystemModel->setFilter( QDir::Files );
+    _filesystemModel->setNameFilters( { "*" } );
+    _filesystemModel->setNameFilterDisables( false );
 }
 
 auto FilesystemItem::filesystemModel() const -> QFileSystemModel* {
