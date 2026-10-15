@@ -9,6 +9,7 @@
 #include "appearance.h"
 #include "log/log.h"
 #include "tired/tired.h"
+#include "filesystemitem.h"
 
 namespace tire {
 
@@ -164,6 +165,9 @@ TiredUI::TiredUI( std::shared_ptr<VsgRender> render, QObject* parent )
     // Register RenderItem qml type. We instatiate item of
     // of this type only once in main.qml
     qmlRegisterType<tire::RenderItem>( "Tire", 1, 0, "Render" );
+
+    //
+    qmlRegisterType<tire::FilesystemItem>( "Tire", 1, 0, "FilesystemItem" );
 
     // Set empty window title displayed on native decoration.
     // setWindowTitle( " " );
