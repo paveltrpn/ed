@@ -19,22 +19,7 @@ Rectangle {
 
     property alias contentSource: widgetContentLoader.source
 
-    MouseArea {
-        id: clickEater
-        anchors.fill: parent
-        acceptedButtons: Qt.AllButtons
-        hoverEnabled: true
-
-        propagateComposedEvents: false
-
-        // Qt 6 / Qt 5 with explicit parameters
-        onPressed: mouse => mouse.accepted = true
-        onReleased: mouse => mouse.accepted = true
-        onClicked: mouse => mouse.accepted = true
-        onDoubleClicked: mouse => mouse.accepted = true
-        onPositionChanged: mouse => mouse.accepted = true
-        onWheel: wheel => wheel.accepted = true
-    }
+    signal aboutToClose()
 
     Rectangle {
         id: widgetBody
@@ -82,7 +67,7 @@ Rectangle {
                     top: parent.top
                     bottom: parent.bottom
                     left: parent.left
-                    right: closeButton.left
+                    right: parent.right
                 }
 
                 verticalAlignment: Text.AlignVCenter
@@ -94,23 +79,6 @@ Rectangle {
                 elide: Text.ElideRight
 
                 text: siEmbeddedWidgetComponent.title
-            }
-
-            NpButton {
-                id: closeButton
-
-                anchors {
-                    right: parent.right
-                    rightMargin: _units.scaled_2
-                    verticalCenter: parent.verticalCenter
-                }
-
-                icon.source: "image://TiredImageProvider/filled-triangle-down.svg"
-                width: _units.scaled_24
-                height: _units.scaled_24
-                onClicked: {
-                    siEmbeddedWidgetComponent.visible = false;
-                }
             }
         }
 

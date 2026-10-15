@@ -17,6 +17,8 @@ Item {
 
     property string panelsActiveBtn: ""
 
+    property bool disableAllUI: false
+
     MouseArea {
         id: mainWindowFocusEater
         anchors.fill: parent
@@ -355,6 +357,32 @@ Item {
 
                 rightPanelDragMarker.x = mouse.x - rightPanelDragMarker.width / 2;
             }
+        }
+    }
+
+    Rectangle {
+        id: allUIFader
+
+        anchors.fill: parent
+        color: "#3cff0000"
+
+        visible: mainWindow.disableAllUI
+
+        MouseArea {
+            id: clickEater
+            anchors.fill: parent
+            acceptedButtons: Qt.AllButtons
+            hoverEnabled: true
+
+            propagateComposedEvents: false
+
+            // Qt 6 / Qt 5 with explicit parameters
+            onPressed: mouse => mouse.accepted = true
+            onReleased: mouse => mouse.accepted = true
+            onClicked: mouse => mouse.accepted = true
+            onDoubleClicked: mouse => mouse.accepted = true
+            onPositionChanged: mouse => mouse.accepted = true
+            onWheel: wheel => wheel.accepted = true
         }
     }
 

@@ -20,6 +20,8 @@ Rectangle {
 
     anchors.fill: parent
 
+    signal closeButtonClicked()
+
     Rectangle {
         id: filesListPanel
 
@@ -171,6 +173,27 @@ Rectangle {
         border {
             width: 1
             color: _color.si_background_dark
+        }
+
+        SIButton {
+            id: closeButton
+
+            anchors {
+                left: parent.left
+                leftMargin: _units.scaled_4
+                right: parent.right
+                rightMargin: _units.scaled_4
+                bottom: parent.bottom
+                bottomMargin: _units.scaled_4
+            }
+
+            height: _units.scaled_24
+
+            buttonLabel: "Close"
+
+            onClicked: {
+                siEmbeddedWidgetComponent.aboutToClose()
+            }
         }
     }
 }

@@ -269,25 +269,38 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_system
             buttonLabel: "Load"
 
+            enabled: !saveSceneButton.checked
+
+            checked: mainWindow.panelsActiveBtn === "loadSceneButton"
+
             onClicked: {
-                loadSceneDialogItem.visible = true
-                mainWindow.panelsActiveBtn = "";
+                if (loadSceneButton.checked) {
+                    mainWindow.panelsActiveBtn = "";
+                    return;
+                }
+
+                mainWindow.panelsActiveBtn = "loadSceneButton";
             }
         }
 
         SIEmbeddedWidget {
             id: loadSceneDialogItem
-            visible: false
 
             width: 640
             height: 480
 
             title: "Load scene"
 
+            visible: loadSceneButton.checked
+
+            onAboutToClose: {
+                mainWindow.panelsActiveBtn = "";
+            }
+
             onVisibleChanged: {
                 if (loadSceneDialogItem.visible) {
-                    const centerX =  mainWindow.width / 2;
-                    const centerY =  mainWindow.height / 2;
+                    const centerX = mainWindow.width / 2;
+                    const centerY = mainWindow.height / 2;
 
                     loadSceneDialogItem.x = centerX - loadSceneDialogItem.width / 2;
                     loadSceneDialogItem.y = centerY - loadSceneDialogItem.height / 2;
@@ -310,25 +323,38 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_system
             buttonLabel: "Save"
 
+            enabled: !loadSceneButton.checked
+
+            checked: mainWindow.panelsActiveBtn === "saveSceneButton"
+
             onClicked: {
-                saveSceneDialogItem.visible = true
-                mainWindow.panelsActiveBtn = "";
+                if (saveSceneButton.checked) {
+                    mainWindow.panelsActiveBtn = "";
+                    return;
+                }
+
+                mainWindow.panelsActiveBtn = "saveSceneButton";
             }
         }
 
         SIEmbeddedWidget {
             id: saveSceneDialogItem
-            visible: false
 
             width: 640
             height: 480
 
+            visible: saveSceneButton.checked
+
             title: "Save scene"
+
+            onAboutToClose: {
+                mainWindow.panelsActiveBtn = "";
+            }
 
             onVisibleChanged: {
                 if (saveSceneDialogItem.visible) {
-                    const centerX =  mainWindow.width / 2;
-                    const centerY =  mainWindow.height / 2;
+                    const centerX = mainWindow.width / 2;
+                    const centerY = mainWindow.height / 2;
 
                     saveSceneDialogItem.x = centerX - saveSceneDialogItem.width / 2;
                     saveSceneDialogItem.y = centerY - saveSceneDialogItem.height / 2;
