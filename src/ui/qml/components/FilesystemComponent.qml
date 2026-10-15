@@ -36,7 +36,7 @@ Rectangle {
 
         border {
             width: 1
-            color: "black"
+            color: _color.si_background_dark
         }
 
         FilesystemItem {
@@ -57,20 +57,29 @@ Rectangle {
 
                 model: filesystemItem.filesystemModel
 
-                delegate: Item {
+                delegate: Rectangle {
+
+                    color: dirEntryItemArea.containsMouse ? _color.si_background_light_faded : "transparent"
 
                     width: ListView.view.width
-                    height: 16
+                    height: 18
+
+                    MouseArea {
+                        id: dirEntryItemArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                    }
 
                     Text {
                         id: dirEntryText
 
                         anchors {
+                            top: parent.top
+                            bottom: parent.bottom
                             left: parent.left
                             leftMargin: _units.scaled_4
                         }
 
-                        height: 16
                         width: implicitWidth
 
                         color: _color.si_text_dark
@@ -161,7 +170,7 @@ Rectangle {
 
         border {
             width: 1
-            color: "black"
+            color: _color.si_background_dark
         }
     }
 }
