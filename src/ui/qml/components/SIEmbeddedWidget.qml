@@ -52,8 +52,11 @@ Rectangle {
 
             anchors {
                 top: parent.top
+                topMargin: _units.scaled_4
                 left: parent.left
+                leftMargin: _units.scaled_4
                 right: parent.right
+                rightMargin: _units.scaled_4
             }
 
             height: _units.scaled_32
@@ -111,13 +114,27 @@ Rectangle {
             }
         }
 
-        Loader {
-            id: widgetContentLoader
+        Rectangle {
+            id: innerComponentWrappoer
+
             anchors {
                 top: titleBar.bottom
                 right: widgetBody.right
                 bottom: widgetBody.bottom
                 left: widgetBody.left
+                margins: _units.scaled_4
+            }
+
+            border {
+                width: 1
+                color: "black"
+            }
+
+            Loader {
+                id: widgetContentLoader
+                anchors {
+                    fill: parent
+                }
             }
         }
     }

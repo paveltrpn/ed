@@ -293,6 +293,8 @@ Rectangle {
                     loadSceneDialogItem.y = centerY - loadSceneDialogItem.height / 2;
                 }
             }
+
+            contentSource: "../components/FilesystemComponent.qml"
         }
 
         SIButtonMain {

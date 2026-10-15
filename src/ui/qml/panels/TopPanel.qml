@@ -8,7 +8,6 @@ import QtQuick.Controls
 import Tire 1.0
 
 import "../components"
-import "../components/filedialog"
 
 Rectangle {
     id: topPanelMainComponent
