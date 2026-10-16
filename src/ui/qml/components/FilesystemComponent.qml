@@ -72,7 +72,7 @@ Rectangle {
                 clip: true
 
                 model: filesystemItem.filesystemModel
-                rootIndex: filesystemItem.rootIndex
+                // rootIndex: filesystemItem.rootIndex
 
                 delegate: Rectangle {
 

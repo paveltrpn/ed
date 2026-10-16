@@ -56,7 +56,11 @@ auto FlatDirProxyModel::filterAcceptsRow( int sourceRow, const QModelIndex& sour
         return true;
     }
 
-    return _filterText.isEmpty() || name.contains( _filterText, Qt::CaseInsensitive );
+    if ( _filterText.isEmpty() ) {
+        return true;
+    }
+
+    return name.contains( _filterText, Qt::CaseInsensitive );
 }
 
 auto FlatDirProxyModel::roleNames() const -> QHash<int, QByteArray> {
