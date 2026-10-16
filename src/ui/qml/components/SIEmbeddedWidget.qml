@@ -20,6 +20,9 @@ Rectangle {
     property alias contentSource: widgetContentLoader.source
 
     signal aboutToClose
+    signal internalItemReady
+
+    property var internalItem: widgetContentLoader.item
 
     Rectangle {
         id: widgetBody
@@ -100,9 +103,30 @@ Rectangle {
 
             Loader {
                 id: widgetContentLoader
+
                 anchors {
                     fill: parent
                     margins: _units.scaled_4
+                }
+
+                onItemChanged: {
+                    if (item !== null) {
+                        // item.someProperty = value
+                    }
+                }
+
+                onStatusChanged: {
+                    switch (status) {
+                    case Loader.Ready:
+                        {
+                            siEmbeddedWidgetComponent.internalItemReady();
+                            break;
+                        }
+                    case Loader.Error:
+                        {
+                            break;
+                        }
+                    }
                 }
             }
         }

@@ -20,7 +20,10 @@ Rectangle {
 
     anchors.fill: parent
 
+    property alias actionButtonLabel: actionButton.buttonLabel
+
     signal closeButtonClicked
+    signal actionButtonClicked
 
     Rectangle {
         id: filepathPanel
@@ -222,7 +225,7 @@ Rectangle {
         }
 
         SIButton {
-            id: doButton
+            id: actionButton
 
             anchors {
                 left: parent.left
@@ -238,7 +241,7 @@ Rectangle {
             buttonLabel: "Do"
 
             onClicked: {
-                siEmbeddedWidgetComponent.aboutToClose();
+                filesystemComponent.actionButtonClicked();
             }
         }
 

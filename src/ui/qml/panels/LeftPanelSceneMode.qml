@@ -301,6 +301,10 @@ Rectangle {
             }
 
             contentSource: "../components/FilesystemComponent.qml"
+
+            onInternalItemReady: {
+                internalItem.actionButtonLabel = "Load"
+            }
         }
 
         SIButtonMain {
@@ -348,6 +352,10 @@ Rectangle {
             }
 
             contentSource: "../components/FilesystemComponent.qml"
+
+            onInternalItemReady: {
+                internalItem.actionButtonLabel = "Save"
+            }
         }
 
         // SettingsComponent {
