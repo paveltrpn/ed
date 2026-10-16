@@ -24,6 +24,14 @@ public:
 
     QHash<int, QByteArray> roleNames() const override;
 
+    // auto mapFromSource( const QModelIndex& sourceIndex ) const -> QModelIndex override;
+    auto mapToSource( const QModelIndex& proxyIndex ) const -> QModelIndex override;
+    auto index( int row, int column, const QModelIndex& parent ) const -> QModelIndex override;
+    auto parent( const QModelIndex& child ) const -> QModelIndex override;
+    auto rowCount( const QModelIndex& parent ) const -> int override;
+    auto columnCount( const QModelIndex& parent ) const -> int override;
+    auto data( const QModelIndex& proxyIndex, int role ) const -> QVariant override;
+
 protected:
     bool filterAcceptsRow( int sourceRow, const QModelIndex& sourceParent ) const override;
 
