@@ -30,7 +30,6 @@ auto main( int argc, char** argv ) -> int {
     parser.addHelpOption();
 
     auto resetPanelsSizeOpt = QCommandLineOption{ "resetPanelsSize", "Reset panels size." };
-    parser.addHelpOption();
     parser.addOption( resetPanelsSizeOpt );
     parser.process( app );
 
