@@ -60,8 +60,8 @@ Rectangle {
             SIWindow {
                 id: sceneInfoWindow
 
-                width: 512
-                height: 400
+                width: 640
+                height: 480
 
                 title: "Scene info"
 

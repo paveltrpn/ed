@@ -1,6 +1,8 @@
 # tired (tiny-render scene) editor
 
 A small scene editor with Qt-based UI and vulkan sceneg graph.  
+A scene itself rendered with vulkan scene graph offscreen and used as a texture
+for custom QQuickItem.
 
 ## Dependencies  
   

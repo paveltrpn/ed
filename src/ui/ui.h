@@ -83,7 +83,7 @@ private:
 struct TiredUI final : public QQuickView {
     Q_OBJECT
 public:
-    TiredUI( std::shared_ptr<VsgRender> render, QObject* parent = nullptr );
+    TiredUI( std::shared_ptr<VsgRender> render, bool resetPanelsSize, QObject* parent = nullptr );
 
     Q_INVOKABLE void moveWindow();
     Q_INVOKABLE void resizeWindow( int edge );

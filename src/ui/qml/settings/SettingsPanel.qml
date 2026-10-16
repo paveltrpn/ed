@@ -61,8 +61,8 @@ Rectangle {
             SIWindow {
                 id: settingsWindow
 
-                width: 410
-                height: 320
+                width: 640
+                height: 480
 
                 title: "Service objects settings"
 

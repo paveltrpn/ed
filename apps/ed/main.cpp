@@ -4,12 +4,13 @@
 #include <QVulkanInstance>
 #include <QQuickGraphicsDevice>
 #include <QDir>
+#include <QCommandLineParser>
 
 #include "ui/ui.h"
 #include "config/config.h"
 #include "tired/tired.h"
 
-auto main( int argc, char* argv[] ) -> int {
+auto main( int argc, char** argv ) -> int {
     qputenv( "QSG_RENDER_LOOP", "basic" );
 
     // Init global Cunfig singlton.
@@ -23,6 +24,17 @@ auto main( int argc, char* argv[] ) -> int {
 
     // Init Qt aplication.
     const QGuiApplication app( argc, argv );
+
+    // Command line arguments parser.
+    auto parser = QCommandLineParser{};
+    parser.addHelpOption();
+
+    auto resetPanelsSizeOpt = QCommandLineOption{ "resetPanelsSize", "Reset panels size." };
+    parser.addHelpOption();
+    parser.addOption( resetPanelsSizeOpt );
+    parser.process( app );
+
+    const bool resetPanelsSize = parser.isSet( resetPanelsSizeOpt );
 
     // Init Qt vulkan instance object.
     auto vulkanInstance = new QVulkanInstance{};
@@ -45,7 +57,7 @@ auto main( int argc, char* argv[] ) -> int {
                                                            vsgRender->queueFamily() );
 
     // Main window.
-    auto tiredUI = tire::TiredUI{ vsgRender, nullptr };
+    auto tiredUI = tire::TiredUI{ vsgRender, resetPanelsSize, nullptr };
     tiredUI.setVulkanInstance( vulkanInstance );
     tiredUI.setGraphicsDevice( device );
     tiredUI.setResizeMode( QQuickView::SizeRootObjectToView );

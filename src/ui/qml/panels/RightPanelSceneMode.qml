@@ -425,6 +425,7 @@ Rectangle {
 
         SceneInfoPanel {
             id: sceneinfoPanelItem
+
             anchors {
                 bottom: rightPanelScenemodeWrapper.bottom
                 bottomMargin: _units.eight

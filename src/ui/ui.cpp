@@ -150,7 +150,7 @@ auto AppStateSettings::setRightPanelWidth( float value ) -> void {
 // ========== TiredUi =================================================
 // ====================================================================
 
-TiredUI::TiredUI( std::shared_ptr<VsgRender> render, QObject* parent )
+TiredUI::TiredUI( std::shared_ptr<VsgRender> render, bool resetPanelsSize, QObject* parent )
     : _settings{ new AppStateSettings{ this } }
     , _engine{ engine() }
     , _context{ _engine->rootContext() }
@@ -198,7 +198,7 @@ TiredUI::TiredUI( std::shared_ptr<VsgRender> render, QObject* parent )
     // setFlags( Qt::Window | Qt::FramelessWindowHint );
 
     // Schedule actions on main component loading.
-    connect( this, &QQuickView::statusChanged, this, [this]( QQuickView::Status status ) {
+    connect( this, &QQuickView::statusChanged, this, [this, resetPanelsSize]( QQuickView::Status status ) {
         switch ( status ) {
             case QQuickView::Error: {
                 break;
@@ -232,6 +232,10 @@ TiredUI::TiredUI( std::shared_ptr<VsgRender> render, QObject* parent )
 
                 resize( _settings->mainWindowRect().size() );
                 setPosition( _settings->mainWindowRect().topLeft() );
+
+                if ( resetPanelsSize ) {
+                    _settings->resetPanelsSize();
+                }
 
                 // Call updateWindow to redraw qml item.
                 connect( &_update, &QTimer::timeout, _renderItemHandle, &RenderItem::updateWindow );
