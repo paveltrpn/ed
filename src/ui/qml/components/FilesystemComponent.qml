@@ -20,18 +20,38 @@ Rectangle {
 
     anchors.fill: parent
 
-    signal closeButtonClicked()
+    signal closeButtonClicked
+
+    Rectangle {
+        id: filepathPanel
+
+        anchors {
+            left: parent.left
+            right: buttonsPanel.left
+            rightMargin: _units.scaled_4
+            top: parent.top
+        }
+
+        height: _units.scaled_32
+
+        border {
+            width: 1
+            color: _color.si_background_dark
+        }
+
+    }
 
     Rectangle {
         id: filesListPanel
 
         anchors {
             left: parent.left
-            top: parent.top
+            top: filepathPanel.bottom
+            topMargin: _units.scaled_4
             bottom: parent.bottom
         }
 
-        width: 512
+        width: _units.scaled_496
 
         border {
             width: 1
@@ -42,9 +62,6 @@ Rectangle {
             id: filesystemItem
 
             anchors.fill: parent
-
-            width: 128
-            height: 128
 
             ListView {
                 anchors {
@@ -61,12 +78,17 @@ Rectangle {
                     color: dirEntryItemArea.containsMouse ? _color.si_background_light_faded : "transparent"
 
                     width: ListView.view.width
-                    height: 18
+                    height: _units.scaled_18
 
                     MouseArea {
                         id: dirEntryItemArea
                         anchors.fill: parent
                         hoverEnabled: true
+
+                        onDoubleClicked: {
+                            const item = filesystemItem.filesystemModel.get(index)
+                            console.log(" === " + item.display)
+                        }
                     }
 
                     Text {
@@ -170,15 +192,36 @@ Rectangle {
         }
 
         SIButton {
+            id: doButton
+
+            anchors {
+                left: parent.left
+                leftMargin: _units.scaled_8
+                right: parent.right
+                rightMargin: _units.scaled_8
+                bottom: closeButton.top
+                bottomMargin: _units.scaled_8
+            }
+
+            height: _units.scaled_24
+
+            buttonLabel: "Do"
+
+            onClicked: {
+                siEmbeddedWidgetComponent.aboutToClose();
+            }
+        }
+
+        SIButton {
             id: closeButton
 
             anchors {
                 left: parent.left
-                leftMargin: _units.scaled_4
+                leftMargin: _units.scaled_8
                 right: parent.right
-                rightMargin: _units.scaled_4
+                rightMargin: _units.scaled_8
                 bottom: parent.bottom
-                bottomMargin: _units.scaled_4
+                bottomMargin: _units.scaled_8
             }
 
             height: _units.scaled_24
@@ -186,7 +229,7 @@ Rectangle {
             buttonLabel: "Close"
 
             onClicked: {
-                siEmbeddedWidgetComponent.aboutToClose()
+                siEmbeddedWidgetComponent.aboutToClose();
             }
         }
     }

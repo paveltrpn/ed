@@ -269,32 +269,25 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_system
             buttonLabel: "Load"
 
-            enabled: !saveSceneButton.checked
-
-            checked: mainWindow.panelsActiveBtn === "loadSceneButton"
+            enabled: !saveSceneDialogItem.visible
 
             onClicked: {
-                if (loadSceneButton.checked) {
-                    mainWindow.panelsActiveBtn = "";
-                    return;
-                }
-
-                mainWindow.panelsActiveBtn = "loadSceneButton";
+                loadSceneDialogItem.visible = true;
             }
         }
 
         SIEmbeddedWidget {
             id: loadSceneDialogItem
 
+            visible: false
+
             width: 640
             height: 480
 
             title: "Load scene"
 
-            visible: loadSceneButton.checked
-
             onAboutToClose: {
-                mainWindow.panelsActiveBtn = "";
+                loadSceneDialogItem.visible = false
             }
 
             onVisibleChanged: {
@@ -323,32 +316,25 @@ Rectangle {
             modeRelatedBgColor: _color.si_mode_system
             buttonLabel: "Save"
 
-            enabled: !loadSceneButton.checked
-
-            checked: mainWindow.panelsActiveBtn === "saveSceneButton"
+            enabled: !loadSceneDialogItem.visible
 
             onClicked: {
-                if (saveSceneButton.checked) {
-                    mainWindow.panelsActiveBtn = "";
-                    return;
-                }
-
-                mainWindow.panelsActiveBtn = "saveSceneButton";
+                saveSceneDialogItem.visible = true;
             }
         }
 
         SIEmbeddedWidget {
             id: saveSceneDialogItem
 
+            visible: false
+
             width: 640
             height: 480
-
-            visible: saveSceneButton.checked
 
             title: "Save scene"
 
             onAboutToClose: {
-                mainWindow.panelsActiveBtn = "";
+                saveSceneDialogItem.visible = false
             }
 
             onVisibleChanged: {
@@ -360,6 +346,8 @@ Rectangle {
                     saveSceneDialogItem.y = centerY - saveSceneDialogItem.height / 2;
                 }
             }
+
+            contentSource: "../components/FilesystemComponent.qml"
         }
 
         // SettingsComponent {
