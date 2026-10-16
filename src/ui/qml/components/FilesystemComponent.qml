@@ -39,6 +39,27 @@ Rectangle {
             color: _color.si_background_dark
         }
 
+        Text {
+            id: selectedEntryText
+
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                left: parent.left
+                leftMargin: _units.scaled_4
+                right: parent.right
+                rightMargin: _units.scaled_4
+            }
+
+            color: _color.si_text_dark
+
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+
+            elide: Text.ElideRight
+
+            font: _fonts.text_body
+        }
     }
 
     Rectangle {
@@ -86,7 +107,9 @@ Rectangle {
                         hoverEnabled: true
 
                         onDoubleClicked: {
-                            if (model.isDirectory) {
+                            if (!model.isDirectory) {
+                                selectedEntryText.text = `${model.path}/${model.name}`;
+                            } else if (model.isDirectory) {
                                 filesystemItem.nowDirectory = model.path
                             }
                         }
@@ -111,7 +134,13 @@ Rectangle {
 
                         font: _fonts.text_body
 
-                        text: model.name
+                        text: {
+                            if (model.isDirectory) {
+                                return `${model.name}/`;
+                            } else {
+                                return `${model.name}`;
+                            }
+                        }
                     }
                 }
             }

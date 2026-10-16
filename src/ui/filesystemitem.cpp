@@ -24,12 +24,20 @@ struct DirSortFilterProxy : QSortFilterProxyModel {
     }
 
 protected:
+    // Sort order: "." and ".." always first ("." before ".."), then directories,
+    // then files; entries within each group ordered by case-insensitive name
+    // compare, with case-sensitive name compare as a tie-breaker.
     auto lessThan( const QModelIndex& left, const QModelIndex& right ) const -> bool override {
         const auto leftName = sourceModel()->data( left, QFileSystemModel::FileNameRole ).toString();
         const auto rightName = sourceModel()->data( right, QFileSystemModel::FileNameRole ).toString();
 
-        const auto isDot = []( const QString& n ) { return n == "." || n == ".."; };
+        const auto isDot = []( const QString& n ) -> bool {
+            //
+            return n == "." || n == "..";
+        };
+
         const bool leftDot = isDot( leftName ), rightDot = isDot( rightName );
+
         if ( leftDot || rightDot ) {
             if ( leftDot && rightDot ) {
                 return leftName == ".";
@@ -40,14 +48,17 @@ protected:
         const auto* fsm = qobject_cast<QFileSystemModel*>( sourceModel() );
         const bool leftDir = fsm && fsm->isDir( left );
         const bool rightDir = fsm && fsm->isDir( right );
+
         if ( leftDir != rightDir ) {
             return leftDir;
         }
 
         const int cmp = leftName.compare( rightName, Qt::CaseInsensitive );
+
         if ( cmp != 0 ) {
             return cmp < 0;
         }
+
         return leftName < rightName;
     }
 
@@ -78,63 +89,80 @@ protected:
 FlatDirProxyModel::FlatDirProxyModel( QFileSystemModel* source, QObject* parent )
     : QAbstractListModel{ parent }
     , _source{ source }
-    , _proxy{ new DirSortFilterProxy{ source, this } } {
+    , _sortFilter{ new DirSortFilterProxy{ source, this } } {
     //
-    connect( _proxy, &QAbstractItemModel::dataChanged, this,
-             [this]( const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles ) {
+    connect( _sortFilter, &QAbstractItemModel::dataChanged, this,
+             [this]( const QModelIndex& topLeft, const QModelIndex& bottomRight, const QList<int>& roles ) -> void {
                  if ( topLeft.parent() != _root ) {
                      return;
                  }
                  emit dataChanged( index( topLeft.row() ), index( bottomRight.row() ), roles );
              } );
 
-    connect( _proxy, &QAbstractItemModel::rowsAboutToBeInserted, this,
-             [this]( const QModelIndex& parent, int first, int last ) {
+    connect( _sortFilter, &QAbstractItemModel::rowsAboutToBeInserted, this,
+             [this]( const QModelIndex& parent, int first, int last ) -> void {
                  if ( parent != _root ) {
                      return;
                  }
                  beginInsertRows( QModelIndex{}, first, last );
              } );
 
-    connect( _proxy, &QAbstractItemModel::rowsInserted, this, [this]( const QModelIndex& parent, int, int ) {
-        if ( parent != _root ) {
-            return;
-        }
-        endInsertRows();
-    } );
+    connect( _sortFilter, &QAbstractItemModel::rowsInserted, this,
+             [this]( const QModelIndex& parent, int, int ) -> void {
+                 if ( parent != _root ) {
+                     return;
+                 }
+                 endInsertRows();
+             } );
 
-    connect( _proxy, &QAbstractItemModel::rowsAboutToBeRemoved, this,
-             [this]( const QModelIndex& parent, int first, int last ) {
+    connect( _sortFilter, &QAbstractItemModel::rowsAboutToBeRemoved, this,
+             [this]( const QModelIndex& parent, int first, int last ) -> void {
                  if ( parent != _root ) {
                      return;
                  }
                  beginRemoveRows( QModelIndex{}, first, last );
              } );
 
-    connect( _proxy, &QAbstractItemModel::rowsRemoved, this, [this]( const QModelIndex& parent, int, int ) {
-        if ( parent != _root ) {
-            return;
-        }
-        endRemoveRows();
+    connect( _sortFilter, &QAbstractItemModel::rowsRemoved, this,
+             [this]( const QModelIndex& parent, int, int ) -> void {
+                 if ( parent != _root ) {
+                     return;
+                 }
+                 endRemoveRows();
+             } );
+
+    connect( _sortFilter, &QAbstractItemModel::modelAboutToBeReset, this, [this]() -> void {
+        //
+        beginResetModel();
     } );
 
-    connect( _proxy, &QAbstractItemModel::modelAboutToBeReset, this, [this] { beginResetModel(); } );
-    connect( _proxy, &QAbstractItemModel::modelReset, this, [this] { endResetModel(); } );
+    connect( _sortFilter, &QAbstractItemModel::modelReset, this, [this]() -> void {
+        //
+        endResetModel();
+    } );
 
-    connect( _proxy, &QAbstractItemModel::layoutAboutToBeChanged, this, [this] { beginResetModel(); } );
-    connect( _proxy, &QAbstractItemModel::layoutChanged, this, [this] { endResetModel(); } );
+    connect( _sortFilter, &QAbstractItemModel::layoutAboutToBeChanged, this, [this]() -> void {
+        //
+        beginResetModel();
+    } );
+
+    connect( _sortFilter, &QAbstractItemModel::layoutChanged, this, [this]() -> void {
+        //
+        endResetModel();
+    } );
 }
 
 auto FlatDirProxyModel::filterText() const -> QString {
-    return static_cast<DirSortFilterProxy*>( _proxy )->filterText;
+    return static_cast<DirSortFilterProxy*>( _sortFilter )->filterText;
 }
 
 auto FlatDirProxyModel::setFilterText( const QString& text ) -> void {
-    static_cast<DirSortFilterProxy*>( _proxy )->applyFilterText( text );
+    static_cast<DirSortFilterProxy*>( _sortFilter )->applyFilterText( text );
 }
 
 auto FlatDirProxyModel::setRootIndex( const QModelIndex& sourceIndex ) -> void {
-    const auto proxyIndex = _proxy->mapFromSource( sourceIndex );
+    const auto proxyIndex = _sortFilter->mapFromSource( sourceIndex );
+
     if ( proxyIndex == _root ) {
         return;
     }
@@ -149,7 +177,7 @@ auto FlatDirProxyModel::rowCount( const QModelIndex& parent ) const -> int {
         return 0;
     }
 
-    return _proxy->rowCount( _root );
+    return _sortFilter->rowCount( _root );
 }
 
 auto FlatDirProxyModel::data( const QModelIndex& index, int role ) const -> QVariant {
@@ -157,8 +185,8 @@ auto FlatDirProxyModel::data( const QModelIndex& index, int role ) const -> QVar
         return QVariant{};
     }
 
-    const auto proxyIndex = _proxy->index( index.row(), 0, _root );
-    const auto srcIndex = _proxy->mapToSource( proxyIndex );
+    const auto proxyIndex = _sortFilter->index( index.row(), 0, _root );
+    const auto srcIndex = _sortFilter->mapToSource( proxyIndex );
 
     if ( role == IsDirectoryRole ) {
         return _source->isDir( srcIndex );
@@ -184,7 +212,7 @@ auto FlatDirProxyModel::data( const QModelIndex& index, int role ) const -> QVar
         return _source->data( srcIndex.siblingAtColumn( 3 ), Qt::DisplayRole );
     }
 
-    return _proxy->data( proxyIndex, role );
+    return _sortFilter->data( proxyIndex, role );
 }
 
 auto FlatDirProxyModel::roleNames() const -> QHash<int, QByteArray> {
@@ -211,14 +239,14 @@ FilesystemItem::FilesystemItem( QQuickItem* parent )
     , _proxyModel{ new FlatDirProxyModel{ _filesystemModel, this } }
     , _nowDirectory{ QDir::homePath() } {
     //
-    _filesystemModel->setFilter( QDir::AllEntries | QDir::AllDirs | QDir::Hidden | QDir::System );
+    _filesystemModel->setFilter( QDir::AllEntries | QDir::AllDirs /*| QDir::Hidden*/ | QDir::System );
     _filesystemModel->setNameFilterDisables( true );
 
     _filesystemModel->setRootPath( _nowDirectory.path() );
 
     _proxyModel->setRootIndex( _filesystemModel->index( _nowDirectory.path() ) );
 
-    connect( _filesystemModel, &QFileSystemModel::directoryLoaded, this, [this]( const QString& path ) {
+    connect( _filesystemModel, &QFileSystemModel::directoryLoaded, this, [this]( const QString& path ) -> void {
         if ( path == _nowDirectory.path() ) {
             _proxyModel->setRootIndex( _filesystemModel->index( _nowDirectory.path() ) );
         }
@@ -234,11 +262,13 @@ auto FilesystemItem::nowDirectory() const -> QString {
 }
 
 auto FilesystemItem::setNowDirectory( const QString& value ) -> void {
-    if ( QDir{ value } == _nowDirectory ) {
+    const auto dir = QDir{ QDir::cleanPath( value ) };
+
+    if ( dir == _nowDirectory ) {
         return;
     }
 
-    _nowDirectory = QDir{ value };
+    _nowDirectory = dir;
 
     _filesystemModel->setRootPath( _nowDirectory.path() );
 

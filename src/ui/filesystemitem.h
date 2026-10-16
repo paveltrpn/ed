@@ -42,7 +42,7 @@ public:
 
 private:
     QFileSystemModel* _source{};
-    QSortFilterProxyModel* _proxy{};
+    QSortFilterProxyModel* _sortFilter{};
     QPersistentModelIndex _root{};
 };
 
