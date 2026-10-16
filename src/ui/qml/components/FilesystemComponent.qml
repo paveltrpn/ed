@@ -72,6 +72,7 @@ Rectangle {
                 clip: true
 
                 model: filesystemItem.filesystemModel
+                rootIndex: filesystemItem.rootIndex
 
                 delegate: Rectangle {
 
@@ -86,8 +87,7 @@ Rectangle {
                         hoverEnabled: true
 
                         onDoubleClicked: {
-                            const item = filesystemItem.filesystemModel.get(index)
-                            console.log(" === " + item.filePath)
+                            console.log(" === " + model.path)
                         }
                     }
 
@@ -110,7 +110,7 @@ Rectangle {
 
                         font: _fonts.text_body
 
-                        text: model.fileName
+                        text: model.name
                     }
                 }
             }
