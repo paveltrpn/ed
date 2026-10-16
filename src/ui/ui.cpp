@@ -264,7 +264,7 @@ void TiredUI::quitApplication() {
 void TiredUI::closeEvent( QCloseEvent* event ) {
     _settings->write();
 
-    log::info()( "close event handled!" );
+    log::info()( "Close event handled!" );
 }
 
 void TiredUI::moveWindow() {
@@ -276,40 +276,58 @@ void TiredUI::resizeWindow( int edge ) {
     // this->windowHandle()->startSystemResize( e );
 }
 
-void TiredUI::keyPressEvent( QKeyEvent* ev ) {
-    _renderItemHandle->keyPressEvent( ev );
-    QQuickView::keyPressEvent( ev );
+void TiredUI::keyPressEvent( QKeyEvent* event ) {
+    _renderItemHandle->keyPressEvent( event );
+    QQuickView::keyPressEvent( event );
 }
 
-void TiredUI::keyReleaseEvent( QKeyEvent* ev ) {
-    _renderItemHandle->keyReleaseEvent( ev );
-    QQuickView::keyReleaseEvent( ev );
+void TiredUI::keyReleaseEvent( QKeyEvent* event ) {
+    _renderItemHandle->keyReleaseEvent( event );
+    QQuickView::keyReleaseEvent( event );
 }
 
-void TiredUI::mouseMoveEvent( QMouseEvent* ev ) {
-    _renderItemHandle->mouseMoveEvent( ev );
-    QQuickView::mouseMoveEvent( ev );
+void TiredUI::mouseMoveEvent( QMouseEvent* event ) {
+    _renderItemHandle->mouseMoveEvent( event );
+    QQuickView::mouseMoveEvent( event );
 }
 
-void TiredUI::mousePressEvent( QMouseEvent* ev ) {
-    _renderItemHandle->mousePressEvent( ev );
-    QQuickView::mousePressEvent( ev );
+void TiredUI::mousePressEvent( QMouseEvent* event ) {
+    _renderItemHandle->mousePressEvent( event );
+    QQuickView::mousePressEvent( event );
 }
 
-void TiredUI::mouseReleaseEvent( QMouseEvent* ev ) {
-    _renderItemHandle->mouseReleaseEvent( ev );
-    QQuickView::mouseReleaseEvent( ev );
+void TiredUI::mouseReleaseEvent( QMouseEvent* event ) {
+    _renderItemHandle->mouseReleaseEvent( event );
+    QQuickView::mouseReleaseEvent( event );
 }
 
-void TiredUI::resizeEvent( QResizeEvent* ev ) {
+void TiredUI::resizeEvent( QResizeEvent* event ) {
     const auto g = geometry();
 
     _settings->setMainWindowRect( { { g.topLeft() }, g.size() } );
 
-    QQuickView::resizeEvent( ev );
+    QQuickView::resizeEvent( event );
 }
 
 bool TiredUI::event( QEvent* event ) {
+    // switch ( event->type() ) {
+    //     case QEvent::MouseMove: {
+    //         _renderItemHandle->mouseMoveEvent( static_cast<QMouseEvent*>( event ) );
+    //     }
+
+    //     case QEvent::MouseButtonPress: {
+    //         _renderItemHandle->mousePressEvent( static_cast<QMouseEvent*>( event ) );
+    //     }
+
+    //     case QEvent::MouseButtonRelease: {
+    //         _renderItemHandle->mouseReleaseEvent( static_cast<QMouseEvent*>( event ) );
+    //     }
+
+    //     default: {
+    //         break;
+    //     }
+    // }
+
     if ( event->type() == QEvent::Move ) {
         const auto g = geometry();
         _settings->setMainWindowRect( { { g.topLeft() }, g.size() } );

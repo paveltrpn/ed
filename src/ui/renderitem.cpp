@@ -19,6 +19,11 @@ RenderItem::RenderItem( QQuickItem* parent )
     //
     setFlag( QQuickItem::ItemHasContents );
     connect( this, &QQuickItem::windowChanged, this, &RenderItem::handleWindowChanged );
+
+    // connect( this, &QQuickItem::focusChanged, this, [this]( bool value ) {
+    //     //
+    //     std::println( "focus {}", value );
+    // } );
 }
 
 auto RenderItem::setVsgRender( std::shared_ptr<VsgRender> render ) -> void {
@@ -145,6 +150,10 @@ bool RenderItem::event( QEvent* e ) {
 }
 
 void RenderItem::keyPressEvent( QKeyEvent* e ) {
+    if ( !hasFocus() ) {
+        return;
+    }
+
     if ( !_render ) {
         return;
     }
@@ -161,6 +170,10 @@ void RenderItem::keyPressEvent( QKeyEvent* e ) {
 }
 
 void RenderItem::keyReleaseEvent( QKeyEvent* e ) {
+    if ( !hasFocus() ) {
+        return;
+    }
+
     if ( !_render ) {
         return;
     }
@@ -177,7 +190,13 @@ void RenderItem::keyReleaseEvent( QKeyEvent* e ) {
 }
 
 void RenderItem::mouseMoveEvent( QMouseEvent* e ) {
-    if ( !_render ) return;
+    if ( !hasFocus() ) {
+        return;
+    }
+
+    if ( !_render ) {
+        return;
+    }
 
     auto p = mapFromScene( e->position() );
 
@@ -196,6 +215,10 @@ void RenderItem::mouseMoveEvent( QMouseEvent* e ) {
 }
 
 void RenderItem::mousePressEvent( QMouseEvent* e ) {
+    if ( !hasFocus() ) {
+        return;
+    }
+
     if ( !_render ) {
         return;
     }
@@ -217,6 +240,10 @@ void RenderItem::mousePressEvent( QMouseEvent* e ) {
 }
 
 void RenderItem::mouseReleaseEvent( QMouseEvent* e ) {
+    if ( !hasFocus() ) {
+        return;
+    }
+
     if ( !_render ) return;
 
     auto p = mapFromScene( e->position() );
@@ -236,6 +263,10 @@ void RenderItem::mouseReleaseEvent( QMouseEvent* e ) {
 }
 
 void RenderItem::wheelEvent( QWheelEvent* e ) {
+    if ( !hasFocus() ) {
+        return;
+    }
+
     if ( !_render ) {
         return;
     }
@@ -251,22 +282,34 @@ std::pair<vsg::ButtonMask, uint32_t> RenderItem::convertMouseButtons( QMouseEven
     uint16_t mask{ 0 };
     uint32_t button = 0;
 
-    if ( e->buttons() & Qt::LeftButton ) mask = mask | vsg::BUTTON_MASK_1;
-    if ( e->buttons() & Qt::MiddleButton ) mask = mask | vsg::BUTTON_MASK_2;
-    if ( e->buttons() & Qt::RightButton ) mask = mask | vsg::BUTTON_MASK_3;
+    if ( e->buttons() & Qt::LeftButton ) {
+        mask = mask | vsg::BUTTON_MASK_1;
+    }
+
+    if ( e->buttons() & Qt::MiddleButton ) {
+        mask = mask | vsg::BUTTON_MASK_2;
+    }
+
+    if ( e->buttons() & Qt::RightButton ) {
+        mask = mask | vsg::BUTTON_MASK_3;
+    }
 
     switch ( e->button() ) {
-        case Qt::LeftButton:
+        case Qt::LeftButton: {
             button = 1;
             break;
-        case Qt::MiddleButton:
+        }
+        case Qt::MiddleButton: {
             button = 2;
             break;
-        case Qt::RightButton:
+        }
+        case Qt::RightButton: {
             button = 3;
             break;
-        default:
+        }
+        default: {
             break;
+        }
     }
 
     return { static_cast<vsg::ButtonMask>( mask ), button };

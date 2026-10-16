@@ -23,8 +23,8 @@ Item {
         id: mainWindowFocusEater
         anchors.fill: parent
         onPressed: {
-            parent.panelsActiveBtn = "";
-            parent.forceActiveFocus();
+            mainWindow.panelsActiveBtn = "";
+            mainWindow.forceActiveFocus();
         }
     }
 
@@ -110,6 +110,31 @@ Item {
                 left: leftPanelResizeHandle.pressed ? undefined : parent.left
                 right: rightPanelResizeHandle.pressed ? undefined : parent.right
             }
+
+            focus: renderItemFocusCatch.containsMouse
+
+            MouseArea {
+                id: renderItemFocusCatch
+                anchors.fill: parent
+                hoverEnabled: true
+
+                // onPressed: {
+                //     if (!render.focus) {
+                //         render.forceActiveFocus()
+                //     }
+                // }
+
+                onPressed: {
+                    mainWindow.panelsActiveBtn = "";
+                }
+            }
+
+            // Rectangle {
+            //     id: renderItemFader
+            //     color: "#9caaaaaa"
+            //     anchors.fill: parent
+            //     visible: !render.focus
+            // }
         }
     }
     // ======================================================================================
@@ -367,23 +392,6 @@ Item {
         color: "#3cff0000"
 
         visible: mainWindow.disableAllUI
-
-        MouseArea {
-            id: clickEater
-            anchors.fill: parent
-            acceptedButtons: Qt.AllButtons
-            hoverEnabled: true
-
-            propagateComposedEvents: false
-
-            // Qt 6 / Qt 5 with explicit parameters
-            onPressed: mouse => mouse.accepted = true
-            onReleased: mouse => mouse.accepted = true
-            onClicked: mouse => mouse.accepted = true
-            onDoubleClicked: mouse => mouse.accepted = true
-            onPositionChanged: mouse => mouse.accepted = true
-            onWheel: wheel => wheel.accepted = true
-        }
     }
 
     // Rectangle {

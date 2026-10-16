@@ -24,6 +24,20 @@ Rectangle {
 
     property var internalItem: widgetContentLoader.item
 
+    MouseArea {
+        id: clickEater
+        anchors.fill: parent
+        acceptedButtons: Qt.AllButtons
+        hoverEnabled: true
+        propagateComposedEvents: false
+        onPressed: mouse => mouse.accepted = true
+        onReleased: mouse => mouse.accepted = true
+        onClicked: mouse => mouse.accepted = true
+        onDoubleClicked: mouse => mouse.accepted = true
+        onPositionChanged: mouse => mouse.accepted = true
+        onWheel: wheel => wheel.accepted = true
+    }
+
     Rectangle {
         id: widgetBody
         anchors.fill: parent

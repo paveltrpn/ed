@@ -94,13 +94,13 @@ public:
 
     bool event( QEvent* event ) override;
 
-    void closeEvent( QCloseEvent* ev ) override;
-    void keyPressEvent( QKeyEvent* ev ) override;
-    void keyReleaseEvent( QKeyEvent* ev ) override;
-    void mouseMoveEvent( QMouseEvent* ev ) override;
-    void mousePressEvent( QMouseEvent* ev ) override;
-    void mouseReleaseEvent( QMouseEvent* ev ) override;
-    void resizeEvent( QResizeEvent* ev ) override;
+    void closeEvent( QCloseEvent* event ) override;
+    void keyPressEvent( QKeyEvent* event ) override;
+    void keyReleaseEvent( QKeyEvent* event ) override;
+    void mouseMoveEvent( QMouseEvent* event ) override;
+    void mousePressEvent( QMouseEvent* event ) override;
+    void mouseReleaseEvent( QMouseEvent* event ) override;
+    void resizeEvent( QResizeEvent* event ) override;
 
 private:
     AppStateSettings* _settings{};
