@@ -72,7 +72,6 @@ Rectangle {
                 clip: true
 
                 model: filesystemItem.filesystemModel
-                // rootIndex: filesystemItem.rootIndex
 
                 delegate: Rectangle {
 
@@ -87,7 +86,9 @@ Rectangle {
                         hoverEnabled: true
 
                         onDoubleClicked: {
-                            console.log(" === " + model.path)
+                            if (model.isDirectory) {
+                                filesystemItem.nowDirectory = model.path
+                            }
                         }
                     }
 
