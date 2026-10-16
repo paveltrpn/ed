@@ -87,7 +87,7 @@ Rectangle {
 
                         onDoubleClicked: {
                             const item = filesystemItem.filesystemModel.get(index)
-                            console.log(" === " + item.display)
+                            console.log(" === " + item.filePath)
                         }
                     }
 
@@ -110,7 +110,7 @@ Rectangle {
 
                         font: _fonts.text_body
 
-                        text: model.display
+                        text: model.fileName
                     }
                 }
             }
