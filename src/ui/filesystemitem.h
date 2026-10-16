@@ -16,7 +16,7 @@ namespace tire {
 // ==================== FlatDirProxyModel ===============================================
 // ======================================================================================
 
-struct FlatDirProxyModel : public QSortFilterProxyModel {
+struct FlatDirProxyModel : public QAbstractListModel {
     Q_OBJECT
 
 public:
@@ -29,40 +29,20 @@ public:
         PermissionsRole
     };
 
-    explicit FlatDirProxyModel( QAbstractItemModel* source, QObject* parent = nullptr );
+    explicit FlatDirProxyModel( QFileSystemModel* source, QObject* parent = nullptr );
 
     auto filterText() const -> QString;
     auto setFilterText( const QString& text ) -> void;
 
-    auto roleNames() const -> QHash<int, QByteArray> override;
-    auto data( const QModelIndex& proxyIndex, int role ) const -> QVariant override;
-
-protected:
-    auto lessThan( const QModelIndex& left, const QModelIndex& right ) const -> bool override;
-    auto filterAcceptsRow( int sourceRow, const QModelIndex& sourceParent ) const -> bool override;
-
-private:
-    QString _filterText{};
-};
-
-// ======================================================================================
-// ==================== DirListModel ====================================================
-// ======================================================================================
-
-struct DirListModel : public QAbstractListModel {
-    Q_OBJECT
-
-public:
-    explicit DirListModel( QAbstractItemModel* source, QObject* parent = nullptr );
-
-    auto setRootIndex( const QModelIndex& index ) -> void;
+    auto setRootIndex( const QModelIndex& sourceIndex ) -> void;
 
     auto rowCount( const QModelIndex& parent = QModelIndex{} ) const -> int override;
     auto data( const QModelIndex& index, int role ) const -> QVariant override;
     auto roleNames() const -> QHash<int, QByteArray> override;
 
 private:
-    QAbstractItemModel* _source{};
+    QFileSystemModel* _source{};
+    QSortFilterProxyModel* _proxy{};
     QPersistentModelIndex _root{};
 };
 
@@ -77,13 +57,11 @@ struct FilesystemItem : public QQuickItem {
     Q_PROPERTY( QAbstractItemModel* filesystemModel READ filesystemModel NOTIFY filesystemModelChanged )
     Q_PROPERTY( QString nowDirectory READ nowDirectory WRITE setNowDirectory NOTIFY nowDirectoryChanged )
     Q_PROPERTY( QString filterText READ filterText WRITE setFilterText NOTIFY filterTextChanged )
-    Q_PROPERTY( QModelIndex rootIndex READ rootIndex NOTIFY rootIndexChanged )
 
 public:
     explicit FilesystemItem( QQuickItem* parent = nullptr );
 
     auto filesystemModel() const -> QAbstractItemModel*;
-    auto rootIndex() const -> QModelIndex;
 
     auto nowDirectory() const -> QString;
     auto setNowDirectory( const QString& value ) -> void;
@@ -95,12 +73,10 @@ signals:
     void filesystemModelChanged();
     void nowDirectoryChanged();
     void filterTextChanged();
-    void rootIndexChanged();
 
 private:
     QFileSystemModel* _filesystemModel{};
     FlatDirProxyModel* _proxyModel{};
-    DirListModel* _listModel{};
     QDir _nowDirectory{};
 };
 
