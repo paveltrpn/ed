@@ -43,6 +43,36 @@ public:
     static auto torus( double minor, double major, int slices, int segments, double minorStart, double minorSweep,
                        double majorStart, double majorSweep ) -> VsgMeshData;
 
+    static auto icosphere( double radius, int segments ) -> VsgMeshData;
+
+    static auto icosahedron( double radius, int segments ) -> VsgMeshData;
+
+    static auto dodecahedron( double radius, int segments, int rings ) -> VsgMeshData;
+
+    static auto plane( const gml::dvec2& size, const gml::ivec2& segments ) -> VsgMeshData;
+
+    static auto disk( double radius, double innerRadius, int slices, int rings, double start, double sweep )
+        -> VsgMeshData;
+
+    static auto tube( double radius, double innerRadius, double size, int slices, int segments, double start,
+                      double sweep ) -> VsgMeshData;
+
+    static auto cappedTube( double radius, double innerRadius, double size, int slices, int segments, int rings,
+                            double start, double sweep ) -> VsgMeshData;
+
+    static auto roundedBox( double radius, const gml::dvec3& size, int slices, const gml::ivec3& segments )
+        -> VsgMeshData;
+
+    static auto sphericalCone( double radius, double size, int slices, int segments, int rings, double start,
+                               double sweep ) -> VsgMeshData;
+
+    static auto torusKnot( int p, int q, int slices, int segments ) -> VsgMeshData;
+
+    static auto spring( double minor, double major, double size, int slices, int segments, double minorStart,
+                        double minorSweep, double majorStart, double majorSweep ) -> VsgMeshData;
+
+    static auto teapot( int segments ) -> VsgMeshData;
+
 private:
     template <typename T, typename V>
     requires requires( T x, V y ) {

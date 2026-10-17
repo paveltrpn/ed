@@ -25,7 +25,19 @@ enum class SceneObjectTypeEnum {
     BEZIER_SURFACE,
     BEZIER_SPLINE,
     LANDSCAPE,
-    POLYTOPE
+    POLYTOPE,
+    ICOSPHERE,
+    ICOSAHEDRON,
+    DODECAHEDRON,
+    PLANE,
+    DISK,
+    TUBE,
+    CAPPED_TUBE,
+    ROUNDED_BOX,
+    SPHERICAL_CONE,
+    TORUS_KNOT,
+    SPRING,
+    TEAPOT
 };
 
 // ======================================================================================
@@ -704,6 +716,605 @@ public:
     }
 };
 
+// ======================================================================================
+// ==================== IcosphereObjectData =============================================
+// ======================================================================================
+
+struct IcosphereObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    IcosphereObjectData()
+        : SceneObjectData{ SceneObjectTypeEnum::ICOSPHERE } {};
+
+    IcosphereObjectData( const IcosphereObjectData &other ) = default;
+    IcosphereObjectData( IcosphereObjectData &&other ) = default;
+
+    IcosphereObjectData &operator=( const IcosphereObjectData &other ) = default;
+    IcosphereObjectData &operator=( IcosphereObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{
+            { "radius", _radius },
+            { "segments", _segments },
+        };
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+
+        _radius = derived.value( "radius" ).toDouble();
+        _segments = derived.value( "segments" ).toInt();
+    }
+
+    double _radius{ 0.5 };
+    int _segments{ 4 };
+};
+
+// ======================================================================================
+// ==================== IcosahedronObjectData ===========================================
+// ======================================================================================
+
+struct IcosahedronObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    IcosahedronObjectData()
+        : SceneObjectData{ SceneObjectTypeEnum::ICOSAHEDRON } {};
+
+    IcosahedronObjectData( const IcosahedronObjectData &other ) = default;
+    IcosahedronObjectData( IcosahedronObjectData &&other ) = default;
+
+    IcosahedronObjectData &operator=( const IcosahedronObjectData &other ) = default;
+    IcosahedronObjectData &operator=( IcosahedronObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{
+            { "radius", _radius },
+            { "segments", _segments },
+        };
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+
+        _radius = derived.value( "radius" ).toDouble();
+        _segments = derived.value( "segments" ).toInt();
+    }
+
+    double _radius{ 0.5 };
+    int _segments{ 1 };
+};
+
+// ======================================================================================
+// ==================== DodecahedronObjectData ==========================================
+// ======================================================================================
+
+struct DodecahedronObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    DodecahedronObjectData()
+        : SceneObjectData{ SceneObjectTypeEnum::DODECAHEDRON } {};
+
+    DodecahedronObjectData( const DodecahedronObjectData &other ) = default;
+    DodecahedronObjectData( DodecahedronObjectData &&other ) = default;
+
+    DodecahedronObjectData &operator=( const DodecahedronObjectData &other ) = default;
+    DodecahedronObjectData &operator=( DodecahedronObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{
+            { "radius", _radius },
+            { "segments", _segments },
+            { "rings", _rings },
+        };
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+
+        _radius = derived.value( "radius" ).toDouble();
+        _segments = derived.value( "segments" ).toInt();
+        _rings = derived.value( "rings" ).toInt();
+    }
+
+    double _radius{ 0.5 };
+    int _segments{ 1 };
+    int _rings{ 1 };
+};
+
+// ======================================================================================
+// ==================== PlaneObjectData =================================================
+// ======================================================================================
+
+struct PlaneObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    PlaneObjectData()
+        : SceneObjectData{ SceneObjectTypeEnum::PLANE } {};
+
+    PlaneObjectData( const PlaneObjectData &other ) = default;
+    PlaneObjectData( PlaneObjectData &&other ) = default;
+
+    PlaneObjectData &operator=( const PlaneObjectData &other ) = default;
+    PlaneObjectData &operator=( PlaneObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{
+            { "sizeX", _sizeX },
+            { "sizeY", _sizeY },
+            { "segmentsX", _segmentsX },
+            { "segmentsY", _segmentsY },
+        };
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+
+        _sizeX = derived.value( "sizeX" ).toDouble();
+        _sizeY = derived.value( "sizeY" ).toDouble();
+
+        _segmentsX = derived.value( "segmentsX" ).toInt();
+        _segmentsY = derived.value( "segmentsY" ).toInt();
+    }
+
+    double _sizeX{ 0.5 };
+    double _sizeY{ 0.5 };
+
+    int _segmentsX{ 1 };
+    int _segmentsY{ 1 };
+};
+
+// ======================================================================================
+// ==================== DiskObjectData ==================================================
+// ======================================================================================
+
+struct DiskObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    DiskObjectData()
+        : SceneObjectData{ SceneObjectTypeEnum::DISK } {};
+
+    DiskObjectData( const DiskObjectData &other ) = default;
+    DiskObjectData( DiskObjectData &&other ) = default;
+
+    DiskObjectData &operator=( const DiskObjectData &other ) = default;
+    DiskObjectData &operator=( DiskObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{
+            { "radius", _radius }, { "innerRadius", _innerRadius }, { "slices", _slices }, { "rings", _rings },
+            { "start", _start },   { "sweep", _sweep },
+        };
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+
+        _radius = derived.value( "radius" ).toDouble();
+        _innerRadius = derived.value( "innerRadius" ).toDouble();
+        _slices = derived.value( "slices" ).toInt();
+        _rings = derived.value( "rings" ).toInt();
+        _start = derived.value( "start" ).toDouble();
+        _sweep = derived.value( "sweep" ).toDouble();
+    }
+
+    double _radius{ 0.5 };
+    double _innerRadius{ 0.0 };
+    int _slices{ 16 };
+    int _rings{ 4 };
+    double _start{ 0.0 };
+    double _sweep{ gml::radians( 360.0 ) };
+};
+
+// ======================================================================================
+// ==================== TubeObjectData ==================================================
+// ======================================================================================
+
+struct TubeObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    TubeObjectData()
+        : SceneObjectData{ SceneObjectTypeEnum::TUBE } {};
+
+    TubeObjectData( const TubeObjectData &other ) = default;
+    TubeObjectData( TubeObjectData &&other ) = default;
+
+    TubeObjectData &operator=( const TubeObjectData &other ) = default;
+    TubeObjectData &operator=( TubeObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{
+            { "radius", _radius }, { "innerRadius", _innerRadius }, { "size", _size },   { "slices", _slices },
+            { "segments", _segments }, { "start", _start }, { "sweep", _sweep },
+        };
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+
+        _radius = derived.value( "radius" ).toDouble();
+        _innerRadius = derived.value( "innerRadius" ).toDouble();
+        _size = derived.value( "size" ).toDouble();
+        _slices = derived.value( "slices" ).toInt();
+        _segments = derived.value( "segments" ).toInt();
+        _start = derived.value( "start" ).toDouble();
+        _sweep = derived.value( "sweep" ).toDouble();
+    }
+
+    double _radius{ 0.5 };
+    double _innerRadius{ 0.25 };
+    double _size{ 0.5 };
+    int _slices{ 16 };
+    int _segments{ 8 };
+    double _start{ 0.0 };
+    double _sweep{ gml::radians( 360.0 ) };
+};
+
+// ======================================================================================
+// ==================== CappedTubeObjectData ============================================
+// ======================================================================================
+
+struct CappedTubeObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    CappedTubeObjectData()
+        : SceneObjectData{ SceneObjectTypeEnum::CAPPED_TUBE } {};
+
+    CappedTubeObjectData( const CappedTubeObjectData &other ) = default;
+    CappedTubeObjectData( CappedTubeObjectData &&other ) = default;
+
+    CappedTubeObjectData &operator=( const CappedTubeObjectData &other ) = default;
+    CappedTubeObjectData &operator=( CappedTubeObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{
+            { "radius", _radius },       { "innerRadius", _innerRadius }, { "size", _size },
+            { "slices", _slices },       { "segments", _segments },       { "rings", _rings },
+            { "start", _start },         { "sweep", _sweep },
+        };
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+
+        _radius = derived.value( "radius" ).toDouble();
+        _innerRadius = derived.value( "innerRadius" ).toDouble();
+        _size = derived.value( "size" ).toDouble();
+        _slices = derived.value( "slices" ).toInt();
+        _segments = derived.value( "segments" ).toInt();
+        _rings = derived.value( "rings" ).toInt();
+        _start = derived.value( "start" ).toDouble();
+        _sweep = derived.value( "sweep" ).toDouble();
+    }
+
+    double _radius{ 0.5 };
+    double _innerRadius{ 0.25 };
+    double _size{ 0.5 };
+    int _slices{ 16 };
+    int _segments{ 8 };
+    int _rings{ 1 };
+    double _start{ 0.0 };
+    double _sweep{ gml::radians( 360.0 ) };
+};
+
+// ======================================================================================
+// ==================== RoundedBoxObjectData ============================================
+// ======================================================================================
+
+struct RoundedBoxObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    RoundedBoxObjectData()
+        : SceneObjectData{ SceneObjectTypeEnum::ROUNDED_BOX } {};
+
+    RoundedBoxObjectData( const RoundedBoxObjectData &other ) = default;
+    RoundedBoxObjectData( RoundedBoxObjectData &&other ) = default;
+
+    RoundedBoxObjectData &operator=( const RoundedBoxObjectData &other ) = default;
+    RoundedBoxObjectData &operator=( RoundedBoxObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{
+            { "radius", _radius },         { "sizeX", _sizeX },         { "sizeY", _sizeY },
+            { "sizeZ", _sizeZ },           { "slices", _slices },       { "segmentsX", _segmentsX },
+            { "segmentsY", _segmentsY },   { "segmentsZ", _segmentsZ },
+        };
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+
+        _radius = derived.value( "radius" ).toDouble();
+        _sizeX = derived.value( "sizeX" ).toDouble();
+        _sizeY = derived.value( "sizeY" ).toDouble();
+        _sizeZ = derived.value( "sizeZ" ).toDouble();
+        _slices = derived.value( "slices" ).toInt();
+        _segmentsX = derived.value( "segmentsX" ).toInt();
+        _segmentsY = derived.value( "segmentsY" ).toInt();
+        _segmentsZ = derived.value( "segmentsZ" ).toInt();
+    }
+
+    double _radius{ 0.1 };
+    double _sizeX{ 0.4 };
+    double _sizeY{ 0.4 };
+    double _sizeZ{ 0.4 };
+    int _slices{ 4 };
+    int _segmentsX{ 1 };
+    int _segmentsY{ 1 };
+    int _segmentsZ{ 1 };
+};
+
+// ======================================================================================
+// ==================== SphericalConeObjectData =========================================
+// ======================================================================================
+
+struct SphericalConeObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    SphericalConeObjectData()
+        : SceneObjectData{ SceneObjectTypeEnum::SPHERICAL_CONE } {};
+
+    SphericalConeObjectData( const SphericalConeObjectData &other ) = default;
+    SphericalConeObjectData( SphericalConeObjectData &&other ) = default;
+
+    SphericalConeObjectData &operator=( const SphericalConeObjectData &other ) = default;
+    SphericalConeObjectData &operator=( SphericalConeObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{
+            { "radius", _radius }, { "size", _size },   { "slices", _slices }, { "segments", _segments },
+            { "rings", _rings },   { "start", _start }, { "sweep", _sweep },
+        };
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+
+        _radius = derived.value( "radius" ).toDouble();
+        _size = derived.value( "size" ).toDouble();
+        _slices = derived.value( "slices" ).toInt();
+        _segments = derived.value( "segments" ).toInt();
+        _rings = derived.value( "rings" ).toInt();
+        _start = derived.value( "start" ).toDouble();
+        _sweep = derived.value( "sweep" ).toDouble();
+    }
+
+    double _radius{ 0.5 };
+    double _size{ 0.5 };
+    int _slices{ 16 };
+    int _segments{ 8 };
+    int _rings{ 4 };
+    double _start{ 0.0 };
+    double _sweep{ gml::radians( 360.0 ) };
+};
+
+// ======================================================================================
+// ==================== TorusKnotObjectData =============================================
+// ======================================================================================
+
+struct TorusKnotObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    TorusKnotObjectData()
+        : SceneObjectData{ SceneObjectTypeEnum::TORUS_KNOT } {};
+
+    TorusKnotObjectData( const TorusKnotObjectData &other ) = default;
+    TorusKnotObjectData( TorusKnotObjectData &&other ) = default;
+
+    TorusKnotObjectData &operator=( const TorusKnotObjectData &other ) = default;
+    TorusKnotObjectData &operator=( TorusKnotObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{
+            { "p", _p },
+            { "q", _q },
+            { "slices", _slices },
+            { "segments", _segments },
+        };
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+
+        _p = derived.value( "p" ).toInt();
+        _q = derived.value( "q" ).toInt();
+        _slices = derived.value( "slices" ).toInt();
+        _segments = derived.value( "segments" ).toInt();
+    }
+
+    int _p{ 2 };
+    int _q{ 3 };
+    int _slices{ 8 };
+    int _segments{ 96 };
+};
+
+// ======================================================================================
+// ==================== SpringObjectData ================================================
+// ======================================================================================
+
+struct SpringObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    SpringObjectData()
+        : SceneObjectData{ SceneObjectTypeEnum::SPRING } {};
+
+    SpringObjectData( const SpringObjectData &other ) = default;
+    SpringObjectData( SpringObjectData &&other ) = default;
+
+    SpringObjectData &operator=( const SpringObjectData &other ) = default;
+    SpringObjectData &operator=( SpringObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{
+            { "minor", _minor },           { "major", _major },           { "size", _size },
+            { "slices", _slices },         { "segments", _segments },     { "minorStart", _minorStart },
+            { "minorSweep", _minorSweep }, { "majorStart", _majorStart }, { "majorSweep", _majorSweep },
+        };
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+
+        _minor = derived.value( "minor" ).toDouble();
+        _major = derived.value( "major" ).toDouble();
+        _size = derived.value( "size" ).toDouble();
+        _slices = derived.value( "slices" ).toInt();
+        _segments = derived.value( "segments" ).toInt();
+        _minorStart = derived.value( "minorStart" ).toDouble();
+        _minorSweep = derived.value( "minorSweep" ).toDouble();
+        _majorStart = derived.value( "majorStart" ).toDouble();
+        _majorSweep = derived.value( "majorSweep" ).toDouble();
+    }
+
+    double _minor{ 0.25 };
+    double _major{ 1.0 };
+    double _size{ 1.0 };
+    int _slices{ 8 };
+    int _segments{ 32 };
+    double _minorStart{ 0.0 };
+    double _minorSweep{ gml::radians( 360.0 ) };
+    double _majorStart{ 0.0 };
+    double _majorSweep{ gml::radians( 720.0 ) };
+};
+
+// ======================================================================================
+// ==================== TeapotObjectData ================================================
+// ======================================================================================
+
+struct TeapotObjectData final : public SceneObjectData {
+    Q_GADGET
+
+public:
+    TeapotObjectData()
+        : SceneObjectData{ SceneObjectTypeEnum::TEAPOT } {};
+
+    TeapotObjectData( const TeapotObjectData &other ) = default;
+    TeapotObjectData( TeapotObjectData &&other ) = default;
+
+    TeapotObjectData &operator=( const TeapotObjectData &other ) = default;
+    TeapotObjectData &operator=( TeapotObjectData &&other ) = default;
+
+    QJsonObject toJson() const override {
+        auto base = SceneObjectData::toJson();
+
+        const auto self = QJsonObject{
+            { "segments", _segments },
+        };
+
+        base.insert( "derived", self );
+
+        return base;
+    };
+
+    void fromJson( const QJsonObject &data ) override {
+        SceneObjectData::fromJson( data );
+
+        const auto &derived = data.value( "derived" ).toObject();
+
+        _segments = derived.value( "segments" ).toInt();
+    }
+
+    int _segments{ 8 };
+};
+
 }  // namespace tire
 
 Q_DECLARE_METATYPE( tire::SceneObjectTypeEnum )
@@ -722,3 +1333,16 @@ Q_DECLARE_METATYPE( tire::BezierSplineObjectData )
 
 Q_DECLARE_METATYPE( tire::LandscapeObjectData )
 Q_DECLARE_METATYPE( tire::PolytopeObjectData )
+
+Q_DECLARE_METATYPE( tire::IcosphereObjectData )
+Q_DECLARE_METATYPE( tire::IcosahedronObjectData )
+Q_DECLARE_METATYPE( tire::DodecahedronObjectData )
+Q_DECLARE_METATYPE( tire::PlaneObjectData )
+Q_DECLARE_METATYPE( tire::DiskObjectData )
+Q_DECLARE_METATYPE( tire::TubeObjectData )
+Q_DECLARE_METATYPE( tire::CappedTubeObjectData )
+Q_DECLARE_METATYPE( tire::RoundedBoxObjectData )
+Q_DECLARE_METATYPE( tire::SphericalConeObjectData )
+Q_DECLARE_METATYPE( tire::TorusKnotObjectData )
+Q_DECLARE_METATYPE( tire::SpringObjectData )
+Q_DECLARE_METATYPE( tire::TeapotObjectData )

@@ -75,6 +75,66 @@ Rectangle {
                             wantedSource = "./TorusInfoWidget.qml";
                             break;
                         }
+                    case 13:
+                        {
+                            wantedSource = "./IcosphereInfoWidget.qml";
+                            break;
+                        }
+                    case 14:
+                        {
+                            wantedSource = "./IcosahedronInfoWidget.qml";
+                            break;
+                        }
+                    case 15:
+                        {
+                            wantedSource = "./DodecahedronInfoWidget.qml";
+                            break;
+                        }
+                    case 16:
+                        {
+                            wantedSource = "./PlaneInfoWidget.qml";
+                            break;
+                        }
+                    case 17:
+                        {
+                            wantedSource = "./DiskInfoWidget.qml";
+                            break;
+                        }
+                    case 18:
+                        {
+                            wantedSource = "./TubeInfoWidget.qml";
+                            break;
+                        }
+                    case 19:
+                        {
+                            wantedSource = "./CappedTubeInfoWidget.qml";
+                            break;
+                        }
+                    case 20:
+                        {
+                            wantedSource = "./RoundedBoxInfoWidget.qml";
+                            break;
+                        }
+                    case 21:
+                        {
+                            wantedSource = "./SphericalConeInfoWidget.qml";
+                            break;
+                        }
+                    case 22:
+                        {
+                            wantedSource = "./TorusKnotInfoWidget.qml";
+                            break;
+                        }
+                    case 23:
+                        {
+                            wantedSource = "./SpringInfoWidget.qml";
+                            break;
+                        }
+                    case 24:
+                        {
+                            wantedSource = "./TeapotInfoWidget.qml";
+                            break;
+                        }
                     }
 
                     if (selectedInfoComponent.loadedObjectType !== object.type) {

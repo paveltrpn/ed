@@ -10,6 +10,18 @@
 #include "capsule.h"
 #include "cone.h"
 #include "torus.h"
+#include "icosphere.h"
+#include "icosahedron.h"
+#include "dodecahedron.h"
+#include "plane.h"
+#include "disk.h"
+#include "tube.h"
+#include "cappedtube.h"
+#include "roundedbox.h"
+#include "sphericalcone.h"
+#include "torusknot.h"
+#include "spring.h"
+#include "teapot.h"
 
 namespace tire {
 
@@ -126,6 +138,184 @@ auto JsonSerializationVisitor::serialize( TorusNode *object ) -> void {
         { "slices", object->_slices },         { "segments", object->_segments },
         { "minorStart", object->_minorStart }, { "minorSweep", object->_minorSweep },
         { "majorStart", object->_majorStart }, { "majorSweep", object->_majorSweep },
+    };
+
+    json.insert( "derived", derived );
+
+    _json = json;
+}
+
+auto JsonSerializationVisitor::serialize( IcosphereNode *object ) -> void {
+    //
+    auto json = baseData( object );
+
+    const auto derived = QJsonObject{
+        { "radius", object->_radius },
+        { "segments", object->_segments },
+    };
+
+    json.insert( "derived", derived );
+
+    _json = json;
+}
+
+auto JsonSerializationVisitor::serialize( IcosahedronNode *object ) -> void {
+    //
+    auto json = baseData( object );
+
+    const auto derived = QJsonObject{
+        { "radius", object->_radius },
+        { "segments", object->_segments },
+    };
+
+    json.insert( "derived", derived );
+
+    _json = json;
+}
+
+auto JsonSerializationVisitor::serialize( DodecahedronNode *object ) -> void {
+    //
+    auto json = baseData( object );
+
+    const auto derived = QJsonObject{
+        { "radius", object->_radius },
+        { "segments", object->_segments },
+        { "rings", object->_rings },
+    };
+
+    json.insert( "derived", derived );
+
+    _json = json;
+}
+
+auto JsonSerializationVisitor::serialize( PlaneNode *object ) -> void {
+    //
+    auto json = baseData( object );
+
+    const auto derived = QJsonObject{
+        { "sizeX", object->_size.x },         { "sizeY", object->_size.y },
+        { "segmentsX", object->_segments.x }, { "segmentsY", object->_segments.y },
+    };
+
+    json.insert( "derived", derived );
+
+    _json = json;
+}
+
+auto JsonSerializationVisitor::serialize( DiskNode *object ) -> void {
+    //
+    auto json = baseData( object );
+
+    const auto derived = QJsonObject{
+        { "radius", object->_radius }, { "innerRadius", object->_innerRadius }, { "slices", object->_slices },
+        { "rings", object->_rings },   { "start", object->_start },             { "sweep", object->_sweep },
+    };
+
+    json.insert( "derived", derived );
+
+    _json = json;
+}
+
+auto JsonSerializationVisitor::serialize( TubeNode *object ) -> void {
+    //
+    auto json = baseData( object );
+
+    const auto derived = QJsonObject{
+        { "radius", object->_radius },     { "innerRadius", object->_innerRadius }, { "size", object->_size },
+        { "slices", object->_slices },     { "segments", object->_segments },
+        { "start", object->_start },       { "sweep", object->_sweep },
+    };
+
+    json.insert( "derived", derived );
+
+    _json = json;
+}
+
+auto JsonSerializationVisitor::serialize( CappedTubeNode *object ) -> void {
+    //
+    auto json = baseData( object );
+
+    const auto derived = QJsonObject{
+        { "radius", object->_radius }, { "innerRadius", object->_innerRadius }, { "size", object->_size },
+        { "slices", object->_slices }, { "segments", object->_segments },       { "rings", object->_rings },
+        { "start", object->_start },   { "sweep", object->_sweep },
+    };
+
+    json.insert( "derived", derived );
+
+    _json = json;
+}
+
+auto JsonSerializationVisitor::serialize( RoundedBoxNode *object ) -> void {
+    //
+    auto json = baseData( object );
+
+    const auto derived = QJsonObject{
+        { "radius", object->_radius },        { "sizeX", object->_size.x },
+        { "sizeY", object->_size.y },         { "sizeZ", object->_size.z },
+        { "slices", object->_slices },        { "segmentsX", object->_segments.x },
+        { "segmentsY", object->_segments.y }, { "segmentsZ", object->_segments.z },
+    };
+
+    json.insert( "derived", derived );
+
+    _json = json;
+}
+
+auto JsonSerializationVisitor::serialize( SphericalConeNode *object ) -> void {
+    //
+    auto json = baseData( object );
+
+    const auto derived = QJsonObject{
+        { "radius", object->_radius },     { "size", object->_size },   { "slices", object->_slices },
+        { "segments", object->_segments }, { "rings", object->_rings }, { "start", object->_start },
+        { "sweep", object->_sweep },
+    };
+
+    json.insert( "derived", derived );
+
+    _json = json;
+}
+
+auto JsonSerializationVisitor::serialize( TorusKnotNode *object ) -> void {
+    //
+    auto json = baseData( object );
+
+    const auto derived = QJsonObject{
+        { "p", object->_p },
+        { "q", object->_q },
+        { "slices", object->_slices },
+        { "segments", object->_segments },
+    };
+
+    json.insert( "derived", derived );
+
+    _json = json;
+}
+
+auto JsonSerializationVisitor::serialize( SpringNode *object ) -> void {
+    //
+    auto json = baseData( object );
+
+    const auto derived = QJsonObject{
+        { "minor", object->_minor },           { "major", object->_major },
+        { "size", object->_size },             { "slices", object->_slices },
+        { "segments", object->_segments },     { "minorStart", object->_minorStart },
+        { "minorSweep", object->_minorSweep }, { "majorStart", object->_majorStart },
+        { "majorSweep", object->_majorSweep },
+    };
+
+    json.insert( "derived", derived );
+
+    _json = json;
+}
+
+auto JsonSerializationVisitor::serialize( TeapotNode *object ) -> void {
+    //
+    auto json = baseData( object );
+
+    const auto derived = QJsonObject{
+        { "segments", object->_segments },
     };
 
     json.insert( "derived", derived );

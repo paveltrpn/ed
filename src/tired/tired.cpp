@@ -116,6 +116,51 @@ Tired::Tired( QObject* parent )
     _scenegraph->scene()->addCapsule( "OBJECT", QUuid::createUuid().toString().toStdString(), { 0.0, -2.0, 0.0 },
                                       { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 0.5, 16, 8,
                                       4, 0.0, gml::radians( 360.0 ) );
+
+    _scenegraph->scene()->addIcosphere( "OBJECT", QUuid::createUuid().toString().toStdString(), { 4.0, 2.0, 0.0 },
+                                        { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 4 );
+
+    _scenegraph->scene()->addIcosahedron( "OBJECT", QUuid::createUuid().toString().toStdString(), { 4.0, -2.0, 0.0 },
+                                          { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 1 );
+
+    _scenegraph->scene()->addDodecahedron( "OBJECT", QUuid::createUuid().toString().toStdString(), { -4.0, 2.0, 0.0 },
+                                           { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 1,
+                                           1 );
+
+    _scenegraph->scene()->addPlane( "OBJECT", QUuid::createUuid().toString().toStdString(), { -4.0, -2.0, 0.0 },
+                                    { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.5, 0.5 },
+                                    { 1, 1 } );
+
+    _scenegraph->scene()->addDisk( "OBJECT", QUuid::createUuid().toString().toStdString(), { 6.0, 0.0, 0.0 },
+                                   { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 0.0, 16, 4,
+                                   0.0, gml::radians( 360.0 ) );
+
+    _scenegraph->scene()->addTube( "OBJECT", QUuid::createUuid().toString().toStdString(), { -6.0, 0.0, 0.0 },
+                                   { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 0.25, 0.5,
+                                   16, 8, 0.0, gml::radians( 360.0 ) );
+
+    _scenegraph->scene()->addCappedTube( "OBJECT", QUuid::createUuid().toString().toStdString(), { 0.0, 6.0, 0.0 },
+                                         { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 0.25,
+                                         0.5, 16, 8, 1, 0.0, gml::radians( 360.0 ) );
+
+    _scenegraph->scene()->addRoundedBox( "OBJECT", QUuid::createUuid().toString().toStdString(), { 0.0, -6.0, 0.0 },
+                                         { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.1,
+                                         { 0.4, 0.4, 0.4 }, 4, { 1, 1, 1 } );
+
+    _scenegraph->scene()->addSphericalCone( "OBJECT", QUuid::createUuid().toString().toStdString(), { 2.0, 4.0, 0.0 },
+                                            { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 0.5,
+                                            16, 8, 4, 0.0, gml::radians( 360.0 ) );
+
+    _scenegraph->scene()->addTorusKnot( "OBJECT", QUuid::createUuid().toString().toStdString(), { -2.0, -4.0, 0.0 },
+                                        { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 2, 3, 8,
+                                        96 );
+
+    _scenegraph->scene()->addSpring( "OBJECT", QUuid::createUuid().toString().toStdString(), { 4.0, 4.0, 0.0 },
+                                     { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.25, 1.0, 1.0,
+                                     8, 32, 0.0, gml::radians( 360.0 ), 0.0, gml::radians( 720.0 ) );
+
+    _scenegraph->scene()->addTeapot( "OBJECT", QUuid::createUuid().toString().toStdString(), { -4.0, -4.0, 0.0 },
+                                     { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 8 );
 };
 
 auto Tired::vsgRender() const -> std::shared_ptr<VsgRender> {

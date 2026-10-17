@@ -161,6 +161,18 @@ TiredUI::TiredUI( std::shared_ptr<VsgRender> render, bool resetPanelsSize, QObje
     qRegisterMetaType<tire::BoxObjectData>( "BoxObject" );
     qRegisterMetaType<tire::SphereObjectData>( "SphereObjectData" );
     qRegisterMetaType<tire::MeshObjectData>( "MeshData" );
+    qRegisterMetaType<tire::IcosphereObjectData>( "IcosphereObjectData" );
+    qRegisterMetaType<tire::IcosahedronObjectData>( "IcosahedronObjectData" );
+    qRegisterMetaType<tire::DodecahedronObjectData>( "DodecahedronObjectData" );
+    qRegisterMetaType<tire::PlaneObjectData>( "PlaneObjectData" );
+    qRegisterMetaType<tire::DiskObjectData>( "DiskObjectData" );
+    qRegisterMetaType<tire::TubeObjectData>( "TubeObjectData" );
+    qRegisterMetaType<tire::CappedTubeObjectData>( "CappedTubeObjectData" );
+    qRegisterMetaType<tire::RoundedBoxObjectData>( "RoundedBoxObjectData" );
+    qRegisterMetaType<tire::SphericalConeObjectData>( "SphericalConeObjectData" );
+    qRegisterMetaType<tire::TorusKnotObjectData>( "TorusKnotObjectData" );
+    qRegisterMetaType<tire::SpringObjectData>( "SpringObjectData" );
+    qRegisterMetaType<tire::TeapotObjectData>( "TeapotObjectData" );
 
     // Register RenderItem qml type. We instatiate item of
     // of this type only once in main.qml
