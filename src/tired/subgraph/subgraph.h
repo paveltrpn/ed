@@ -101,9 +101,9 @@ private:
 // ==================== DetachOp ========================================================
 // ======================================================================================
 
-struct DetachAndCompileOp : public vsg::Inherit<vsg::Operation, DetachAndCompileOp> {
-    DetachAndCompileOp( vsg::observer_ptr<vsg::Viewer> viewer, vsg::ref_ptr<vsg::Group> detachmentPoint,
-                        vsg::ref_ptr<vsg::Node> node )
+struct DetachOp : public vsg::Inherit<vsg::Operation, DetachOp> {
+    DetachOp( vsg::observer_ptr<vsg::Viewer> viewer, vsg::ref_ptr<vsg::Group> detachmentPoint,
+              vsg::ref_ptr<vsg::Node> node )
         : _viewer( viewer )
         , _detachmentPoint( detachmentPoint )
         , _node( node ) {}

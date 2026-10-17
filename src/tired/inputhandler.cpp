@@ -101,6 +101,10 @@ auto Handler::apply( vsg::MoveEvent& moveEvent ) -> void {
             _clickState = HandlerClickStates::VIEW_MOVED;
             break;
         }
+
+        default: {
+            break;
+        }
     }
 
     if ( _manipulator->dragActive() ) {

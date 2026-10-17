@@ -284,7 +284,7 @@ auto SceneSubgraph::attach( vsg::ref_ptr<SceneObjectNode> object ) -> void {
 auto SceneSubgraph::detach( vsg::ref_ptr<SceneObjectNode> object ) -> void {
     vsg::CompileResult cr{};
 
-    const auto op = tire::DetachAndCompileOp::create( _viewer, _stateGroup, object );
+    const auto op = tire::DetachOp::create( _viewer, _stateGroup, object );
 
     _viewer.get()->addUpdateOperation( op );
 }

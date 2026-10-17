@@ -48,7 +48,7 @@ auto BoundingRender::initPipeline() -> void {
     inputAssemblyState->topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
 
     auto rasterizationState = vsg::RasterizationState::create();
-    rasterizationState->lineWidth = 12.0f;
+    rasterizationState->lineWidth = 8.0f;
 
     auto pipelineStates = vsg::GraphicsPipelineStates{ vsg::VertexInputState::create(),
                                                        inputAssemblyState,
@@ -88,7 +88,7 @@ auto BoundingRender::detach( vsg::ref_ptr<BoundingDraw> bounding ) -> void {
 
 auto BoundingRender::clear() -> void {
     for ( const auto& child : _boundingsGroup->children ) {
-        const auto op = tire::DetachAndCompileOp::create( _viewer, _boundingsGroup, child );
+        const auto op = tire::DetachOp::create( _viewer, _boundingsGroup, child );
         _viewer.get()->addUpdateOperation( op );
     }
 }

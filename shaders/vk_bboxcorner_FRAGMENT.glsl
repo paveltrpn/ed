@@ -12,7 +12,7 @@ const float bayer4[16] = float[16](
    15.5f / 16.0f,  7.5f / 16.0f, 13.5f / 16.0f,  5.5f / 16.0f );
 
 // Constant screen-door opacity for the gizmo overlay.
-const float opacity = 0.7f;
+const float opacity = 0.52f;
 
 void main() {
     // Binary dither: screen-space 4x4 Bayer threshold at 50% coverage.
