@@ -43,7 +43,7 @@ struct SceneSubgraph;
 struct SceneUIProxy final : public QObject {
     Q_OBJECT
 
-    Q_PROPERTY( ObjectsList* objects READ objects NOTIFY objectsChanged FINAL )
+    Q_PROPERTY( SceneObjectsListModel* objects READ objects NOTIFY objectsChanged FINAL )
     Q_PROPERTY( QString selectedObjectUid READ selectedObjectUid WRITE setSelectedObjectUid NOTIFY
                     selectedObjectUidChanged FINAL )
     Q_PROPERTY( bool isAnyObjectSelected READ isAnyObjectSelected NOTIFY isAnyObjectSelectedChanged FINAL )
@@ -85,7 +85,7 @@ public:
 
     Q_INVOKABLE void removeObject( const QUuid& uid );
 
-    [[nodiscard]] auto objects() const -> ObjectsList*;
+    [[nodiscard]] auto objects() const -> SceneObjectsListModel*;
 
     [[nodiscard]] auto selectedObjectUid() const -> QString;
     auto setSelectedObjectUid( const QString& value ) -> void;
@@ -122,7 +122,7 @@ private:
 
     vsg::observer_ptr<BoundingRender> _boundingRender{};
 
-    ObjectsList* _objects{};
+    SceneObjectsListModel* _objects{};
 
     QUuid _selectedObjectUid{};
 

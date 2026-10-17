@@ -32,7 +32,7 @@ SceneUIProxy::SceneUIProxy( vsg::observer_ptr<SceneSubgraph> scene, vsg::observe
     : QObject{ parent }
     , _scene{ scene }
     , _boundingRender{ boundingRender }
-    , _objects{ new ObjectsList{ this } } {
+    , _objects{ new SceneObjectsListModel{ this } } {
     //
 }
 
@@ -41,7 +41,7 @@ auto SceneUIProxy::sceneNode() const -> vsg::ref_ptr<SceneSubgraph> {
     return _scene;
 }
 
-auto SceneUIProxy::objects() const -> ObjectsList* {
+auto SceneUIProxy::objects() const -> SceneObjectsListModel* {
     return _objects;
 }
 
@@ -145,7 +145,7 @@ auto SceneUIProxy::serializeObjects() const -> QJsonArray {
     for ( int row = 0; row < count; ++row ) {
         const auto modelIndex = _objects->index( row, 0 );
 
-        auto* object = _objects->data( modelIndex, ObjectsList::Roles::Object ).value<SceneObjectBase*>();
+        auto* object = _objects->data( modelIndex, SceneObjectsListModel::Roles::Object ).value<SceneObjectBase*>();
 
         if ( object == nullptr ) {
             continue;

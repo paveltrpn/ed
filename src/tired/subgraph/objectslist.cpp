@@ -8,17 +8,17 @@
 namespace tire {
 
 // ======================================================================================
-// ==================== ObjectsList =====================================================
+// ==================== SceneObjectsListModel ===========================================
 // ======================================================================================
 
-ObjectsList::ObjectsList( QObject *parent )
+SceneObjectsListModel::SceneObjectsListModel( QObject *parent )
     : QAbstractItemModel( parent ) {
 }
 
-ObjectsList::~ObjectsList() {
+SceneObjectsListModel::~SceneObjectsListModel() {
 }
 
-auto ObjectsList::addObject( std::shared_ptr<SceneObjectBase> object ) -> void {
+auto SceneObjectsListModel::addObject( std::shared_ptr<SceneObjectBase> object ) -> void {
     // Add to end of vector.
     const int row = _objectsList.size();
     const QModelIndex parentIndex = QModelIndex();
@@ -30,7 +30,7 @@ auto ObjectsList::addObject( std::shared_ptr<SceneObjectBase> object ) -> void {
     endInsertRows();
 }
 
-auto ObjectsList::removeObject( std::shared_ptr<SceneObjectBase> object ) -> void {
+auto SceneObjectsListModel::removeObject( std::shared_ptr<SceneObjectBase> object ) -> void {
     const auto it = std::find( _objectsList.begin(), _objectsList.end(), object );
 
     if ( it == _objectsList.end() ) {
@@ -47,7 +47,7 @@ auto ObjectsList::removeObject( std::shared_ptr<SceneObjectBase> object ) -> voi
     endRemoveRows();
 }
 
-auto ObjectsList::findObject( const QUuid &uid ) const -> std::shared_ptr<SceneObjectBase> {
+auto SceneObjectsListModel::findObject( const QUuid &uid ) const -> std::shared_ptr<SceneObjectBase> {
     auto it = std::find_if( _objectsList.begin(), _objectsList.end(),
                             //
                             [uid]( auto item ) -> bool { return item->uid() == uid.toString(); } );
@@ -59,7 +59,7 @@ auto ObjectsList::findObject( const QUuid &uid ) const -> std::shared_ptr<SceneO
     return *it;
 }
 
-QModelIndex ObjectsList::index( int row, int column, const QModelIndex &parent ) const {
+QModelIndex SceneObjectsListModel::index( int row, int column, const QModelIndex &parent ) const {
     // if ( !hasIndex( row, column, parent ) ) return QModelIndex();
 
     // Node *parentNode = nodeFromIndex( parent );
@@ -73,7 +73,7 @@ QModelIndex ObjectsList::index( int row, int column, const QModelIndex &parent )
     return hasIndex( row, column, parent ) ? createIndex( row, column ) : QModelIndex{};
 }
 
-QModelIndex ObjectsList::parent( const QModelIndex &child ) const {
+QModelIndex SceneObjectsListModel::parent( const QModelIndex &child ) const {
     // if ( !child.isValid() ) return QModelIndex();
 
     // auto *childNode = static_cast<Node *>( child.internalPointer() );
@@ -90,15 +90,15 @@ QModelIndex ObjectsList::parent( const QModelIndex &child ) const {
     return {};
 }
 
-int ObjectsList::rowCount( const QModelIndex &parent ) const {
+int SceneObjectsListModel::rowCount( const QModelIndex &parent ) const {
     return _objectsList.size();
 }
 
-int ObjectsList::columnCount( const QModelIndex &parent ) const {
+int SceneObjectsListModel::columnCount( const QModelIndex &parent ) const {
     return 1;
 }
 
-QVariant ObjectsList::data( const QModelIndex &index, int role ) const {
+QVariant SceneObjectsListModel::data( const QModelIndex &index, int role ) const {
     if ( !index.isValid() ) {
         return {};
     }
@@ -123,7 +123,7 @@ QVariant ObjectsList::data( const QModelIndex &index, int role ) const {
     return {};
 }
 
-QHash<int, QByteArray> ObjectsList::roleNames() const {
+QHash<int, QByteArray> SceneObjectsListModel::roleNames() const {
     QHash<int, QByteArray> roles = QAbstractItemModel::roleNames();
 
     roles[Object] = "object";
@@ -131,7 +131,7 @@ QHash<int, QByteArray> ObjectsList::roleNames() const {
     return roles;
 }
 
-QVariant ObjectsList::headerData( int section, Qt::Orientation orientation, int role ) const {
+QVariant SceneObjectsListModel::headerData( int section, Qt::Orientation orientation, int role ) const {
     // if ( orientation != Qt::Horizontal || role != Qt::DisplayRole ) return QVariant();
 
     // if ( section >= 0 && section < m_root->values.size() ) return m_root->values.at( section );
@@ -141,7 +141,7 @@ QVariant ObjectsList::headerData( int section, Qt::Orientation orientation, int 
     return QVariant{};
 }
 
-Qt::ItemFlags ObjectsList::flags( const QModelIndex &index ) const {
+Qt::ItemFlags SceneObjectsListModel::flags( const QModelIndex &index ) const {
     if ( !index.isValid() ) {
         return Qt::NoItemFlags;
     }
@@ -149,7 +149,7 @@ Qt::ItemFlags ObjectsList::flags( const QModelIndex &index ) const {
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 }
 
-bool ObjectsList::setData( const QModelIndex &index, const QVariant &value, int role ) {
+bool SceneObjectsListModel::setData( const QModelIndex &index, const QVariant &value, int role ) {
     // if ( !index.isValid() || role != Qt::EditRole ) return false;
 
     // auto *node = static_cast<Node *>( index.internalPointer() );
@@ -161,7 +161,7 @@ bool ObjectsList::setData( const QModelIndex &index, const QVariant &value, int 
     return false;
 }
 
-bool ObjectsList::insertRows( int row, int count, const QModelIndex &parent ) {
+bool SceneObjectsListModel::insertRows( int row, int count, const QModelIndex &parent ) {
     // if ( row < 0 || count <= 0 ) return false;
 
     // Node *parentNode = nodeFromIndex( parent );
@@ -177,7 +177,7 @@ bool ObjectsList::insertRows( int row, int count, const QModelIndex &parent ) {
     // return true;
 }
 
-bool ObjectsList::removeRows( int row, int count, const QModelIndex &parent ) {
+bool SceneObjectsListModel::removeRows( int row, int count, const QModelIndex &parent ) {
     // if ( row < 0 || count <= 0 ) return false;
 
     // Node *parentNode = nodeFromIndex( parent );

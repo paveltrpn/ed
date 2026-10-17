@@ -9,10 +9,10 @@
 namespace tire {
 
 // ======================================================================================
-// ==================== ObjectsList =====================================================
+// ==================== SceneObjectsListModel ===========================================
 // ======================================================================================
 
-struct ObjectsList final : public QAbstractItemModel {
+struct SceneObjectsListModel final : public QAbstractItemModel {
     Q_OBJECT
 
 public:
@@ -20,8 +20,8 @@ public:
         Object = Qt::UserRole + 1,
     };
 
-    explicit ObjectsList( QObject *parent = nullptr );
-    ~ObjectsList() override;
+    explicit SceneObjectsListModel( QObject *parent = nullptr );
+    ~SceneObjectsListModel() override;
 
     QModelIndex index( int row, int column, const QModelIndex &parent = QModelIndex() ) const override;
     QModelIndex parent( const QModelIndex &child ) const override;
