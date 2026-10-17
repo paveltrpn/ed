@@ -14,13 +14,16 @@ const float bayer4[16] = float[16](
 // Constant screen-door opacity for the gizmo overlay.
 const float opacity = 0.52f;
 
+// Grain scale: each Bayer cell covers a 2x2 pixel block.
+const float grainScale = 2.0f;
+
 void main() {
     // Binary dither: screen-space 4x4 Bayer threshold at 50% coverage.
     // Blending is disabled for this pipeline, so off pixels use discard
     // instead of a dithered alpha.
     // Screen-space index keeps the pattern fixed to the screen, so it
     // does not swim with camera motion.
-    ivec2 bayerIndex = ivec2( mod(gl_FragCoord.xy, 4.0) );
+    ivec2 bayerIndex = ivec2( mod(floor(gl_FragCoord.xy / grainScale), 4.0) );
     float threshold = bayer4[ bayerIndex.y * 4 + bayerIndex.x ];
     if (threshold > opacity) {
         discard;

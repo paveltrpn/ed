@@ -19,8 +19,11 @@ const float bayer4[16] = float[16](
 // Constant screen-door opacity for the gizmo overlay.
 const float opacity = 0.52f;
 
+// Grain scale: each Bayer cell covers a 2x2 pixel block.
+const float grainScale = 2.0f;
+
 void main() {
-    ivec2 bayerIndex = ivec2( mod(gl_FragCoord.xy, 4.0) );
+    ivec2 bayerIndex = ivec2( mod(floor(gl_FragCoord.xy / grainScale), 4.0) );
     float threshold = bayer4[ bayerIndex.y * 4 + bayerIndex.x ];
 
     // Discard so culled pixels leave color and depth untouched,
