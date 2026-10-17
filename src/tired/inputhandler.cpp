@@ -261,7 +261,6 @@ auto Handler::beginGizmoDrag( const Dragger* dragger, GizmoType type, vsg::Point
     _manipulator->setDragActive( true );
 
     _dragAxis = dragger->axis();
-    _dragGizmoType = type;
 
     gizmo->beginDrag();
 
@@ -288,7 +287,7 @@ auto Handler::beginGizmoDrag( const Dragger* dragger, GizmoType type, vsg::Point
 
     _dragAxisScreenDir = worldToScreen( anchor + _dragAxisWorld ) - worldToScreen( anchor );
 
-    if ( _dragGizmoType == GizmoType::ROTATE ) {
+    if ( type == GizmoType::ROTATE ) {
         _dragGizmoCenterScreen = worldToScreen( anchor );
         _dragLastScreenPos = vsg::dvec2{ static_cast<double>( pointerEvent.x ), static_cast<double>( pointerEvent.y ) };
         _dragAngleAccum = 0.0;
