@@ -262,6 +262,8 @@ auto Handler::beginGizmoDrag( const Dragger* dragger, GizmoType type, vsg::Point
 
     _dragAxis = dragger->axis();
 
+    _dragGizmoType = type;
+
     gizmo->beginDrag();
 
     _dragPressScreen = vsg::ivec2{ pointerEvent.x, pointerEvent.y };
