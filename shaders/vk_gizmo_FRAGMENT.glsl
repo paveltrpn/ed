@@ -3,6 +3,9 @@
 
 layout(location = 0) in vec3 vertexColor;
 
+// TODO: deal with "flat" modifier.
+layout(location = 1) in flat int isSelected;
+
 layout(location = 0) out vec4 outColor;
 
 // 4x4 Bayer matrix, normalized to (0, 1) via (v + 0.5) / 16.0.
@@ -14,7 +17,7 @@ const float bayer4[16] = float[16](
    15.5f / 16.0f,  7.5f / 16.0f, 13.5f / 16.0f,  5.5f / 16.0f );
 
 // Constant screen-door opacity for the gizmo overlay.
-const float opacity = 0.6f;
+const float opacity = 0.52f;
 
 void main() {
     ivec2 bayerIndex = ivec2( mod(gl_FragCoord.xy, 4.0) );
@@ -22,7 +25,7 @@ void main() {
 
     // Discard so culled pixels leave color and depth untouched,
     // letting the scene show through the holes.
-    if (threshold > opacity) {
+    if ((threshold > opacity) && (isSelected == 0)) {
         discard;
     }
 

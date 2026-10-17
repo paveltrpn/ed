@@ -220,6 +220,8 @@ auto Handler::onLMBPress( vsg::PointerEvent& pointerEvent ) -> void {
     for ( auto& intersection : intersections ) {
         for ( auto node : intersection->nodePath ) {
             if ( auto clickedDragger = dynamic_cast<const Dragger*>( node ) ) {
+                clickedDragger->setSelected();
+
                 if ( dynamic_cast<const MoveDragger*>( node ) ) {
                     beginGizmoDrag( clickedDragger, GizmoType::MOVE, pointerEvent );
                 } else if ( dynamic_cast<const RotationDragger*>( node ) ) {
@@ -319,6 +321,7 @@ auto Handler::onLMBRelease( vsg::PointerEvent& pointerEvent ) -> void {
 
     if ( _manipulator->dragActive() ) {
         _manipulator->setDragActive( false );
+        _scenegraph->gizmo()->setAllDraggersDeselected();
     }
 }
 

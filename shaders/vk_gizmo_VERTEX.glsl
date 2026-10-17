@@ -5,7 +5,7 @@ layout(push_constant) uniform PushConstants {
     mat4 projection;
     mat4 modelview;
     vec3 color;
-    float _p1;
+    int isSelected;
 } pc;
 
 layout(location = 0) in vec3 inPosition;
@@ -16,6 +16,7 @@ layout(set = 0, binding = 0) uniform DraggerParam {
 } dg;
 
 layout(location = 0) out vec3 vertexColor;
+layout(location = 1) out int isSelected;
 
 out gl_PerVertex {
     vec4 gl_Position;
@@ -24,4 +25,5 @@ out gl_PerVertex {
 void main() {
     gl_Position             = (pc.projection * pc.modelview) * vec4(inPosition, 1.0);
     vertexColor             = pc.color;
+    isSelected             = pc.isSelected;
 }

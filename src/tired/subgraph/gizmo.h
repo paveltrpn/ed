@@ -65,6 +65,8 @@ public:
     [[nodiscard]] auto gizmoType() const -> int;
     auto setGizmoType( int value ) -> void;
 
+    auto setAllDraggersDeselected() -> void;
+
 signals:
     void gizmoModeChanged();
     void gizmoTypeChanged();
@@ -166,10 +168,15 @@ struct Dragger : public vsg::MatrixTransform {
     auto axis() const -> DraggerAxis;
     auto color() const -> vsg::vec3;
 
+    auto setSelected() const -> void;
+    auto setUnSelected() const -> void;
+
 protected:
     vsg::ref_ptr<vsg::Commands> _dragger{};
     DraggerAxis _axis{};
     vsg::vec3 _color{};
+
+    vsg::ref_ptr<vsg::intValue> _isSelected{};
 };
 
 // ======================================================================================

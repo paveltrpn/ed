@@ -231,6 +231,20 @@ auto GizmoUIProxy::updateGizmoVisibility() -> void {
     }
 }
 
+auto GizmoUIProxy::setAllDraggersDeselected() -> void {
+    _gizmo.get()->_xMoveDg->setUnSelected();
+    _gizmo.get()->_yMoveDg->setUnSelected();
+    _gizmo.get()->_zMoveDg->setUnSelected();
+
+    _gizmo.get()->_xRotateDg->setUnSelected();
+    _gizmo.get()->_yRotateDg->setUnSelected();
+    _gizmo.get()->_zRotateDg->setUnSelected();
+
+    _gizmo.get()->_xScaleDg->setUnSelected();
+    _gizmo.get()->_yScaleDg->setUnSelected();
+    _gizmo.get()->_zScaleDg->setUnSelected();
+}
+
 // ======================================================================================
 // ==================== GizmoSubgraph ===================================================
 // ======================================================================================
@@ -448,7 +462,11 @@ auto GizmoSubgraph::showScaleGizmo() -> void {
 
 Dragger::Dragger( DraggerAxis axis )
     : _dragger{ vsg::Commands::create() }
-    , _axis{ axis } {
+    , _axis{ axis }
+    , _isSelected{ vsg::intValue::create( 0 ) } {
+    // Push constants offset - projection + modelview + color (vec3) then us (one int value).
+    const auto pc = vsg::PushConstants::create( VK_SHADER_STAGE_VERTEX_BIT, 64 + 64 + 12, _isSelected );
+    this->addChild( pc );
 }
 
 auto Dragger::node() const -> vsg::ref_ptr<vsg::Commands> {
@@ -461,6 +479,16 @@ auto Dragger::axis() const -> DraggerAxis {
 
 auto Dragger::color() const -> vsg::vec3 {
     return _color;
+}
+
+auto Dragger::setSelected() const -> void {
+    _isSelected->set( 1 );
+    _isSelected->dirty();
+}
+
+auto Dragger::setUnSelected() const -> void {
+    _isSelected->set( 0 );
+    _isSelected->dirty();
 }
 
 // ======================================================================================
@@ -518,8 +546,8 @@ MoveDragger::MoveDragger( DraggerAxis axis )
         }
     }
 
-    _dragger->addChild( vsg::PushConstants::create(
-        VK_SHADER_STAGE_VERTEX_BIT, 128, vsg::floatArray::create( { _color.r, _color.g, _color.b, -1.0 } ) ) );
+    _dragger->addChild( vsg::PushConstants::create( VK_SHADER_STAGE_VERTEX_BIT, 64 + 64,
+                                                    vsg::floatArray::create( { _color.r, _color.g, _color.b } ) ) );
 
     _dragger->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ shaft._vertices } ) );
     _dragger->addChild( vsg::BindIndexBuffer::create( shaft._indices ) );
@@ -574,8 +602,8 @@ RotationDragger::RotationDragger( DraggerAxis axis )
         }
     }
 
-    _dragger->addChild( vsg::PushConstants::create(
-        VK_SHADER_STAGE_VERTEX_BIT, 128, vsg::floatArray::create( { _color.r, _color.g, _color.b, -1.0 } ) ) );
+    _dragger->addChild( vsg::PushConstants::create( VK_SHADER_STAGE_VERTEX_BIT, 64 + 64,
+                                                    vsg::floatArray::create( { _color.r, _color.g, _color.b } ) ) );
 
     _dragger->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ torus._vertices } ) );
     _dragger->addChild( vsg::BindIndexBuffer::create( torus._indices ) );
@@ -639,8 +667,8 @@ ScaleDragger::ScaleDragger( DraggerAxis axis )
         }
     }
 
-    _dragger->addChild( vsg::PushConstants::create(
-        VK_SHADER_STAGE_VERTEX_BIT, 128, vsg::floatArray::create( { _color.r, _color.g, _color.b, -1.0 } ) ) );
+    _dragger->addChild( vsg::PushConstants::create( VK_SHADER_STAGE_VERTEX_BIT, 64 + 64,
+                                                    vsg::floatArray::create( { _color.r, _color.g, _color.b } ) ) );
 
     _dragger->addChild( vsg::BindVertexBuffers::create( 0, vsg::DataList{ shaft._vertices } ) );
     _dragger->addChild( vsg::BindIndexBuffer::create( shaft._indices ) );
