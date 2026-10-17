@@ -105,8 +105,7 @@ public:
     auto setShowOuline( bool value ) -> void;
 
     Q_INVOKABLE SceneObjectBase* findObject( const QString& uid ) const;
-
-    Q_INVOKABLE [[nodiscard]] auto serializeObjects() const -> QJsonArray;
+    Q_INVOKABLE [[nodiscard]] QJsonArray serializeObjects() const;
 
 signals:
     void objectsChanged();

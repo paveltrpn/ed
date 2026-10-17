@@ -58,9 +58,12 @@ auto JsonSerializationVisitor::serialize( SphereNode *object ) -> void {
     auto json = baseData( object );
 
     const auto derived = QJsonObject{
-        { "radius", object->_radius },           { "slices", object->_slices },
-        { "segments", object->_segments },       { "sliceStart", object->_sliceStart },
-        { "sliceSweep", object->_sliceSweep },   { "segmentStart", object->_segmentStart },
+        { "radius", object->_radius },
+        { "slices", object->_slices },
+        { "segments", object->_segments },
+        { "sliceStart", object->_sliceStart },
+        { "sliceSweep", object->_sliceSweep },
+        { "segmentStart", object->_segmentStart },
         { "segmentSweep", object->_segmentSweep },
     };
 
@@ -74,9 +77,8 @@ auto JsonSerializationVisitor::serialize( CylinderNode *object ) -> void {
     auto json = baseData( object );
 
     const auto derived = QJsonObject{
-        { "radius", object->_radius },     { "size", object->_size },
-        { "slices", object->_slices },     { "segments", object->_segments },
-        { "rings", object->_rings },       { "start", object->_start },
+        { "radius", object->_radius },     { "size", object->_size },   { "slices", object->_slices },
+        { "segments", object->_segments }, { "rings", object->_rings }, { "start", object->_start },
         { "sweep", object->_sweep },
     };
 
@@ -90,9 +92,8 @@ auto JsonSerializationVisitor::serialize( CapsuleNode *object ) -> void {
     auto json = baseData( object );
 
     const auto derived = QJsonObject{
-        { "radius", object->_radius },     { "size", object->_size },
-        { "slices", object->_slices },     { "segments", object->_segments },
-        { "rings", object->_rings },       { "start", object->_start },
+        { "radius", object->_radius },     { "size", object->_size },   { "slices", object->_slices },
+        { "segments", object->_segments }, { "rings", object->_rings }, { "start", object->_start },
         { "sweep", object->_sweep },
     };
 
@@ -106,9 +107,8 @@ auto JsonSerializationVisitor::serialize( ConeNode *object ) -> void {
     auto json = baseData( object );
 
     const auto derived = QJsonObject{
-        { "radius", object->_radius },     { "size", object->_size },
-        { "slices", object->_slices },     { "segments", object->_segments },
-        { "rings", object->_rings },       { "start", object->_start },
+        { "radius", object->_radius },     { "size", object->_size },   { "slices", object->_slices },
+        { "segments", object->_segments }, { "rings", object->_rings }, { "start", object->_start },
         { "sweep", object->_sweep },
     };
 
