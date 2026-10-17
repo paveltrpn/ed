@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <QJsonArray>
+
 #include "subgraph.h"
 #include "objectslist.h"
 
@@ -103,6 +105,8 @@ public:
     auto setShowOuline( bool value ) -> void;
 
     Q_INVOKABLE SceneObjectBase* findObject( const QString& uid ) const;
+
+    Q_INVOKABLE [[nodiscard]] auto serializeObjects() const -> QJsonArray;
 
 signals:
     void objectsChanged();

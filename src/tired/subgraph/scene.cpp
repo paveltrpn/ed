@@ -16,6 +16,7 @@
 #include "../sceneobject/capsule.h"
 #include "../sceneobject/cone.h"
 #include "../sceneobject/torus.h"
+#include "../sceneobject/serialization.h"
 
 #include "../vsgcommands/setpolygonmode.h"
 #include "tired/subgraph/boundingdraw.h"
@@ -134,6 +135,29 @@ auto SceneUIProxy::setShowOuline( bool value ) -> void {
 SceneObjectBase* SceneUIProxy::findObject( const QString& uid ) const {
     auto obj = _objects->findObject( QUuid::fromString( uid ) );
     return obj.get();
+}
+
+auto SceneUIProxy::serializeObjects() const -> QJsonArray {
+    //
+    auto result = QJsonArray{};
+
+    const auto count = _objects->rowCount();
+    for ( int row = 0; row < count; ++row ) {
+        const auto modelIndex = _objects->index( row, 0 );
+
+        auto* object = _objects->data( modelIndex, ObjectsList::Roles::Object ).value<SceneObjectBase*>();
+
+        if ( object == nullptr ) {
+            continue;
+        }
+
+        auto visitor = JsonSerializationVisitor{};
+        object->node()->serialize( &visitor );
+
+        result.append( visitor.json() );
+    }
+
+    return result;
 }
 
 void SceneUIProxy::addBox( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
