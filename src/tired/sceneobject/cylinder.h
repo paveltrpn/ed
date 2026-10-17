@@ -15,10 +15,16 @@ struct CylinderObject;
 
 struct CylinderNode final : public SceneObjectNode {
     friend CylinderObject;
+    friend JsonSerializationVisitor;
 
     CylinderNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
                   vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices, int segments,
                   int rings, double start, double sweep );
+
+    auto serialize( SerializationVisitor *visitor ) -> void override {
+        //
+        visitor->serialize( this );
+    }
 
 private:
     auto init() -> void;

@@ -15,9 +15,15 @@ struct BoxObject;
 
 struct BoxNode final : public SceneObjectNode {
     friend BoxObject;
+    friend JsonSerializationVisitor;
 
     BoxNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
              vsg::vec4 color, vsg::dvec3 size, vsg::ivec3 segments );
+
+    auto serialize( SerializationVisitor *visitor ) -> void override {
+        //
+        visitor->serialize( this );
+    }
 
 private:
     auto init() -> void;

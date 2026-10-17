@@ -2,15 +2,15 @@
 
 #include <QJsonObject>
 
-#include "sceneobjectnode.h"
-#include "box.h"
-#include "sphere.h"
-#include "cylinder.h"
-#include "capsule.h"
-#include "cone.h"
-#include "torus.h"
-
 namespace tire {
+
+struct SceneObjectNode;
+struct BoxNode;
+struct SphereNode;
+struct CylinderNode;
+struct CapsuleNode;
+struct ConeNode;
+struct TorusNode;
 
 // ======================================================================================
 // ==================== SerializationVisitor ============================================
@@ -19,12 +19,12 @@ namespace tire {
 struct SerializationVisitor {
     virtual ~SerializationVisitor() = default;
 
-    auto serialize( BoxNode *object ) -> void;
-    auto serialize( SphereNode *object ) -> void;
-    auto serialize( CylinderNode *object ) -> void;
-    auto serialize( CapsuleNode *object ) -> void;
-    auto serialize( ConeNode *object ) -> void;
-    auto serialize( TorusNode *object ) -> void;
+    virtual auto serialize( BoxNode *object ) -> void = 0;
+    virtual auto serialize( SphereNode *object ) -> void = 0;
+    virtual auto serialize( CylinderNode *object ) -> void = 0;
+    virtual auto serialize( CapsuleNode *object ) -> void = 0;
+    virtual auto serialize( ConeNode *object ) -> void = 0;
+    virtual auto serialize( TorusNode *object ) -> void = 0;
 };
 
 // ======================================================================================
@@ -42,15 +42,20 @@ struct Serializeable {
 struct JsonSerializationVisitor final : public SerializationVisitor {
     ~JsonSerializationVisitor() override = default;
 
-    auto serialize( BoxNode *object ) -> void;
-    auto serialize( SphereNode *object ) -> void;
-    auto serialize( CylinderNode *object ) -> void;
-    auto serialize( CapsuleNode *object ) -> void;
-    auto serialize( ConeNode *object ) -> void;
-    auto serialize( TorusNode *object ) -> void;
+    auto serialize( BoxNode *object ) -> void override;
+    auto serialize( SphereNode *object ) -> void override;
+    auto serialize( CylinderNode *object ) -> void override;
+    auto serialize( CapsuleNode *object ) -> void override;
+    auto serialize( ConeNode *object ) -> void override;
+    auto serialize( TorusNode *object ) -> void override;
+
+    [[nodiscard]] auto json() const -> QJsonObject;
 
 private:
     auto baseData( SceneObjectNode *object ) const -> QJsonObject;
+
+private:
+    QJsonObject _json{};
 };
 
 }  // namespace tire

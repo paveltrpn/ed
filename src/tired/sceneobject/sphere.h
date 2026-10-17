@@ -15,10 +15,16 @@ struct SphereObject;
 
 struct SphereNode final : public SceneObjectNode {
     friend SphereObject;
+    friend JsonSerializationVisitor;
 
     SphereNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
                 vsg::vec4 color, double radius, int slices, int segments, double sliceStart, double sliceSweep,
                 double segmentStart, double segmentSweep );
+
+    auto serialize( SerializationVisitor *visitor ) -> void override {
+        //
+        visitor->serialize( this );
+    }
 
 private:
     auto init() -> void;

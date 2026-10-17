@@ -5,6 +5,7 @@
 #include "vsg/core/ref_ptr.h"
 
 #include "sceneobjectdata.h"
+#include "serialization.h"
 #include "../subgraph/boundingdraw.h"
 
 namespace tire {
@@ -16,10 +17,11 @@ struct GizmoUIProxy;
 // ==================== SceneObjectNode =================================================
 // ======================================================================================
 
-struct SceneObjectNode : public vsg::MatrixTransform {
+struct SceneObjectNode : public vsg::MatrixTransform, public Serializeable {
 public:
     friend SceneObjectBase;
     friend GizmoUIProxy;
+    friend JsonSerializationVisitor;
 
     SceneObjectNode( SceneObjectTypeEnum type, std::string name, std::string uid, vsg::dvec3 position,
                      vsg::dvec3 orientation, vsg::dvec3 scale, vsg::vec4 color );

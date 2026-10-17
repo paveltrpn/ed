@@ -15,10 +15,16 @@ struct TorusObject;
 
 struct TorusNode final : public SceneObjectNode {
     friend TorusObject;
+    friend JsonSerializationVisitor;
 
     TorusNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
                vsg::vec4 color, double minor, double major, int slices, int segments, double minorStart,
                double minorSweep, double majorStart, double majorSweep );
+
+    auto serialize( SerializationVisitor *visitor ) -> void override {
+        //
+        visitor->serialize( this );
+    }
 
 private:
     auto init() -> void;
