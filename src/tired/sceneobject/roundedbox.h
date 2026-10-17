@@ -20,7 +20,7 @@ struct RoundedBoxNode final : public SceneObjectNode {
     RoundedBoxNode( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
                     vsg::vec4 color, double radius, vsg::dvec3 size, int slices, vsg::ivec3 segments );
 
-    auto serialize( SerializationVisitor *visitor ) -> void override {
+    auto serialize( SerializationVisitor* visitor ) -> void override {
         //
         visitor->serialize( this );
     }
