@@ -305,9 +305,8 @@ auto GizmoSubgraph::updateScreenTransform( const vsg::Camera* camera ) -> void {
 
     const auto distance = std::max( vsg::length( eye - _pivotPosition ), 1e-6 );
     const auto worldPerHeight = 2.0 * distance * std::tan( vsg::radians( perspective->fieldOfViewY ) * 0.5 );
-    const auto s = _gizmoScreenFraction * worldPerHeight;
 
-    _gizmoPivot->matrix = view * pivotBaseTransform() * vsg::scale( s );
+    _gizmoPivot->matrix = view * pivotBaseTransform() * vsg::scale( _gizmoScreenFraction * worldPerHeight );
 }
 
 auto GizmoSubgraph::initPipeline() -> void {

@@ -16,7 +16,8 @@ enum class DraggerAxis {
     //
     X,
     Y,
-    Z
+    Z,
+    COMMON
 };
 
 enum class GizmoMode {
