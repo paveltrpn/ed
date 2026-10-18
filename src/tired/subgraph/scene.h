@@ -169,8 +169,6 @@ private:
 
     QUuid _selectedObjectUid{};
 
-    ObjectsRenderMode _renderMode{ ObjectsRenderMode::SOLID };
-
     bool _showOuline{ false };
 };
 
@@ -208,6 +206,7 @@ private:
 
     ObjectsAppearenceMode _appearnceMode{ ObjectsAppearenceMode::TEXTURE };
     ObjectsLightMode _lightMode{ ObjectsLightMode::CONSTANT };
+    ObjectsRenderMode _renderMode{ ObjectsRenderMode::SOLID };
 };
 
 }  // namespace tire

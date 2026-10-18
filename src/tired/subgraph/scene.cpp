@@ -88,13 +88,13 @@ auto SceneUIProxy::isAnyObjectSelected() const -> bool {
 }
 
 auto SceneUIProxy::renderMode() const -> int {
-    return static_cast<int>( _renderMode );
+    return static_cast<int>( _scene.get()->_renderMode );
 }
 
 auto SceneUIProxy::setRenderMode( int value ) -> void {
-    _renderMode = static_cast<ObjectsRenderMode>( value );
+    _scene.get()->_renderMode = static_cast<ObjectsRenderMode>( value );
 
-    switch ( _renderMode ) {
+    switch ( _scene.get()->_renderMode ) {
         case ObjectsRenderMode::WIREFRAME: {
             _scene.get()->_polygonModeCmd->mode = VK_POLYGON_MODE_LINE;
             _scene.get()->_setCullModeCmd->mode = VK_CULL_MODE_NONE;
@@ -375,9 +375,9 @@ void SceneUIProxy::addTube( std::string name, std::string uid, vsg::dvec3 positi
 void SceneUIProxy::addCappedTube( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
                                   vsg::dvec3 scale, vsg::vec4 color, double radius, double innerRadius, double size,
                                   int slices, int segments, int rings, double start, double sweep ) {
-    auto node = vsg::ref_ptr<CappedTubeNode>{ new CappedTubeNode{ name, uid, position, orientation, scale, color,
-                                                                  radius, innerRadius, size, slices, segments, rings,
-                                                                  start, sweep } };
+    auto node =
+        vsg::ref_ptr<CappedTubeNode>{ new CappedTubeNode{ name, uid, position, orientation, scale, color, radius,
+                                                          innerRadius, size, slices, segments, rings, start, sweep } };
 
     auto object = std::make_shared<CappedTubeObject>( node );
 
@@ -410,9 +410,8 @@ void SceneUIProxy::addRoundedBox( std::string name, std::string uid, vsg::dvec3 
 void SceneUIProxy::addSphericalCone( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
                                      vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices,
                                      int segments, int rings, double start, double sweep ) {
-    auto node = vsg::ref_ptr<SphericalConeNode>{ new SphericalConeNode{ name, uid, position, orientation, scale,
-                                                                        color, radius, size, slices, segments, rings,
-                                                                        start, sweep } };
+    auto node = vsg::ref_ptr<SphericalConeNode>{ new SphericalConeNode{
+        name, uid, position, orientation, scale, color, radius, size, slices, segments, rings, start, sweep } };
 
     auto object = std::make_shared<SphericalConeObject>( node );
 
@@ -445,9 +444,9 @@ void SceneUIProxy::addSpring( std::string name, std::string uid, vsg::dvec3 posi
                               vsg::dvec3 scale, vsg::vec4 color, double minor, double major, double size, int slices,
                               int segments, double minorStart, double minorSweep, double majorStart,
                               double majorSweep ) {
-    auto node = vsg::ref_ptr<SpringNode>{ new SpringNode{ name, uid, position, orientation, scale, color, minor,
-                                                          major, size, slices, segments, minorStart, minorSweep,
-                                                          majorStart, majorSweep } };
+    auto node =
+        vsg::ref_ptr<SpringNode>{ new SpringNode{ name, uid, position, orientation, scale, color, minor, major, size,
+                                                  slices, segments, minorStart, minorSweep, majorStart, majorSweep } };
 
     auto object = std::make_shared<SpringObject>( node );
 
