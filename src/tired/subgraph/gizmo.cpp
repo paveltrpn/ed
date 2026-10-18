@@ -11,9 +11,6 @@ namespace tire {
 
 namespace {
 
-constexpr double kGizmoScreenFraction{ 0.18 };
-constexpr double kGizmoGeometryExtent{ 1.75 };
-
 auto eulerToMatrix( const vsg::dvec3& degrees ) -> vsg::dmat4 {
     const auto rtX = vsg::rotate( vsg::radians( degrees.x ), vsg::dvec3{ 1.0, 0.0, 0.0 } );
     const auto rtY = vsg::rotate( vsg::radians( degrees.y ), vsg::dvec3{ 0.0, 1.0, 0.0 } );
@@ -308,7 +305,7 @@ auto GizmoSubgraph::updateScreenTransform( const vsg::Camera* camera ) -> void {
 
     const auto distance = std::max( vsg::length( eye - _pivotPosition ), 1e-6 );
     const auto worldPerHeight = 2.0 * distance * std::tan( vsg::radians( perspective->fieldOfViewY ) * 0.5 );
-    const auto s = kGizmoScreenFraction * worldPerHeight / kGizmoGeometryExtent;
+    const auto s = _gizmoScreenFraction * worldPerHeight;
 
     _gizmoPivot->matrix = view * pivotBaseTransform() * vsg::scale( s );
 }

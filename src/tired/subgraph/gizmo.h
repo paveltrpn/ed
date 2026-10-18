@@ -123,6 +123,8 @@ private:
     [[nodiscard]] auto pivotBaseTransform() const -> vsg::dmat4;
 
 private:
+    const double _gizmoScreenFraction{ 0.08 };
+
     vsg::ref_ptr<vsg::ClearDepthAttachment> _depthClear{};
 
     vsg::ref_ptr<vsg::StateGroup> _stateGroup{};
