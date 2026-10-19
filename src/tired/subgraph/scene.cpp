@@ -1,5 +1,7 @@
 
 
+#include <algorithm>
+
 #include <vsg/all.h>
 
 #include "image/tga.h"
@@ -44,7 +46,7 @@ SceneUIProxy::SceneUIProxy( vsg::observer_ptr<SceneSubgraph> scene, vsg::observe
     : QObject{ parent }
     , _scene{ scene }
     , _boundingRender{ boundingRender }
-    , _objectsListModel{ new SceneObjectsListModel{ this } } {
+    , _objectsListModel{ new SceneObjectsListModel{ scene.get()->objectsList(), this } } {
     //
 }
 
@@ -74,7 +76,7 @@ auto SceneUIProxy::setSelectedObjectUid( const QString& value ) -> void {
         return;
     }
 
-    auto selectedObject = _objectsListModel->findObject( QUuid::fromString( value ) );
+    auto selectedObject = _scene.get()->findObject( QUuid::fromString( value ) );
 
     _boundingRender.get()->attach( selectedObject->node()->boundingDraw() );
 
@@ -135,17 +137,8 @@ auto SceneUIProxy::setLightMode( int value ) -> void {
     emit lightModeChanged();
 }
 
-auto SceneUIProxy::showOuline() const -> bool {
-    return _showOuline;
-}
-
-auto SceneUIProxy::setShowOuline( bool value ) -> void {
-    _showOuline = value;
-    emit showOulineChanged();
-}
-
 SceneObjectBase* SceneUIProxy::findObject( const QString& uid ) const {
-    auto obj = _objectsListModel->findObject( QUuid::fromString( uid ) );
+    auto obj = _scene.get()->findObject( QUuid::fromString( uid ) );
     return obj.get();
 }
 
@@ -153,13 +146,8 @@ auto SceneUIProxy::serializeObjects() const -> QJsonArray {
     //
     auto result = QJsonArray{};
 
-    const auto count = _objectsListModel->rowCount();
-    for ( int row = 0; row < count; ++row ) {
-        const auto modelIndex = _objectsListModel->index( row, 0 );
-
-        auto* object = _objectsListModel->data( modelIndex, SceneObjectsListModel::Roles::Object ).value<SceneObjectBase*>();
-
-        if ( object == nullptr ) {
+    for ( const auto& object : *_scene.get()->objectsList() ) {
+        if ( !object ) {
             continue;
         }
 
@@ -172,310 +160,253 @@ auto SceneUIProxy::serializeObjects() const -> QJsonArray {
     return result;
 }
 
-void SceneUIProxy::addBox( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                           vsg::dvec3 scale, vsg::vec4 color, vsg::dvec3 size, vsg::ivec3 segments ) {
-    auto node = vsg::ref_ptr<BoxNode>{ new BoxNode{ name, uid, position, orientation, scale, color, size, segments } };
-
-    auto object = std::make_shared<BoxObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
-}
-
-void SceneUIProxy::addSphere( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                              vsg::dvec3 scale, vsg::vec4 color, double radius, int slices, int segments,
-                              double sliceStart, double sliceSweep, double segmentStart, double segmentSweep ) {
-    auto node =
-        vsg::ref_ptr<SphereNode>{ new SphereNode{ name, uid, position, orientation, scale, color, radius, slices,
-                                                  segments, sliceStart, sliceSweep, segmentStart, segmentSweep } };
-
-    auto object = std::make_shared<SphereObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
-}
-
-void SceneUIProxy::addCylinder( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices, int segments,
-                                int rings, double start, double sweep ) {
-    auto node = vsg::ref_ptr<CylinderNode>{ new CylinderNode{ name, uid, position, orientation, scale, color, radius,
-                                                              size, slices, segments, rings, start, sweep } };
-
-    auto object = std::make_shared<CylinderObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
-}
-
-void SceneUIProxy::addCapsule( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                               vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices, int segments,
-                               int rings, double start, double sweep ) {
-    auto node = vsg::ref_ptr<CapsuleNode>{ new CapsuleNode{ name, uid, position, orientation, scale, color, radius,
-                                                            size, slices, segments, rings, start, sweep } };
-
-    auto object = std::make_shared<CapsuleObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
-}
-
-void SceneUIProxy::addCone( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                            vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices, int segments,
-                            int rings, double start, double sweep ) {
-    auto node = vsg::ref_ptr<ConeNode>{ new ConeNode{ name, uid, position, orientation, scale, color, radius, size,
-                                                      slices, segments, rings, start, sweep } };
-
-    auto object = std::make_shared<ConeObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
-}
-
-void SceneUIProxy::addTorus( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                             vsg::dvec3 scale, vsg::vec4 color, double minor, double major, int slices, int segments,
-                             double minorStart, double minorSweep, double majorStart, double majorSweep ) {
-    auto node =
-        vsg::ref_ptr<TorusNode>{ new TorusNode{ name, uid, position, orientation, scale, color, minor, major, slices,
-                                                segments, minorStart, minorSweep, majorStart, majorSweep } };
-
-    auto object = std::make_shared<TorusObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
-}
-
-void SceneUIProxy::addIcosphere( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                 vsg::dvec3 scale, vsg::vec4 color, double radius, int segments ) {
-    auto node = vsg::ref_ptr<IcosphereNode>{
-        new IcosphereNode{ name, uid, position, orientation, scale, color, radius, segments } };
-
-    auto object = std::make_shared<IcosphereObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
-}
-
-void SceneUIProxy::addIcosahedron( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                   vsg::dvec3 scale, vsg::vec4 color, double radius, int segments ) {
-    auto node = vsg::ref_ptr<IcosahedronNode>{
-        new IcosahedronNode{ name, uid, position, orientation, scale, color, radius, segments } };
-
-    auto object = std::make_shared<IcosahedronObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
-}
-
-void SceneUIProxy::addDodecahedron( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                    vsg::dvec3 scale, vsg::vec4 color, double radius, int segments, int rings ) {
-    auto node = vsg::ref_ptr<DodecahedronNode>{
-        new DodecahedronNode{ name, uid, position, orientation, scale, color, radius, segments, rings } };
-
-    auto object = std::make_shared<DodecahedronObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
-}
-
-void SceneUIProxy::addPlane( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                             vsg::dvec3 scale, vsg::vec4 color, vsg::dvec2 size, vsg::ivec2 segments ) {
-    auto node =
-        vsg::ref_ptr<PlaneNode>{ new PlaneNode{ name, uid, position, orientation, scale, color, size, segments } };
-
-    auto object = std::make_shared<PlaneObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
-}
-
-void SceneUIProxy::addDisk( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                            vsg::dvec3 scale, vsg::vec4 color, double radius, double innerRadius, int slices, int rings,
-                            double start, double sweep ) {
-    auto node = vsg::ref_ptr<DiskNode>{ new DiskNode{ name, uid, position, orientation, scale, color, radius,
-                                                      innerRadius, slices, rings, start, sweep } };
-
-    auto object = std::make_shared<DiskObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
-}
-
-void SceneUIProxy::addTube( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                            vsg::dvec3 scale, vsg::vec4 color, double radius, double innerRadius, double size,
-                            int slices, int segments, double start, double sweep ) {
-    auto node = vsg::ref_ptr<TubeNode>{ new TubeNode{ name, uid, position, orientation, scale, color, radius,
-                                                      innerRadius, size, slices, segments, start, sweep } };
-
-    auto object = std::make_shared<TubeObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
-}
-
-void SceneUIProxy::addCappedTube( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                  vsg::dvec3 scale, vsg::vec4 color, double radius, double innerRadius, double size,
-                                  int slices, int segments, int rings, double start, double sweep ) {
-    auto node =
-        vsg::ref_ptr<CappedTubeNode>{ new CappedTubeNode{ name, uid, position, orientation, scale, color, radius,
-                                                          innerRadius, size, slices, segments, rings, start, sweep } };
-
-    auto object = std::make_shared<CappedTubeObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
-}
-
-void SceneUIProxy::addRoundedBox( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                  vsg::dvec3 scale, vsg::vec4 color, double radius, vsg::dvec3 size, int slices,
-                                  vsg::ivec3 segments ) {
-    auto node = vsg::ref_ptr<RoundedBoxNode>{
-        new RoundedBoxNode{ name, uid, position, orientation, scale, color, radius, size, slices, segments } };
-
-    auto object = std::make_shared<RoundedBoxObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
-}
-
-void SceneUIProxy::addSphericalCone( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                     vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices,
-                                     int segments, int rings, double start, double sweep ) {
-    auto node = vsg::ref_ptr<SphericalConeNode>{ new SphericalConeNode{
-        name, uid, position, orientation, scale, color, radius, size, slices, segments, rings, start, sweep } };
-
-    auto object = std::make_shared<SphericalConeObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
-}
-
-void SceneUIProxy::addTorusKnot( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                 vsg::dvec3 scale, vsg::vec4 color, int p, int q, int slices, int segments ) {
-    auto node = vsg::ref_ptr<TorusKnotNode>{
-        new TorusKnotNode{ name, uid, position, orientation, scale, color, p, q, slices, segments } };
-
-    auto object = std::make_shared<TorusKnotObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
-}
-
-void SceneUIProxy::addSpring( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                              vsg::dvec3 scale, vsg::vec4 color, double minor, double major, double size, int slices,
-                              int segments, double minorStart, double minorSweep, double majorStart,
-                              double majorSweep ) {
-    auto node =
-        vsg::ref_ptr<SpringNode>{ new SpringNode{ name, uid, position, orientation, scale, color, minor, major, size,
-                                                  slices, segments, minorStart, minorSweep, majorStart, majorSweep } };
-
-    auto object = std::make_shared<SpringObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
-}
-
-void SceneUIProxy::addTeapot( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                              vsg::dvec3 scale, vsg::vec4 color, int segments ) {
-    auto node = vsg::ref_ptr<TeapotNode>{ new TeapotNode{ name, uid, position, orientation, scale, color, segments } };
-
-    auto object = std::make_shared<TeapotObject>( node );
-
-    _scene.get()->attach( node );
-
-    node->setOwner( object.get() );
-
-    _objectsListModel->addObject( std::move( object ) );
-
-    emit objectsChanged();
+void SceneUIProxy::add( const QVariantMap& data ) {
+    const auto json = QJsonObject::fromVariantMap( data );
+
+    const auto type = static_cast<SceneObjectTypeEnum>( json.value( "type" ).toInt() );
+
+    const auto appendObject = [this]( const auto& addFn ) -> void {
+        const auto row = static_cast<int>( _scene.get()->objectsList()->size() );
+
+        _objectsListModel->beginAppendObject( row );
+
+        addFn();
+
+        _objectsListModel->endAppendObject();
+
+        emit objectsChanged();
+    };
+
+    switch ( type ) {
+        case SceneObjectTypeEnum::BOX: {
+            auto d = BoxObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addBox( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                      d.orientation(), d.scale(), vsg::vec4{ d.color() },
+                                      vsg::dvec3{ d._sizeX, d._sizeY, d._sizeZ },
+                                      vsg::ivec3{ d._segmentsX, d._segmentsY, d._segmentsZ } );
+            } );
+
+            break;
+        }
+        case SceneObjectTypeEnum::SPHERE: {
+            auto d = SphereObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addSphere( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                         d.orientation(), d.scale(), vsg::vec4{ d.color() }, d._radius, d._slices,
+                                         d._segments, d._sliceStart, d._sliceSweep, d._segmentStart, d._segmentSweep );
+            } );
+
+            break;
+        }
+        case SceneObjectTypeEnum::CYLINDER: {
+            auto d = CylinderObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addCylinder( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                           d.orientation(), d.scale(), vsg::vec4{ d.color() }, d._radius, d._size,
+                                           d._slices, d._segments, d._rings, d._start, d._sweep );
+            } );
+
+            break;
+        }
+        case SceneObjectTypeEnum::CAPSULE: {
+            auto d = CapsuleObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addCapsule( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                          d.orientation(), d.scale(), vsg::vec4{ d.color() }, d._radius, d._size,
+                                          d._slices, d._segments, d._rings, d._start, d._sweep );
+            } );
+
+            break;
+        }
+        case SceneObjectTypeEnum::CONE: {
+            auto d = ConeObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addCone( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                       d.orientation(), d.scale(), vsg::vec4{ d.color() }, d._radius, d._size,
+                                       d._slices, d._segments, d._rings, d._start, d._sweep );
+            } );
+
+            break;
+        }
+        case SceneObjectTypeEnum::TORUS: {
+            auto d = TorusObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addTorus( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                        d.orientation(), d.scale(), vsg::vec4{ d.color() }, d._minor, d._major,
+                                        d._slices, d._segments, d._minorStart, d._minorSweep, d._majorStart,
+                                        d._majorSweep );
+            } );
+
+            break;
+        }
+        case SceneObjectTypeEnum::ICOSPHERE: {
+            auto d = IcosphereObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addIcosphere( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                            d.orientation(), d.scale(), vsg::vec4{ d.color() }, d._radius,
+                                            d._segments );
+            } );
+
+            break;
+        }
+        case SceneObjectTypeEnum::ICOSAHEDRON: {
+            auto d = IcosahedronObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addIcosahedron( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                              d.orientation(), d.scale(), vsg::vec4{ d.color() }, d._radius,
+                                              d._segments );
+            } );
+
+            break;
+        }
+        case SceneObjectTypeEnum::DODECAHEDRON: {
+            auto d = DodecahedronObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addDodecahedron( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                               d.orientation(), d.scale(), vsg::vec4{ d.color() }, d._radius,
+                                               d._segments, d._rings );
+            } );
+
+            break;
+        }
+        case SceneObjectTypeEnum::PLANE: {
+            auto d = PlaneObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addPlane( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                        d.orientation(), d.scale(), vsg::vec4{ d.color() },
+                                        vsg::dvec2{ d._sizeX, d._sizeY }, vsg::ivec2{ d._segmentsX, d._segmentsY } );
+            } );
+
+            break;
+        }
+        case SceneObjectTypeEnum::DISK: {
+            auto d = DiskObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addDisk( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                       d.orientation(), d.scale(), vsg::vec4{ d.color() }, d._radius, d._innerRadius,
+                                       d._slices, d._rings, d._start, d._sweep );
+            } );
+
+            break;
+        }
+        case SceneObjectTypeEnum::TUBE: {
+            auto d = TubeObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addTube( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                       d.orientation(), d.scale(), vsg::vec4{ d.color() }, d._radius, d._innerRadius,
+                                       d._size, d._slices, d._segments, d._start, d._sweep );
+            } );
+
+            break;
+        }
+        case SceneObjectTypeEnum::CAPPED_TUBE: {
+            auto d = CappedTubeObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addCappedTube( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                             d.orientation(), d.scale(), vsg::vec4{ d.color() }, d._radius,
+                                             d._innerRadius, d._size, d._slices, d._segments, d._rings, d._start,
+                                             d._sweep );
+            } );
+
+            break;
+        }
+        case SceneObjectTypeEnum::ROUNDED_BOX: {
+            auto d = RoundedBoxObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addRoundedBox( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                             d.orientation(), d.scale(), vsg::vec4{ d.color() }, d._radius,
+                                             vsg::dvec3{ d._sizeX, d._sizeY, d._sizeZ }, d._slices,
+                                             vsg::ivec3{ d._segmentsX, d._segmentsY, d._segmentsZ } );
+            } );
+
+            break;
+        }
+        case SceneObjectTypeEnum::SPHERICAL_CONE: {
+            auto d = SphericalConeObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addSphericalCone( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                                d.orientation(), d.scale(), vsg::vec4{ d.color() }, d._radius, d._size,
+                                                d._slices, d._segments, d._rings, d._start, d._sweep );
+            } );
+
+            break;
+        }
+        case SceneObjectTypeEnum::TORUS_KNOT: {
+            auto d = TorusKnotObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addTorusKnot( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                            d.orientation(), d.scale(), vsg::vec4{ d.color() }, d._p, d._q, d._slices,
+                                            d._segments );
+            } );
+
+            break;
+        }
+        case SceneObjectTypeEnum::SPRING: {
+            auto d = SpringObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addSpring( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                         d.orientation(), d.scale(), vsg::vec4{ d.color() }, d._minor, d._major,
+                                         d._size, d._slices, d._segments, d._minorStart, d._minorSweep, d._majorStart,
+                                         d._majorSweep );
+            } );
+
+            break;
+        }
+        case SceneObjectTypeEnum::TEAPOT: {
+            auto d = TeapotObjectData{};
+            d.fromJson( json );
+
+            appendObject( [this, &d]() -> void {
+                _scene.get()->addTeapot( d.name().toStdString(), d.uid().toString().toStdString(), d.position(),
+                                         d.orientation(), d.scale(), vsg::vec4{ d.color() }, d._segments );
+            } );
+
+            break;
+        }
+        default: {
+            log::warning()( "Unsupported scene object type: {}", json.value( "type" ).toInt() );
+            break;
+        }
+    }
 }
 
 void SceneUIProxy::removeObject( const QUuid& uid ) {
-    auto obj = _objectsListModel->findObject( uid );
+    auto obj = _scene.get()->findObject( uid );
 
     if ( !obj ) {
         return;
@@ -485,9 +416,17 @@ void SceneUIProxy::removeObject( const QUuid& uid ) {
         setSelectedObjectUid( QUuid{}.toString() );
     }
 
-    _scene.get()->detach( obj->node() );
+    const auto& list = *_scene.get()->objectsList();
 
-    _objectsListModel->removeObject( obj );
+    const auto it = std::find( list.begin(), list.end(), obj );
+
+    const auto row = static_cast<int>( std::distance( list.begin(), it ) );
+
+    _objectsListModel->beginRemoveObject( row );
+
+    _scene.get()->removeObject( uid );
+
+    _objectsListModel->endRemoveObject();
 
     emit objectsChanged();
 }
@@ -498,6 +437,7 @@ void SceneUIProxy::removeObject( const QUuid& uid ) {
 
 SceneSubgraph::SceneSubgraph( vsg::observer_ptr<vsg::Viewer> viewer )
     : Subgraph{ viewer }
+    , _objectsList{ std::make_shared<std::vector<std::shared_ptr<SceneObjectBase>>>() }
     , _stateGroup{ vsg::StateGroup::create() } {
     //
     this->addChild( _stateGroup );
@@ -523,6 +463,308 @@ auto SceneSubgraph::detach( vsg::ref_ptr<SceneObjectNode> object ) -> void {
     const auto op = tire::DetachOp::create( _viewer, _stateGroup, object );
 
     _viewer.get()->addUpdateOperation( op );
+}
+
+auto SceneSubgraph::objectsList() const -> std::shared_ptr<std::vector<std::shared_ptr<SceneObjectBase>>> {
+    return _objectsList;
+}
+
+auto SceneSubgraph::findObject( const QUuid& uid ) const -> std::shared_ptr<SceneObjectBase> {
+    auto it = std::find_if( _objectsList->begin(), _objectsList->end(),
+                            //
+                            [uid]( const auto& item ) -> bool { return item->uid() == uid.toString(); } );
+
+    if ( it == _objectsList->end() ) {
+        return {};
+    }
+
+    return *it;
+}
+
+auto SceneSubgraph::removeObject( const QUuid& uid ) -> std::shared_ptr<SceneObjectBase> {
+    auto it = std::find_if( _objectsList->begin(), _objectsList->end(),
+                            //
+                            [uid]( const auto& item ) -> bool { return item->uid() == uid.toString(); } );
+
+    if ( it == _objectsList->end() ) {
+        return {};
+    }
+
+    auto object = *it;
+
+    detach( object->node() );
+
+    _objectsList->erase( it );
+
+    return object;
+}
+
+auto SceneSubgraph::addBox( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                            vsg::dvec3 scale, vsg::vec4 color, vsg::dvec3 size, vsg::ivec3 segments ) -> void {
+    auto node = vsg::ref_ptr<BoxNode>{ new BoxNode{ name, uid, position, orientation, scale, color, size, segments } };
+
+    auto object = std::make_shared<BoxObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
+}
+
+auto SceneSubgraph::addSphere( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                               vsg::dvec3 scale, vsg::vec4 color, double radius, int slices, int segments,
+                               double sliceStart, double sliceSweep, double segmentStart, double segmentSweep )
+    -> void {
+    auto node =
+        vsg::ref_ptr<SphereNode>{ new SphereNode{ name, uid, position, orientation, scale, color, radius, slices,
+                                                  segments, sliceStart, sliceSweep, segmentStart, segmentSweep } };
+
+    auto object = std::make_shared<SphereObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
+}
+
+auto SceneSubgraph::addCylinder( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                                 vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices,
+                                 int segments, int rings, double start, double sweep ) -> void {
+    auto node = vsg::ref_ptr<CylinderNode>{ new CylinderNode{ name, uid, position, orientation, scale, color, radius,
+                                                              size, slices, segments, rings, start, sweep } };
+
+    auto object = std::make_shared<CylinderObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
+}
+
+auto SceneSubgraph::addCapsule( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                                vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices, int segments,
+                                int rings, double start, double sweep ) -> void {
+    auto node = vsg::ref_ptr<CapsuleNode>{ new CapsuleNode{ name, uid, position, orientation, scale, color, radius,
+                                                            size, slices, segments, rings, start, sweep } };
+
+    auto object = std::make_shared<CapsuleObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
+}
+
+auto SceneSubgraph::addCone( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                             vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices, int segments,
+                             int rings, double start, double sweep ) -> void {
+    auto node = vsg::ref_ptr<ConeNode>{ new ConeNode{ name, uid, position, orientation, scale, color, radius, size,
+                                                      slices, segments, rings, start, sweep } };
+
+    auto object = std::make_shared<ConeObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
+}
+
+auto SceneSubgraph::addTorus( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                              vsg::dvec3 scale, vsg::vec4 color, double minor, double major, int slices, int segments,
+                              double minorStart, double minorSweep, double majorStart, double majorSweep ) -> void {
+    auto node =
+        vsg::ref_ptr<TorusNode>{ new TorusNode{ name, uid, position, orientation, scale, color, minor, major, slices,
+                                                segments, minorStart, minorSweep, majorStart, majorSweep } };
+
+    auto object = std::make_shared<TorusObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
+}
+
+auto SceneSubgraph::addIcosphere( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                                  vsg::dvec3 scale, vsg::vec4 color, double radius, int segments ) -> void {
+    auto node = vsg::ref_ptr<IcosphereNode>{
+        new IcosphereNode{ name, uid, position, orientation, scale, color, radius, segments } };
+
+    auto object = std::make_shared<IcosphereObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
+}
+
+auto SceneSubgraph::addIcosahedron( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                                    vsg::dvec3 scale, vsg::vec4 color, double radius, int segments ) -> void {
+    auto node = vsg::ref_ptr<IcosahedronNode>{
+        new IcosahedronNode{ name, uid, position, orientation, scale, color, radius, segments } };
+
+    auto object = std::make_shared<IcosahedronObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
+}
+
+auto SceneSubgraph::addDodecahedron( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                                     vsg::dvec3 scale, vsg::vec4 color, double radius, int segments, int rings )
+    -> void {
+    auto node = vsg::ref_ptr<DodecahedronNode>{
+        new DodecahedronNode{ name, uid, position, orientation, scale, color, radius, segments, rings } };
+
+    auto object = std::make_shared<DodecahedronObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
+}
+
+auto SceneSubgraph::addPlane( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                              vsg::dvec3 scale, vsg::vec4 color, vsg::dvec2 size, vsg::ivec2 segments ) -> void {
+    auto node =
+        vsg::ref_ptr<PlaneNode>{ new PlaneNode{ name, uid, position, orientation, scale, color, size, segments } };
+
+    auto object = std::make_shared<PlaneObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
+}
+
+auto SceneSubgraph::addDisk( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                             vsg::dvec3 scale, vsg::vec4 color, double radius, double innerRadius, int slices,
+                             int rings, double start, double sweep ) -> void {
+    auto node = vsg::ref_ptr<DiskNode>{ new DiskNode{ name, uid, position, orientation, scale, color, radius,
+                                                      innerRadius, slices, rings, start, sweep } };
+
+    auto object = std::make_shared<DiskObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
+}
+
+auto SceneSubgraph::addTube( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                             vsg::dvec3 scale, vsg::vec4 color, double radius, double innerRadius, double size,
+                             int slices, int segments, double start, double sweep ) -> void {
+    auto node = vsg::ref_ptr<TubeNode>{ new TubeNode{ name, uid, position, orientation, scale, color, radius,
+                                                      innerRadius, size, slices, segments, start, sweep } };
+
+    auto object = std::make_shared<TubeObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
+}
+
+auto SceneSubgraph::addCappedTube( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                                   vsg::dvec3 scale, vsg::vec4 color, double radius, double innerRadius, double size,
+                                   int slices, int segments, int rings, double start, double sweep ) -> void {
+    auto node =
+        vsg::ref_ptr<CappedTubeNode>{ new CappedTubeNode{ name, uid, position, orientation, scale, color, radius,
+                                                          innerRadius, size, slices, segments, rings, start, sweep } };
+
+    auto object = std::make_shared<CappedTubeObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
+}
+
+auto SceneSubgraph::addRoundedBox( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                                   vsg::dvec3 scale, vsg::vec4 color, double radius, vsg::dvec3 size, int slices,
+                                   vsg::ivec3 segments ) -> void {
+    auto node = vsg::ref_ptr<RoundedBoxNode>{
+        new RoundedBoxNode{ name, uid, position, orientation, scale, color, radius, size, slices, segments } };
+
+    auto object = std::make_shared<RoundedBoxObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
+}
+
+auto SceneSubgraph::addSphericalCone( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                                      vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices,
+                                      int segments, int rings, double start, double sweep ) -> void {
+    auto node = vsg::ref_ptr<SphericalConeNode>{ new SphericalConeNode{
+        name, uid, position, orientation, scale, color, radius, size, slices, segments, rings, start, sweep } };
+
+    auto object = std::make_shared<SphericalConeObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
+}
+
+auto SceneSubgraph::addTorusKnot( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                                  vsg::dvec3 scale, vsg::vec4 color, int p, int q, int slices, int segments ) -> void {
+    auto node = vsg::ref_ptr<TorusKnotNode>{
+        new TorusKnotNode{ name, uid, position, orientation, scale, color, p, q, slices, segments } };
+
+    auto object = std::make_shared<TorusKnotObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
+}
+
+auto SceneSubgraph::addSpring( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                               vsg::dvec3 scale, vsg::vec4 color, double minor, double major, double size, int slices,
+                               int segments, double minorStart, double minorSweep, double majorStart,
+                               double majorSweep ) -> void {
+    auto node =
+        vsg::ref_ptr<SpringNode>{ new SpringNode{ name, uid, position, orientation, scale, color, minor, major, size,
+                                                  slices, segments, minorStart, minorSweep, majorStart, majorSweep } };
+
+    auto object = std::make_shared<SpringObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
+}
+
+auto SceneSubgraph::addTeapot( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                               vsg::dvec3 scale, vsg::vec4 color, int segments ) -> void {
+    auto node = vsg::ref_ptr<TeapotNode>{ new TeapotNode{ name, uid, position, orientation, scale, color, segments } };
+
+    auto object = std::make_shared<TeapotObject>( node );
+
+    attach( node );
+
+    node->setOwner( object.get() );
+
+    _objectsList->push_back( object );
 }
 
 auto SceneSubgraph::initPipeline() -> void {

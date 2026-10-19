@@ -2,6 +2,7 @@
 #pragma once
 
 #include <QJsonArray>
+#include <QVariantMap>
 
 #include "subgraph.h"
 #include "objectslist.h"
@@ -52,79 +53,13 @@ struct SceneUIProxy final : public QObject {
     Q_PROPERTY( int appearnceMode READ appearnceMode WRITE setAppearnceMode NOTIFY appearnceModeChanged FINAL )
     Q_PROPERTY( int lightMode READ lightMode WRITE setLightMode NOTIFY lightModeChanged FINAL )
 
-    Q_PROPERTY( int showOuline READ showOuline WRITE setShowOuline NOTIFY showOulineChanged FINAL )
-
 public:
     SceneUIProxy( vsg::observer_ptr<SceneSubgraph> scene, vsg::observer_ptr<BoundingRender> boundingRender,
                   QObject* parent = nullptr );
 
     [[nodiscard]] auto sceneNode() const -> vsg::ref_ptr<SceneSubgraph>;
 
-    Q_INVOKABLE void addBox( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                             vsg::dvec3 scale, vsg::vec4 color, vsg::dvec3 size, vsg::ivec3 segments );
-
-    Q_INVOKABLE void addSphere( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                vsg::dvec3 scale, vsg::vec4 color, double radius, int slices, int segments,
-                                double sliceStart, double sliceSweep, double segmentStart, double segmentSweep );
-
-    Q_INVOKABLE void addCylinder( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                  vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices,
-                                  int segments, int rings, double start, double sweep );
-
-    Q_INVOKABLE void addCapsule( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                 vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices,
-                                 int segments, int rings, double start, double sweep );
-
-    Q_INVOKABLE void addCone( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                              vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices, int segments,
-                              int rings, double start, double sweep );
-
-    Q_INVOKABLE void addTorus( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                               vsg::dvec3 scale, vsg::vec4 color, double minor, double major, int slices, int segments,
-                               double minorStart, double minorSweep, double majorStart, double majorSweep );
-
-    Q_INVOKABLE void addIcosphere( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                   vsg::dvec3 scale, vsg::vec4 color, double radius, int segments );
-
-    Q_INVOKABLE void addIcosahedron( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                     vsg::dvec3 scale, vsg::vec4 color, double radius, int segments );
-
-    Q_INVOKABLE void addDodecahedron( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                      vsg::dvec3 scale, vsg::vec4 color, double radius, int segments, int rings );
-
-    Q_INVOKABLE void addPlane( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                               vsg::dvec3 scale, vsg::vec4 color, vsg::dvec2 size, vsg::ivec2 segments );
-
-    Q_INVOKABLE void addDisk( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                              vsg::dvec3 scale, vsg::vec4 color, double radius, double innerRadius, int slices,
-                              int rings, double start, double sweep );
-
-    Q_INVOKABLE void addTube( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                              vsg::dvec3 scale, vsg::vec4 color, double radius, double innerRadius, double size,
-                              int slices, int segments, double start, double sweep );
-
-    Q_INVOKABLE void addCappedTube( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                    vsg::dvec3 scale, vsg::vec4 color, double radius, double innerRadius, double size,
-                                    int slices, int segments, int rings, double start, double sweep );
-
-    Q_INVOKABLE void addRoundedBox( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                    vsg::dvec3 scale, vsg::vec4 color, double radius, vsg::dvec3 size, int slices,
-                                    vsg::ivec3 segments );
-
-    Q_INVOKABLE void addSphericalCone( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                       vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices,
-                                       int segments, int rings, double start, double sweep );
-
-    Q_INVOKABLE void addTorusKnot( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                   vsg::dvec3 scale, vsg::vec4 color, int p, int q, int slices, int segments );
-
-    Q_INVOKABLE void addSpring( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                vsg::dvec3 scale, vsg::vec4 color, double minor, double major, double size, int slices,
-                                int segments, double minorStart, double minorSweep, double majorStart,
-                                double majorSweep );
-
-    Q_INVOKABLE void addTeapot( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
-                                vsg::dvec3 scale, vsg::vec4 color, int segments );
+    Q_INVOKABLE void add( const QVariantMap& data );
 
     Q_INVOKABLE void removeObject( const QUuid& uid );
 
@@ -143,9 +78,6 @@ public:
 
     [[nodiscard]] auto lightMode() const -> int;
     auto setLightMode( int value ) -> void;
-
-    [[nodiscard]] auto showOuline() const -> bool;
-    auto setShowOuline( bool value ) -> void;
 
     Q_INVOKABLE SceneObjectBase* findObject( const QString& uid ) const;
     Q_INVOKABLE [[nodiscard]] QJsonArray serializeObjects() const;
@@ -168,8 +100,6 @@ private:
     SceneObjectsListModel* _objectsListModel{};
 
     QUuid _selectedObjectUid{};
-
-    bool _showOuline{ false };
 };
 
 // ======================================================================================
@@ -186,12 +116,84 @@ struct SceneSubgraph final : Subgraph {
     auto attach( vsg::ref_ptr<SceneObjectNode> object ) -> void;
     auto detach( vsg::ref_ptr<SceneObjectNode> object ) -> void;
 
+    auto addBox( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
+                 vsg::vec4 color, vsg::dvec3 size, vsg::ivec3 segments ) -> void;
+
+    auto addSphere( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
+                    vsg::vec4 color, double radius, int slices, int segments, double sliceStart, double sliceSweep,
+                    double segmentStart, double segmentSweep ) -> void;
+
+    auto addCylinder( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
+                      vsg::vec4 color, double radius, double size, int slices, int segments, int rings, double start,
+                      double sweep ) -> void;
+
+    auto addCapsule( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
+                     vsg::vec4 color, double radius, double size, int slices, int segments, int rings, double start,
+                     double sweep ) -> void;
+
+    auto addCone( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
+                  vsg::vec4 color, double radius, double size, int slices, int segments, int rings, double start,
+                  double sweep ) -> void;
+
+    auto addTorus( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
+                   vsg::vec4 color, double minor, double major, int slices, int segments, double minorStart,
+                   double minorSweep, double majorStart, double majorSweep ) -> void;
+
+    auto addIcosphere( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
+                       vsg::vec4 color, double radius, int segments ) -> void;
+
+    auto addIcosahedron( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                         vsg::dvec3 scale, vsg::vec4 color, double radius, int segments ) -> void;
+
+    auto addDodecahedron( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                          vsg::dvec3 scale, vsg::vec4 color, double radius, int segments, int rings ) -> void;
+
+    auto addPlane( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
+                   vsg::vec4 color, vsg::dvec2 size, vsg::ivec2 segments ) -> void;
+
+    auto addDisk( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
+                  vsg::vec4 color, double radius, double innerRadius, int slices, int rings, double start,
+                  double sweep ) -> void;
+
+    auto addTube( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
+                  vsg::vec4 color, double radius, double innerRadius, double size, int slices, int segments,
+                  double start, double sweep ) -> void;
+
+    auto addCappedTube( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                        vsg::dvec3 scale, vsg::vec4 color, double radius, double innerRadius, double size, int slices,
+                        int segments, int rings, double start, double sweep ) -> void;
+
+    auto addRoundedBox( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                        vsg::dvec3 scale, vsg::vec4 color, double radius, vsg::dvec3 size, int slices,
+                        vsg::ivec3 segments ) -> void;
+
+    auto addSphericalCone( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation,
+                           vsg::dvec3 scale, vsg::vec4 color, double radius, double size, int slices, int segments,
+                           int rings, double start, double sweep ) -> void;
+
+    auto addTorusKnot( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
+                       vsg::vec4 color, int p, int q, int slices, int segments ) -> void;
+
+    auto addSpring( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
+                    vsg::vec4 color, double minor, double major, double size, int slices, int segments,
+                    double minorStart, double minorSweep, double majorStart, double majorSweep ) -> void;
+
+    auto addTeapot( std::string name, std::string uid, vsg::dvec3 position, vsg::dvec3 orientation, vsg::dvec3 scale,
+                    vsg::vec4 color, int segments ) -> void;
+
+    [[nodiscard]] auto objectsList() const -> std::shared_ptr<std::vector<std::shared_ptr<SceneObjectBase>>>;
+
+    [[nodiscard]] auto findObject( const QUuid& uid ) const -> std::shared_ptr<SceneObjectBase>;
+    auto removeObject( const QUuid& uid ) -> std::shared_ptr<SceneObjectBase>;
+
     friend SceneUIProxy;
 
 private:
     auto updateObjectParamsUniformValue() -> void;
 
 private:
+    std::shared_ptr<std::vector<std::shared_ptr<SceneObjectBase>>> _objectsList{};
+
     vsg::ref_ptr<vsg::StateGroup> _stateGroup{};
 
     vsg::ref_ptr<vsg::RasterizationState> _rasterizationState{};

@@ -11,6 +11,8 @@
 #include "extfunctions.h"
 #include "log/log.h"
 
+#include "sceneobject/sceneobjectdata.h"
+
 namespace tire {
 
 auto Tired::init() -> void {
@@ -89,78 +91,206 @@ Tired::Tired( QObject* parent )
     _render->viewer()->compile();
 
     // Add default scene nodes.
-    _scenegraph->scene()->addBox( "OBJECT", QUuid::createUuid().toString().toStdString(), { -2.0, 2.0, 0.0 },
-                                  { 22.0, 45.0, 12.0 }, { 1.0, 1.3, 1.30 }, { 1.0f, 1.0f, 1.0f, 1.0f },
-                                  { 0.5, 0.5, 0.5 }, { 1, 1, 1 } );
+    const auto makeBaseMap = []( const QString& name, QVariantList position, QVariantList orientation,
+                                 QVariantList scale, QVariantList color ) -> QVariantMap {
+        return { { "name", name },
+                 { "uid", QUuid::createUuid().toString() },
+                 { "position", position },
+                 { "orientation", orientation },
+                 { "scale", scale },
+                 { "color", color } };
+    };
 
-    _scenegraph->scene()->addBox( "OBJECT", QUuid::createUuid().toString().toStdString(), { -2.0, -2.0, 0.0 },
-                                  { 72.0, 25.0, -91.0 }, { 2.0, 1.3, 1.3 }, { 1.0f, 1.0f, 1.0f, 1.0f },
-                                  { 0.5, 0.5, 0.5 }, { 1, 1, 1 } );
+    const auto white = QVariantList{ 1.0, 1.0, 1.0, 1.0 };
+    const auto zero3 = QVariantList{ 0.0, 0.0, 0.0 };
+    const auto one3 = QVariantList{ 1.0, 1.0, 1.0 };
 
-    _scenegraph->scene()->addBox( "OBJECT", QUuid::createUuid().toString().toStdString(), { 2.0, 2.0, 0.0 },
-                                  { 32.0, 225.0, -191.0 }, { 2.0, 1.3, 1.3 }, { 1.0f, 1.0f, 1.0f, 1.0f },
-                                  { 0.5, 0.5, 0.5 }, { 1, 1, 1 } );
+    {
+        auto data = makeBaseMap( "OBJECT", { -2.0, 2.0, 0.0 }, { 22.0, 45.0, 12.0 }, { 1.0, 1.3, 1.30 }, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::BOX ) );
+        data.insert( "derived",
+                     QVariantMap{ { "sizeX", 0.5 }, { "sizeY", 0.5 }, { "sizeZ", 0.5 },
+                                  { "segmentsX", 1 }, { "segmentsY", 1 }, { "segmentsZ", 1 } } );
 
-    _scenegraph->scene()->addBox( "OBJECT", QUuid::createUuid().toString().toStdString(), { 2.0, -2.0, 0.0 },
-                                  { 12.0, 65.0, 121.0 }, { 2.0, 1.3, 1.3 }, { 1.0f, 1.0f, 1.0f, 1.0f },
-                                  { 0.5, 0.5, 0.5 }, { 1, 1, 1 } );
+        _scenegraph->scene()->add( data );
+    }
 
-    _scenegraph->scene()->addSphere( "OBJECT", QUuid::createUuid().toString().toStdString(), { 0.0, 2.0, 0.0 },
-                                     { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 16, 8, 0.0,
-                                     gml::radians( 360.0 ), 0.0, gml::radians( 180.0 ) );
+    {
+        auto data = makeBaseMap( "OBJECT", { -2.0, -2.0, 0.0 }, { 72.0, 25.0, -91.0 }, { 2.0, 1.3, 1.3 }, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::BOX ) );
+        data.insert( "derived",
+                     QVariantMap{ { "sizeX", 0.5 }, { "sizeY", 0.5 }, { "sizeZ", 0.5 },
+                                  { "segmentsX", 1 }, { "segmentsY", 1 }, { "segmentsZ", 1 } } );
 
-    _scenegraph->scene()->addCylinder( "OBJECT", QUuid::createUuid().toString().toStdString(), { 0.0, 4.0, 0.0 },
-                                       { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 3.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 0.5, 16,
-                                       8, 4, 0.0, gml::radians( 360.0 ) );
+        _scenegraph->scene()->add( data );
+    }
 
-    _scenegraph->scene()->addCapsule( "OBJECT", QUuid::createUuid().toString().toStdString(), { 0.0, -2.0, 0.0 },
-                                      { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 0.5, 16, 8,
-                                      4, 0.0, gml::radians( 360.0 ) );
+    {
+        auto data = makeBaseMap( "OBJECT", { 2.0, 2.0, 0.0 }, { 32.0, 225.0, -191.0 }, { 2.0, 1.3, 1.3 }, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::BOX ) );
+        data.insert( "derived",
+                     QVariantMap{ { "sizeX", 0.5 }, { "sizeY", 0.5 }, { "sizeZ", 0.5 },
+                                  { "segmentsX", 1 }, { "segmentsY", 1 }, { "segmentsZ", 1 } } );
 
-    _scenegraph->scene()->addIcosphere( "OBJECT", QUuid::createUuid().toString().toStdString(), { 4.0, 2.0, 0.0 },
-                                        { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 4 );
+        _scenegraph->scene()->add( data );
+    }
 
-    _scenegraph->scene()->addIcosahedron( "OBJECT", QUuid::createUuid().toString().toStdString(), { 4.0, -2.0, 0.0 },
-                                          { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 1 );
+    {
+        auto data = makeBaseMap( "OBJECT", { 2.0, -2.0, 0.0 }, { 12.0, 65.0, 121.0 }, { 2.0, 1.3, 1.3 }, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::BOX ) );
+        data.insert( "derived",
+                     QVariantMap{ { "sizeX", 0.5 }, { "sizeY", 0.5 }, { "sizeZ", 0.5 },
+                                  { "segmentsX", 1 }, { "segmentsY", 1 }, { "segmentsZ", 1 } } );
 
-    _scenegraph->scene()->addDodecahedron( "OBJECT", QUuid::createUuid().toString().toStdString(), { -4.0, 2.0, 0.0 },
-                                           { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 1,
-                                           1 );
+        _scenegraph->scene()->add( data );
+    }
 
-    _scenegraph->scene()->addPlane( "OBJECT", QUuid::createUuid().toString().toStdString(), { -4.0, -2.0, 0.0 },
-                                    { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.5, 0.5 },
-                                    { 1, 1 } );
+    {
+        auto data = makeBaseMap( "OBJECT", { 0.0, 2.0, 0.0 }, zero3, one3, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::SPHERE ) );
+        data.insert( "derived",
+                     QVariantMap{ { "radius", 0.5 },          { "slices", 16 },
+                                  { "segments", 8 },          { "sliceStart", 0.0 },
+                                  { "sliceSweep", gml::radians( 360.0 ) }, { "segmentStart", 0.0 },
+                                  { "segmentSweep", gml::radians( 180.0 ) } } );
 
-    _scenegraph->scene()->addDisk( "OBJECT", QUuid::createUuid().toString().toStdString(), { 6.0, 0.0, 0.0 },
-                                   { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 0.0, 16, 4,
-                                   0.0, gml::radians( 360.0 ) );
+        _scenegraph->scene()->add( data );
+    }
 
-    _scenegraph->scene()->addTube( "OBJECT", QUuid::createUuid().toString().toStdString(), { -6.0, 0.0, 0.0 },
-                                   { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 0.25, 0.5,
-                                   16, 8, 0.0, gml::radians( 360.0 ) );
+    {
+        auto data = makeBaseMap( "OBJECT", { 0.0, 4.0, 0.0 }, zero3, { 1.0, 1.0, 3.0 }, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::CYLINDER ) );
+        data.insert( "derived",
+                     QVariantMap{ { "radius", 0.5 }, { "size", 0.5 }, { "slices", 16 }, { "segments", 8 },
+                                  { "rings", 4 },   { "start", 0.0 }, { "sweep", gml::radians( 360.0 ) } } );
 
-    _scenegraph->scene()->addCappedTube( "OBJECT", QUuid::createUuid().toString().toStdString(), { 0.0, 6.0, 0.0 },
-                                         { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 0.25,
-                                         0.5, 16, 8, 1, 0.0, gml::radians( 360.0 ) );
+        _scenegraph->scene()->add( data );
+    }
 
-    _scenegraph->scene()->addRoundedBox( "OBJECT", QUuid::createUuid().toString().toStdString(), { 0.0, -6.0, 0.0 },
-                                         { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.1,
-                                         { 0.4, 0.4, 0.4 }, 4, { 1, 1, 1 } );
+    {
+        auto data = makeBaseMap( "OBJECT", { 0.0, -2.0, 0.0 }, zero3, one3, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::CAPSULE ) );
+        data.insert( "derived",
+                     QVariantMap{ { "radius", 0.5 }, { "size", 0.5 }, { "slices", 16 }, { "segments", 8 },
+                                  { "rings", 4 },   { "start", 0.0 }, { "sweep", gml::radians( 360.0 ) } } );
 
-    _scenegraph->scene()->addSphericalCone( "OBJECT", QUuid::createUuid().toString().toStdString(), { 2.0, 4.0, 0.0 },
-                                            { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.5, 0.5,
-                                            16, 8, 4, 0.0, gml::radians( 360.0 ) );
+        _scenegraph->scene()->add( data );
+    }
 
-    _scenegraph->scene()->addTorusKnot( "OBJECT", QUuid::createUuid().toString().toStdString(), { -2.0, -4.0, 0.0 },
-                                        { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 2, 3, 8,
-                                        96 );
+    {
+        auto data = makeBaseMap( "OBJECT", { 4.0, 2.0, 0.0 }, zero3, one3, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::ICOSPHERE ) );
+        data.insert( "derived", QVariantMap{ { "radius", 0.5 }, { "segments", 4 } } );
 
-    _scenegraph->scene()->addSpring( "OBJECT", QUuid::createUuid().toString().toStdString(), { 4.0, 4.0, 0.0 },
-                                     { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 0.25, 1.0, 1.0,
-                                     8, 32, 0.0, gml::radians( 360.0 ), 0.0, gml::radians( 720.0 ) );
+        _scenegraph->scene()->add( data );
+    }
 
-    _scenegraph->scene()->addTeapot( "OBJECT", QUuid::createUuid().toString().toStdString(), { -4.0, -4.0, 0.0 },
-                                     { 0.0, 0.0, 0.0 }, { 1.0, 1.0, 1.0 }, { 1.0f, 1.0f, 1.0f, 1.0f }, 8 );
+    {
+        auto data = makeBaseMap( "OBJECT", { 4.0, -2.0, 0.0 }, zero3, one3, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::ICOSAHEDRON ) );
+        data.insert( "derived", QVariantMap{ { "radius", 0.5 }, { "segments", 1 } } );
+
+        _scenegraph->scene()->add( data );
+    }
+
+    {
+        auto data = makeBaseMap( "OBJECT", { -4.0, 2.0, 0.0 }, zero3, one3, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::DODECAHEDRON ) );
+        data.insert( "derived", QVariantMap{ { "radius", 0.5 }, { "segments", 1 }, { "rings", 1 } } );
+
+        _scenegraph->scene()->add( data );
+    }
+
+    {
+        auto data = makeBaseMap( "OBJECT", { -4.0, -2.0, 0.0 }, zero3, one3, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::PLANE ) );
+        data.insert( "derived",
+                     QVariantMap{ { "sizeX", 0.5 }, { "sizeY", 0.5 }, { "segmentsX", 1 }, { "segmentsY", 1 } } );
+
+        _scenegraph->scene()->add( data );
+    }
+
+    {
+        auto data = makeBaseMap( "OBJECT", { 6.0, 0.0, 0.0 }, zero3, one3, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::DISK ) );
+        data.insert( "derived",
+                     QVariantMap{ { "radius", 0.5 }, { "innerRadius", 0.0 }, { "slices", 16 }, { "rings", 4 },
+                                  { "start", 0.0 }, { "sweep", gml::radians( 360.0 ) } } );
+
+        _scenegraph->scene()->add( data );
+    }
+
+    {
+        auto data = makeBaseMap( "OBJECT", { -6.0, 0.0, 0.0 }, zero3, one3, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::TUBE ) );
+        data.insert( "derived",
+                     QVariantMap{ { "radius", 0.5 }, { "innerRadius", 0.25 }, { "size", 0.5 }, { "slices", 16 },
+                                  { "segments", 8 }, { "start", 0.0 },       { "sweep", gml::radians( 360.0 ) } } );
+
+        _scenegraph->scene()->add( data );
+    }
+
+    {
+        auto data = makeBaseMap( "OBJECT", { 0.0, 6.0, 0.0 }, zero3, one3, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::CAPPED_TUBE ) );
+        data.insert( "derived",
+                     QVariantMap{ { "radius", 0.5 },   { "innerRadius", 0.25 }, { "size", 0.5 }, { "slices", 16 },
+                                  { "segments", 8 },   { "rings", 1 },
+                                  { "start", 0.0 },    { "sweep", gml::radians( 360.0 ) } } );
+
+        _scenegraph->scene()->add( data );
+    }
+
+    {
+        auto data = makeBaseMap( "OBJECT", { 0.0, -6.0, 0.0 }, zero3, one3, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::ROUNDED_BOX ) );
+        data.insert( "derived",
+                     QVariantMap{ { "radius", 0.1 },   { "sizeX", 0.4 },     { "sizeY", 0.4 }, { "sizeZ", 0.4 },
+                                  { "slices", 4 },     { "segmentsX", 1 },   { "segmentsY", 1 },
+                                  { "segmentsZ", 1 } } );
+
+        _scenegraph->scene()->add( data );
+    }
+
+    {
+        auto data = makeBaseMap( "OBJECT", { 2.0, 4.0, 0.0 }, zero3, one3, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::SPHERICAL_CONE ) );
+        data.insert( "derived",
+                     QVariantMap{ { "radius", 0.5 }, { "size", 0.5 }, { "slices", 16 }, { "segments", 8 },
+                                  { "rings", 4 },   { "start", 0.0 }, { "sweep", gml::radians( 360.0 ) } } );
+
+        _scenegraph->scene()->add( data );
+    }
+
+    {
+        auto data = makeBaseMap( "OBJECT", { -2.0, -4.0, 0.0 }, zero3, one3, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::TORUS_KNOT ) );
+        data.insert( "derived",
+                     QVariantMap{ { "p", 2 }, { "q", 3 }, { "slices", 8 }, { "segments", 96 } } );
+
+        _scenegraph->scene()->add( data );
+    }
+
+    {
+        auto data = makeBaseMap( "OBJECT", { 4.0, 4.0, 0.0 }, zero3, one3, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::SPRING ) );
+        data.insert( "derived",
+                     QVariantMap{ { "minor", 0.25 },   { "major", 1.0 },
+                                  { "size", 1.0 },     { "slices", 8 },
+                                  { "segments", 32 },  { "minorStart", 0.0 },
+                                  { "minorSweep", gml::radians( 360.0 ) }, { "majorStart", 0.0 },
+                                  { "majorSweep", gml::radians( 720.0 ) } } );
+
+        _scenegraph->scene()->add( data );
+    }
+
+    {
+        auto data = makeBaseMap( "OBJECT", { -4.0, -4.0, 0.0 }, zero3, one3, white );
+        data.insert( "type", static_cast<int>( SceneObjectTypeEnum::TEAPOT ) );
+        data.insert( "derived", QVariantMap{ { "segments", 8 } } );
+
+        _scenegraph->scene()->add( data );
+    }
 };
 
 auto Tired::vsgRender() const -> std::shared_ptr<VsgRender> {

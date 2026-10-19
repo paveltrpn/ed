@@ -20,7 +20,8 @@ public:
         Object = Qt::UserRole + 1,
     };
 
-    explicit SceneObjectsListModel( QObject *parent = nullptr );
+    explicit SceneObjectsListModel( std::shared_ptr<std::vector<std::shared_ptr<SceneObjectBase>>> objectsList,
+                                    QObject *parent = nullptr );
     ~SceneObjectsListModel() override;
 
     QModelIndex index( int row, int column, const QModelIndex &parent = QModelIndex() ) const override;
@@ -36,13 +37,15 @@ public:
     bool insertRows( int row, int count, const QModelIndex &parent = QModelIndex() ) override;
     bool removeRows( int row, int count, const QModelIndex &parent = QModelIndex() ) override;
 
-    auto addObject( std::shared_ptr<SceneObjectBase> object ) -> void;
-    auto removeObject( std::shared_ptr<SceneObjectBase> object ) -> void;
+    auto beginAppendObject( int row ) -> void;
+    auto endAppendObject() -> void;
+    auto beginRemoveObject( int row ) -> void;
+    auto endRemoveObject() -> void;
 
     auto findObject( const QUuid &uid ) const -> std::shared_ptr<SceneObjectBase>;
 
 private:
-    std::vector<std::shared_ptr<SceneObjectBase>> _objectsList{};
+    std::shared_ptr<std::vector<std::shared_ptr<SceneObjectBase>>> _objectsList{};
 };
 
 };  // namespace tire

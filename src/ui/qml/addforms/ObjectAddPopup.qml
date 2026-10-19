@@ -10,6 +10,11 @@ import "../components"
 Rectangle {
     id: objectAddPopupComponent
 
+    // SceneObjectTypeEnum values (enum is not QML-registered):
+    // BOX=1, SPHERE=2, CYLINDER=3, CAPSULE=4, CONE=5, TORUS=6, ICOSPHERE=12, ICOSAHEDRON=13,
+    // DODECAHEDRON=14, PLANE=15, DISK=16, TUBE=17, CAPPED_TUBE=18, ROUNDED_BOX=19,
+    // SPHERICAL_CONE=20, TORUS_KNOT=21, SPRING=22, TEAPOT=23
+
     readonly property var _color: Appearence.colors.data
     readonly property var _fonts: Appearence.fonts.data
     readonly property var _units: Appearence.units.data
@@ -108,7 +113,7 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
-                Tired.scenegraph.scene.addIcosphere("OBJECT", "", Qt.vector3d(0, 0, 0), Qt.vector3d(0, 0, 0), Qt.vector3d(1, 1, 1), Qt.vector4d(1, 1, 1, 1), 0.5, 4);
+                Tired.scenegraph.scene.add({ "type": 12, "name": "OBJECT", "position": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0], "color": [1.0, 1.0, 1.0, 1.0], "derived": { "radius": 0.5, "segments": 4 } });
             }
         }
 
@@ -121,7 +126,7 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
-                Tired.scenegraph.scene.addIcosahedron("OBJECT", "", Qt.vector3d(0, 0, 0), Qt.vector3d(0, 0, 0), Qt.vector3d(1, 1, 1), Qt.vector4d(1, 1, 1, 1), 0.5, 1);
+                Tired.scenegraph.scene.add({ "type": 13, "name": "OBJECT", "position": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0], "color": [1.0, 1.0, 1.0, 1.0], "derived": { "radius": 0.5, "segments": 1 } });
             }
         }
 
@@ -134,7 +139,7 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
-                Tired.scenegraph.scene.addDodecahedron("OBJECT", "", Qt.vector3d(0, 0, 0), Qt.vector3d(0, 0, 0), Qt.vector3d(1, 1, 1), Qt.vector4d(1, 1, 1, 1), 0.5, 1, 1);
+                Tired.scenegraph.scene.add({ "type": 14, "name": "OBJECT", "position": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0], "color": [1.0, 1.0, 1.0, 1.0], "derived": { "radius": 0.5, "segments": 1, "rings": 1 } });
             }
         }
 
@@ -147,7 +152,7 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
-                Tired.scenegraph.scene.addPlane("OBJECT", "", Qt.vector3d(0, 0, 0), Qt.vector3d(0, 0, 0), Qt.vector3d(1, 1, 1), Qt.vector4d(1, 1, 1, 1), Qt.vector2d(0.5, 0.5), Qt.vector2d(1, 1));
+                Tired.scenegraph.scene.add({ "type": 15, "name": "OBJECT", "position": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0], "color": [1.0, 1.0, 1.0, 1.0], "derived": { "sizeX": 0.5, "sizeY": 0.5, "segmentsX": 1, "segmentsY": 1 } });
             }
         }
 
@@ -160,7 +165,7 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
-                Tired.scenegraph.scene.addDisk("OBJECT", "", Qt.vector3d(0, 0, 0), Qt.vector3d(0, 0, 0), Qt.vector3d(1, 1, 1), Qt.vector4d(1, 1, 1, 1), 0.5, 0.0, 16, 4, 0.0, 2.0 * Math.PI);
+                Tired.scenegraph.scene.add({ "type": 16, "name": "OBJECT", "position": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0], "color": [1.0, 1.0, 1.0, 1.0], "derived": { "radius": 0.5, "innerRadius": 0.0, "slices": 16, "rings": 4, "start": 0.0, "sweep": 2.0 * Math.PI } });
             }
         }
 
@@ -173,7 +178,7 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
-                Tired.scenegraph.scene.addTube("OBJECT", "", Qt.vector3d(0, 0, 0), Qt.vector3d(0, 0, 0), Qt.vector3d(1, 1, 1), Qt.vector4d(1, 1, 1, 1), 0.5, 0.25, 0.5, 16, 8, 0.0, 2.0 * Math.PI);
+                Tired.scenegraph.scene.add({ "type": 17, "name": "OBJECT", "position": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0], "color": [1.0, 1.0, 1.0, 1.0], "derived": { "radius": 0.5, "innerRadius": 0.25, "size": 0.5, "slices": 16, "segments": 8, "start": 0.0, "sweep": 2.0 * Math.PI } });
             }
         }
 
@@ -186,7 +191,7 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
-                Tired.scenegraph.scene.addCappedTube("OBJECT", "", Qt.vector3d(0, 0, 0), Qt.vector3d(0, 0, 0), Qt.vector3d(1, 1, 1), Qt.vector4d(1, 1, 1, 1), 0.5, 0.25, 0.5, 16, 8, 1, 0.0, 2.0 * Math.PI);
+                Tired.scenegraph.scene.add({ "type": 18, "name": "OBJECT", "position": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0], "color": [1.0, 1.0, 1.0, 1.0], "derived": { "radius": 0.5, "innerRadius": 0.25, "size": 0.5, "slices": 16, "segments": 8, "rings": 1, "start": 0.0, "sweep": 2.0 * Math.PI } });
             }
         }
 
@@ -199,7 +204,7 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
-                Tired.scenegraph.scene.addRoundedBox("OBJECT", "", Qt.vector3d(0, 0, 0), Qt.vector3d(0, 0, 0), Qt.vector3d(1, 1, 1), Qt.vector4d(1, 1, 1, 1), 0.1, Qt.vector3d(0.4, 0.4, 0.4), 4, Qt.vector3d(1, 1, 1));
+                Tired.scenegraph.scene.add({ "type": 19, "name": "OBJECT", "position": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0], "color": [1.0, 1.0, 1.0, 1.0], "derived": { "radius": 0.1, "sizeX": 0.4, "sizeY": 0.4, "sizeZ": 0.4, "slices": 4, "segmentsX": 1, "segmentsY": 1, "segmentsZ": 1 } });
             }
         }
 
@@ -212,7 +217,7 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
-                Tired.scenegraph.scene.addSphericalCone("OBJECT", "", Qt.vector3d(0, 0, 0), Qt.vector3d(0, 0, 0), Qt.vector3d(1, 1, 1), Qt.vector4d(1, 1, 1, 1), 0.5, 0.5, 16, 8, 4, 0.0, 2.0 * Math.PI);
+                Tired.scenegraph.scene.add({ "type": 20, "name": "OBJECT", "position": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0], "color": [1.0, 1.0, 1.0, 1.0], "derived": { "radius": 0.5, "size": 0.5, "slices": 16, "segments": 8, "rings": 4, "start": 0.0, "sweep": 2.0 * Math.PI } });
             }
         }
 
@@ -225,7 +230,7 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
-                Tired.scenegraph.scene.addTorusKnot("OBJECT", "", Qt.vector3d(0, 0, 0), Qt.vector3d(0, 0, 0), Qt.vector3d(1, 1, 1), Qt.vector4d(1, 1, 1, 1), 2, 3, 8, 96);
+                Tired.scenegraph.scene.add({ "type": 21, "name": "OBJECT", "position": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0], "color": [1.0, 1.0, 1.0, 1.0], "derived": { "p": 2, "q": 3, "slices": 8, "segments": 96 } });
             }
         }
 
@@ -238,7 +243,7 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
-                Tired.scenegraph.scene.addSpring("OBJECT", "", Qt.vector3d(0, 0, 0), Qt.vector3d(0, 0, 0), Qt.vector3d(1, 1, 1), Qt.vector4d(1, 1, 1, 1), 0.25, 1.0, 1.0, 8, 32, 0.0, 2.0 * Math.PI, 0.0, 4.0 * Math.PI);
+                Tired.scenegraph.scene.add({ "type": 22, "name": "OBJECT", "position": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0], "color": [1.0, 1.0, 1.0, 1.0], "derived": { "minor": 0.25, "major": 1.0, "size": 1.0, "slices": 8, "segments": 32, "minorStart": 0.0, "minorSweep": 2.0 * Math.PI, "majorStart": 0.0, "majorSweep": 4.0 * Math.PI } });
             }
         }
 
@@ -251,7 +256,7 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
-                Tired.scenegraph.scene.addTeapot("OBJECT", "", Qt.vector3d(0, 0, 0), Qt.vector3d(0, 0, 0), Qt.vector3d(1, 1, 1), Qt.vector4d(1, 1, 1, 1), 8);
+                Tired.scenegraph.scene.add({ "type": 23, "name": "OBJECT", "position": [0.0, 0.0, 0.0], "orientation": [0.0, 0.0, 0.0], "scale": [1.0, 1.0, 1.0], "color": [1.0, 1.0, 1.0, 1.0], "derived": { "segments": 8 } });
             }
         }
     }

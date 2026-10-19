@@ -11,48 +11,37 @@ namespace tire {
 // ==================== SceneObjectsListModel ===========================================
 // ======================================================================================
 
-SceneObjectsListModel::SceneObjectsListModel( QObject *parent )
-    : QAbstractItemModel( parent ) {
+SceneObjectsListModel::SceneObjectsListModel( std::shared_ptr<std::vector<std::shared_ptr<SceneObjectBase>>> objectsList,
+                                              QObject *parent )
+    : QAbstractItemModel( parent )
+    , _objectsList{ std::move( objectsList ) } {
 }
 
 SceneObjectsListModel::~SceneObjectsListModel() {
 }
 
-auto SceneObjectsListModel::addObject( std::shared_ptr<SceneObjectBase> object ) -> void {
-    // Add to end of vector.
-    const int row = _objectsList.size();
-    const QModelIndex parentIndex = QModelIndex();
+auto SceneObjectsListModel::beginAppendObject( int row ) -> void {
+    beginInsertRows( QModelIndex(), row, row );
+}
 
-    beginInsertRows( parentIndex, row, row );
-
-    _objectsList.push_back( object );
-
+auto SceneObjectsListModel::endAppendObject() -> void {
     endInsertRows();
 }
 
-auto SceneObjectsListModel::removeObject( std::shared_ptr<SceneObjectBase> object ) -> void {
-    const auto it = std::find( _objectsList.begin(), _objectsList.end(), object );
+auto SceneObjectsListModel::beginRemoveObject( int row ) -> void {
+    beginRemoveRows( QModelIndex(), row, row );
+}
 
-    if ( it == _objectsList.end() ) {
-        return;
-    }
-
-    const int row = static_cast<int>( std::distance( _objectsList.begin(), it ) );
-    const QModelIndex parentIndex = QModelIndex();
-
-    beginRemoveRows( parentIndex, row, row );
-
-    _objectsList.erase( it );
-
+auto SceneObjectsListModel::endRemoveObject() -> void {
     endRemoveRows();
 }
 
 auto SceneObjectsListModel::findObject( const QUuid &uid ) const -> std::shared_ptr<SceneObjectBase> {
-    auto it = std::find_if( _objectsList.begin(), _objectsList.end(),
+    auto it = std::find_if( _objectsList->begin(), _objectsList->end(),
                             //
                             [uid]( auto item ) -> bool { return item->uid() == uid.toString(); } );
 
-    if ( it == _objectsList.end() ) {
+    if ( it == _objectsList->end() ) {
         return {};
     }
 
@@ -91,7 +80,7 @@ QModelIndex SceneObjectsListModel::parent( const QModelIndex &child ) const {
 }
 
 int SceneObjectsListModel::rowCount( const QModelIndex &parent ) const {
-    return _objectsList.size();
+    return _objectsList->size();
 }
 
 int SceneObjectsListModel::columnCount( const QModelIndex &parent ) const {
@@ -103,7 +92,7 @@ QVariant SceneObjectsListModel::data( const QModelIndex &index, int role ) const
         return {};
     }
 
-    auto it = _objectsList.cbegin();
+    auto it = _objectsList->cbegin();
     it += index.row();
 
     if ( role == Roles::Object ) {
