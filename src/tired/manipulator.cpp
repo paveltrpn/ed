@@ -19,17 +19,17 @@ auto Manipulator::trackball() -> const vsg::ref_ptr<Trackball> {
     return _trackball;
 }
 
-QVector3D Manipulator::eye() const {
+auto Manipulator::eye() const -> QVector3D {
     return QVector3D{ static_cast<float>( _trackball->eye().x ), static_cast<float>( _trackball->eye().y ),
                       static_cast<float>( _trackball->eye().z ) };
 }
 
-QVector3D Manipulator::center() const {
+auto Manipulator::center() const -> QVector3D {
     return QVector3D{ static_cast<float>( _trackball->center().x ), static_cast<float>( _trackball->center().y ),
                       static_cast<float>( _trackball->center().z ) };
 }
 
-QVector3D Manipulator::up() const {
+auto Manipulator::up() const -> QVector3D {
     return QVector3D{ static_cast<float>( _trackball->up().x ), static_cast<float>( _trackball->up().y ),
                       static_cast<float>( _trackball->up().z ) };
 }
