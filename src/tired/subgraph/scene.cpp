@@ -168,11 +168,11 @@ void SceneUIProxy::add( const QVariantMap& data ) {
     const auto appendObject = [this]( const auto& addFn ) -> void {
         const auto row = static_cast<int>( _scene.get()->objectsList()->size() );
 
-        _objectsListModel->beginAppendObject( row );
+        _objectsListModel->beginInsertRows( QModelIndex(), row, row );
 
         addFn();
 
-        _objectsListModel->endAppendObject();
+        _objectsListModel->endInsertRows();
 
         emit objectsChanged();
     };
@@ -422,11 +422,11 @@ void SceneUIProxy::removeObject( const QUuid& uid ) {
 
     const auto row = static_cast<int>( std::distance( list.begin(), it ) );
 
-    _objectsListModel->beginRemoveObject( row );
+    _objectsListModel->beginRemoveRows( QModelIndex(), row, row );
 
     _scene.get()->removeObject( uid );
 
-    _objectsListModel->endRemoveObject();
+    _objectsListModel->endRemoveRows();
 
     emit objectsChanged();
 }

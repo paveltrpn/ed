@@ -20,22 +20,6 @@ SceneObjectsListModel::SceneObjectsListModel( std::shared_ptr<std::vector<std::s
 SceneObjectsListModel::~SceneObjectsListModel() {
 }
 
-auto SceneObjectsListModel::beginAppendObject( int row ) -> void {
-    beginInsertRows( QModelIndex(), row, row );
-}
-
-auto SceneObjectsListModel::endAppendObject() -> void {
-    endInsertRows();
-}
-
-auto SceneObjectsListModel::beginRemoveObject( int row ) -> void {
-    beginRemoveRows( QModelIndex(), row, row );
-}
-
-auto SceneObjectsListModel::endRemoveObject() -> void {
-    endRemoveRows();
-}
-
 auto SceneObjectsListModel::findObject( const QUuid &uid ) const -> std::shared_ptr<SceneObjectBase> {
     auto it = std::find_if( _objectsList->begin(), _objectsList->end(),
                             //

@@ -37,10 +37,13 @@ public:
     bool insertRows( int row, int count, const QModelIndex &parent = QModelIndex() ) override;
     bool removeRows( int row, int count, const QModelIndex &parent = QModelIndex() ) override;
 
-    auto beginAppendObject( int row ) -> void;
-    auto endAppendObject() -> void;
-    auto beginRemoveObject( int row ) -> void;
-    auto endRemoveObject() -> void;
+    // Re-expose the protected QAbstractItemModel row-notification methods: the model no
+    // longer mutates the objects list itself (SceneSubgraph owns it), so SceneUIProxy must
+    // be able to bracket external mutations with begin*/end* calls directly.
+    using QAbstractItemModel::beginInsertRows;
+    using QAbstractItemModel::endInsertRows;
+    using QAbstractItemModel::beginRemoveRows;
+    using QAbstractItemModel::endRemoveRows;
 
     auto findObject( const QUuid &uid ) const -> std::shared_ptr<SceneObjectBase>;
 
