@@ -44,7 +44,7 @@ SceneUIProxy::SceneUIProxy( vsg::observer_ptr<SceneSubgraph> scene, vsg::observe
     : QObject{ parent }
     , _scene{ scene }
     , _boundingRender{ boundingRender }
-    , _objects{ new SceneObjectsListModel{ this } } {
+    , _objectsListModel{ new SceneObjectsListModel{ this } } {
     //
 }
 
@@ -54,7 +54,7 @@ auto SceneUIProxy::sceneNode() const -> vsg::ref_ptr<SceneSubgraph> {
 }
 
 auto SceneUIProxy::objects() const -> SceneObjectsListModel* {
-    return _objects;
+    return _objectsListModel;
 }
 
 auto SceneUIProxy::selectedObjectUid() const -> QString {
@@ -74,7 +74,7 @@ auto SceneUIProxy::setSelectedObjectUid( const QString& value ) -> void {
         return;
     }
 
-    auto selectedObject = _objects->findObject( QUuid::fromString( value ) );
+    auto selectedObject = _objectsListModel->findObject( QUuid::fromString( value ) );
 
     _boundingRender.get()->attach( selectedObject->node()->boundingDraw() );
 
@@ -116,11 +116,11 @@ auto SceneUIProxy::setRenderMode( int value ) -> void {
 }
 
 auto SceneUIProxy::appearnceMode() const -> int {
-    return static_cast<int>( _scene.get()->_appearnceMode );
+    return static_cast<int>( _scene.get()->_appearenceMode );
 }
 
 auto SceneUIProxy::setAppearnceMode( int value ) -> void {
-    _scene.get()->_appearnceMode = static_cast<ObjectsAppearenceMode>( value );
+    _scene.get()->_appearenceMode = static_cast<ObjectsAppearenceMode>( value );
     _scene.get()->updateObjectParamsUniformValue();
     emit appearnceModeChanged();
 }
@@ -145,7 +145,7 @@ auto SceneUIProxy::setShowOuline( bool value ) -> void {
 }
 
 SceneObjectBase* SceneUIProxy::findObject( const QString& uid ) const {
-    auto obj = _objects->findObject( QUuid::fromString( uid ) );
+    auto obj = _objectsListModel->findObject( QUuid::fromString( uid ) );
     return obj.get();
 }
 
@@ -153,11 +153,11 @@ auto SceneUIProxy::serializeObjects() const -> QJsonArray {
     //
     auto result = QJsonArray{};
 
-    const auto count = _objects->rowCount();
+    const auto count = _objectsListModel->rowCount();
     for ( int row = 0; row < count; ++row ) {
-        const auto modelIndex = _objects->index( row, 0 );
+        const auto modelIndex = _objectsListModel->index( row, 0 );
 
-        auto* object = _objects->data( modelIndex, SceneObjectsListModel::Roles::Object ).value<SceneObjectBase*>();
+        auto* object = _objectsListModel->data( modelIndex, SceneObjectsListModel::Roles::Object ).value<SceneObjectBase*>();
 
         if ( object == nullptr ) {
             continue;
@@ -182,7 +182,7 @@ void SceneUIProxy::addBox( std::string name, std::string uid, vsg::dvec3 positio
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -200,7 +200,7 @@ void SceneUIProxy::addSphere( std::string name, std::string uid, vsg::dvec3 posi
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -217,7 +217,7 @@ void SceneUIProxy::addCylinder( std::string name, std::string uid, vsg::dvec3 po
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -234,7 +234,7 @@ void SceneUIProxy::addCapsule( std::string name, std::string uid, vsg::dvec3 pos
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -251,7 +251,7 @@ void SceneUIProxy::addCone( std::string name, std::string uid, vsg::dvec3 positi
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -269,7 +269,7 @@ void SceneUIProxy::addTorus( std::string name, std::string uid, vsg::dvec3 posit
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -285,7 +285,7 @@ void SceneUIProxy::addIcosphere( std::string name, std::string uid, vsg::dvec3 p
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -301,7 +301,7 @@ void SceneUIProxy::addIcosahedron( std::string name, std::string uid, vsg::dvec3
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -317,7 +317,7 @@ void SceneUIProxy::addDodecahedron( std::string name, std::string uid, vsg::dvec
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -333,7 +333,7 @@ void SceneUIProxy::addPlane( std::string name, std::string uid, vsg::dvec3 posit
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -350,7 +350,7 @@ void SceneUIProxy::addDisk( std::string name, std::string uid, vsg::dvec3 positi
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -367,7 +367,7 @@ void SceneUIProxy::addTube( std::string name, std::string uid, vsg::dvec3 positi
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -385,7 +385,7 @@ void SceneUIProxy::addCappedTube( std::string name, std::string uid, vsg::dvec3 
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -402,7 +402,7 @@ void SceneUIProxy::addRoundedBox( std::string name, std::string uid, vsg::dvec3 
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -419,7 +419,7 @@ void SceneUIProxy::addSphericalCone( std::string name, std::string uid, vsg::dve
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -435,7 +435,7 @@ void SceneUIProxy::addTorusKnot( std::string name, std::string uid, vsg::dvec3 p
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -454,7 +454,7 @@ void SceneUIProxy::addSpring( std::string name, std::string uid, vsg::dvec3 posi
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
@@ -469,13 +469,13 @@ void SceneUIProxy::addTeapot( std::string name, std::string uid, vsg::dvec3 posi
 
     node->setOwner( object.get() );
 
-    _objects->addObject( std::move( object ) );
+    _objectsListModel->addObject( std::move( object ) );
 
     emit objectsChanged();
 }
 
 void SceneUIProxy::removeObject( const QUuid& uid ) {
-    auto obj = _objects->findObject( uid );
+    auto obj = _objectsListModel->findObject( uid );
 
     if ( !obj ) {
         return;
@@ -487,7 +487,7 @@ void SceneUIProxy::removeObject( const QUuid& uid ) {
 
     _scene.get()->detach( obj->node() );
 
-    _objects->removeObject( obj );
+    _objectsListModel->removeObject( obj );
 
     emit objectsChanged();
 }
@@ -572,7 +572,7 @@ auto SceneSubgraph::initPipeline() -> void {
     const auto texture = vsg::DescriptorImage::create( imageInfo, 0, 0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER );
 
     _objectParamsUniformValue =
-        vsg::intArray::create( { static_cast<int>( _appearnceMode ), static_cast<int>( _lightMode ), 0, 0 } );
+        vsg::intArray::create( { static_cast<int>( _appearenceMode ), static_cast<int>( _lightMode ), 0, 0 } );
     _objectParamsUniformValue->properties.dataVariance = vsg::DYNAMIC_DATA;
 
     const auto objectParamsUniformDescriptor = vsg::DescriptorBuffer::create(
@@ -661,7 +661,7 @@ auto SceneSubgraph::initPipeline() -> void {
 }
 
 auto SceneSubgraph::updateObjectParamsUniformValue() -> void {
-    ( *_objectParamsUniformValue )[0] = static_cast<int>( _appearnceMode );
+    ( *_objectParamsUniformValue )[0] = static_cast<int>( _appearenceMode );
     ( *_objectParamsUniformValue )[1] = static_cast<int>( _lightMode );
     ( *_objectParamsUniformValue )[2] = 0;
     ( *_objectParamsUniformValue )[3] = 0;

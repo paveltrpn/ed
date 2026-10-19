@@ -165,7 +165,7 @@ private:
 
     vsg::observer_ptr<BoundingRender> _boundingRender{};
 
-    SceneObjectsListModel* _objects{};
+    SceneObjectsListModel* _objectsListModel{};
 
     QUuid _selectedObjectUid{};
 
@@ -204,7 +204,7 @@ private:
 
     vsg::ref_ptr<vsg::intArray> _objectParamsUniformValue{};
 
-    ObjectsAppearenceMode _appearnceMode{ ObjectsAppearenceMode::TEXTURE };
+    ObjectsAppearenceMode _appearenceMode{ ObjectsAppearenceMode::TEXTURE };
     ObjectsLightMode _lightMode{ ObjectsLightMode::CONSTANT };
     ObjectsRenderMode _renderMode{ ObjectsRenderMode::SOLID };
 };
