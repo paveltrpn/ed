@@ -14,26 +14,27 @@ namespace vsg {
 
 class VSG_DECLSPEC DynamicRenderGraph : public Inherit<Group, DynamicRenderGraph> {
 public:
-    ~DynamicRenderGraph() override{};
+    ~DynamicRenderGraph() override = default;
 
     DynamicRenderGraph( Device* in_device, vsg::ref_ptr<ImageView> colorAttachment,
                         vsg::ref_ptr<ImageView> depthAttachment, VkExtent2D extent );
 
-    using Group::accept;
+    auto accept( RecordTraversal& recordTraversal ) const -> void override;
 
-    void accept( RecordTraversal& recordTraversal ) const override;
+    auto getExtent() const -> VkExtent2D {
+        //
+        return _extent;
+    };
 
-    VkExtent2D getExtent() const { return _extent; };
-
-    void setClearValues( VkClearColorValue clearColor = { { 0.0f, 0.2f, 0.4f, 1.0f } },
-                         VkClearDepthStencilValue clearDepthStencil = { 0.0f, 0 } );
+    auto setClearValues( VkClearColorValue clearColor = { { 0.0f, 0.2f, 0.4f, 1.0f } },
+                         VkClearDepthStencilValue clearDepthStencil = { 0.0f, 0 } ) -> void;
 
     /// invoke the WindowResizeHandler, called automatically when a window dimension change is detected.
-    void resized();
+    auto resized() -> void;
 
     /// update the attachments and extent after a resize.
-    void setAttachments( vsg::ref_ptr<ImageView> colorAttachment, vsg::ref_ptr<ImageView> depthAttachment,
-                         VkExtent2D extent );
+    auto setAttachments( vsg::ref_ptr<ImageView> colorAttachment, vsg::ref_ptr<ImageView> depthAttachment,
+                         VkExtent2D extent ) -> void;
 
 public:
     uint32_t viewportStateHint{ DYNAMIC_VIEWPORTSTATE };

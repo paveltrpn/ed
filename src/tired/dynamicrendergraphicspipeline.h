@@ -19,8 +19,10 @@ public:
     DynamicRenderGraphicsPipeline( PipelineLayout* pipelineLayout, const ShaderStages& shaderStages,
                                    const GraphicsPipelineStates& pipelineStates, uint32_t subpass = 0 );
 
-    /// return the Vulkan Pipeline for specified viewID.
-    VkPipeline vk( uint32_t viewID ) const { return _implementation[viewID]->_pipeline; }
+    VkPipeline vk( uint32_t viewID ) const {
+        //
+        return _implementation[viewID]->_pipeline;
+    }
 
     int compare( const Object& rhs_object ) const override;
 
