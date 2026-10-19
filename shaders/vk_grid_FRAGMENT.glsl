@@ -8,9 +8,9 @@ layout(set = 0, binding = 1) uniform GridBuffer {
     float lineThickness;
     float maxRange;
     float zoomSensitivity;
-    vec3 colorMajor; // Color for lines at multiples of (gridSize * 5) e.g., 100m
+    vec3 colorMajor;
     float _p1;
-    vec3 colorMinor; // Color for standard lines e.g., 10m
+    vec3 colorMinor;
     float majorDivisor; // How often a major line appears (e.g., 5)
     vec3 cameraPosition;
     float _p2;

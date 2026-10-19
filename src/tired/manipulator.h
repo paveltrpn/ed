@@ -31,11 +31,18 @@ public:
 
     auto trackball() -> const vsg::ref_ptr<Trackball>;
 
-    QVector3D eye() const;
-    QVector3D center() const;
-    QVector3D up() const;
+    [[nodiscard]]
+    auto eye() const -> QVector3D;
+
+    [[nodiscard]]
+    auto center() const -> QVector3D;
+
+    [[nodiscard]]
+    auto up() const -> QVector3D;
 
     auto setDragActive( bool value ) -> void;
+
+    [[nodiscard]]
     auto dragActive() const -> bool;
 
     friend Trackball;
