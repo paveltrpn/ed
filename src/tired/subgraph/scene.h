@@ -59,8 +59,7 @@ public:
 
     [[nodiscard]] auto sceneNode() const -> vsg::ref_ptr<SceneSubgraph>;
 
-    Q_INVOKABLE void add( const QVariantMap& data );
-
+    Q_INVOKABLE void addObject( const QVariantMap& data );
     Q_INVOKABLE void removeObject( const QUuid& uid );
 
     [[nodiscard]] auto objects() const -> SceneObjectsListModel*;

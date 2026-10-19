@@ -128,7 +128,7 @@ Tired::Tired( QObject* parent )
                                              { "segmentsY", 1 },
                                              { "segmentsZ", 1 } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
@@ -141,7 +141,7 @@ Tired::Tired( QObject* parent )
                                              { "segmentsY", 1 },
                                              { "segmentsZ", 1 } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
@@ -154,7 +154,7 @@ Tired::Tired( QObject* parent )
                                              { "segmentsY", 1 },
                                              { "segmentsZ", 1 } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
@@ -167,7 +167,7 @@ Tired::Tired( QObject* parent )
                                              { "segmentsY", 1 },
                                              { "segmentsZ", 1 } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
@@ -180,7 +180,7 @@ Tired::Tired( QObject* parent )
                                              { "segmentStart", 0.0 },
                                              { "segmentSweep", gml::radians( 180.0 ) } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
@@ -194,7 +194,7 @@ Tired::Tired( QObject* parent )
                                              { "start", 0.0 },
                                              { "sweep", gml::radians( 360.0 ) } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
@@ -207,28 +207,28 @@ Tired::Tired( QObject* parent )
                                              { "start", 0.0 },
                                              { "sweep", gml::radians( 360.0 ) } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
         auto data = makeBaseMap( SceneObjectTypeEnum::ICOSPHERE, "OBJECT", gridPosition( 7 ), zero3, one3, white );
         data.insert( "derived", QVariantMap{ { "radius", 0.5 }, { "segments", 4 } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
         auto data = makeBaseMap( SceneObjectTypeEnum::ICOSAHEDRON, "OBJECT", gridPosition( 8 ), zero3, one3, white );
         data.insert( "derived", QVariantMap{ { "radius", 0.5 }, { "segments", 1 } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
         auto data = makeBaseMap( SceneObjectTypeEnum::DODECAHEDRON, "OBJECT", gridPosition( 9 ), zero3, one3, white );
         data.insert( "derived", QVariantMap{ { "radius", 0.5 }, { "segments", 1 }, { "rings", 1 } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
@@ -236,7 +236,7 @@ Tired::Tired( QObject* parent )
         data.insert( "derived",
                      QVariantMap{ { "sizeX", 0.5 }, { "sizeY", 0.5 }, { "segmentsX", 1 }, { "segmentsY", 1 } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
@@ -248,7 +248,7 @@ Tired::Tired( QObject* parent )
                                              { "start", 0.0 },
                                              { "sweep", gml::radians( 360.0 ) } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
@@ -261,7 +261,7 @@ Tired::Tired( QObject* parent )
                                              { "start", 0.0 },
                                              { "sweep", gml::radians( 360.0 ) } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
@@ -275,7 +275,7 @@ Tired::Tired( QObject* parent )
                                              { "start", 0.0 },
                                              { "sweep", gml::radians( 360.0 ) } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
@@ -289,7 +289,7 @@ Tired::Tired( QObject* parent )
                                              { "segmentsY", 1 },
                                              { "segmentsZ", 1 } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
@@ -303,14 +303,14 @@ Tired::Tired( QObject* parent )
                                              { "start", 0.0 },
                                              { "sweep", gml::radians( 360.0 ) } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
         auto data = makeBaseMap( SceneObjectTypeEnum::TORUS_KNOT, "OBJECT", gridPosition( 16 ), zero3, one3, white );
         data.insert( "derived", QVariantMap{ { "p", 2 }, { "q", 3 }, { "slices", 8 }, { "segments", 96 } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
@@ -325,14 +325,14 @@ Tired::Tired( QObject* parent )
                                              { "majorStart", 0.0 },
                                              { "majorSweep", gml::radians( 720.0 ) } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 
     {
         auto data = makeBaseMap( SceneObjectTypeEnum::TEAPOT, "OBJECT", gridPosition( 18 ), zero3, one3, white );
         data.insert( "derived", QVariantMap{ { "segments", 8 } } );
 
-        _scenegraph->scene()->add( data );
+        _scenegraph->scene()->addObject( data );
     }
 };
 

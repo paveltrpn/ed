@@ -156,21 +156,24 @@ public:
 
     virtual void fromJson( const QJsonObject &data ) {
         //
-        _type = static_cast<SceneObjectTypeEnum>( data.value( "type" ).toInt() );
-        _name = data.value( "name" ).toString();
-        _uid = QUuid{ data.value( "uid" ).toString() };
+        _type = static_cast<SceneObjectTypeEnum>( data.value( "type" ).toInt( static_cast<int>( _type ) ) );
+        _name = data.value( "name" ).toString( _name );
+        _uid = QUuid{ data.value( "uid" ).toString( _uid.toString() ) };
 
-        auto &&positionArr = data.value( "position" ).toArray();
-        auto &&orientationArr = data.value( "orientation" ).toArray();
-        auto &&scaleArr = data.value( "scale" ).toArray();
-        auto &&colorArr = data.value( "color" ).toArray();
+        const auto positionArr = data.value( "position" ).toArray();
+        const auto orientationArr = data.value( "orientation" ).toArray();
+        const auto scaleArr = data.value( "scale" ).toArray();
+        const auto colorArr = data.value( "color" ).toArray();
 
-        _position = vsg::dvec3{ positionArr[0].toDouble(), positionArr[1].toDouble(), positionArr[2].toDouble() };
+        _position = vsg::dvec3{ positionArr[0].toDouble( _position.x ), positionArr[1].toDouble( _position.y ),
+                                positionArr[2].toDouble( _position.z ) };
         _orientation =
-            vsg::dvec3{ orientationArr[0].toDouble(), orientationArr[1].toDouble(), orientationArr[2].toDouble() };
-        _scale = vsg::dvec3{ scaleArr[0].toDouble(), scaleArr[1].toDouble(), scaleArr[2].toDouble() };
-        _color = vsg::dvec4{ colorArr[0].toDouble(), colorArr[1].toDouble(), colorArr[2].toDouble(),
-                             colorArr[3].toDouble() };
+            vsg::dvec3{ orientationArr[0].toDouble( _orientation.x ), orientationArr[1].toDouble( _orientation.y ),
+                        orientationArr[2].toDouble( _orientation.z ) };
+        _scale = vsg::dvec3{ scaleArr[0].toDouble( _scale.x ), scaleArr[1].toDouble( _scale.y ),
+                             scaleArr[2].toDouble( _scale.z ) };
+        _color = vsg::dvec4{ colorArr[0].toDouble( _color.x ), colorArr[1].toDouble( _color.y ),
+                             colorArr[2].toDouble( _color.z ), colorArr[3].toDouble( _color.w ) };
     }
 
     SceneObjectTypeEnum _type{};
@@ -219,13 +222,13 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _sizeX = derived.value( "sizeX" ).toDouble();
-        _sizeY = derived.value( "sizeY" ).toDouble();
-        _sizeZ = derived.value( "sizeZ" ).toDouble();
+        _sizeX = derived.value( "sizeX" ).toDouble( _sizeX );
+        _sizeY = derived.value( "sizeY" ).toDouble( _sizeY );
+        _sizeZ = derived.value( "sizeZ" ).toDouble( _sizeZ );
 
-        _segmentsX = derived.value( "segmentsX" ).toInt();
-        _segmentsY = derived.value( "segmentsY" ).toInt();
-        _segmentsZ = derived.value( "segmentsZ" ).toInt();
+        _segmentsX = derived.value( "segmentsX" ).toInt( _segmentsX );
+        _segmentsY = derived.value( "segmentsY" ).toInt( _segmentsY );
+        _segmentsZ = derived.value( "segmentsZ" ).toInt( _segmentsZ );
     }
 
     double _sizeX{ 0.5 };
@@ -277,13 +280,13 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _radius = derived.value( "radius" ).toDouble();
-        _slices = derived.value( "slices" ).toInt();
-        _segments = derived.value( "segments" ).toInt();
-        _sliceStart = derived.value( "sliceStart" ).toDouble();
-        _sliceSweep = derived.value( "sliceSweep" ).toDouble();
-        _segmentStart = derived.value( "segmentStart" ).toDouble();
-        _segmentSweep = derived.value( "segmentSweep" ).toDouble();
+        _radius = derived.value( "radius" ).toDouble( _radius );
+        _slices = derived.value( "slices" ).toInt( _slices );
+        _segments = derived.value( "segments" ).toInt( _segments );
+        _sliceStart = derived.value( "sliceStart" ).toDouble( _sliceStart );
+        _sliceSweep = derived.value( "sliceSweep" ).toDouble( _sliceSweep );
+        _segmentStart = derived.value( "segmentStart" ).toDouble( _segmentStart );
+        _segmentSweep = derived.value( "segmentSweep" ).toDouble( _segmentSweep );
     }
 
     double _radius{ 0.5 };
@@ -330,13 +333,13 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _radius = derived.value( "radius" ).toDouble();
-        _size = derived.value( "size" ).toDouble();
-        _slices = derived.value( "slices" ).toInt();
-        _segments = derived.value( "segments" ).toInt();
-        _rings = derived.value( "rings" ).toInt();
-        _start = derived.value( "start" ).toDouble();
-        _sweep = derived.value( "sweep" ).toDouble();
+        _radius = derived.value( "radius" ).toDouble( _radius );
+        _size = derived.value( "size" ).toDouble( _size );
+        _slices = derived.value( "slices" ).toInt( _slices );
+        _segments = derived.value( "segments" ).toInt( _segments );
+        _rings = derived.value( "rings" ).toInt( _rings );
+        _start = derived.value( "start" ).toDouble( _start );
+        _sweep = derived.value( "sweep" ).toDouble( _sweep );
     }
 
     double _radius = { 0.5 };
@@ -383,13 +386,13 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _radius = derived.value( "radius" ).toDouble();
-        _size = derived.value( "size" ).toDouble();
-        _slices = derived.value( "slices" ).toInt();
-        _segments = derived.value( "segments" ).toInt();
-        _rings = derived.value( "rings" ).toInt();
-        _start = derived.value( "start" ).toDouble();
-        _sweep = derived.value( "sweep" ).toDouble();
+        _radius = derived.value( "radius" ).toDouble( _radius );
+        _size = derived.value( "size" ).toDouble( _size );
+        _slices = derived.value( "slices" ).toInt( _slices );
+        _segments = derived.value( "segments" ).toInt( _segments );
+        _rings = derived.value( "rings" ).toInt( _rings );
+        _start = derived.value( "start" ).toDouble( _start );
+        _sweep = derived.value( "sweep" ).toDouble( _sweep );
     }
 
     double _radius = { 0.5 };
@@ -436,13 +439,13 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _radius = derived.value( "radius" ).toDouble();
-        _size = derived.value( "size" ).toDouble();
-        _slices = derived.value( "slices" ).toInt();
-        _segments = derived.value( "segments" ).toInt();
-        _rings = derived.value( "rings" ).toInt();
-        _start = derived.value( "start" ).toDouble();
-        _sweep = derived.value( "sweep" ).toDouble();
+        _radius = derived.value( "radius" ).toDouble( _radius );
+        _size = derived.value( "size" ).toDouble( _size );
+        _slices = derived.value( "slices" ).toInt( _slices );
+        _segments = derived.value( "segments" ).toInt( _segments );
+        _rings = derived.value( "rings" ).toInt( _rings );
+        _start = derived.value( "start" ).toDouble( _start );
+        _sweep = derived.value( "sweep" ).toDouble( _sweep );
     }
 
     double _radius = { 0.5 };
@@ -490,14 +493,14 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _minor = derived.value( "minor" ).toDouble();
-        _major = derived.value( "major" ).toDouble();
-        _slices = derived.value( "slices" ).toInt();
-        _segments = derived.value( "segments" ).toInt();
-        _minorStart = derived.value( "minorStart" ).toInt();
-        _minorSweep = derived.value( "minorSweep" ).toDouble();
-        _majorStart = derived.value( "majorStart" ).toDouble();
-        _majorSweep = derived.value( "majorSweep" ).toDouble();
+        _minor = derived.value( "minor" ).toDouble( _minor );
+        _major = derived.value( "major" ).toDouble( _major );
+        _slices = derived.value( "slices" ).toInt( _slices );
+        _segments = derived.value( "segments" ).toInt( _segments );
+        _minorStart = derived.value( "minorStart" ).toDouble( _minorStart );
+        _minorSweep = derived.value( "minorSweep" ).toDouble( _minorSweep );
+        _majorStart = derived.value( "majorStart" ).toDouble( _majorStart );
+        _majorSweep = derived.value( "majorSweep" ).toDouble( _majorSweep );
     }
 
     double _minor{ 0.25 };
@@ -751,8 +754,8 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _radius = derived.value( "radius" ).toDouble();
-        _segments = derived.value( "segments" ).toInt();
+        _radius = derived.value( "radius" ).toDouble( _radius );
+        _segments = derived.value( "segments" ).toInt( _segments );
     }
 
     double _radius{ 0.5 };
@@ -794,8 +797,8 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _radius = derived.value( "radius" ).toDouble();
-        _segments = derived.value( "segments" ).toInt();
+        _radius = derived.value( "radius" ).toDouble( _radius );
+        _segments = derived.value( "segments" ).toInt( _segments );
     }
 
     double _radius{ 0.5 };
@@ -838,9 +841,9 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _radius = derived.value( "radius" ).toDouble();
-        _segments = derived.value( "segments" ).toInt();
-        _rings = derived.value( "rings" ).toInt();
+        _radius = derived.value( "radius" ).toDouble( _radius );
+        _segments = derived.value( "segments" ).toInt( _segments );
+        _rings = derived.value( "rings" ).toInt( _rings );
     }
 
     double _radius{ 0.5 };
@@ -885,11 +888,11 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _sizeX = derived.value( "sizeX" ).toDouble();
-        _sizeY = derived.value( "sizeY" ).toDouble();
+        _sizeX = derived.value( "sizeX" ).toDouble( _sizeX );
+        _sizeY = derived.value( "sizeY" ).toDouble( _sizeY );
 
-        _segmentsX = derived.value( "segmentsX" ).toInt();
-        _segmentsY = derived.value( "segmentsY" ).toInt();
+        _segmentsX = derived.value( "segmentsX" ).toInt( _segmentsX );
+        _segmentsY = derived.value( "segmentsY" ).toInt( _segmentsY );
     }
 
     double _sizeX{ 0.5 };
@@ -920,7 +923,8 @@ public:
         auto base = SceneObjectData::toJson();
 
         const auto self = QJsonObject{
-            { "radius", _radius }, { "innerRadius", _innerRadius }, { "slices", _slices }, { "rings", _rings },
+            { "radius", _radius }, { "innerRadius", _innerRadius },
+            { "slices", _slices }, { "rings", _rings },
             { "start", _start },   { "sweep", _sweep },
         };
 
@@ -934,12 +938,12 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _radius = derived.value( "radius" ).toDouble();
-        _innerRadius = derived.value( "innerRadius" ).toDouble();
-        _slices = derived.value( "slices" ).toInt();
-        _rings = derived.value( "rings" ).toInt();
-        _start = derived.value( "start" ).toDouble();
-        _sweep = derived.value( "sweep" ).toDouble();
+        _radius = derived.value( "radius" ).toDouble( _radius );
+        _innerRadius = derived.value( "innerRadius" ).toDouble( _innerRadius );
+        _slices = derived.value( "slices" ).toInt( _slices );
+        _rings = derived.value( "rings" ).toInt( _rings );
+        _start = derived.value( "start" ).toDouble( _start );
+        _sweep = derived.value( "sweep" ).toDouble( _sweep );
     }
 
     double _radius{ 0.5 };
@@ -971,8 +975,9 @@ public:
         auto base = SceneObjectData::toJson();
 
         const auto self = QJsonObject{
-            { "radius", _radius }, { "innerRadius", _innerRadius }, { "size", _size },   { "slices", _slices },
-            { "segments", _segments }, { "start", _start }, { "sweep", _sweep },
+            { "radius", _radius }, { "innerRadius", _innerRadius }, { "size", _size },
+            { "slices", _slices }, { "segments", _segments },       { "start", _start },
+            { "sweep", _sweep },
         };
 
         base.insert( "derived", self );
@@ -985,13 +990,13 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _radius = derived.value( "radius" ).toDouble();
-        _innerRadius = derived.value( "innerRadius" ).toDouble();
-        _size = derived.value( "size" ).toDouble();
-        _slices = derived.value( "slices" ).toInt();
-        _segments = derived.value( "segments" ).toInt();
-        _start = derived.value( "start" ).toDouble();
-        _sweep = derived.value( "sweep" ).toDouble();
+        _radius = derived.value( "radius" ).toDouble( _radius );
+        _innerRadius = derived.value( "innerRadius" ).toDouble( _innerRadius );
+        _size = derived.value( "size" ).toDouble( _size );
+        _slices = derived.value( "slices" ).toInt( _slices );
+        _segments = derived.value( "segments" ).toInt( _segments );
+        _start = derived.value( "start" ).toDouble( _start );
+        _sweep = derived.value( "sweep" ).toDouble( _sweep );
     }
 
     double _radius{ 0.5 };
@@ -1024,9 +1029,10 @@ public:
         auto base = SceneObjectData::toJson();
 
         const auto self = QJsonObject{
-            { "radius", _radius },       { "innerRadius", _innerRadius }, { "size", _size },
-            { "slices", _slices },       { "segments", _segments },       { "rings", _rings },
-            { "start", _start },         { "sweep", _sweep },
+            { "radius", _radius },     { "innerRadius", _innerRadius },
+            { "size", _size },         { "slices", _slices },
+            { "segments", _segments }, { "rings", _rings },
+            { "start", _start },       { "sweep", _sweep },
         };
 
         base.insert( "derived", self );
@@ -1039,14 +1045,14 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _radius = derived.value( "radius" ).toDouble();
-        _innerRadius = derived.value( "innerRadius" ).toDouble();
-        _size = derived.value( "size" ).toDouble();
-        _slices = derived.value( "slices" ).toInt();
-        _segments = derived.value( "segments" ).toInt();
-        _rings = derived.value( "rings" ).toInt();
-        _start = derived.value( "start" ).toDouble();
-        _sweep = derived.value( "sweep" ).toDouble();
+        _radius = derived.value( "radius" ).toDouble( _radius );
+        _innerRadius = derived.value( "innerRadius" ).toDouble( _innerRadius );
+        _size = derived.value( "size" ).toDouble( _size );
+        _slices = derived.value( "slices" ).toInt( _slices );
+        _segments = derived.value( "segments" ).toInt( _segments );
+        _rings = derived.value( "rings" ).toInt( _rings );
+        _start = derived.value( "start" ).toDouble( _start );
+        _sweep = derived.value( "sweep" ).toDouble( _sweep );
     }
 
     double _radius{ 0.5 };
@@ -1080,9 +1086,9 @@ public:
         auto base = SceneObjectData::toJson();
 
         const auto self = QJsonObject{
-            { "radius", _radius },         { "sizeX", _sizeX },         { "sizeY", _sizeY },
-            { "sizeZ", _sizeZ },           { "slices", _slices },       { "segmentsX", _segmentsX },
-            { "segmentsY", _segmentsY },   { "segmentsZ", _segmentsZ },
+            { "radius", _radius },       { "sizeX", _sizeX },         { "sizeY", _sizeY },
+            { "sizeZ", _sizeZ },         { "slices", _slices },       { "segmentsX", _segmentsX },
+            { "segmentsY", _segmentsY }, { "segmentsZ", _segmentsZ },
         };
 
         base.insert( "derived", self );
@@ -1095,14 +1101,14 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _radius = derived.value( "radius" ).toDouble();
-        _sizeX = derived.value( "sizeX" ).toDouble();
-        _sizeY = derived.value( "sizeY" ).toDouble();
-        _sizeZ = derived.value( "sizeZ" ).toDouble();
-        _slices = derived.value( "slices" ).toInt();
-        _segmentsX = derived.value( "segmentsX" ).toInt();
-        _segmentsY = derived.value( "segmentsY" ).toInt();
-        _segmentsZ = derived.value( "segmentsZ" ).toInt();
+        _radius = derived.value( "radius" ).toDouble( _radius );
+        _sizeX = derived.value( "sizeX" ).toDouble( _sizeX );
+        _sizeY = derived.value( "sizeY" ).toDouble( _sizeY );
+        _sizeZ = derived.value( "sizeZ" ).toDouble( _sizeZ );
+        _slices = derived.value( "slices" ).toInt( _slices );
+        _segmentsX = derived.value( "segmentsX" ).toInt( _segmentsX );
+        _segmentsY = derived.value( "segmentsY" ).toInt( _segmentsY );
+        _segmentsZ = derived.value( "segmentsZ" ).toInt( _segmentsZ );
     }
 
     double _radius{ 0.1 };
@@ -1150,13 +1156,13 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _radius = derived.value( "radius" ).toDouble();
-        _size = derived.value( "size" ).toDouble();
-        _slices = derived.value( "slices" ).toInt();
-        _segments = derived.value( "segments" ).toInt();
-        _rings = derived.value( "rings" ).toInt();
-        _start = derived.value( "start" ).toDouble();
-        _sweep = derived.value( "sweep" ).toDouble();
+        _radius = derived.value( "radius" ).toDouble( _radius );
+        _size = derived.value( "size" ).toDouble( _size );
+        _slices = derived.value( "slices" ).toInt( _slices );
+        _segments = derived.value( "segments" ).toInt( _segments );
+        _rings = derived.value( "rings" ).toInt( _rings );
+        _start = derived.value( "start" ).toDouble( _start );
+        _sweep = derived.value( "sweep" ).toDouble( _sweep );
     }
 
     double _radius{ 0.5 };
@@ -1205,10 +1211,10 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _p = derived.value( "p" ).toInt();
-        _q = derived.value( "q" ).toInt();
-        _slices = derived.value( "slices" ).toInt();
-        _segments = derived.value( "segments" ).toInt();
+        _p = derived.value( "p" ).toInt( _p );
+        _q = derived.value( "q" ).toInt( _q );
+        _slices = derived.value( "slices" ).toInt( _slices );
+        _segments = derived.value( "segments" ).toInt( _segments );
     }
 
     int _p{ 2 };
@@ -1253,15 +1259,15 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _minor = derived.value( "minor" ).toDouble();
-        _major = derived.value( "major" ).toDouble();
-        _size = derived.value( "size" ).toDouble();
-        _slices = derived.value( "slices" ).toInt();
-        _segments = derived.value( "segments" ).toInt();
-        _minorStart = derived.value( "minorStart" ).toDouble();
-        _minorSweep = derived.value( "minorSweep" ).toDouble();
-        _majorStart = derived.value( "majorStart" ).toDouble();
-        _majorSweep = derived.value( "majorSweep" ).toDouble();
+        _minor = derived.value( "minor" ).toDouble( _minor );
+        _major = derived.value( "major" ).toDouble( _major );
+        _size = derived.value( "size" ).toDouble( _size );
+        _slices = derived.value( "slices" ).toInt( _slices );
+        _segments = derived.value( "segments" ).toInt( _segments );
+        _minorStart = derived.value( "minorStart" ).toDouble( _minorStart );
+        _minorSweep = derived.value( "minorSweep" ).toDouble( _minorSweep );
+        _majorStart = derived.value( "majorStart" ).toDouble( _majorStart );
+        _majorSweep = derived.value( "majorSweep" ).toDouble( _majorSweep );
     }
 
     double _minor{ 0.25 };
@@ -1309,7 +1315,7 @@ public:
 
         const auto &derived = data.value( "derived" ).toObject();
 
-        _segments = derived.value( "segments" ).toInt();
+        _segments = derived.value( "segments" ).toInt( _segments );
     }
 
     int _segments{ 8 };

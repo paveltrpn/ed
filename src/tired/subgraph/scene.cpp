@@ -160,7 +160,7 @@ auto SceneUIProxy::serializeObjects() const -> QJsonArray {
     return result;
 }
 
-void SceneUIProxy::add( const QVariantMap& data ) {
+void SceneUIProxy::addObject( const QVariantMap& data ) {
     const auto json = QJsonObject::fromVariantMap( data );
 
     const auto type = static_cast<SceneObjectTypeEnum>( json.value( "type" ).toInt() );
