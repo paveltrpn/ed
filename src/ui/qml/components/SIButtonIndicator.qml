@@ -28,6 +28,16 @@ Item {
 
     signal textValueChanged(string value)
 
+    function commitText() {
+        let raw = textInputComponent.text;
+        let parsed = Number(raw);
+        if (raw.trim() === "" || Number.isNaN(parsed)) {
+            parsed = 0;
+        }
+        textInputComponent.text = parsed.toFixed(3);
+        control.textValueChanged(String(parsed));
+    }
+
     states: [
         State {
             when: indicatorArea.containsMouse || textInputComponent.focus
@@ -123,13 +133,17 @@ Item {
 
                     clip: true
 
+                    validator: RegularExpressionValidator {
+                        regularExpression: /^-?\d*\.?\d*$/
+                    }
+
                     onAccepted: {
-                        control.textValueChanged(textInputComponent.text);
+                        control.commitText();
                     }
 
                     onActiveFocusChanged: {
                         if (!activeFocus) {
-                            control.textValueChanged(textInputComponent.text);
+                            control.commitText();
                         }
                     }
 
