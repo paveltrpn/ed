@@ -73,7 +73,7 @@ struct Trackball final : public vsg::Trackball {
     auto projection() const -> vsg::dmat4;
 
 private:
-    // Mayby some little observer for this?
+    // Maybe some little observer for this?
     Manipulator* _owner{};
 };
 

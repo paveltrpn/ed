@@ -43,7 +43,7 @@ Rectangle {
 
             anchors {
                 top: parent.top
-                topMargin: leftPanelSystemComponent._units.half
+                topMargin: leftPanelSystemComponent._units.quarter
                 left: parent.left
                 right: parent.right
             }
@@ -164,6 +164,7 @@ Rectangle {
 
             anchors {
                 bottom: exitPanelItem.top
+                bottomMargin: _units.quarter
                 left: parent.left
                 right: parent.right
             }
@@ -187,7 +188,7 @@ Rectangle {
             id: exitPanelItem
             anchors {
                 bottom: parent.bottom
-                bottomMargin: visible ? _units.eight : 0
+                bottomMargin: visible ? _units.quarter : 0
                 left: parent.left
                 right: parent.right
             }

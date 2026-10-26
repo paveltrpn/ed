@@ -33,7 +33,7 @@ Rectangle {
 
             anchors {
                 top: parent.top
-                topMargin: leftPanelSceneComponent._units.half
+                topMargin: leftPanelSceneComponent._units.quarter
                 left: parent.left
                 right: parent.right
             }

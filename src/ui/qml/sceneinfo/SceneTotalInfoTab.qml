@@ -19,8 +19,6 @@ Rectangle {
 
     color: _color.si_background_light
 
-    height: sceneInfoAreaWrapper.height + _units.full
-
     Item {
         id: sceneInfoAreaWrapper
 
@@ -28,29 +26,42 @@ Rectangle {
             top: parent.top
             left: parent.left
             right: parent.right
+            bottom: parent.bottom
         }
 
-        height: objectsListView.height
-
-        Text {
-            id: listHederText
+        Rectangle {
+            id: listHederTextWrapper
 
             anchors {
+                top: parent.top
                 left: parent.left
                 leftMargin: _units.scaled_4
+                right: parent.right
+                rightMargin: _units.scaled_4
             }
 
             height: 32
-            width: implicitWidth
 
-            color: _color.si_text_dark
+            // color: "#1cff0000"
 
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
+            color: "transparent"
 
-            font: _fonts.text_body_accent
+            Text {
+                id: listHederText
 
-            text: " Objects list:"
+                anchors {
+                    fill: parent
+                }
+
+                color: _color.si_text_dark
+
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+
+                font: _fonts.text_body_accent
+
+                text: "OBJECTS LIST:"
+            }
         }
 
         ListView {
@@ -58,15 +69,18 @@ Rectangle {
 
             spacing: 0
 
+             clip: true
+
             anchors {
-                top: listHederText.bottom
+                top: listHederTextWrapper.bottom
                 left: parent.left
                 leftMargin: _units.full * 2
                 right: parent.right
                 rightMargin: _units.half
+                bottom: parent.bottom
             }
 
-            height: contentHeight
+            implicitHeight: contentHeight
 
             model: Tired.scenegraph.scene.objects
 

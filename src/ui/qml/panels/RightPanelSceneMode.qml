@@ -106,7 +106,7 @@ Rectangle {
 
             anchors {
                 top: parent.top
-                topMargin: rightPanelSceneComponent._units.half
+                topMargin: rightPanelSceneComponent._units.quarter
                 left: parent.left
                 right: parent.right
             }
@@ -403,7 +403,7 @@ Rectangle {
 
             anchors {
                 bottom: sceneinfoPanelItem.top
-                bottomMargin: _units.eight
+                bottomMargin: _units.quarter
                 left: parent.left
                 right: parent.right
             }
@@ -428,7 +428,7 @@ Rectangle {
 
             anchors {
                 bottom: rightPanelScenemodeWrapper.bottom
-                bottomMargin: _units.eight
+                bottomMargin: visible ? _units.quarter : 0
                 left: parent.left
                 right: parent.right
             }
