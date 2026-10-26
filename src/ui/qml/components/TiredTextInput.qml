@@ -37,8 +37,11 @@ TextInput {
         anchors.fill: parent
         color: inputArea.containsMouse ? _color.background_overlay_light_40 : _color.si_background_light
 
-        border.color: _color.si_background_dark
-        border.width: _units.scaled_2
+        border {
+            color: _color.si_background_dark;
+            width: _units.scaled_1;
+        }
+
         radius: _units.radiusEight
 
         MouseArea {

@@ -15,47 +15,95 @@ Item {
 
     property var object: null
 
-    implicitHeight: commonParamsColumn.implicitHeight
+    implicitHeight: paramNamesColumn.implicitHeight
 
     onObjectChanged: {
         siCommonParamsComponent.syncTexts();
     }
 
     ColumnLayout {
-        id: commonParamsColumn
+        id: paramNamesColumn
 
-        anchors.fill: parent
+        anchors {
+            left: parent.left
+            top: parent.top
+            bottom: parent.bottom
+        }
 
         spacing: _units.half
 
-        RowLayout {
-            id: nameRow
+        width: 96
 
+        Text {
+            text: "Name"
+            color: _color.si_text_dark
+            font: _fonts.label
+            Layout.alignment: Qt.AlignVCenter
             Layout.fillWidth: true
             Layout.preferredHeight: _units.scaled_28
-            spacing: _units.scaled_8
+        }
 
-            Text {
-                text: "Name"
-                color: _color.si_text_dark
-                font: _fonts.label
-                Layout.alignment: Qt.AlignVCenter
-            }
+        Text {
+            text: "Position"
+            color: _color.si_text_dark
+            font: _fonts.label
+            Layout.alignment: Qt.AlignVCenter
+            Layout.fillWidth: true
+            Layout.preferredHeight: _units.scaled_28
+        }
 
-            TiredTextInput {
-                id: nameInput
+        Text {
+            text: "Orientation"
+            color: _color.si_text_dark
+            font: _fonts.label
+            Layout.alignment: Qt.AlignVCenter
+            Layout.fillWidth: true
+            Layout.preferredHeight: _units.scaled_28
+        }
 
-                Layout.fillWidth: true
-                Layout.preferredHeight: _units.scaled_24
+        Text {
+            text: "Scale"
+            color: _color.si_text_dark
+            font: _fonts.label
+            Layout.alignment: Qt.AlignVCenter
+            Layout.fillWidth: true
+            Layout.preferredHeight: _units.scaled_28
+        }
 
-                enabled: siCommonParamsComponent.object !== null
+        Text {
+            text: "Color"
+            color: _color.si_text_dark
+            font: _fonts.label
+            Layout.alignment: Qt.AlignVCenter
+            Layout.fillWidth: true
+            Layout.preferredHeight: _units.scaled_28
+        }
+    }
 
-                text: siCommonParamsComponent.object ? siCommonParamsComponent.object.name : ""
+    ColumnLayout {
+        id: paramValuesColumn
 
-                onTextValueChanged: {
-                    if (siCommonParamsComponent.object !== null) {
-                        siCommonParamsComponent.object.name = nameInput.text;
-                    }
+        anchors {
+            left: paramNamesColumn.right
+            right: parent.right
+            top: parent.top
+            bottom: parent.bottom
+        }
+
+        spacing: _units.half
+
+        TiredTextInput {
+            id: nameInput
+
+            Layout.fillWidth: true
+            Layout.preferredHeight: _units.scaled_24
+            enabled: siCommonParamsComponent.object !== null
+
+            text: siCommonParamsComponent.object ? siCommonParamsComponent.object.name : ""
+
+            onTextValueChanged: {
+                if (siCommonParamsComponent.object !== null) {
+                    siCommonParamsComponent.object.name = nameInput.text;
                 }
             }
         }
@@ -67,17 +115,12 @@ Item {
             Layout.preferredHeight: _units.scaled_28
             spacing: _units.scaled_8
 
-            Text {
-                text: "Position"
-                color: _color.si_text_dark
-                font: _fonts.label
-                Layout.alignment: Qt.AlignVCenter
-            }
-
             TiredTextInput {
                 id: posXInput
 
                 Layout.fillWidth: true
+                Layout.preferredWidth: 1        // equal share, ignore content width
+                Layout.minimumWidth: 0          // allow shrinking
                 Layout.preferredHeight: _units.scaled_24
 
                 enabled: siCommonParamsComponent.object !== null
@@ -91,6 +134,8 @@ Item {
                 id: posYInput
 
                 Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                Layout.minimumWidth: 0
                 Layout.preferredHeight: _units.scaled_24
 
                 enabled: siCommonParamsComponent.object !== null
@@ -104,6 +149,8 @@ Item {
                 id: posZInput
 
                 Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                Layout.minimumWidth: 0
                 Layout.preferredHeight: _units.scaled_24
 
                 enabled: siCommonParamsComponent.object !== null
@@ -121,17 +168,12 @@ Item {
             Layout.preferredHeight: _units.scaled_28
             spacing: _units.scaled_8
 
-            Text {
-                text: "Orientation"
-                color: _color.si_text_dark
-                font: _fonts.label
-                Layout.alignment: Qt.AlignVCenter
-            }
-
             TiredTextInput {
                 id: rotXInput
 
                 Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                Layout.minimumWidth: 0
                 Layout.preferredHeight: _units.scaled_24
 
                 enabled: siCommonParamsComponent.object !== null
@@ -145,6 +187,8 @@ Item {
                 id: rotYInput
 
                 Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                Layout.minimumWidth: 0
                 Layout.preferredHeight: _units.scaled_24
 
                 enabled: siCommonParamsComponent.object !== null
@@ -158,6 +202,8 @@ Item {
                 id: rotZInput
 
                 Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                Layout.minimumWidth: 0
                 Layout.preferredHeight: _units.scaled_24
 
                 enabled: siCommonParamsComponent.object !== null
@@ -175,17 +221,12 @@ Item {
             Layout.preferredHeight: _units.scaled_28
             spacing: _units.scaled_8
 
-            Text {
-                text: "Scale"
-                color: _color.si_text_dark
-                font: _fonts.label
-                Layout.alignment: Qt.AlignVCenter
-            }
-
             TiredTextInput {
                 id: sclXInput
 
                 Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                Layout.minimumWidth: 0
                 Layout.preferredHeight: _units.scaled_24
 
                 enabled: siCommonParamsComponent.object !== null
@@ -199,6 +240,8 @@ Item {
                 id: sclYInput
 
                 Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                Layout.minimumWidth: 0
                 Layout.preferredHeight: _units.scaled_24
 
                 enabled: siCommonParamsComponent.object !== null
@@ -212,6 +255,8 @@ Item {
                 id: sclZInput
 
                 Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                Layout.minimumWidth: 0
                 Layout.preferredHeight: _units.scaled_24
 
                 enabled: siCommonParamsComponent.object !== null
@@ -229,17 +274,12 @@ Item {
             Layout.preferredHeight: _units.scaled_28
             spacing: _units.scaled_8
 
-            Text {
-                text: "Color"
-                color: _color.si_text_dark
-                font: _fonts.label
-                Layout.alignment: Qt.AlignVCenter
-            }
-
             TiredTextInput {
                 id: colorRInput
 
                 Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                Layout.minimumWidth: 0
                 Layout.preferredHeight: _units.scaled_24
 
                 enabled: siCommonParamsComponent.object !== null
@@ -253,6 +293,8 @@ Item {
                 id: colorGInput
 
                 Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                Layout.minimumWidth: 0
                 Layout.preferredHeight: _units.scaled_24
 
                 enabled: siCommonParamsComponent.object !== null
@@ -266,6 +308,8 @@ Item {
                 id: colorBInput
 
                 Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                Layout.minimumWidth: 0
                 Layout.preferredHeight: _units.scaled_24
 
                 enabled: siCommonParamsComponent.object !== null
@@ -353,18 +397,14 @@ Item {
         }
 
         if (kind === "position")
-            o.position = Qt.vector3d(axis === 0 ? parsed : o.position.x, axis === 1 ? parsed : o.position.y,
-                                      axis === 2 ? parsed : o.position.z);
+            o.position = Qt.vector3d(axis === 0 ? parsed : o.position.x, axis === 1 ? parsed : o.position.y, axis === 2 ? parsed : o.position.z);
         else if (kind === "orientation")
-            o.orientation = Qt.vector3d(axis === 0 ? parsed : o.orientation.x, axis === 1 ? parsed : o.orientation.y,
-                                        axis === 2 ? parsed : o.orientation.z);
+            o.orientation = Qt.vector3d(axis === 0 ? parsed : o.orientation.x, axis === 1 ? parsed : o.orientation.y, axis === 2 ? parsed : o.orientation.z);
         else if (kind === "scale") {
             const clamped = Math.max(0.001, parsed);
-            o.scale = Qt.vector3d(axis === 0 ? clamped : o.scale.x, axis === 1 ? clamped : o.scale.y,
-                                  axis === 2 ? clamped : o.scale.z);
+            o.scale = Qt.vector3d(axis === 0 ? clamped : o.scale.x, axis === 1 ? clamped : o.scale.y, axis === 2 ? clamped : o.scale.z);
         } else if (kind === "color") {
-            o.color = Qt.vector4d(axis === 0 ? parsed : o.color.r, axis === 1 ? parsed : o.color.g,
-                                  axis === 2 ? parsed : o.color.b, axis === 3 ? parsed : o.color.a);
+            o.color = Qt.vector4d(axis === 0 ? parsed : o.color.r, axis === 1 ? parsed : o.color.g, axis === 2 ? parsed : o.color.b, axis === 3 ? parsed : o.color.a);
         }
     }
 
@@ -375,11 +415,11 @@ Item {
             return "";
 
         if (kind === "position")
-            return [ o.position.x, o.position.y, o.position.z ][ axis ].toFixed(3);
+            return [o.position.x, o.position.y, o.position.z][axis].toFixed(3);
         if (kind === "orientation")
-            return [ o.orientation.x, o.orientation.y, o.orientation.z ][ axis ].toFixed(3);
+            return [o.orientation.x, o.orientation.y, o.orientation.z][axis].toFixed(3);
         if (kind === "scale")
-            return [ o.scale.x, o.scale.y, o.scale.z ][ axis ].toFixed(3);
-        return [ o.color.r, o.color.g, o.color.b, o.color.a ][ axis ].toFixed(3);
+            return [o.scale.x, o.scale.y, o.scale.z][axis].toFixed(3);
+        return [o.color.r, o.color.g, o.color.b, o.color.a][axis].toFixed(3);
     }
 }
