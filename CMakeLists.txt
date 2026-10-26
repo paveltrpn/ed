@@ -220,27 +220,20 @@ target_link_libraries(${TIRE_EDITOR_EXE}
 # ================================
 # Module rt_std
 # ================================
-file(GLOB MOD_STD_SRC modules/std/*.cpp)
-add_library(rt_std)
+file(GLOB MOD_STD_SRC "modules/std/*.cpp" "modules/std/*.h")
+add_library(rt_std ${MOD_STD_SRC})
+target_include_directories(rt_std PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 target_compile_options(rt_std PRIVATE "${CXX_STANDART}")
-target_compile_features(rt_std PRIVATE cxx_std_20)
-target_sources(rt_std
-    PUBLIC
-    FILE_SET CXX_MODULES FILES
-    ${MOD_STD_SRC}
-)
+target_compile_features(rt_std PUBLIC cxx_std_20)
 
 # ================================
 # Module io
 # ================================
-add_library(io)
-file(GLOB MOD_IO_SRC "modules/io/*.cpp")
-target_sources(io
-    PUBLIC FILE_SET CXX_MODULES FILES
-    ${MOD_IO_SRC}
-)
+file(GLOB MOD_IO_SRC "modules/io/*.cpp" "modules/io/*.h")
+add_library(io ${MOD_IO_SRC})
+target_include_directories(io PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/modules")
 target_compile_options(io PRIVATE "${CXX_STANDART}")
-target_compile_features(io PRIVATE cxx_std_20)
+target_compile_features(io PUBLIC cxx_std_20)
 target_link_libraries(io log uv rt_std)
 
 # ================================

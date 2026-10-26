@@ -1,12 +1,12 @@
-module;
+#pragma once
 
 #include <atomic>
 #include <cassert>
+#include <cstddef>
 #include <optional>
 #include <thread>
+#include <type_traits>
 #include <vector>
-
-export module poller_std : array;
 
 namespace tire {
 

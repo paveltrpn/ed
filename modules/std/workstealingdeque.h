@@ -1,17 +1,17 @@
-
-module;
+#pragma once
 
 #include <atomic>
 #include <cassert>
+#include <cstddef>
 #include <functional>
 #include <new>
 #include <optional>
 #include <thread>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
-export module poller_std : workstealingdeque;
-
-import : array;
+#include "std/array.h"
 
 namespace tire {
 

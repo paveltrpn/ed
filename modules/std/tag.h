@@ -1,9 +1,7 @@
-module;
+#pragma once
 
 #include <print>
 #include <type_traits>
-
-export module poller_std : tag;
 
 namespace tire {
 

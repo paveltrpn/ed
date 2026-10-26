@@ -1,112 +1,80 @@
+#include "io/async.h"
 
-module;
-
-#include <string>
-#include <coroutine>
-#include <exception>
-#include <uv.h>
-
-#include "log/log.h"
-
-export module io : async;
+#include <memory>
 
 namespace tire {
 
-export template <typename T>
-struct Task;
+auto Task<void>::promise_type::get_return_object() -> Task {
+    //
+    return Task<void>{ handle_type::from_promise( *this ) };
+}
 
-template <>
-struct Task<void> {
-    struct promise_type;
-    using handle_type = std::coroutine_handle<promise_type>;
+auto Task<void>::promise_type::initial_suspend() noexcept {
+    //
+    return std::suspend_never{};
+}
 
-    struct promise_type {
-        auto get_return_object() -> Task {
-            //
-            return Task<void>{ handle_type::from_promise( *this ) };
-        };
+auto Task<void>::promise_type::final_suspend() noexcept {
+    //
+    return std::suspend_never{};
+}
 
-        auto initial_suspend() noexcept {
-            //
-            return std::suspend_never{};
-        }
+auto Task<void>::promise_type::return_void() -> void {
+    //
+}
 
-        auto final_suspend() noexcept {
-            //
-            return std::suspend_never{};
-        }
+auto Task<void>::promise_type::unhandled_exception() -> void {
+    //
+    exception_ = std::current_exception();
+}
 
-        auto return_void() -> void {
-            //
-        }
+Task<void>::Task( handle_type h )
+    : handle_( h ) {}
 
-        auto unhandled_exception() -> void {
-            //
-            exception_ = std::current_exception();
-        }
+Task<void>::Task( Task &&t ) noexcept
+    : handle_( t.handle_ ) {
+    t.handle_ = nullptr;
+}
 
-        std::exception_ptr exception_{ nullptr };
-        bool scheduleDestroy_{ false };
-    };
-
-    explicit Task( handle_type h )
-        : handle_( h ) {}
-
-    Task() = default;
-
-    Task( Task &&t ) noexcept
-        : handle_( t.handle_ ) {
-        t.handle_ = nullptr;
-    }
-
-    auto operator=( Task &&other ) noexcept -> Task & {
-        if ( std::addressof( other ) != this ) {
-            // Destroy this handle, but it allowed only when
-            // coroutine is suspended.
-            if ( handle_ ) {
-                handle_.destroy();
-            }
-
-            handle_ = other.handle_;
-            other.handle_ = nullptr;
-        }
-
-        return *this;
-    }
-
-    Task( const Task & ) = delete;
-    auto operator=( const Task & ) -> Task & = delete;
-
-    ~Task() = default;
-
-    auto detach() noexcept -> void {
-        if ( empty() ) {
-            return;
-        }
-
+auto Task<void>::operator=( Task &&other ) noexcept -> Task & {
+    if ( std::addressof( other ) != this ) {
+        // Destroy this handle, but it allowed only when
+        // coroutine is suspended.
         if ( handle_ ) {
             handle_.destroy();
-            handle_ = nullptr;
         }
+
+        handle_ = other.handle_;
+        other.handle_ = nullptr;
     }
 
-    [[nodiscard]] constexpr auto empty() const noexcept -> bool {
-        //
-        return handle_ == nullptr;
+    return *this;
+}
+
+auto Task<void>::detach() noexcept -> void {
+    if ( empty() ) {
+        return;
     }
 
-    constexpr explicit operator bool() const noexcept {
-        //
-        return !empty();
+    if ( handle_ ) {
+        handle_.destroy();
+        handle_ = nullptr;
     }
+}
 
-    auto scheduleDestroy() -> void {
-        //
-        handle_.promise().scheduleDestroy_ = true;
-    };
+constexpr auto Task<void>::empty() const noexcept -> bool {
+    //
+    return handle_ == nullptr;
+}
 
-private:
-    handle_type handle_{ nullptr };
-};
+constexpr Task<void>::operator bool() const noexcept {
+    //
+    return !empty();
+}
+
+auto Task<void>::scheduleDestroy() -> void {
+    //
+    handle_.promise().scheduleDestroy_ = true;
+}
 
 }  // namespace tire

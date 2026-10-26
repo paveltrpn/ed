@@ -1,18 +1,16 @@
-
-module;
+#pragma once
 
 #include <atomic>
 #include <cassert>
+#include <cstddef>
 #include <vector>
 #include <mutex>
 #include <condition_variable>
 #include <semaphore>
 
-export module poller_std : queue;
-
 namespace tire {
 
-export template <typename T>
+template <typename T>
 struct spsc_lock_free_queue {
 public:
     // capacity must be power of two to avoid using modulo operator
@@ -55,7 +53,7 @@ private:
     std::atomic<std::size_t> tail_{ 0 };
 };
 
-export template <typename T>
+template <typename T>
 struct locking_queue {
 public:
     locking_queue( std::size_t capacity )

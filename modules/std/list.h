@@ -1,15 +1,15 @@
-module;
+#pragma once
 
 #include <concepts>
 #include <algorithm>
+#include <cstddef>
 #include <print>
 #include <list>
 #include <thread>
 #include <mutex>
 #include <memory>
 
-export module poller_std : list;
-import : tag;
+#include "std/tag.h"
 
 namespace tire {
 
@@ -17,7 +17,7 @@ namespace tire {
 //
 // All specializations of this list must be used as
 // "single producer single consumer" only!!!
-export template <typename T, ContainerTypeTag Type = THREAD_SAFE_BLOCK>
+template <typename T, ContainerTypeTag Type = THREAD_SAFE_BLOCK>
 struct list;
 
 // Metex based scpecialization.
