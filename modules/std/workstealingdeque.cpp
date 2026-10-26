@@ -15,8 +15,7 @@ import : array;
 
 namespace tire {
 
-// The `WorkStealingDeque` class is copied from Google Filament licensed under
-// the Apache License 2.0.
+// The `WorkStealingDeque` class is taken from Google Filament licensed under the Apache License 2.0.
 // Original code:
 // https://github.com/google/filament/blob/main/libs/utils/include/utils/WorkStealingDequeue.h
 template <typename T>

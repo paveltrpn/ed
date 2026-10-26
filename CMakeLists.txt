@@ -252,4 +252,7 @@ file(GLOB_RECURSE EXE_RT_SRC "apps/rt/*.cpp" "apps/rt/*.h")
 target_sources(${TIRE_RAYTRACER_EXE} PRIVATE ${EXE_RT_SRC})
 target_compile_options(${TIRE_RAYTRACER_EXE} PRIVATE "${CXX_STANDART}")
 target_link_libraries(${TIRE_RAYTRACER_EXE}
+    log
+    rt_std
+    io
 )

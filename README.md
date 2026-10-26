@@ -13,19 +13,18 @@ apt install glslang-dev glslang-tools vulkan-sdk
   
 Or you can download and install Vulkan SDK from https://vulkan.lunarg.com/sdk/home.  
 Vulkan SDK minimal version is 1.1  
-
+  
+### Another libs  
+```bash
+sudo apt install libxcb-dev libthreads-dev nlohmann-json3-dev libuv1-dev
+```
+  
 ### Qt6  
 Build yourself or use binaries provided by your system:  
 ```bash
 sudo apt install qt6-base-dev qt6-declarative-dev
 ```
-
-### Another libs  
-Vulkan scene graph sources is embed into this project and itself depends on some libraries: 
-```bash
-sudo apt install libxcb-dev libthreads-dev
-```
-
+  
 ## Build  
 Build checked only on Linux with X11 window server.  
 This project uses -std=c++26 build flag and it implies demand of newer c++ compiler (gcc 16.1 works nice).  
