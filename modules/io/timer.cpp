@@ -7,13 +7,15 @@ module;
 
 #include <uv.h>
 
-export module io:timer;
+#include "log/log.h"
 
-import :scheduler;
-import :payload;
-import :async;
+export module io : timer;
 
-namespace poller::io {
+import : scheduler;
+import : payload;
+import : async;
+
+namespace tire {
 
 export template <typename T>
 struct TimeoutAwaitable final {
@@ -21,8 +23,7 @@ struct TimeoutAwaitable final {
         : context_( context )
         , payload_{ std::shared_ptr<TimeoutCbPayload>( new TimeoutCbPayload{ nullptr, timeout } ) } {};
 
-    [[nodiscard]]
-    auto await_ready() const noexcept -> bool {
+    [[nodiscard]] auto await_ready() const noexcept -> bool {
         //
         return false;
     }
@@ -78,4 +79,4 @@ auto Scheduler::timeout( uint64_t timeout ) -> TimeoutAwaitable<Task<void>> {
     return TimeoutAwaitable<Task<void>>{ /* Context */ *this, timeout };
 };
 
-}  // namespace poller::io
+}  // namespace tire

@@ -7,12 +7,12 @@ module;
 
 #include <uv.h>
 
-export module io:scheduler;
+export module io : scheduler;
 
-import :schedulerbase;
-import :async;
+import : schedulerbase;
+import : async;
 
-namespace poller::io {
+namespace tire {
 
 export template <typename T>
 struct TimeoutAwaitable;
@@ -54,4 +54,4 @@ private:
     }
 };
 
-}  // namespace poller::io
+}  // namespace tire

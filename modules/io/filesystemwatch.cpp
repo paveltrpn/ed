@@ -8,20 +8,22 @@ module;
 
 #include <uv.h>
 
-export module io:filewatch;
+#include "log/log.h"
 
-import :scheduler;
-import :payload;
-import :async;
+export module io : filewatch;
 
-namespace poller::io {
+import : scheduler;
+import : payload;
+import : async;
+
+namespace tire {
 
 template <typename T>
 struct FilesystemWatchAwaitable final {
     FilesystemWatchAwaitable( Scheduler &context, std::string path )
         : context_( context )
         , payload_{ std::shared_ptr<FilesystemWatchCbPayload>(
-            new FilesystemWatchCbPayload{ nullptr, std::move( path ), 0, 0 } ) } {};
+              new FilesystemWatchCbPayload{ nullptr, std::move( path ), 0, 0 } ) } {};
 
     [[nodiscard]] auto await_ready() const noexcept -> bool {
         //
@@ -87,4 +89,4 @@ auto Scheduler::watchFile( const std::string &path ) -> FilesystemWatchAwaitable
     return FilesystemWatchAwaitable<Task<void>>{ /* Context */ *this, path };
 };
 
-}  // namespace poller::io
+}  // namespace tire

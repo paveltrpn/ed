@@ -5,9 +5,9 @@ module;
 
 #include <uv.h>
 
-export module io:payload;
+export module io : payload;
 
-namespace poller::io {
+namespace tire {
 
 export struct AsyncJobPayload {
     void *coro{};
@@ -28,4 +28,4 @@ export struct FilesystemWatchCbPayload final : public AsyncJobPayload {
     int events{};
 };
 
-}  // namespace poller::io
+}  // namespace tire

@@ -6,13 +6,14 @@ module;
 
 #include "uv.h"
 
-export module io:schedulerbase;
+#include "log/log.h"
 
-import log;
+export module io : schedulerbase;
+
 import poller_std;
-import :payload;
+import : payload;
 
-namespace poller::io {
+namespace tire {
 
 struct SchedulerBase {
     SchedulerBase( const SchedulerBase &other ) = delete;
@@ -89,8 +90,8 @@ private:
 protected:
     //
     uv_async_t asyncWakeup_{};
-    poller::locking_queue<std::pair<std::function<void( uv_loop_t *, AsyncJobPayload * )>, AsyncJobPayload *>>
-      asyncJobQueue_{ 128 };
+    locking_queue<std::pair<std::function<void( uv_loop_t *, AsyncJobPayload * )>, AsyncJobPayload *>> asyncJobQueue_{
+        128 };
 
 private:
     // Main and only uv loop handle.
@@ -100,4 +101,4 @@ private:
     std::unique_ptr<std::thread> thread_{};
 };
 
-}  // namespace poller::io
+}  // namespace tire

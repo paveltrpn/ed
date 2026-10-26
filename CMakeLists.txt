@@ -20,6 +20,9 @@ add_subdirectory(libs/OpenMesh)
 find_package(Vulkan 1.3 REQUIRED)
 find_package(glslang 15.0 REQUIRED)
 
+find_path(LIBUV_INCLUDE_DIR NAMES uv.h)
+find_library(LIBUV_LIBRARIES NAMES uv libuv)
+
 include_directories(src)
 include_directories(libs/generator/include)
 include_directories(libs/gml/include)
@@ -214,6 +217,32 @@ target_link_libraries(${TIRE_EDITOR_EXE}
     mesh
 )
     
+# ================================
+# Module rt_std
+# ================================
+file(GLOB MOD_STD_SRC modules/std/*.cpp)
+add_library(rt_std)
+target_compile_options(rt_std PRIVATE "${CXX_STANDART}")
+target_compile_features(rt_std PRIVATE cxx_std_20)
+target_sources(rt_std
+    PUBLIC
+    FILE_SET CXX_MODULES FILES
+    ${MOD_STD_SRC}
+)
+
+# ================================
+# Module io
+# ================================
+add_library(io)
+file(GLOB MOD_IO_SRC "modules/io/*.cpp")
+target_sources(io
+    PUBLIC FILE_SET CXX_MODULES FILES
+    ${MOD_IO_SRC}
+)
+target_compile_options(io PRIVATE "${CXX_STANDART}")
+target_compile_features(io PRIVATE cxx_std_20)
+target_link_libraries(io log uv rt_std)
+
 # ================================
 # tire raytracer executable
 # ================================
