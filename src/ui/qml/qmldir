@@ -6,5 +6,6 @@ NpButton            1.0 components/NpButton.qml
 SIButtonMain        1.0 components/SIButtonMain.qml
 DragAbleItem        1.0 components/DragAbleItem.qml
 TiredTextInput      1.0 components/TiredTextInput.qml
+TiredNumberInput    1.0 components/TiredNumberInput.qml
 NpFileDialog        1.0 components/FileDialog/NpFileDialog.qml
 NpColorDialog       1.0 components/ColorDialog/NpColorDialog.qml

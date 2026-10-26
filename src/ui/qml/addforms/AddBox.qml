@@ -51,19 +51,19 @@ Rectangle {
 
         height: 24
 
-        TiredTextInput {
+        TiredNumberInput {
             id: posXInput
             Layout.preferredWidth: posInputRow.width / 3.3
             Layout.preferredHeight: parent.height
             text: "0.0"
         }
-        TiredTextInput {
+        TiredNumberInput {
             id: posYInput
             Layout.preferredWidth: posInputRow.width / 3.3
             Layout.preferredHeight: parent.height
             text: "0.0"
         }
-        TiredTextInput {
+        TiredNumberInput {
             id: posZInput
             Layout.preferredWidth: posInputRow.width / 3.3
             Layout.preferredHeight: parent.height
@@ -101,19 +101,19 @@ Rectangle {
         }
         height: 24
 
-        TiredTextInput {
+        TiredNumberInput {
             id: rotXInput
             Layout.preferredWidth: posInputRow.width / 3.3
             Layout.preferredHeight: parent.height
             text: "0.0"
         }
-        TiredTextInput {
+        TiredNumberInput {
             id: rotYInput
             Layout.preferredWidth: posInputRow.width / 3.3
             Layout.preferredHeight: parent.height
             text: "0.0"
         }
-        TiredTextInput {
+        TiredNumberInput {
             id: rotZInput
             Layout.preferredWidth: posInputRow.width / 3.3
             Layout.preferredHeight: parent.height
@@ -151,19 +151,19 @@ Rectangle {
         }
         height: 24
 
-        TiredTextInput {
+        TiredNumberInput {
             id: sclXInput
             Layout.preferredWidth: posInputRow.width / 3.3
             Layout.preferredHeight: parent.height
             text: "1.0"
         }
-        TiredTextInput {
+        TiredNumberInput {
             id: sclYInput
             Layout.preferredWidth: posInputRow.width / 3.3
             Layout.preferredHeight: parent.height
             text: "1.0"
         }
-        TiredTextInput {
+        TiredNumberInput {
             id: sclZInput
             Layout.preferredWidth: posInputRow.width / 3.3
             Layout.preferredHeight: parent.height
@@ -183,6 +183,16 @@ Rectangle {
         font: _fonts.label_accent
 
         onClicked: {
+            posXInput.commitText()
+            posYInput.commitText()
+            posZInput.commitText()
+            rotXInput.commitText()
+            rotYInput.commitText()
+            rotZInput.commitText()
+            sclXInput.commitText()
+            sclYInput.commitText()
+            sclZInput.commitText()
+
             const px = parseFloat(posXInput.text)
             const py = parseFloat(posYInput.text)
             const pz = parseFloat(posZInput.text)

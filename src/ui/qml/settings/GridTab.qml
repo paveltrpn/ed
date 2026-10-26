@@ -203,7 +203,7 @@ Rectangle {
                 elide: Text.ElideRight
             }
 
-            TiredTextInput {
+            TiredNumberInput {
                 id: paramValue
 
                 anchors {

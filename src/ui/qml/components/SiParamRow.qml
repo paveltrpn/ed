@@ -43,7 +43,7 @@ Item {
         elide: Text.ElideRight
     }
 
-    TiredTextInput {
+    TiredNumberInput {
         id: paramValue
 
         anchors {
@@ -55,6 +55,7 @@ Item {
 
         width: _units.scaled_80
 
+        integral: siParamRowComponent.integral
         enabled: siParamRowComponent.enabled
 
         text: siParamRowComponent.formatValue(siParamRowComponent.value)

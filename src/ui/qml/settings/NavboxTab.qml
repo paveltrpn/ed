@@ -175,7 +175,7 @@ Rectangle {
                 elide: Text.ElideRight
             }
 
-            TiredTextInput {
+            TiredNumberInput {
                 id: paramValue
 
                 anchors {
@@ -231,7 +231,7 @@ Rectangle {
                 elide: Text.ElideRight
             }
 
-            TiredTextInput {
+            TiredNumberInput {
                 id: paramValueZ
 
                 anchors {
@@ -253,7 +253,7 @@ Rectangle {
                 }
             }
 
-            TiredTextInput {
+            TiredNumberInput {
                 id: paramValueY
 
                 anchors {
@@ -275,7 +275,7 @@ Rectangle {
                 }
             }
 
-            TiredTextInput {
+            TiredNumberInput {
                 id: paramValueX
 
                 anchors {

@@ -115,7 +115,7 @@ Item {
             Layout.preferredHeight: _units.scaled_28
             spacing: _units.scaled_8
 
-            TiredTextInput {
+            TiredNumberInput {
                 id: posXInput
 
                 Layout.fillWidth: true
@@ -130,7 +130,7 @@ Item {
                 onTextValueChanged: siCommonParamsComponent.onVectorInputChanged("position", 0, posXInput)
             }
 
-            TiredTextInput {
+            TiredNumberInput {
                 id: posYInput
 
                 Layout.fillWidth: true
@@ -145,7 +145,7 @@ Item {
                 onTextValueChanged: siCommonParamsComponent.onVectorInputChanged("position", 1, posYInput)
             }
 
-            TiredTextInput {
+            TiredNumberInput {
                 id: posZInput
 
                 Layout.fillWidth: true
@@ -168,7 +168,7 @@ Item {
             Layout.preferredHeight: _units.scaled_28
             spacing: _units.scaled_8
 
-            TiredTextInput {
+            TiredNumberInput {
                 id: rotXInput
 
                 Layout.fillWidth: true
@@ -183,7 +183,7 @@ Item {
                 onTextValueChanged: siCommonParamsComponent.onVectorInputChanged("orientation", 0, rotXInput)
             }
 
-            TiredTextInput {
+            TiredNumberInput {
                 id: rotYInput
 
                 Layout.fillWidth: true
@@ -198,7 +198,7 @@ Item {
                 onTextValueChanged: siCommonParamsComponent.onVectorInputChanged("orientation", 1, rotYInput)
             }
 
-            TiredTextInput {
+            TiredNumberInput {
                 id: rotZInput
 
                 Layout.fillWidth: true
@@ -221,7 +221,7 @@ Item {
             Layout.preferredHeight: _units.scaled_28
             spacing: _units.scaled_8
 
-            TiredTextInput {
+            TiredNumberInput {
                 id: sclXInput
 
                 Layout.fillWidth: true
@@ -236,7 +236,7 @@ Item {
                 onTextValueChanged: siCommonParamsComponent.onVectorInputChanged("scale", 0, sclXInput)
             }
 
-            TiredTextInput {
+            TiredNumberInput {
                 id: sclYInput
 
                 Layout.fillWidth: true
@@ -251,7 +251,7 @@ Item {
                 onTextValueChanged: siCommonParamsComponent.onVectorInputChanged("scale", 1, sclYInput)
             }
 
-            TiredTextInput {
+            TiredNumberInput {
                 id: sclZInput
 
                 Layout.fillWidth: true
@@ -274,7 +274,7 @@ Item {
             Layout.preferredHeight: _units.scaled_28
             spacing: _units.scaled_8
 
-            TiredTextInput {
+            TiredNumberInput {
                 id: colorRInput
 
                 Layout.fillWidth: true
@@ -289,7 +289,7 @@ Item {
                 onTextValueChanged: siCommonParamsComponent.onVectorInputChanged("color", 0, colorRInput)
             }
 
-            TiredTextInput {
+            TiredNumberInput {
                 id: colorGInput
 
                 Layout.fillWidth: true
@@ -304,7 +304,7 @@ Item {
                 onTextValueChanged: siCommonParamsComponent.onVectorInputChanged("color", 1, colorGInput)
             }
 
-            TiredTextInput {
+            TiredNumberInput {
                 id: colorBInput
 
                 Layout.fillWidth: true
