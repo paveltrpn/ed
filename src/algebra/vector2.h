@@ -10,8 +10,7 @@
 namespace tire::algebra {
 
 template <typename T>
-    requires Algebraic<T>
-struct vector2 final {
+requires Algebraic<T> struct vector2 final {
     using value_type = T;
     using self = vector2<value_type>;
 
@@ -39,11 +38,12 @@ struct vector2 final {
 
     value_type y() { return data_[1]; }
 
-    void plus( const self &b ) {
+    auto plus( const self &b ) -> void {
         for ( size_t i = 0; i < 2; ++i ) data_[i] += b.data_[i];
     };
 
-    void minus( const self &b ) {
+    auto minus( const self &b ) -> void {
+        //
         for ( size_t i = 0; i < 2; ++i ) data_[i] -= b.data_[i];
     };
 
@@ -68,7 +68,10 @@ struct vector2 final {
         return rt;
     }
 
-    value_type sqLength() const { return dot( *this ); }
+    value_type sqLength() const {
+        //
+        return dot( *this );
+    }
 
     auto length() -> value_type const {
         // TODO: call proper square root function for float and double
