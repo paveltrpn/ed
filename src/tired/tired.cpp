@@ -8,7 +8,6 @@
 #endif
 
 #include "tired.h"
-#include "extfunctions.h"
 #include "log/log.h"
 
 #include "sceneobject/sceneobjectdata.h"
@@ -184,8 +183,8 @@ Tired::Tired( QObject* parent )
     }
 
     {
-        auto data = makeBaseMap( SceneObjectTypeEnum::CYLINDER, "OBJECT", gridPosition( 5 ), zero3, { 1.0, 1.0, 3.0 },
-                                 white );
+        auto data =
+            makeBaseMap( SceneObjectTypeEnum::CYLINDER, "OBJECT", gridPosition( 5 ), zero3, { 1.0, 1.0, 3.0 }, white );
         data.insert( "derived", QVariantMap{ { "radius", 0.5 },
                                              { "size", 0.5 },
                                              { "slices", 16 },
@@ -293,8 +292,8 @@ Tired::Tired( QObject* parent )
     }
 
     {
-        auto data = makeBaseMap( SceneObjectTypeEnum::SPHERICAL_CONE, "OBJECT", gridPosition( 15 ), zero3, one3,
-                                 white );
+        auto data =
+            makeBaseMap( SceneObjectTypeEnum::SPHERICAL_CONE, "OBJECT", gridPosition( 15 ), zero3, one3, white );
         data.insert( "derived", QVariantMap{ { "radius", 0.5 },
                                              { "size", 0.5 },
                                              { "slices", 16 },
