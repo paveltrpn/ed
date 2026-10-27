@@ -549,8 +549,8 @@ requires Algebraic<T> auto rotate( const T& angle ) -> matrix<T, 3, 3> {
     const T s = sin( angle );
     const T c = cos( angle );
 
-    const T data[9] = { c, -s, T{ 0 }, s, c, T{ 0 }, T{ 0 }, T{ 0 }, T{ 1 } };
-    return matrix<T, 3, 3>{ data, false };
+    const std::array<T, 9> data = { c, -s, T{ 0 }, s, c, T{ 0 }, T{ 0 }, T{ 0 }, T{ 1 } };
+    return matrix<T, 3, 3>{ data.data(), false };
 }
 
 /**
@@ -568,7 +568,7 @@ requires Algebraic<T> auto rotate( const vector<T, 3>& angle ) -> matrix<T, 4, 4
     const T sr = sin( angle[0] );
     const T cr = cos( angle[0] );
 
-    const T data[16] = { cp * cy,
+    const std::array<T, 16> data = { cp * cy,
                          sr * sp * cy + cr * -sy,
                          cr * sp * cy + -sr * -sy,
                          T{ 0 },
@@ -584,7 +584,7 @@ requires Algebraic<T> auto rotate( const vector<T, 3>& angle ) -> matrix<T, 4, 4
                          T{ 0 },
                          T{ 0 },
                          T{ 1 } };
-    return matrix<T, 4, 4>{ data, false };
+    return matrix<T, 4, 4>{ data.data(), false };
 }
 
 /**
@@ -605,7 +605,7 @@ requires Algebraic<T> auto rotate( const T& angle, const vector<T, 3>& axis ) ->
     const T yy = axis[1] * axis[1];
     const T zz = axis[2] * axis[2];
 
-    const T data[16] = { rcos + xx * rcos_1,
+    const std::array<T, 16> data = { rcos + xx * rcos_1,
                          -axis[2] * rsin + xy * rcos_1,
                          axis[1] * rsin + xz * rcos_1,
                          T{ 0 },
@@ -621,7 +621,7 @@ requires Algebraic<T> auto rotate( const T& angle, const vector<T, 3>& axis ) ->
                          T{ 0 },
                          T{ 0 },
                          T{ 1 } };
-    return matrix<T, 4, 4>{ data, false };
+    return matrix<T, 4, 4>{ data.data(), false };
 }
 
 /**
@@ -639,7 +639,7 @@ requires Algebraic<T> auto rotate( const quaternion<T>& q ) -> matrix<T, 4, 4> {
     const T zz = q.imag()[2] * q.imag()[2];
     const T zw = q.imag()[2] * q.real();
 
-    const T data[16] = { T{ 1 } - T{ 2 } * ( yy + zz ),
+    const std::array<T, 16> data = { T{ 1 } - T{ 2 } * ( yy + zz ),
                          T{ 2 } * ( xy - zw ),
                          T{ 2 } * ( xz + yw ),
                          T{ 0 },
@@ -655,7 +655,7 @@ requires Algebraic<T> auto rotate( const quaternion<T>& q ) -> matrix<T, 4, 4> {
                          T{ 0 },
                          T{ 0 },
                          T{ 1 } };
-    return matrix<T, 4, 4>{ data, false };
+    return matrix<T, 4, 4>{ data.data(), false };
 }
 
 /**
@@ -785,7 +785,7 @@ requires Algebraic<T> auto frustum( const T& left, const T& right, const T& bott
     const T dX = right - left;
     const T dY = top - bottom;
     const T dZ = zFar - zNear;
-    const T data[16] = { ( T{ 2 } * zNear ) / dX,
+    const std::array<T, 16> data = { ( T{ 2 } * zNear ) / dX,
                          T{ 0 },
                          ( right + left ) / dX,
                          T{ 0 },
@@ -801,7 +801,7 @@ requires Algebraic<T> auto frustum( const T& left, const T& right, const T& bott
                          T{ 0 },
                          T{ -1 },
                          T{ 0 } };
-    return matrix<T, 4, 4>{ data, false };
+    return matrix<T, 4, 4>{ data.data(), false };
 }
 
 /**
@@ -829,10 +829,10 @@ requires Algebraic<T> auto ortho( const T& left, const T& right, const T& bottom
     const T dX = right - left;
     const T dY = top - bottom;
     const T dZ = zFar - zNear;
-    const T data[16] = {
+    const std::array<T, 16> data = {
         T{ 2 } / dX, T{ 0 }, T{ 0 },       -( right + left ) / dX, T{ 0 }, T{ 2 } / dY, T{ 0 }, -( top + bottom ) / dY,
         T{ 0 },      T{ 0 }, T{ -2 } / dZ, -( zFar + zNear ) / dZ, T{ 0 }, T{ 0 },      T{ 0 }, T{ 1 } };
-    return matrix<T, 4, 4>{ data, false };
+    return matrix<T, 4, 4>{ data.data(), false };
 }
 
 /**
@@ -853,9 +853,9 @@ requires Algebraic<T> auto lookAt( const vector<T, 3>& eye, const vector<T, 3>& 
     const vector<T, 3> x = normalize( cross( z, up ) );
     const vector<T, 3> y = cross( x, z );
 
-    const T data[16] = { x[0],  x[1],  x[2],  T{ 0 }, y[0],   y[1],   y[2],   T{ 0 },
+    const std::array<T, 16> data = { x[0],  x[1],  x[2],  T{ 0 }, y[0],   y[1],   y[2],   T{ 0 },
                          -z[0], -z[1], -z[2], T{ 0 }, T{ 0 }, T{ 0 }, T{ 0 }, T{ 1 } };
-    return matrix<T, 4, 4>{ data, false } * translate( -eye );
+    return matrix<T, 4, 4>{ data.data(), false } * translate( -eye );
 }
 
 /**

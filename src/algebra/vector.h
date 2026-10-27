@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <concepts>
@@ -315,7 +316,7 @@ public:
     /**
      * Returns a pointer to the first component
      */
-    auto data() const noexcept -> const T* { return _data; }
+    auto data() const noexcept -> const T* { return _data.data(); }
 
     /**
      * Returns the number of components in the vector.
@@ -326,19 +327,19 @@ public:
     /**
      * Iterator to the first component.
      */
-    auto begin() noexcept -> T* { return _data; }
+    auto begin() noexcept -> T* { return _data.data(); }
 
-    auto begin() const noexcept -> const T* { return _data; }
+    auto begin() const noexcept -> const T* { return _data.data(); }
 
     /**
      * Iterator to one past last component.
      */
-    auto end() noexcept -> T* { return _data + N; }
+    auto end() noexcept -> T* { return _data.data() + N; }
 
-    auto end() const noexcept -> const T* { return _data + N; }
+    auto end() const noexcept -> const T* { return _data.data() + N; }
 
 private:
-    T _data[N];
+    std::array<T, N> _data{};
 };
 
 /**
