@@ -7,7 +7,7 @@
 #ifndef GENERATOR_MESHVERTEX_HPP
 #define GENERATOR_MESHVERTEX_HPP
 
-#include "math.hpp"
+#include <algebra/algebra.h>
 
 namespace generator {
 

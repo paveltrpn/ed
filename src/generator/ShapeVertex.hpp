@@ -7,7 +7,7 @@
 #ifndef GENERATOR_SHAPEGENERATOR_HPP
 #define GENERATOR_SHAPEGENERATOR_HPP
 
-#include "math.hpp"
+#include <algebra/algebra.h>
 
 namespace generator {
 

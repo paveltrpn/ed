@@ -7,7 +7,7 @@
 #ifndef GENERATOR_EDGE_HPP
 #define GENERATOR_EDGE_HPP
 
-#include "math.hpp"
+#include <algebra/algebra.h>
 
 namespace generator {
 

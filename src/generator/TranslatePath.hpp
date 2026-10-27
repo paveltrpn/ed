@@ -7,7 +7,7 @@
 #ifndef GENERATOR_TRANSLATEPATH_HPP
 #define GENERATOR_TRANSLATEPATH_HPP
 
-#include "math.hpp"
+#include <algebra/algebra.h>
 
 #include "TransformPath.hpp"
 

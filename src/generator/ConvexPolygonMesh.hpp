@@ -9,7 +9,7 @@
 
 #include <vector>
 
-#include "math.hpp"
+#include <algebra/algebra.h>
 
 #include "MeshVertex.hpp"
 #include "Triangle.hpp"

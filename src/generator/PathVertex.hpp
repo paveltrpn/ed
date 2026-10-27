@@ -7,7 +7,7 @@
 #ifndef GENERATOR_PATHVERTEX_HPP
 #define GENERATOR_PATHVERTEX_HPP
 
-#include "math.hpp"
+#include <algebra/algebra.h>
 
 namespace generator {
 

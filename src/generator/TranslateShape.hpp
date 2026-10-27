@@ -7,7 +7,7 @@
 #ifndef GENERATOR_TRANSLATESHAPE_HPP
 #define GENERATOR_TRANSLATESHAPE_HPP
 
-#include "math.hpp"
+#include <algebra/algebra.h>
 
 #include "TransformShape.hpp"
 

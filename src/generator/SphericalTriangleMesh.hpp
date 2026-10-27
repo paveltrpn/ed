@@ -7,7 +7,7 @@
 #ifndef GENERATOR_SPHERICALTRIANGLEMESH_HPP
 #define GENERATOR_SPHERICALTRIANGLEMESH_HPP
 
-#include "math.hpp"
+#include <algebra/algebra.h>
 
 #include "MeshVertex.hpp"
 #include "Triangle.hpp"
