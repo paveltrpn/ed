@@ -31,23 +31,31 @@ namespace tire::algebra {
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> class vector {
 public:
-    // The type of a single component.
+    /**
+     * The type of a single component.
+     */
     using value_type = T;
 
-    // Initializes all components to zero
+    /**
+     * Initializes all components to zero
+     */
     vector()
         : vector{ T{ 0 } } {}
 
-    // Initializes all components to the given value
+    /**
+     * Initializes all components to the given value
+     */
     explicit vector( const T& a ) {
         for ( int i = 0; i < N; ++i ) {
             _data[i] = a;
         }
     }
 
-    // Initializes components from a C-array.
-    // The data MUST have at least N components or behaviour is undefined.
-    // If data is null assertion error will occur.
+    /**
+     * Initializes components from a C-array.
+     * The data MUST have at least N components or behaviour is undefined.
+     * If data is null assertion error will occur.
+     */
     explicit vector( const T* data ) {
         assert( data != nullptr );
         for ( int i = 0; i < N; ++i ) {
@@ -55,12 +63,16 @@ public:
         }
     }
 
-    // Initializes components from N values directly.
+    /**
+     * Initializes components from N values directly.
+     */
     template <typename... Args>
     requires( sizeof...( Args ) == N && ( std::convertible_to<Args, T> && ... ) ) vector( const Args&... args )
         : _data{ args... } {}
 
-    // Initializes from a smaller vector by padding with given value.
+    /**
+     * Initializes from a smaller vector by padding with given value.
+     */
     template <int M>
         requires Positive<M> && ( M < N ) explicit vector( const vector<T, M>& v, const T& a = T{ 0 } ) {
         for ( int i = 0; i < M; ++i ) {
@@ -112,63 +124,81 @@ public:
         return _data[i];
     }
 
-    // Component-wise sum
+    /**
+     * Component-wise sum
+     */
     auto operator+( const vector<T, N>& v ) const -> vector<T, N> {
         vector<T, N> temp{ *this };
         temp += v;
         return temp;
     }
 
-    // Component-wise sum
+    /**
+     * Component-wise sum
+     */
     auto operator+( const T& a ) const -> vector<T, N> {
         vector<T, N> temp{ *this };
         temp += a;
         return temp;
     }
 
-    // Component-wise subtraction
+    /**
+     * Component-wise subtraction
+     */
     auto operator-( const vector<T, N>& v ) const -> vector<T, N> {
         vector<T, N> temp{ *this };
         temp -= v;
         return temp;
     }
 
-    // Component-wise subtraction
+    /**
+     * Component-wise subtraction
+     */
     auto operator-( const T& a ) const -> vector<T, N> {
         vector<T, N> temp{ *this };
         temp -= a;
         return temp;
     }
 
-    // Component-wise multiplication
+    /**
+     * Component-wise multiplication
+     */
     auto operator*( const vector<T, N>& v ) const -> vector<T, N> {
         vector<T, N> temp{ *this };
         temp *= v;
         return temp;
     }
 
-    // Component-wise multiplication
+    /**
+     * Component-wise multiplication
+     */
     auto operator*( const T& a ) const -> vector<T, N> {
         vector<T, N> temp{ *this };
         temp *= a;
         return temp;
     }
 
-    // Component-wise division
+    /**
+     * Component-wise division
+     */
     auto operator/( const vector<T, N>& v ) const -> vector<T, N> {
         vector<T, N> temp{ *this };
         temp /= v;
         return temp;
     }
 
-    // Component-wise division
+    /**
+     * Component-wise division
+     */
     auto operator/( const T& a ) const -> vector<T, N> {
         vector<T, N> temp{ *this };
         temp /= a;
         return temp;
     }
 
-    // Component-wise sum
+    /**
+     * Component-wise sum
+     */
     auto operator+=( const vector<T, N>& v ) -> vector<T, N>& {
         for ( int i = 0; i < N; ++i ) {
             _data[i] += v._data[i];
@@ -176,7 +206,9 @@ public:
         return *this;
     }
 
-    // Component-wise sum
+    /**
+     * Component-wise sum
+     */
     auto operator+=( const T& a ) -> vector<T, N>& {
         for ( int i = 0; i < N; ++i ) {
             _data[i] += a;
@@ -184,7 +216,9 @@ public:
         return *this;
     }
 
-    // Component-wise subtraction
+    /**
+     * Component-wise subtraction
+     */
     auto operator-=( const vector<T, N>& v ) -> vector<T, N>& {
         for ( int i = 0; i < N; ++i ) {
             _data[i] -= v._data[i];
@@ -192,7 +226,9 @@ public:
         return *this;
     }
 
-    // Component-wise subtraction
+    /**
+     * Component-wise subtraction
+     */
     auto operator-=( const T& a ) -> vector<T, N>& {
         for ( int i = 0; i < N; ++i ) {
             _data[i] -= a;
@@ -200,7 +236,9 @@ public:
         return *this;
     }
 
-    // Component-wise multiplication
+    /**
+     * Component-wise multiplication
+     */
     auto operator*=( const vector<T, N>& v ) -> vector<T, N>& {
         for ( int i = 0; i < N; ++i ) {
             _data[i] *= v._data[i];
@@ -208,7 +246,9 @@ public:
         return *this;
     }
 
-    // Component-wise multiplication
+    /**
+     * Component-wise multiplication
+     */
     auto operator*=( const T& a ) -> vector<T, N>& {
         for ( int i = 0; i < N; ++i ) {
             _data[i] *= a;
@@ -216,7 +256,9 @@ public:
         return *this;
     }
 
-    // Component-wise division
+    /**
+     * Component-wise division
+     */
     auto operator/=( const vector<T, N>& v ) -> vector<T, N>& {
         for ( int i = 0; i < N; ++i ) {
             _data[i] /= v._data[i];
@@ -224,7 +266,9 @@ public:
         return *this;
     }
 
-    // Component-wise division
+    /**
+     * Component-wise division
+     */
     auto operator/=( const T& a ) -> vector<T, N>& {
         for ( int i = 0; i < N; ++i ) {
             _data[i] /= a;
@@ -252,8 +296,10 @@ public:
         return false;
     }
 
-    // Lexicographical less-than comparison.
-    // Used to make vector function as map key
+    /**
+     * Lexicographical less-than comparison.
+     * Used to make vector function as map key
+     */
     auto operator<( const vector<T, N>& v ) const -> bool {
         for ( int i = 0; i < N; ++i ) {
             if ( _data[i] < v._data[i] ) {
@@ -266,19 +312,27 @@ public:
         return false;
     }
 
-    // Returns a pointer to the first component
+    /**
+     * Returns a pointer to the first component
+     */
     auto data() const noexcept -> const T* { return _data; }
 
-    // Returns the number of components in the vector.
-    // The maximum value that can be given to []-operator.
+    /**
+     * Returns the number of components in the vector.
+     * The maximum value that can be given to []-operator.
+     */
     static auto size() noexcept -> int { return N; }
 
-    // Iterator to the first component.
+    /**
+     * Iterator to the first component.
+     */
     auto begin() noexcept -> T* { return _data; }
 
     auto begin() const noexcept -> const T* { return _data; }
 
-    // Iterator to one past last component.
+    /**
+     * Iterator to one past last component.
+     */
     auto end() noexcept -> T* { return _data + N; }
 
     auto end() const noexcept -> const T* { return _data + N; }
@@ -287,7 +341,9 @@ private:
     T _data[N];
 };
 
-// Negates all components
+/**
+ * Negates all components
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto operator-( const vector<T, N>& v ) -> vector<T, N> {
     vector<T, N> temp;
@@ -297,7 +353,9 @@ requires Algebraic<T>&& Positive<N> auto operator-( const vector<T, N>& v ) -> v
     return temp;
 }
 
-// Component-wise sum
+/**
+ * Component-wise sum
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto operator+( const T& a, const vector<T, N>& v ) -> vector<T, N> {
     vector<T, N> temp;
@@ -307,7 +365,9 @@ requires Algebraic<T>&& Positive<N> auto operator+( const T& a, const vector<T, 
     return temp;
 }
 
-// Component-wise subtraction
+/**
+ * Component-wise subtraction
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto operator-( const T& a, const vector<T, N>& v ) -> vector<T, N> {
     vector<T, N> temp;
@@ -317,7 +377,9 @@ requires Algebraic<T>&& Positive<N> auto operator-( const T& a, const vector<T, 
     return temp;
 }
 
-// Component-wise multiplication
+/**
+ * Component-wise multiplication
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto operator*( const T& a, const vector<T, N>& v ) -> vector<T, N> {
     vector<T, N> temp;
@@ -327,7 +389,9 @@ requires Algebraic<T>&& Positive<N> auto operator*( const T& a, const vector<T, 
     return temp;
 }
 
-// Component-wise division
+/**
+ * Component-wise division
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto operator/( const T& a, const vector<T, N>& v ) -> vector<T, N> {
     vector<T, N> temp;
@@ -337,7 +401,9 @@ requires Algebraic<T>&& Positive<N> auto operator/( const T& a, const vector<T, 
     return temp;
 }
 
-// Prints the vector to a stream inside brackets components separated by a comma.
+/**
+ * Prints the vector to a stream inside brackets components separated by a comma.
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto operator<<( std::ostream& os, const vector<T, N>& v ) -> std::ostream& {
     os << '(';
@@ -351,8 +417,10 @@ requires Algebraic<T>&& Positive<N> auto operator<<( std::ostream& os, const vec
     return os;
 }
 
-// Read a vector from a stream.
-// The vector must be inside brackets components separated by a comma.
+/**
+ * Read a vector from a stream.
+ * The vector must be inside brackets components separated by a comma.
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto operator>>( std::istream& is, vector<T, N>& v ) -> std::istream& {
     char tmp;
@@ -364,7 +432,9 @@ requires Algebraic<T>&& Positive<N> auto operator>>( std::istream& is, vector<T,
     return is;
 }
 
-// Converts a vector to std::string.
+/**
+ * Converts a vector to std::string.
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto toString( const vector<T, N>& v ) -> std::string {
     std::stringstream ss{};
@@ -372,7 +442,9 @@ requires Algebraic<T>&& Positive<N> auto toString( const vector<T, N>& v ) -> st
     return ss.str();
 }
 
-// Dot products of vectors v1 and v2
+/**
+ * Dot products of vectors v1 and v2
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto dot( const vector<T, N>& v1, const vector<T, N>& v2 ) -> T {
     T temp = v1[0] * v2[0];
@@ -382,68 +454,88 @@ requires Algebraic<T>&& Positive<N> auto dot( const vector<T, N>& v1, const vect
     return temp;
 }
 
-// Dot product where v1 is replaced by vector rotated 90 degrees counter clockwise
+/**
+ * Dot product where v1 is replaced by vector rotated 90 degrees counter clockwise
+ */
 template <typename T>
 requires Algebraic<T> auto perpDot( const vector<T, 2>& v1, const vector<T, 2>& v2 ) -> T {
     return v1[0] * v2[1] - v1[1] * v2[0];
 }
 
-// Cross product of two 3 component vectors
+/**
+ * Cross product of two 3 component vectors
+ */
 template <typename T>
 requires Algebraic<T> auto cross( const vector<T, 3>& v1, const vector<T, 3>& v2 ) -> vector<T, 3> {
     return vector<T, 3>{ v1[1] * v2[2] - v1[2] * v2[1], v1[2] * v2[0] - v1[0] * v2[2], v1[0] * v2[1] - v1[1] * v2[0] };
 }
 
-// Returns a perpendicular vector (counter clockwise rotation by 90 degrees)
-// See: http://reference.wolfram.com/language/ref/Cross.html
+/**
+ * Returns a perpendicular vector (counter clockwise rotation by 90 degrees)
+ * See: http://reference.wolfram.com/language/ref/Cross.html
+ */
 template <typename T>
 requires Algebraic<T> auto cross( const vector<T, 2>& v ) -> vector<T, 2> {
     return vector<T, 2>{ -v[1], v[0] };
 }
 
-// Returns the geometric length of the vector.
+/**
+ * Returns the geometric length of the vector.
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto length( const vector<T, N>& v ) -> T {
     using std::sqrt;
     return sqrt( dot( v, v ) );
 }
 
-// Returns a unit length copy of the vector
-// The vector must not have a zero length!
+/**
+ * Returns a unit length copy of the vector
+ * The vector must not have a zero length!
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto normalize( const vector<T, N>& v ) -> vector<T, N> {
     return v / length( v );
 }
 
-// Returns the length of the vector from p1 to p2
+/**
+ * Returns the length of the vector from p1 to p2
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto distance( const vector<T, N>& p1, const vector<T, N>& p2 ) -> T {
     return length( p2 - p1 );
 }
 
-// Computes the area between the 3 points
+/**
+ * Computes the area between the 3 points
+ */
 template <typename T>
 requires Algebraic<T> auto area( const vector<T, 3>& p1, const vector<T, 3>& p2, const vector<T, 3>& p3 ) -> T {
     return length( cross( p2 - p1, p3 - p1 ) ) / T{ 2 };
 }
 
-// Calculate the reflection direction for an incident vector.
-// n must be normalized
+/**
+ * Calculate the reflection direction for an incident vector.
+ * n must be normalized
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto reflect( const vector<T, N>& v, const vector<T, N>& n ) -> vector<T, N> {
     return v - T{ 2 } * dot( v, n ) * n;
 }
 
-// Projects one vector on to another.
+/**
+ * Projects one vector on to another.
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto project( const vector<T, N>& v, const vector<T, N>& u ) -> vector<T, N> {
     return dot( v, u ) / dot( u, u ) * u;
 }
 
-// Calculate the refraction direction for an incident vector
-// @param v The incident vector
-// @param n The normal vector
-// @param eta Index of refraction
+/**
+ * Calculate the refraction direction for an incident vector
+ * @param v The incident vector
+ * @param n The normal vector
+ * @param eta Index of refraction
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto refract( const vector<T, N>& v, const vector<T, N>& n, const T& eta )
     -> vector<T, N> {
@@ -456,21 +548,27 @@ requires Algebraic<T>&& Positive<N> auto refract( const vector<T, N>& v, const v
     return eta * v - ( eta * d + sqrt( k ) ) * n;
 }
 
-// Linear interpolation between v1 and v2 using a as factor
+/**
+ * Linear interpolation between v1 and v2 using a as factor
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto mix( const vector<T, N>& v1, const vector<T, N>& v2, const T& a )
     -> vector<T, N> {
     return ( T{ 1 } - a ) * v1 + a * v2;
 }
 
-// Linear interpolation between v1 and v2 using a as factor
+/**
+ * Linear interpolation between v1 and v2 using a as factor
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto mix( const vector<T, N>& v1, const vector<T, N>& v2, const vector<T, N>& a )
     -> vector<T, N> {
     return ( vector<T, N>{ 1 } - a ) * v1 + a * v2;
 }
 
-// Linear spherical interpolation between v1 and v2 using a as factor
+/**
+ * Linear spherical interpolation between v1 and v2 using a as factor
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto slerp( const vector<T, N>& v1, const vector<T, N>& v2, const T& a )
     -> vector<T, N> {
@@ -480,8 +578,10 @@ requires Algebraic<T>&& Positive<N> auto slerp( const vector<T, N>& v1, const ve
     return sin( ( T{ 1 } - a ) * theta ) / sine * v1 + sin( a * theta ) / sine * v2;
 }
 
-// Returns the angle (in radians) between vectors v1 and v2
-// If v1 or v2 is zero length zero is returned.
+/**
+ * Returns the angle (in radians) between vectors v1 and v2
+ * If v1 or v2 is zero length zero is returned.
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto angle( const vector<T, N>& v1, const vector<T, N>& v2 ) -> T {
     using std::acos;
@@ -495,7 +595,9 @@ requires Algebraic<T>&& Positive<N> auto angle( const vector<T, N>& v1, const ve
     return acos( clamp( dot( v1, v2 ) / len, T{ -1 }, T{ 1 } ) );
 }
 
-// Component-wise min
+/**
+ * Component-wise min
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto min( const vector<T, N>& v1, const vector<T, N>& v2 ) -> vector<T, N> {
     vector<T, N> temp;
@@ -509,7 +611,9 @@ requires Algebraic<T>&& Positive<N> auto min( const vector<T, N>& v1, const vect
     return temp;
 }
 
-// Component-wise min
+/**
+ * Component-wise min
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto min( const vector<T, N>& v, const T& a ) -> vector<T, N> {
     vector<T, N> temp;
@@ -523,7 +627,9 @@ requires Algebraic<T>&& Positive<N> auto min( const vector<T, N>& v, const T& a 
     return temp;
 }
 
-// Component-wise max
+/**
+ * Component-wise max
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto max( const vector<T, N>& v1, const vector<T, N>& v2 ) -> vector<T, N> {
     vector<T, N> temp;
@@ -537,7 +643,9 @@ requires Algebraic<T>&& Positive<N> auto max( const vector<T, N>& v1, const vect
     return temp;
 }
 
-// Component-wise max
+/**
+ * Component-wise max
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto max( const vector<T, N>& v, const T& a ) -> vector<T, N> {
     vector<T, N> temp;
@@ -551,29 +659,37 @@ requires Algebraic<T>&& Positive<N> auto max( const vector<T, N>& v, const T& a 
     return temp;
 }
 
-// Constrain components to lie between given values
+/**
+ * Constrain components to lie between given values
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto clamp( const vector<T, N>& v, const vector<T, N>& minVal,
                                                 const vector<T, N>& maxVal ) -> vector<T, N> {
     return min( max( v, minVal ), maxVal );
 }
 
-// Constrain components to lie between given values
+/**
+ * Constrain components to lie between given values
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto clamp( const vector<T, N>& v, const T& minVal, const T& maxVal )
     -> vector<T, N> {
     return min( max( v, minVal ), maxVal );
 }
 
-// Computes the unit length normal of a triangle with vertices p1, p2 and p3
-// The points must not lie on the same line!
+/**
+ * Computes the unit length normal of a triangle with vertices p1, p2 and p3
+ * The points must not lie on the same line!
+ */
 template <typename T>
 requires Algebraic<T> auto normal( const vector<T, 3>& p1, const vector<T, 3>& p2, const vector<T, 3>& p3 )
     -> vector<T, 3> {
     return normalize( cross( p2 - p1, p3 - p1 ) );
 }
 
-// Component-wise sin
+/**
+ * Component-wise sin
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto sin( const vector<T, N>& v ) -> vector<T, N> {
     using std::sin;
@@ -584,7 +700,9 @@ requires Algebraic<T>&& Positive<N> auto sin( const vector<T, N>& v ) -> vector<
     return temp;
 }
 
-// Component-wise cos
+/**
+ * Component-wise cos
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto cos( const vector<T, N>& v ) -> vector<T, N> {
     using std::cos;
@@ -595,7 +713,9 @@ requires Algebraic<T>&& Positive<N> auto cos( const vector<T, N>& v ) -> vector<
     return temp;
 }
 
-// Component-wise tan
+/**
+ * Component-wise tan
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto tan( const vector<T, N>& v ) -> vector<T, N> {
     using std::tan;
@@ -606,7 +726,9 @@ requires Algebraic<T>&& Positive<N> auto tan( const vector<T, N>& v ) -> vector<
     return temp;
 }
 
-// Component-wise asin
+/**
+ * Component-wise asin
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto asin( const vector<T, N>& v ) -> vector<T, N> {
     using std::asin;
@@ -617,7 +739,9 @@ requires Algebraic<T>&& Positive<N> auto asin( const vector<T, N>& v ) -> vector
     return temp;
 }
 
-// Component-wise acos
+/**
+ * Component-wise acos
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto acos( const vector<T, N>& v ) -> vector<T, N> {
     using std::acos;
@@ -628,7 +752,9 @@ requires Algebraic<T>&& Positive<N> auto acos( const vector<T, N>& v ) -> vector
     return temp;
 }
 
-// Component-wise atan
+/**
+ * Component-wise atan
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto atan( const vector<T, N>& v ) -> vector<T, N> {
     using std::atan;
@@ -639,7 +765,9 @@ requires Algebraic<T>&& Positive<N> auto atan( const vector<T, N>& v ) -> vector
     return temp;
 }
 
-// Component-wise sqrt
+/**
+ * Component-wise sqrt
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto sqrt( const vector<T, N>& v ) -> vector<T, N> {
     using std::sqrt;
@@ -650,7 +778,9 @@ requires Algebraic<T>&& Positive<N> auto sqrt( const vector<T, N>& v ) -> vector
     return temp;
 }
 
-// Component-wise abs
+/**
+ * Component-wise abs
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto abs( const vector<T, N>& v ) -> vector<T, N> {
     using std::abs;
@@ -661,7 +791,9 @@ requires Algebraic<T>&& Positive<N> auto abs( const vector<T, N>& v ) -> vector<
     return temp;
 }
 
-// Component-wise pow
+/**
+ * Component-wise pow
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto pow( const vector<T, N>& v1, const vector<T, N>& v2 ) -> vector<T, N> {
     using std::pow;
@@ -672,7 +804,9 @@ requires Algebraic<T>&& Positive<N> auto pow( const vector<T, N>& v1, const vect
     return temp;
 }
 
-// Component-wise exp
+/**
+ * Component-wise exp
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto exp( const vector<T, N>& v ) -> vector<T, N> {
     using std::exp;
@@ -683,7 +817,9 @@ requires Algebraic<T>&& Positive<N> auto exp( const vector<T, N>& v ) -> vector<
     return temp;
 }
 
-// Component-wise log
+/**
+ * Component-wise log
+ */
 template <typename T, int N>
 requires Algebraic<T>&& Positive<N> auto log( const vector<T, N>& v ) -> vector<T, N> {
     using std::log;
@@ -694,7 +830,9 @@ requires Algebraic<T>&& Positive<N> auto log( const vector<T, N>& v ) -> vector<
     return temp;
 }
 
-// Component-wise degToRad
+/**
+ * Component-wise degToRad
+ */
 template <std::floating_point T, int N>
 requires Positive<N> auto degToRad( const vector<T, N>& v ) -> vector<T, N> {
     vector<T, N> temp;
@@ -704,7 +842,9 @@ requires Positive<N> auto degToRad( const vector<T, N>& v ) -> vector<T, N> {
     return temp;
 }
 
-// Component-wise radToDeg
+/**
+ * Component-wise radToDeg
+ */
 template <std::floating_point T, int N>
 requires Positive<N> auto radToDeg( const vector<T, N>& v ) -> vector<T, N> {
     vector<T, N> temp;
@@ -714,7 +854,9 @@ requires Positive<N> auto radToDeg( const vector<T, N>& v ) -> vector<T, N> {
     return temp;
 }
 
-// Static cast each component from T2 to T1.
+/**
+ * Static cast each component from T2 to T1.
+ */
 template <typename T1, typename T2, int N>
 requires Algebraic<T1>&& Algebraic<T2>&& Positive<N> auto staticVectorCast( const vector<T2, N>& v ) -> vector<T1, N> {
     vector<T1, N> temp;
@@ -724,7 +866,9 @@ requires Algebraic<T1>&& Algebraic<T2>&& Positive<N> auto staticVectorCast( cons
     return temp;
 }
 
-// Component-wise unpackUnorm
+/**
+ * Component-wise unpackUnorm
+ */
 template <typename TF, typename TI, int N>
 requires std::floating_point<TF>&& UnsignedIntegral<TI>&& Positive<N> auto unpackUnorm( const vector<TI, N>& v )
     -> vector<TF, N> {
@@ -735,7 +879,9 @@ requires std::floating_point<TF>&& UnsignedIntegral<TI>&& Positive<N> auto unpac
     return temp;
 }
 
-// Component-wise packUnorm
+/**
+ * Component-wise packUnorm
+ */
 template <typename TI, typename TF, int N>
 requires UnsignedIntegral<TI>&& std::floating_point<TF>&& Positive<N> auto packUnorm( const vector<TF, N>& v )
     -> vector<TI, N> {
@@ -746,7 +892,9 @@ requires UnsignedIntegral<TI>&& std::floating_point<TF>&& Positive<N> auto packU
     return temp;
 }
 
-// Component-wise unpackSnorm
+/**
+ * Component-wise unpackSnorm
+ */
 template <typename TF, typename TI, int N>
 requires std::floating_point<TF>&& SignedIntegral<TI>&& Positive<N> auto unpackSnorm( const vector<TI, N>& v )
     -> vector<TF, N> {
@@ -757,7 +905,9 @@ requires std::floating_point<TF>&& SignedIntegral<TI>&& Positive<N> auto unpackS
     return temp;
 }
 
-// Component-wise packSnorm
+/**
+ * Component-wise packSnorm
+ */
 template <typename TI, typename TF, int N>
 requires SignedIntegral<TI>&& std::floating_point<TF>&& Positive<N> auto packSnorm( const vector<TF, N>& v )
     -> vector<TI, N> {
@@ -768,9 +918,11 @@ requires SignedIntegral<TI>&& std::floating_point<TF>&& Positive<N> auto packSno
     return temp;
 }
 
-// Pack a linear srgb color value to (non-linear) fixed-point.
-// @tparam TI Must be an unsigned integral type.
-// @tparam TF Must be a floating point type.
+/**
+ * Pack a linear srgb color value to (non-linear) fixed-point.
+ * @tparam TI Must be an unsigned integral type.
+ * @tparam TF Must be a floating point type.
+ */
 template <typename TI, typename TF>
 requires UnsignedIntegral<TI>&& std::floating_point<TF> auto packSrgb( const vector<TF, 3>& v ) -> vector<TI, 3> {
     const auto delinearize = []( TF cl ) -> TF {
@@ -789,19 +941,23 @@ requires UnsignedIntegral<TI>&& std::floating_point<TF> auto packSrgb( const vec
     return packUnorm<TI, TF>( vector<TF, 3>( delinearize( v[0] ), delinearize( v[1] ), delinearize( v[2] ) ) );
 }
 
-// Pack a linear srgba color value to (non-linear) fixed-point.
-// Alpha is unpacked as is and is not delinearized.
-// @tparam TI Must be an unsigned integral type.
-// @tparam TF Must be a floating point type.
+/**
+ * Pack a linear srgba color value to (non-linear) fixed-point.
+ * Alpha is unpacked as is and is not delinearized.
+ * @tparam TI Must be an unsigned integral type.
+ * @tparam TF Must be a floating point type.
+ */
 template <typename TI, typename TF>
 requires UnsignedIntegral<TI>&& std::floating_point<TF> auto packSrgba( const vector<TF, 4>& v ) -> vector<TI, 4> {
     const vector<TI, 3> temp = packSrgb<TI, TF>( vector<TF, 3>( v[0], v[1], v[2] ) );
     return vector<TI, 4>( temp[0], temp[1], temp[2], packUnorm<TI, TF>( v[3] ) );
 }
 
-// Unpack a linear srgb color value from (non-linear) fixed-point.
-// @tparam TF Must be a floating point type.
-// @tparam TI Must be an unsigned integral type.
+/**
+ * Unpack a linear srgb color value from (non-linear) fixed-point.
+ * @tparam TF Must be a floating point type.
+ * @tparam TI Must be an unsigned integral type.
+ */
 template <typename TF, typename TI>
 requires std::floating_point<TF>&& UnsignedIntegral<TI> auto unpackSrgb( const vector<TI, 3>& v ) -> vector<TF, 3> {
     const auto linearize = []( TF cs ) -> TF {
@@ -815,10 +971,12 @@ requires std::floating_point<TF>&& UnsignedIntegral<TI> auto unpackSrgb( const v
     return vector<TF, 3>( linearize( temp[0] ), linearize( temp[1] ), linearize( temp[2] ) );
 }
 
-// Unpack a linear srgb color value from (non-linear) fixed-point.
-// Alpha is unpacked as is and is not linearized.
-// @tparam TF Must be a floating point type.
-// @tparam TI Must be an unsigned integral type.
+/**
+ * Unpack a linear srgb color value from (non-linear) fixed-point.
+ * Alpha is unpacked as is and is not linearized.
+ * @tparam TF Must be a floating point type.
+ * @tparam TI Must be an unsigned integral type.
+ */
 template <typename TF, typename TI>
 requires std::floating_point<TF>&& UnsignedIntegral<TI> auto unpackSrgba( const vector<TI, 4>& v ) -> vector<TF, 4> {
     const vector<TF, 3> temp = unpackSrgb<TF, TI>( vector<TI, 3>( v[0], v[1], v[2] ) );

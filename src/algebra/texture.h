@@ -13,14 +13,16 @@
 
 namespace tire::algebra {
 
-// Calculates the texture coordinate of the center of a texel with given index
-// in a 1D texture with given size. The return value is in the range [0, 1] if
-// the index is in the range [0, size - 1].
-// @tparam TF Type of the coordinate to return. Must be a floating point type.
-// @tparam TI Type of the index. Must be an integral type.
-// @tparam TS Type of the size. Must be an integral type.
-// @param index Texel index in the texture.
-// @param size Size of the texture in texels.
+/**
+ * Calculates the texture coordinate of the center of a texel with given index
+ * in a 1D texture with given size. The return value is in the range [0, 1] if
+ * the index is in the range [0, size - 1].
+ * @tparam TF Type of the coordinate to return. Must be a floating point type.
+ * @tparam TI Type of the index. Must be an integral type.
+ * @tparam TS Type of the size. Must be an integral type.
+ * @param index Texel index in the texture.
+ * @param size Size of the texture in texels.
+ */
 template <std::floating_point TF, std::integral TI, std::integral TS>
 auto texelCenter( TI index, TS size ) -> TF {
     if ( size == static_cast<TS>( 0 ) ) {
@@ -29,14 +31,16 @@ auto texelCenter( TI index, TS size ) -> TF {
     return ( static_cast<TF>( index ) + static_cast<TF>( 0.5 ) ) / static_cast<TF>( size );
 }
 
-// Calculates the texture coordinate of the center of a texel with given index
-// in a N-D texture with given size. The return value is in the range [0, 1] if
-// the index is in the range [0, size - 1].
-// @tparam TF Type of the coordinate to return. Must be a floating point type.
-// @tparam TI Type of the index. Must be an integral type.
-// @tparam TS Type of the size. Must be an integral type.
-// @param index Texel index in the texture.
-// @param size Size of the texture in texels.
+/**
+ * Calculates the texture coordinate of the center of a texel with given index
+ * in a N-D texture with given size. The return value is in the range [0, 1] if
+ * the index is in the range [0, size - 1].
+ * @tparam TF Type of the coordinate to return. Must be a floating point type.
+ * @tparam TI Type of the index. Must be an integral type.
+ * @tparam TS Type of the size. Must be an integral type.
+ * @param index Texel index in the texture.
+ * @param size Size of the texture in texels.
+ */
 template <std::floating_point TF, std::integral TI, std::integral TS, int N>
 requires Positive<N> auto texelCenter( const vector<TI, N>& index, const vector<TS, N>& size ) -> vector<TF, N> {
     vector<TF, N> temp;
@@ -46,28 +50,32 @@ requires Positive<N> auto texelCenter( const vector<TI, N>& index, const vector<
     return temp;
 }
 
-// Calculates the index of the texel with center nearest to the given coordinate
-// in a 1D texture with given size.
-// The return value is in the range [0, size - 1] if input is in range [0, 1[.
-// @tparam TI Type of the index. Must be an integral type.
-// @tparam TF Type of the coordinate. Must be a floating point type.
-// @tparam TS Type of the size. Must be an integral type.
-// @param coord The texture coordinate.
-// @param size Size of the texture in texels.
+/**
+ * Calculates the index of the texel with center nearest to the given coordinate
+ * in a 1D texture with given size.
+ * The return value is in the range [0, size - 1] if input is in range [0, 1[.
+ * @tparam TI Type of the index. Must be an integral type.
+ * @tparam TF Type of the coordinate. Must be a floating point type.
+ * @tparam TS Type of the size. Must be an integral type.
+ * @param coord The texture coordinate.
+ * @param size Size of the texture in texels.
+ */
 template <std::integral TI, std::floating_point TF, std::integral TS>
 auto nearestTexel( TF coord, TS size ) -> TI {
     const TF temp = coord * static_cast<TF>( size );
     return static_cast<TI>( temp ) - static_cast<TI>( temp < static_cast<TF>( 0 ) );
 }
 
-// Calculates the index of the texel with center nearest to the given coordinate
-// in a N-D texture with given size.
-// The return value is in the range [0, size - 1] if input is in range [0, 1[.
-// @tparam TI Type of the index. Must be an integral type.
-// @tparam TF Type of the coordinate. Must be a floating point type.
-// @tparam TS Type of the size. Must be an integral type.
-// @param coord The texture coordinate.
-// @param size Size of the texture in texels.
+/**
+ * Calculates the index of the texel with center nearest to the given coordinate
+ * in a N-D texture with given size.
+ * The return value is in the range [0, size - 1] if input is in range [0, 1[.
+ * @tparam TI Type of the index. Must be an integral type.
+ * @tparam TF Type of the coordinate. Must be a floating point type.
+ * @tparam TS Type of the size. Must be an integral type.
+ * @param coord The texture coordinate.
+ * @param size Size of the texture in texels.
+ */
 template <std::integral TI, std::floating_point TF, std::integral TS, int N>
 requires Positive<N> auto nearestTexel( const vector<TF, N>& coord, const vector<TS, N>& size ) -> vector<TI, N> {
     vector<TI, N> temp;
@@ -77,9 +85,11 @@ requires Positive<N> auto nearestTexel( const vector<TF, N>& coord, const vector
     return temp;
 }
 
-// Returns the index of a cubemap face at given direction.
-// @param direction The direction vector. Need not be normalized.
-// @return 0: +X, 1: -X, 2: +Y, 3: -Y, 4: +Z, 5: -Z.
+/**
+ * Returns the index of a cubemap face at given direction.
+ * @param direction The direction vector. Need not be normalized.
+ * @return 0: +X, 1: -X, 2: +Y, 3: -Y, 4: +Z, 5: -Z.
+ */
 template <std::floating_point TF>
 auto faceAt( const vector<TF, 3>& direction ) -> int {
     const vector<TF, 3> a = abs( direction );
@@ -119,10 +129,12 @@ auto faceAt( const vector<TF, 3>& direction ) -> int {
     return 0;
 }
 
-// Convert a cube map direction vector to face index texture coordinate pair
-// using the OpenGL conventions.
-// @param direction The direction vector. Need not be normalized.
-// @return 0: +X, 1: -X, 2: +Y, 3: -Y, 4: +Z, 5: -Z.
+/**
+ * Convert a cube map direction vector to face index texture coordinate pair
+ * using the OpenGL conventions.
+ * @param direction The direction vector. Need not be normalized.
+ * @return 0: +X, 1: -X, 2: +Y, 3: -Y, 4: +Z, 5: -Z.
+ */
 template <std::floating_point TF>
 auto cubeTexCoord( const vector<TF, 3>& direction ) -> std::pair<int, vector<TF, 2>> {
     const auto fn = []( TF sc, TF tc, TF ma ) -> vector<TF, 2> {
@@ -162,12 +174,14 @@ auto cubeTexCoord( const vector<TF, 3>& direction ) -> std::pair<int, vector<TF,
     return std::make_pair( 0, vector<TF, 2>{ static_cast<TF>( 1.0 ), static_cast<TF>( 0.0 ) } );
 }
 
-// Convert a face index texture coordinate pair to cube map direction vector
-// using the OpenGL conventions.
-// @param faceIndex 0: +X, 1: -X, 2: +Y, 3: -Y, 4: +Z, 5: -Z. If the param is
-// not in the range [0, 5] an assertion failure will occur.
-// @param texCoord Texture coordinate in the given face.
-// @return Direction vector. The vector is not normalized.
+/**
+ * Convert a face index texture coordinate pair to cube map direction vector
+ * using the OpenGL conventions.
+ * @param faceIndex 0: +X, 1: -X, 2: +Y, 3: -Y, 4: +Z, 5: -Z. If the param is
+ * not in the range [0, 5] an assertion failure will occur.
+ * @param texCoord Texture coordinate in the given face.
+ * @return Direction vector. The vector is not normalized.
+ */
 template <std::floating_point TF>
 auto cubeDirection( int faceIndex, const vector<TF, 2>& texCoord ) -> vector<TF, 3> {
     assert( faceIndex >= 0 && faceIndex <= 5 );

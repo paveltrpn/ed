@@ -11,9 +11,6 @@ set(CXX_STANDART -std=c++26)
 # Build Vulkan Scene Graph alongside with project.
 add_subdirectory(vsg)
 
-# Add shape generator subdirectory.
-add_subdirectory(libs/generator)
-
 # Add OpenMesh subdirectory.
 add_subdirectory(libs/OpenMesh)
 
@@ -24,7 +21,6 @@ find_path(LIBUV_INCLUDE_DIR NAMES uv.h)
 find_library(LIBUV_LIBRARIES NAMES uv libuv)
 
 include_directories(src)
-include_directories(libs/generator/include)
 include_directories(libs/OpenMesh/Core)
 include_directories(libs/OpenMesh/Tools)
 
@@ -62,9 +58,16 @@ target_compile_options(config PRIVATE "${CXX_STANDART}")
 # ================================
 file(GLOB_RECURSE MOD_ALGEBRA_SRC "src/algebra/*.h")
 add_library(algebra ${MOD_ALGEBRA_SRC})
-target_link_libraries(generator PUBLIC algebra)
 set_target_properties(algebra PROPERTIES AUTOMOC TRUE)
 target_compile_options(algebra PRIVATE "${CXX_STANDART}")
+
+# ================================
+# Module generator
+# ================================
+file(GLOB MOD_GENERATOR_SRC "src/generator/*.cpp" "src/generator/*.hpp")
+add_library(generator ${MOD_GENERATOR_SRC})
+target_compile_options(generator PRIVATE "${CXX_STANDART}")
+target_link_libraries(generator PUBLIC algebra)
 
 # ================================
 # Module log

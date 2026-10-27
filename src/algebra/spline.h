@@ -24,20 +24,24 @@ requires Positive<N> auto bezierImpl( const vector<T, N>* p, int n, T t1, T t2, 
 
 }  // namespace detail
 
-// Evaluates a bezier curve with D control points at t.
-// @tparam D The number of control points.
-// @param p Control points.
-// @param t Interpolation value [0-1].
+/**
+ * Evaluates a bezier curve with D control points at t.
+ * @tparam D The number of control points.
+ * @param p Control points.
+ * @param t Interpolation value [0-1].
+ */
 template <int D, Algebraic T, int N>
 requires Positive<D>&& Positive<N> auto bezier( const vector<T, N> ( &p )[D], T t ) -> vector<T, N> {
     return detail::bezierImpl( &p[0], D, static_cast<T>( 1 ) - t, t );
 }
 
-// Evaluates a bezier surface with D0 X D1 control points at t.
-// @tparam D0 The number of control points along t[0] direction.
-// @tparam D1 The number of control points along t[1] direction.
-// @param p Control points.
-// @param t Interpolation value [0-1].
+/**
+ * Evaluates a bezier surface with D0 X D1 control points at t.
+ * @tparam D0 The number of control points along t[0] direction.
+ * @tparam D1 The number of control points along t[1] direction.
+ * @param p Control points.
+ * @param t Interpolation value [0-1].
+ */
 template <int D0, int D1, Algebraic T, int N>
 requires Positive<D0>&& Positive<D1>&& Positive<N> auto bezier2( const vector<T, N> ( &p )[D1][D0],
                                                                  const vector<T, 2>& t ) -> vector<T, N> {
@@ -69,27 +73,31 @@ template <int O, int D, Algebraic T, int N>
 
 }  // namespace detail
 
-// Evaluates Oth order derivative of a bezier curve with D control points at t.
-// In the case of O=1 the derivative is tangential to the curve at t.
-// @tparam O The order of the derivative. 1 for the first order.
-// @tparam D The number of control points.
-// @param p Control points.
-// @param t Interpolation value [0-1].
+/**
+ * Evaluates Oth order derivative of a bezier curve with D control points at t.
+ * In the case of O=1 the derivative is tangential to the curve at t.
+ * @tparam O The order of the derivative. 1 for the first order.
+ * @tparam D The number of control points.
+ * @param p Control points.
+ * @param t Interpolation value [0-1].
+ */
 template <int O, int D, Algebraic T, int N>
 requires Positive<O>&& Positive<D>&& Positive<N> auto bezierDerivative( const vector<T, N> ( &p )[D], T t )
     -> vector<T, N> {
     return detail::bezierDerivativeImpl<O>( p, t );
 }
 
-// Evaluates the Oth order Jacobian matrix of a bezier surface at point t.
-// In the case of O=1 the two column vectors are tangential to the surface at t
-// and in the case of N=3 the cross product of the columns is perpendicular to
-// the surface.
-// @tparam O The order of the Jacobian matrix. 1 = first order.
-// @tparam D0 The number of control points along the t[0] direction.
-// @tparam D1 The number of control points along the t[1] direction.
-// @param p Control points.
-// @param t Interpolation value [0-1].
+/**
+ * Evaluates the Oth order Jacobian matrix of a bezier surface at point t.
+ * In the case of O=1 the two column vectors are tangential to the surface at t
+ * and in the case of N=3 the cross product of the columns is perpendicular to
+ * the surface.
+ * @tparam O The order of the Jacobian matrix. 1 = first order.
+ * @tparam D0 The number of control points along the t[0] direction.
+ * @tparam D1 The number of control points along the t[1] direction.
+ * @param p Control points.
+ * @param t Interpolation value [0-1].
+ */
 template <int O, int D0, int D1, Algebraic T, int N>
 requires Positive<O>&& Positive<D0>&& Positive<D1>&& Positive<N> auto bezier2Jacobian(
     const vector<T, N> ( &p )[D1][D0], const vector<T, 2>& t ) -> matrix<T, 2, N> {
