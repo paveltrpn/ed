@@ -96,9 +96,11 @@ public:
 
             const tire::algebra::quaternion<double> q = tire::algebra::quaternionRotate( angle, mesh_->axis_ );
 
-            vertex.position = tire::algebra::transform( q, tire::algebra::vector<double, 3>{ shapeVertex.position[0], shapeVertex.position[1], 0.0 } );
+            vertex.position = tire::algebra::transform(
+                q, tire::algebra::vector<double, 3>{ shapeVertex.position[0], shapeVertex.position[1], 0.0 } );
 
-            vertex.normal = tire::algebra::transform( q, tire::algebra::vector<double, 3>{ normal[0], normal[1], 0.0 } );
+            vertex.normal =
+                tire::algebra::transform( q, tire::algebra::vector<double, 3>{ normal[0], normal[1], 0.0 } );
 
             vertex.texCoord[0] = shapeVertex.texCoord;
             vertex.texCoord[1] = angle / mesh_->sweep_;

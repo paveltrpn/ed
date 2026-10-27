@@ -9,38 +9,30 @@
 
 #include "math.hpp"
 
-
 namespace generator {
-
 
 /// A point on a path.
 /// Position and assosiated coordinate system.
 class ShapeVertex {
 public:
+    tire::algebra::vector<double, 2> position;
 
-	tire::algebra::vector<double, 2> position;
+    /// Unit length vector parallel to the shape at this point.
+    /// Also the y-axis of the shape's local coordinate system.
+    tire::algebra::vector<double, 2> tangent;
 
-	/// Unit length vector parallel to the shape at this point.
-	/// Also the y-axis of the shape's local coordinate system.
-	tire::algebra::vector<double, 2> tangent;
+    double texCoord;
 
-	double texCoord;
+    ShapeVertex()
+        : position{}
+        , tangent{}
+        , texCoord{} {}
 
-	ShapeVertex() :
-		position{},
-		tangent{},
-		texCoord{}
-	{ }
-
-	/// Returns the tangent rotated 90 dec clockwise.
-	/// Also the x-axis of the shape's local coordinate system.
-	tire::algebra::vector<double, 2> normal() const noexcept {
-		return -tire::algebra::cross(tangent);
-	}
-
+    /// Returns the tangent rotated 90 dec clockwise.
+    /// Also the x-axis of the shape's local coordinate system.
+    tire::algebra::vector<double, 2> normal() const noexcept { return -tire::algebra::cross( tangent ); }
 };
 
-
-}
+}  // namespace generator
 
 #endif

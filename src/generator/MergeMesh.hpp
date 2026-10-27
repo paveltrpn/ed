@@ -7,126 +7,110 @@
 #ifndef GENERATOR_MERGEMESH_HPP
 #define GENERATOR_MERGEMESH_HPP
 
-
 #include "MeshVertex.hpp"
 #include "EmptyMesh.hpp"
 #include "utils.hpp"
 
 namespace generator {
 
-
 /// Merges (concatenates) multiple meshes to to together.
 template <typename... Mesh>
-class MergeMesh; // undefined
-
+class MergeMesh;  // undefined
 
 template <>
-class MergeMesh<> : public EmptyMesh { };
-
+class MergeMesh<> : public EmptyMesh {};
 
 template <typename Head, typename... Tail>
 class MergeMesh<Head, Tail...> {
 public:
+    class Triangles {
+    public:
+        Triangle generate() const {
+            if ( !head_.done() ) return head_.generate();
 
-	class Triangles {
-	public:
+            Triangle triangle = tail_.generate();
+            triangle.vertices += head_VertexCount;
+            return triangle;
+        }
 
-		Triangle generate() const {
-			if (!head_.done()) return head_.generate();
+        bool done() const noexcept { return mAllDone; }
 
-			Triangle triangle = tail_.generate();
-			triangle.vertices += head_VertexCount;
-			return triangle;
-		}
+        void next() {
+            if ( !head_.done() )
+                head_.next();
+            else
+                tail_.next();
 
-		bool done() const noexcept { return mAllDone; }
+            mAllDone = tail_.done() && head_.done();
+        }
 
-		void next() {
-			if (!head_.done()) head_.next();
-			else tail_.next();
+    private:
+        typename TriangleGeneratorType<Head>::Type head_;
+        typename TriangleGeneratorType<MergeMesh<Tail...>>::Type tail_;
 
-			mAllDone = tail_.done() && head_.done();
-		}
+        int head_VertexCount;
 
-	private:
+        bool mAllDone;
 
-		typename TriangleGeneratorType<Head>::Type  head_;
-		typename TriangleGeneratorType<MergeMesh<Tail...>>::Type tail_;
+        Triangles( const MergeMesh& mesh )
+            : head_{ mesh.head_.triangles() }
+            , tail_( mesh.tail_.triangles() )
+            , head_VertexCount{ count( mesh.head_.vertices() ) }
+            , mAllDone{ tail_.done() && head_.done() } {}
 
-		int head_VertexCount;
+        friend class MergeMesh<Head, Tail...>;
+    };
 
-		bool mAllDone;
+    class Vertices {
+    public:
+        MeshVertex generate() const {
+            if ( !head_.done() ) return head_.generate();
+            return tail_.generate();
+        }
 
-		Triangles(const MergeMesh& mesh) :
-			head_{mesh.head_.triangles()},
-			tail_(mesh.tail_.triangles()),
-			head_VertexCount{count(mesh.head_.vertices())},
-			mAllDone{tail_.done() && head_.done()}
-		{ }
+        bool done() const noexcept { return mAllDone; }
 
-	friend class MergeMesh<Head, Tail...>;
-	};
+        void next() {
+            if ( !head_.done() )
+                head_.next();
+            else
+                tail_.next();
 
+            mAllDone = tail_.done() && head_.done();
+        }
 
-	class Vertices {
-	public:
+    private:
+        typename VertexGeneratorType<Head>::Type head_;
+        typename VertexGeneratorType<MergeMesh<Tail...>>::Type tail_;
 
-		MeshVertex generate() const {
-			if (!head_.done()) return head_.generate();
-			return tail_.generate();
-		}
+        bool mAllDone;
 
-		bool done() const noexcept { return mAllDone; }
+        Vertices( const MergeMesh& mesh )
+            : head_{ mesh.head_.vertices() }
+            , tail_( mesh.tail_.vertices() )
+            , mAllDone{ tail_.done() && head_.done() } {}
 
-		void next() {
-			if (!head_.done()) head_.next();
-			else tail_.next();
+        friend class MergeMesh<Head, Tail...>;
+    };
 
-			mAllDone = tail_.done() && head_.done();
-		}
+    MergeMesh( Head head, Tail... tail )
+        : head_{ std::move( head ) }
+        , tail_{ std::move( tail )... } {}
 
-	private:
+    Triangles triangles() const noexcept { return *this; }
 
-		typename VertexGeneratorType<Head>::Type head_;
-		typename VertexGeneratorType<MergeMesh<Tail...>>::Type tail_;
-
-		bool mAllDone;
-
-		Vertices(const MergeMesh& mesh) :
-			head_{mesh.head_.vertices()},
-			tail_(mesh.tail_.vertices()),
-			mAllDone{tail_.done() && head_.done()}
-		{ }
-
-	friend class MergeMesh<Head, Tail...>;
-	};
-
-
-
-	MergeMesh(Head head, Tail... tail) :
-		head_{std::move(head)},
-		tail_{std::move(tail)...}
-	{ }
-
-	Triangles triangles() const noexcept { return *this; }
-
-	Vertices vertices() const noexcept { return *this; }
-
+    Vertices vertices() const noexcept { return *this; }
 
 private:
-
-	Head head_;
-	MergeMesh<Tail...> tail_;
-
+    Head head_;
+    MergeMesh<Tail...> tail_;
 };
 
-
-
 template <typename... Mesh>
-MergeMesh<Mesh...> mergeMesh(Mesh... meshes) {
-	return MergeMesh<Mesh...>{std::move(meshes)...};
+MergeMesh<Mesh...> mergeMesh( Mesh... meshes ) {
+    return MergeMesh<Mesh...>{ std::move( meshes )... };
 }
 
-}
+}  // namespace generator
 
 #endif

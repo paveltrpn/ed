@@ -13,35 +13,30 @@ namespace generator {
 
 class PathVertex {
 public:
+    /// Unit length vector perpendicular to the path at this point.
+    /// Also the x-axis of the path coordinate system at this point.
+    tire::algebra::vector<double, 3> normal;
 
-	/// Unit length vector perpendicular to the path at this point.
-	/// Also the x-axis of the path coordinate system at this point.
-	tire::algebra::vector<double, 3> normal;
+    tire::algebra::vector<double, 3> position;
 
-	tire::algebra::vector<double, 3> position;
+    /// Unit length vector parallel to the path at this point.
+    /// Also the z-axis of the path at this point.
+    tire::algebra::vector<double, 3> tangent;
 
-	/// Unit length vector parallel to the path at this point.
-	/// Also the z-axis of the path at this point.
-	tire::algebra::vector<double, 3> tangent;
+    double texCoord;
 
-	double texCoord;
+    PathVertex()
+        : normal{}
+        , position{}
+        , tangent{}
+        , texCoord{} {}
 
-	PathVertex() :
-		normal{},
-		position{},
-		tangent{},
-		texCoord{}
-	{ }
-
-	/// Returns tangent x normal.
-	/// Also the y-axis of the path coordinate system.
-	/// See: http://mathworld.wolfram.com/BinormalVector.html
-	tire::algebra::vector<double, 3> binormal() const noexcept {
-		return cross(tangent, normal);
-	}
-
+    /// Returns tangent x normal.
+    /// Also the y-axis of the path coordinate system.
+    /// See: http://mathworld.wolfram.com/BinormalVector.html
+    tire::algebra::vector<double, 3> binormal() const noexcept { return cross( tangent, normal ); }
 };
 
-}
+}  // namespace generator
 
 #endif

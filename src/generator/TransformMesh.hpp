@@ -12,75 +12,61 @@
 #include "MeshVertex.hpp"
 #include "utils.hpp"
 
-
 namespace generator {
-
 
 /// Apply a mutator function to each vertex.
 template <typename Mesh>
-class TransformMesh
-{
+class TransformMesh {
 private:
-
-	using Impl = Mesh;
-	Impl mesh_;
+    using Impl = Mesh;
+    Impl mesh_;
 
 public:
+    class Vertices {
+    public:
+        MeshVertex generate() const {
+            auto vertex = vertices_.generate();
+            mesh_->mutate_( vertex );
+            return vertex;
+        }
 
-	class Vertices {
-	public:
+        bool done() const noexcept { return vertices_.done(); }
 
-		MeshVertex generate() const {
-			auto vertex = vertices_.generate();
-			mesh_->mutate_(vertex);
-			return vertex;
-		}
+        void next() { vertices_.next(); }
 
-		bool done() const noexcept { return vertices_.done(); }
+    private:
+        const TransformMesh* mesh_;
 
-		void next() { vertices_.next(); }
+        typename VertexGeneratorType<Mesh>::Type vertices_;
 
-	private:
+        explicit Vertices( const TransformMesh& mesh )
+            : mesh_{ &mesh }
+            , vertices_{ mesh.mesh_.vertices() } {}
 
-		const TransformMesh* mesh_;
+        friend class TransformMesh;
+    };
 
-		typename VertexGeneratorType<Mesh>::Type vertices_;
+    /// @param mesh Source data mesh.
+    /// @param mutate Callback function that gets called once per vertex.
+    explicit TransformMesh( Mesh mesh, std::function<void( MeshVertex& )> mutate )
+        : mesh_{ std::move( mesh ) }
+        , mutate_{ std::move( mutate ) } {}
 
-		explicit Vertices(const TransformMesh& mesh) :
-			mesh_{&mesh},
-			vertices_{mesh.mesh_.vertices()}
-		{ }
+    using Triangles = typename Impl::Triangles;
 
-	friend class TransformMesh;
-	};
+    Triangles triangles() const noexcept { return mesh_.triangles(); }
 
-	/// @param mesh Source data mesh.
-	/// @param mutate Callback function that gets called once per vertex.
-	explicit TransformMesh(Mesh mesh, std::function<void (MeshVertex&)> mutate) :
-		mesh_{std::move(mesh)},
-		mutate_{std::move(mutate)}
-	{ }
-
-	using Triangles = typename Impl::Triangles;
-
-	Triangles triangles() const noexcept { return mesh_.triangles(); }
-
-	Vertices vertices() const noexcept { return Vertices{*this}; }
+    Vertices vertices() const noexcept { return Vertices{ *this }; }
 
 private:
-
-	std::function<void(MeshVertex&)> mutate_;
-
+    std::function<void( MeshVertex& )> mutate_;
 };
 
-
 template <typename Mesh>
-TransformMesh<Mesh> transformMesh(
-	Mesh mesh, std::function<void(MeshVertex&)> mutate
-) {
-	return TransformMesh<Mesh>{std::move(mesh), std::move(mutate)};
+TransformMesh<Mesh> transformMesh( Mesh mesh, std::function<void( MeshVertex& )> mutate ) {
+    return TransformMesh<Mesh>{ std::move( mesh ), std::move( mutate ) };
 }
 
-}
+}  // namespace generator
 
 #endif

@@ -12,101 +12,83 @@
 
 namespace generator {
 
-
 /// Flips (mirrors) the mesh along one or more axis.
 /// Texture coordinates are not flipped.
 /// Also reverses triangle vertex order if needed.
 template <typename Mesh>
-class AxisFlipMesh
-{
+class AxisFlipMesh {
 private:
-
-	using Impl = TransformMesh<Mesh>;
-	Impl transformMesh_;
+    using Impl = TransformMesh<Mesh>;
+    Impl transformMesh_;
 
 public:
+    class Triangles {
+    public:
+        Triangle generate() const {
+            Triangle triangle = triangles_.generate();
+            if ( mesh_->flip_ ) std::swap( triangle.vertices[0], triangle.vertices[2] );
+            return triangle;
+        }
 
-	class Triangles {
-	public:
+        bool done() const noexcept { return triangles_.done(); }
 
-		Triangle generate() const {
-			Triangle triangle = triangles_.generate();
-			if (mesh_->flip_)
-				std::swap(triangle.vertices[0], triangle.vertices[2]);
-			return triangle;
-		}
+        void next() { triangles_.next(); }
 
-		bool done() const noexcept { return triangles_.done(); }
+    private:
+        const AxisFlipMesh* mesh_;
 
-		void next() { triangles_.next(); }
+        typename TriangleGeneratorType<TransformMesh<Mesh>>::Type triangles_;
 
-	private:
+        Triangles( const AxisFlipMesh& mesh )
+            : mesh_{ &mesh }
+            , triangles_{ mesh.transformMesh_.triangles() } {}
 
-		const AxisFlipMesh* mesh_;
+        friend class AxisFlipMesh;
+    };
 
-		typename TriangleGeneratorType<TransformMesh<Mesh>>::Type triangles_;
+    ///@param mesh Source data mesh.
+    ///@param x Flip x
+    ///@param y Flip y
+    ///@param z Flip z
+    AxisFlipMesh( Mesh mesh, bool x, bool y, bool z )
+        : transformMesh_{ std::move( mesh ),
+                          [x, y, z]( MeshVertex& vertex ) {
+                              if ( x ) {
+                                  vertex.position[0] *= -1.0;
+                                  vertex.normal[0] *= -1.0;
+                              }
 
-		Triangles(const AxisFlipMesh& mesh) :
-			mesh_{&mesh},
-			triangles_{mesh.transformMesh_.triangles()}
-		{ }
+                              if ( y ) {
+                                  vertex.position[1] *= -1.0;
+                                  vertex.normal[1] *= -1.0;
+                              }
 
-	friend class AxisFlipMesh;
-	};
+                              if ( z ) {
+                                  vertex.position[2] *= -1.0;
+                                  vertex.normal[2] *= -1.0;
+                              }
+                          } }
+        , flip_{ false } {
+        if ( x ) flip_ = !flip_;
+        if ( y ) flip_ = !flip_;
+        if ( z ) flip_ = !flip_;
+    }
 
-	///@param mesh Source data mesh.
-	///@param x Flip x
-	///@param y Flip y
-	///@param z Flip z
-	AxisFlipMesh(Mesh mesh, bool x, bool y, bool z) :
-		transformMesh_{
-			std::move(mesh),
-			[x, y, z] (MeshVertex& vertex) {
-				if (x) {
-					vertex.position[0] *= -1.0;
-					vertex.normal[0] *= -1.0;
-				}
+    Triangles triangles() const noexcept { return { *this }; }
 
-				if (y) {
-					vertex.position[1] *= -1.0;
-					vertex.normal[1] *= -1.0;
-				}
+    using Vertices = typename Impl::Vertices;
 
-				if (z) {
-					vertex.position[2] *= -1.0;
-					vertex.normal[2] *= -1.0;
-				}
-			}
-		},
-		flip_{false}
-	{
-		if (x) flip_ = !flip_;
-		if (y) flip_ = !flip_;
-		if (z) flip_ = !flip_;
-	}
-
-	Triangles triangles() const noexcept { return {*this}; }
-
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return transformMesh_.vertices(); }
+    Vertices vertices() const noexcept { return transformMesh_.vertices(); }
 
 private:
-
-	bool flip_;
-
+    bool flip_;
 };
 
-
 template <typename Mesh>
-AxisFlipMesh<Mesh> axisFlipMesh(Mesh mesh, bool x, bool y, bool z) {
-	return AxisFlipMesh<Mesh>{std::move(mesh), x, y, z};
+AxisFlipMesh<Mesh> axisFlipMesh( Mesh mesh, bool x, bool y, bool z ) {
+    return AxisFlipMesh<Mesh>{ std::move( mesh ), x, y, z };
 }
 
-
-
-}
-
-
+}  // namespace generator
 
 #endif

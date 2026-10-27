@@ -11,39 +11,30 @@
 
 namespace generator {
 
-
 /// A circle centered at origin.
 /// @image html CircleShape.svg
-class CircleShape
-{
+class CircleShape {
 private:
-
-	using Impl = ParametricShape;
-	Impl parametricShape_;
+    using Impl = ParametricShape;
+    Impl parametricShape_;
 
 public:
+    /// @param radius Radius of the circle
+    /// @param segments Number of subdivisions around the circle.
+    /// @param start Counterclockwise angle relative to x-axis.
+    /// @param sweep Counterclockwise angle.
+    CircleShape( double radius = 1.0, int segments = 32, double start = 0.0,
+                 double sweep = tire::algebra::degToRad( 360.0 ) );
 
-	/// @param radius Radius of the circle
-	/// @param segments Number of subdivisions around the circle.
-	/// @param start Counterclockwise angle relative to x-axis.
-	/// @param sweep Counterclockwise angle.
-	CircleShape(
-		double radius = 1.0,
-		int segments = 32,
-		double start = 0.0,
-		double sweep = tire::algebra::degToRad(360.0)
-	);
+    using Edges = typename Impl::Edges;
 
-	using Edges = typename Impl::Edges;
+    Edges edges() const noexcept { return parametricShape_.edges(); }
 
-	Edges edges() const noexcept { return parametricShape_.edges(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return parametricShape_.vertices(); }
-
+    Vertices vertices() const noexcept { return parametricShape_.vertices(); }
 };
 
-}
+}  // namespace generator
 
 #endif

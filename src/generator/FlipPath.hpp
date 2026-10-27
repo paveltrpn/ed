@@ -7,78 +7,59 @@
 #ifndef GENERATOR_FLIPPATH_HPP
 #define GENERATOR_FLIPPATH_HPP
 
-
 #include "Edge.hpp"
 #include "TransformPath.hpp"
 
-
 namespace generator {
-
 
 /// Flips mesh inside out. Reverses triangles and normals.
 template <typename Path>
-class FlipPath
-{
+class FlipPath {
 private:
-
-	using Impl = TransformPath<Path>;
-	Impl transformPath_;
+    using Impl = TransformPath<Path>;
+    Impl transformPath_;
 
 public:
+    class Edges {
+    public:
+        Edge generate() const {
+            Edge edge = edges_.generate();
+            std::swap( edge.vertices[0], edge.vertices[1] );
+            return edge;
+        }
 
-	class Edges {
-	public:
+        bool done() const noexcept { return edges_.done(); }
 
-		Edge generate() const {
-			Edge edge = edges_.generate();
-			std::swap(edge.vertices[0], edge.vertices[1]);
-			return edge;
-		}
+        void next() { edges_.next(); }
 
-		bool done() const noexcept { return edges_.done(); }
+    private:
+        typename EdgeGeneratorType<TransformPath<Path>>::Type edges_;
 
-		void next() { edges_.next(); }
+        Edges( const TransformPath<Path>& path )
+            : edges_{ path.edges() } {}
 
-	private:
+        friend class FlipPath;
+    };
 
-		typename EdgeGeneratorType<TransformPath<Path>>::Type edges_;
+    /// @param path Source data path.
+    FlipPath( Path path )
+        : transformPath_{ std::move( path ), []( PathVertex& vertex ) {
+                             vertex.tangent *= -1.0;
+                             vertex.normal *= -1.0;
+                         } } {}
 
-		Edges(const TransformPath<Path>& path) :
-			edges_{path.edges()}
-		{ }
+    Edges edges() const noexcept { return { *this }; }
 
-	friend class FlipPath;
-	};
+    using Vertices = typename Impl::Vertices;
 
-	/// @param path Source data path.
-	FlipPath(Path path) :
-		transformPath_{
-			std::move(path),
-			[] (PathVertex& vertex) {
-				vertex.tangent *= -1.0;
-				vertex.normal *= -1.0;
-			}
-		}
-	{ }
-
-	Edges edges() const noexcept { return {*this}; }
-
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return transformPath_.vertices(); }
-
-
+    Vertices vertices() const noexcept { return transformPath_.vertices(); }
 };
 
-
 template <typename Path>
-FlipPath<Path> flipPath(Path path) {
-	return FlipPath<Path>{std::move(path)};
+FlipPath<Path> flipPath( Path path ) {
+    return FlipPath<Path>{ std::move( path ) };
 }
 
-
-}
-
-
+}  // namespace generator
 
 #endif

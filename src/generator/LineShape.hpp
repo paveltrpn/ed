@@ -9,41 +9,31 @@
 
 #include "ParametricShape.hpp"
 
-
 namespace generator {
-
 
 /// A line from a point to a point.
 /// @image html LineShape.svg
-class LineShape
-{
+class LineShape {
 private:
-
-	using Impl = ParametricShape;
-	Impl parametricShape_;
+    using Impl = ParametricShape;
+    Impl parametricShape_;
 
 public:
+    /// @param start Start position
+    /// @param end End position
+    /// @param segments Number of subdivisions
+    LineShape( const tire::algebra::vector<double, 2>& start = { 0.0, -1.0 },
+               const tire::algebra::vector<double, 2>& end = { 0.0, 1.0 }, int segments = 8 );
 
-	/// @param start Start position
-	/// @param end End position
-	/// @param segments Number of subdivisions
-	LineShape(
-		const tire::algebra::vector<double, 2>& start = {0.0, -1.0},
-		const tire::algebra::vector<double, 2>& end = {0.0, 1.0},
-		int segments = 8
-	);
+    using Edges = typename Impl::Edges;
 
-	using Edges = typename Impl::Edges;
+    Edges edges() const noexcept { return parametricShape_.edges(); }
 
-	Edges edges() const noexcept { return parametricShape_.edges(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return parametricShape_.vertices(); }
-
+    Vertices vertices() const noexcept { return parametricShape_.vertices(); }
 };
 
-
-}
+}  // namespace generator
 
 #endif /* LINE_HPP_ */

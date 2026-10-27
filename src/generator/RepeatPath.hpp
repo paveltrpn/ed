@@ -5,172 +5,126 @@
 #include "PathVertex.hpp"
 #include "Edge.hpp"
 
-namespace generator
-{
-
+namespace generator {
 
 /**
  * Repeats the same path a given number of time at given intervals.
  */
 template <typename Path>
-class RepeatPath
-{
+class RepeatPath {
 public:
+    class Edges {
+    public:
+        bool done() const noexcept { return mIndex >= mRepeatPath->mInstances; }
 
-	class Edges
-	{
-	public:
+        Edge generate() const {
+            Edge temp = mEdges.generate();
+            temp.vertices += mDelta;
+            return temp;
+        }
 
-		bool done() const noexcept
-		{
-			return mIndex >= mRepeatPath->mInstances;
-		}
+        void next() noexcept {
+            mEdges.next();
 
-		Edge generate() const
-		{
-			Edge temp = mEdges.generate();
-			temp.vertices += mDelta;
-			return temp;
-		}
+            if ( mEdges.done() ) {
+                ++mIndex;
+                mDelta += mRepeatPath->mVertexCount;
+                mEdges = mRepeatPath->mPath.edges();
+            }
+        }
 
-		void next() noexcept
-		{
-			mEdges.next();
+    private:
+        const RepeatPath* mRepeatPath;
 
-			if (mEdges.done()) {
-				++mIndex;
-				mDelta += mRepeatPath->mVertexCount;
-				mEdges = mRepeatPath->mPath.edges();
-			}
-		}
+        typename EdgeGeneratorType<Path>::Type mEdges;
 
-	private:
+        int mIndex;
 
-		const RepeatPath* mRepeatPath;
+        int mDelta;
 
-		typename EdgeGeneratorType<Path>::Type mEdges;
+        explicit Edges( const RepeatPath* repeatPath ) noexcept
+            : mRepeatPath{ repeatPath }
+            , mEdges{ repeatPath->mPath.edges() }
+            , mIndex{ repeatPath->mVertexCount > 0 ? 0 : repeatPath->mInstances }
+            , mDelta{ 0 } {}
 
-		int mIndex;
+        friend class RepeatPath;
+    };
 
-		int mDelta;
+    class Vertices {
+    public:
+        bool done() const noexcept { return mIndex >= mRepeatPath->mInstances; }
 
-		explicit Edges(const RepeatPath* repeatPath) noexcept :
-			mRepeatPath{repeatPath},
-			mEdges{repeatPath->mPath.edges()},
-			mIndex{repeatPath->mVertexCount > 0 ? 0 : repeatPath->mInstances},
-			mDelta{0}
-		{
+        PathVertex generate() const {
+            PathVertex temp = mVertices.generate();
+            temp.position += mDelta;
+            return temp;
+        }
 
-		}
+        void next() {
+            mVertices.next();
 
-	friend class RepeatPath;
-	};
+            if ( mVertices.done() ) {
+                ++mIndex;
+                mDelta += mRepeatPath->mDelta;
+                mVertices = mRepeatPath->mPath.vertices();
+            }
+        }
 
+    private:
+        explicit Vertices( const RepeatPath* repeatPath )
+            : mRepeatPath{ repeatPath }
+            , mVertices{ repeatPath->mPath.vertices() }
+            , mIndex{ repeatPath->mVertexCount > 0 ? 0 : repeatPath->mInstances }
+            , mDelta{} {}
 
-	class Vertices
-	{
-	public:
+        const RepeatPath* mRepeatPath;
 
-		bool done() const noexcept
-		{
-			return mIndex >= mRepeatPath->mInstances;
-		}
+        typename VertexGeneratorType<Path>::Type mVertices;
 
-		PathVertex generate() const
-		{
-			PathVertex temp = mVertices.generate();
-			temp.position += mDelta;
-			return temp;
-		}
+        int mIndex;
 
-		void next()
-		{
-			mVertices.next();
+        tire::algebra::vector<double, 3> mDelta;
 
-			if (mVertices.done()) {
-				++mIndex;
-				mDelta += mRepeatPath->mDelta;
-				mVertices = mRepeatPath->mPath.vertices();
-			}
-		}
+        int countVertices() const noexcept {
+            if ( mRepeatPath->mInstances < 1 ) return 0;
 
-	private:
+            return mRepeatPath->mVertexCount * ( mRepeatPath->mInstances - mIndex - 1 ) + count( mVertices );
+        }
 
-		explicit Vertices(const RepeatPath* repeatPath) :
-			mRepeatPath{repeatPath},
-			mVertices{repeatPath->mPath.vertices()},
-			mIndex{repeatPath->mVertexCount > 0 ? 0 : repeatPath->mInstances},
-			mDelta{}
-		{ }
+        friend int count( const Vertices& generator ) noexcept { return generator.countVertices(); }
 
-		const RepeatPath* mRepeatPath;
+        friend class RepeatPath;
+    };
 
-		typename VertexGeneratorType<Path>::Type mVertices;
+    /// @param path The path to repeat.
+    /// @param instances Number of times to repeat. If <1 an empty path results.
+    /// @param delta An offset aplied to each copy.
+    explicit RepeatPath( Path path, int instances, const tire::algebra::vector<double, 3>& delta ) noexcept
+        : mPath{ std::move( path ) }
+        , mInstances{ instances }
+        , mDelta{ delta }
+        , mVertexCount{ count( mPath.vertices() ) } {}
 
-		int mIndex;
+    Edges edges() const noexcept { return Edges{ this }; }
 
-		tire::algebra::vector<double, 3> mDelta;
-
-		int countVertices() const noexcept
-		{
-			if (mRepeatPath->mInstances < 1) return 0;
-
-			return
-				mRepeatPath->mVertexCount *
-				(mRepeatPath->mInstances - mIndex - 1) +
-				count(mVertices);
-		}
-
-	friend
-		int count(const Vertices& generator) noexcept
-		{
-			return generator.countVertices();
-		}
-
-	friend class RepeatPath;
-	};
-
-
-	/// @param path The path to repeat.
-	/// @param instances Number of times to repeat. If <1 an empty path results.
-	/// @param delta An offset aplied to each copy.
-	explicit RepeatPath(Path path, int instances, const tire::algebra::vector<double, 3>& delta) noexcept :
-		mPath{std::move(path)},
-		mInstances{instances},
-		mDelta{delta},
-		mVertexCount{count(mPath.vertices())}
-	{ }
-
-	Edges edges() const noexcept
-	{
-		return Edges{this};
-	}
-
-	Vertices vertices() const noexcept
-	{
-		return Vertices{this};
-	}
+    Vertices vertices() const noexcept { return Vertices{ this }; }
 
 private:
+    Path mPath;
 
-	Path mPath;
+    int mInstances;
 
-	int mInstances;
+    tire::algebra::vector<double, 3> mDelta;
 
-	tire::algebra::vector<double, 3> mDelta;
-
-	int mVertexCount;
-
+    int mVertexCount;
 };
 
-
 template <typename Path>
-RepeatPath<Path> repeatPath(Path path, int instances, const tire::algebra::vector<double, 3>& delta) noexcept
-{
-	return RepeatPath<Path>{std::move(path), instances, delta};
+RepeatPath<Path> repeatPath( Path path, int instances, const tire::algebra::vector<double, 3>& delta ) noexcept {
+    return RepeatPath<Path>{ std::move( path ), instances, delta };
 }
 
-
-}
+}  // namespace generator
 
 #endif

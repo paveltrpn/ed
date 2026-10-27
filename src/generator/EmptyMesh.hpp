@@ -11,49 +11,42 @@
 #include "MeshVertex.hpp"
 #include "Triangle.hpp"
 
-
 namespace generator {
-
 
 /// Empty Mesh with zero vertices and triangles.
 class EmptyMesh {
 public:
+    class Triangles {
+    public:
+        Triangle generate() const;
+        bool done() const noexcept;
+        void next();
 
-	class Triangles {
-	public:
-		Triangle generate() const;
-		bool done() const noexcept;
-		void next();
-	private:
+    private:
+        Triangles();
 
-		Triangles();
+        friend class EmptyMesh;
+    };
 
-	friend class EmptyMesh;
-	};
+    class Vertices {
+    public:
+        MeshVertex generate() const;
+        bool done() const noexcept;
+        void next();
 
-	class Vertices {
-	public:
+    private:
+        Vertices();
 
-		MeshVertex generate() const;
-		bool done() const noexcept;
-		void next();
+        friend class EmptyMesh;
+    };
 
-	private:
+    EmptyMesh();
 
-		Vertices();
+    Triangles triangles() const noexcept;
 
-	friend class EmptyMesh;
-	};
-
-	EmptyMesh();
-
-	Triangles triangles() const noexcept;
-
-	Vertices vertices() const noexcept;
-
+    Vertices vertices() const noexcept;
 };
 
-
-}
+}  // namespace generator
 
 #endif

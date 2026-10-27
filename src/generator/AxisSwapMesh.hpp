@@ -13,94 +13,73 @@
 
 namespace generator {
 
-
 /// Swaps any number of axis in the mesh.
 template <typename Mesh>
-class AxisSwapMesh
-{
+class AxisSwapMesh {
 private:
-
-	using Impl = TransformMesh<Mesh>;
-	Impl transformMesh_;
+    using Impl = TransformMesh<Mesh>;
+    Impl transformMesh_;
 
 public:
+    class Triangles {
+    public:
+        Triangle generate() const {
+            Triangle triangle = triangles_.generate();
+            if ( mesh_->flip_ ) std::swap( triangle.vertices[0], triangle.vertices[2] );
+            return triangle;
+        }
 
-	class Triangles {
-	public:
+        bool done() const noexcept { return triangles_.done(); }
 
-		Triangle generate() const {
-			Triangle triangle = triangles_.generate();
-			if (mesh_->flip_)
-				std::swap(triangle.vertices[0], triangle.vertices[2]);
-			return triangle;
-		}
+        void next() { triangles_.next(); }
 
-		bool done() const noexcept { return triangles_.done(); }
+    private:
+        const AxisSwapMesh* mesh_;
 
-		void next() { triangles_.next(); }
+        typename TriangleGeneratorType<TransformMesh<Mesh>>::Type triangles_;
 
-	private:
+        Triangles( const AxisSwapMesh& mesh )
+            : mesh_{ &mesh }
+            , triangles_{ mesh.transformMesh_.triangles() } {}
 
-		const AxisSwapMesh* mesh_;
+        friend class AxisSwapMesh;
+    };
 
-		typename TriangleGeneratorType<TransformMesh<Mesh>>::Type triangles_;
+    ///@param mesh Source data mesh.
+    ///@param x Axis to be used as the x-axis
+    ///@param y Axis to be used as the y-axis
+    ///@param z Axis to be used as the z-axis
+    AxisSwapMesh( Mesh mesh, Axis x, Axis y, Axis z )
+        : transformMesh_{ std::move( mesh ),
+                          [x, y, z]( MeshVertex& vertex ) {
+                              vertex.position = tire::algebra::vector<double, 3>{
+                                  vertex.position[static_cast<int>( x )], vertex.position[static_cast<int>( y )],
+                                  vertex.position[static_cast<int>( z )] };
+                              vertex.normal = tire::algebra::vector<double, 3>{ vertex.normal[static_cast<int>( x )],
+                                                                                vertex.normal[static_cast<int>( y )],
+                                                                                vertex.normal[static_cast<int>( z )] };
+                          } }
+        , flip_{ true } {
+        if ( x != Axis::X ) flip_ = !flip_;
+        if ( y != Axis::Y ) flip_ = !flip_;
+        if ( z != Axis::Z ) flip_ = !flip_;
+    }
 
-		Triangles(const AxisSwapMesh& mesh) :
-			mesh_{&mesh},
-			triangles_{mesh.transformMesh_.triangles()}
-		{ }
+    Triangles triangles() const noexcept { return { *this }; }
 
-	friend class AxisSwapMesh;
-	};
+    using Vertices = typename Impl::Vertices;
 
-	///@param mesh Source data mesh.
-	///@param x Axis to be used as the x-axis
-	///@param y Axis to be used as the y-axis
-	///@param z Axis to be used as the z-axis
-	AxisSwapMesh(Mesh mesh, Axis x, Axis y, Axis z) :
-		transformMesh_{
-			std::move(mesh),
-			[x, y, z] (MeshVertex& vertex) {
-				vertex.position	= tire::algebra::vector<double, 3>{
-					vertex.position[static_cast<int>(x)],
-					vertex.position[static_cast<int>(y)],
-					vertex.position[static_cast<int>(z)]
-				};
-				vertex.normal = tire::algebra::vector<double, 3>{
-					vertex.normal[static_cast<int>(x)],
-					vertex.normal[static_cast<int>(y)],
-					vertex.normal[static_cast<int>(z)]
-				};
-			}
-		},
-		flip_{true}
-	{
-		if (x != Axis::X) flip_ = !flip_;
-		if (y != Axis::Y) flip_ = !flip_;
-		if (z != Axis::Z) flip_ = !flip_;
-	}
-
-	Triangles triangles() const noexcept { return {*this}; }
-
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return transformMesh_.vertices(); }
+    Vertices vertices() const noexcept { return transformMesh_.vertices(); }
 
 private:
-
-	bool flip_;
-
+    bool flip_;
 };
 
-
 template <typename Mesh>
-AxisSwapMesh<Mesh> axisSwapMesh(Mesh mesh, Axis x, Axis y, Axis z) {
-	return AxisSwapMesh<Mesh>{std::move(mesh), x, y, z};
+AxisSwapMesh<Mesh> axisSwapMesh( Mesh mesh, Axis x, Axis y, Axis z ) {
+    return AxisSwapMesh<Mesh>{ std::move( mesh ), x, y, z };
 }
 
-
-}
-
-
+}  // namespace generator
 
 #endif

@@ -9,85 +9,70 @@
 
 #include "math.hpp"
 
-
 #include "MeshVertex.hpp"
 #include "Triangle.hpp"
 
-
 namespace generator {
-
 
 /// A triangular mesh on the xy -plane.
 /// @image html TriangleMesh.svg
-class TriangleMesh
-{
+class TriangleMesh {
 public:
+    class Triangles {
+    public:
+        bool done() const noexcept;
+        Triangle generate() const;
+        void next();
 
-	class Triangles {
-	public:
+    private:
+        const TriangleMesh* mesh_;
+        int row_;
+        int col_;
+        int i_;
 
-		bool done() const noexcept;
-		Triangle generate() const;
-		void next();
+        Triangles( const TriangleMesh& mesh );
 
-	private:
+        friend class TriangleMesh;
+    };
 
-		const TriangleMesh* mesh_;
-		int row_;
-		int col_;
-		int i_;
+    class Vertices {
+    public:
+        bool done() const noexcept;
+        MeshVertex generate() const;
+        void next();
 
-		Triangles(const TriangleMesh& mesh);
+    private:
+        const TriangleMesh* mesh_;
+        int row_;
+        int col_;
 
-	friend class TriangleMesh;
-	};
+        Vertices( const TriangleMesh& mesh );
 
-	class Vertices {
-	public:
+        friend class TriangleMesh;
+    };
 
-		bool done() const noexcept;
-		MeshVertex generate() const;
-		void next();
+    /// Makes a regular triangle centered at origin.
+    /// @param radius The radius of the containing circle.
+    /// @param segments The number of segments along each edge. Must be >= 1.
+    explicit TriangleMesh( double radius = 1.0, int segments = 4 );
 
-	private:
+    /// @param v0,v1,v2 The vertex positions of the triangle.
+    /// @param segments The number of segments along each edge. Must be >= 1.
+    TriangleMesh( const tire::algebra::vector<double, 3>& v0, const tire::algebra::vector<double, 3>& v1,
+                  const tire::algebra::vector<double, 3>& v2, int segments = 4 );
 
-		const TriangleMesh* mesh_;
-		int row_;
-		int col_;
+    Triangles triangles() const noexcept;
 
-		Vertices(const TriangleMesh& mesh);
-
-	friend class TriangleMesh;
-	};
-
-	/// Makes a regular triangle centered at origin.
-	/// @param radius The radius of the containing circle.
-	/// @param segments The number of segments along each edge. Must be >= 1.
-	explicit TriangleMesh(double radius = 1.0, int segments = 4);
-
-	/// @param v0,v1,v2 The vertex positions of the triangle.
-	/// @param segments The number of segments along each edge. Must be >= 1.
-	TriangleMesh(
-		const tire::algebra::vector<double, 3>& v0, const tire::algebra::vector<double, 3>& v1, const tire::algebra::vector<double, 3>& v2,
-		int segments = 4
-	);
-
-	Triangles triangles() const noexcept;
-
-	Vertices vertices() const noexcept;
+    Vertices vertices() const noexcept;
 
 private:
+    tire::algebra::vector<double, 3> v0_, v1_, v2_;
 
-	tire::algebra::vector<double, 3> v0_, v1_, v2_;
+    tire::algebra::vector<double, 3> normal_;
 
-	tire::algebra::vector<double, 3> normal_;
-
-	int segments_;
-
+    int segments_;
 };
 
-
-}
-
+}  // namespace generator
 
 #endif

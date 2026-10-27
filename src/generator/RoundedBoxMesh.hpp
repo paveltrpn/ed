@@ -17,150 +17,108 @@
 #include "PlaneMesh.hpp"
 #include "SphericalTriangleMesh.hpp"
 
-
 namespace generator {
 
 namespace detail {
 
-
-class BoxEdge
-{
+class BoxEdge {
 private:
-
-	using Impl = TranslateMesh<CylinderMesh>;
-	Impl translateMesh_;
+    using Impl = TranslateMesh<CylinderMesh>;
+    Impl translateMesh_;
 
 public:
+    BoxEdge( const tire::algebra::vector<double, 2>& position, double radius, double size, int slices, int segments );
 
-	BoxEdge(
-		const tire::algebra::vector<double, 2>& position, double radius, double size,
-		int slices, int segments
-	);
+    using Triangles = typename Impl::Triangles;
 
-	using Triangles = typename Impl::Triangles;
+    Triangles triangles() const noexcept { return translateMesh_.triangles(); }
 
-	Triangles triangles() const noexcept { return translateMesh_.triangles(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return translateMesh_.vertices(); }
-
+    Vertices vertices() const noexcept { return translateMesh_.vertices(); }
 };
 
-
-class BoxEdges
-{
+class BoxEdges {
 private:
-
-	using Impl = MirrorMesh<MirrorMesh<BoxEdge>>;
-	Impl mirrorMesh_;
+    using Impl = MirrorMesh<MirrorMesh<BoxEdge>>;
+    Impl mirrorMesh_;
 
 public:
+    BoxEdges( const tire::algebra::vector<double, 3>& size, double radius, int slices, int segments );
 
-	BoxEdges(
-		const tire::algebra::vector<double, 3>& size, double radius,
-		int slices, int segments
-	);
+    using Triangles = typename Impl::Triangles;
 
-	using Triangles = typename Impl::Triangles;
+    Triangles triangles() const noexcept { return mirrorMesh_.triangles(); }
 
-	Triangles triangles() const noexcept { return mirrorMesh_.triangles(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return mirrorMesh_.vertices(); }
-
+    Vertices vertices() const noexcept { return mirrorMesh_.vertices(); }
 };
 
-
-class BoxCorner
-{
+class BoxCorner {
 private:
-
-	using Impl = TranslateMesh<SphericalTriangleMesh>;
-	Impl translateMesh_;
+    using Impl = TranslateMesh<SphericalTriangleMesh>;
+    Impl translateMesh_;
 
 public:
+    BoxCorner( const tire::algebra::vector<double, 3>& position, double radius, int slices );
 
-	BoxCorner(const tire::algebra::vector<double, 3>& position, double radius, int slices);
+    using Triangles = typename Impl::Triangles;
 
-	using Triangles = typename Impl::Triangles;
+    Triangles triangles() const noexcept { return translateMesh_.triangles(); }
 
-	Triangles triangles() const noexcept { return translateMesh_.triangles(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return translateMesh_.vertices(); }
-
+    Vertices vertices() const noexcept { return translateMesh_.vertices(); }
 };
 
-
-class BoxCorners
-{
+class BoxCorners {
 private:
-
-	using Impl = MirrorMesh<MirrorMesh<MirrorMesh<BoxCorner>>>;
-	Impl mirrorMesh_;
+    using Impl = MirrorMesh<MirrorMesh<MirrorMesh<BoxCorner>>>;
+    Impl mirrorMesh_;
 
 public:
-	BoxCorners(const tire::algebra::vector<double, 3>& size, double radius, int slices);
+    BoxCorners( const tire::algebra::vector<double, 3>& size, double radius, int slices );
 
-	using Triangles = typename Impl::Triangles;
+    using Triangles = typename Impl::Triangles;
 
-	Triangles triangles() const noexcept { return mirrorMesh_.triangles(); }
+    Triangles triangles() const noexcept { return mirrorMesh_.triangles(); }
 
-	using Vertices = typename Impl::Vertices;
+    using Vertices = typename Impl::Vertices;
 
-	Vertices vertices() const noexcept { return mirrorMesh_.vertices(); }
+    Vertices vertices() const noexcept { return mirrorMesh_.vertices(); }
 };
 
-
-
-}
+}  // namespace detail
 
 /// Rectangular box with rounded edges centered at origin aligned along the x, y
 /// and z axis.
 /// @image html RoundedBoxMesh.svg
-class RoundedBoxMesh
-{
+class RoundedBoxMesh {
 private:
-
-	using Impl = MergeMesh<
-		AxisSwapMesh<detail::BoxFaces>,
-		UvFlipMesh<AxisSwapMesh<detail::BoxFaces>>,
-		detail::BoxFaces,
-		AxisSwapMesh<detail::BoxEdges>,
-		AxisSwapMesh<detail::BoxEdges>,
-		detail::BoxEdges,
-		detail::BoxCorners
-	>;
-	Impl mergeMesh_;
+    using Impl =
+        MergeMesh<AxisSwapMesh<detail::BoxFaces>, UvFlipMesh<AxisSwapMesh<detail::BoxFaces>>, detail::BoxFaces,
+                  AxisSwapMesh<detail::BoxEdges>, AxisSwapMesh<detail::BoxEdges>, detail::BoxEdges, detail::BoxCorners>;
+    Impl mergeMesh_;
 
 public:
+    /// @param radius Radius of the rounded edges.
+    /// @param size Half of the side length in x (0), y (1) and z (2) direction.
+    /// @param slices Number subdivions around in the rounded edges.
+    /// @param segments Number of subdivisons in x (0), y (1) and z (2)
+    /// direction for the flat faces.
+    RoundedBoxMesh( double radius = 0.25, const tire::algebra::vector<double, 3>& size = { 0.75, 0.75, 0.75 },
+                    int slices = 4, const tire::algebra::vector<int, 3>& segments = { 8, 8, 8 } );
 
-	/// @param radius Radius of the rounded edges.
-	/// @param size Half of the side length in x (0), y (1) and z (2) direction.
-	/// @param slices Number subdivions around in the rounded edges.
-	/// @param segments Number of subdivisons in x (0), y (1) and z (2)
-	/// direction for the flat faces.
-	RoundedBoxMesh(
-		double radius = 0.25,
-		const tire::algebra::vector<double, 3>& size = {0.75, 0.75, 0.75},
-		int slices = 4,
-		const tire::algebra::vector<int, 3>& segments = {8, 8, 8}
-	);
+    using Triangles = typename Impl::Triangles;
 
-	using Triangles = typename Impl::Triangles;
+    Triangles triangles() const noexcept { return mergeMesh_.triangles(); }
 
-	Triangles triangles() const noexcept { return mergeMesh_.triangles(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return mergeMesh_.vertices(); }
-
+    Vertices vertices() const noexcept { return mergeMesh_.vertices(); }
 };
 
-
-}
+}  // namespace generator
 
 #endif

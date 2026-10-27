@@ -12,48 +12,32 @@
 #include "MergeShape.hpp"
 #include "TranslateShape.hpp"
 
-
 namespace generator {
 
-
-
 /// Rectangle with rounded corners centered at origin aligned along the x and y axis.
-class RoundedRectangleShape
-{
+class RoundedRectangleShape {
 private:
-
-	using Impl = MergeShape<
-		LineShape, TranslateShape<CircleShape>,
-		LineShape, TranslateShape<CircleShape>,
-		LineShape, TranslateShape<CircleShape>,
-		LineShape, TranslateShape<CircleShape>
-	>;
-	Impl mergeShape_;
+    using Impl = MergeShape<LineShape, TranslateShape<CircleShape>, LineShape, TranslateShape<CircleShape>, LineShape,
+                            TranslateShape<CircleShape>, LineShape, TranslateShape<CircleShape>>;
+    Impl mergeShape_;
 
 public:
+    /// @param radius Radius of the rounded corners.
+    /// @param size Half of a length of an edge.
+    /// @param slices Number of subdivisions in each rounded corner.
+    /// @param segments Number of subdivisions along each edge.
+    RoundedRectangleShape( double radius = 0.25, const tire::algebra::vector<double, 2>& size = { 0.75, 0.75 },
+                           int slices = 4, const tire::algebra::vector<int, 2>& segments = { 8, 8 } );
 
-	/// @param radius Radius of the rounded corners.
-	/// @param size Half of a length of an edge.
-	/// @param slices Number of subdivisions in each rounded corner.
-	/// @param segments Number of subdivisions along each edge.
-	RoundedRectangleShape(
-		double radius = 0.25,
-		const tire::algebra::vector<double, 2>& size = {0.75, 0.75},
-		int slices = 4,
-		const tire::algebra::vector<int, 2>& segments = {8, 8}
-	);
+    using Edges = typename Impl::Edges;
 
-	using Edges = typename Impl::Edges;
+    Edges edges() const noexcept { return mergeShape_.edges(); }
 
-	Edges edges() const noexcept { return mergeShape_.edges(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return mergeShape_.vertices(); }
-
+    Vertices vertices() const noexcept { return mergeShape_.vertices(); }
 };
 
-
-}
+}  // namespace generator
 
 #endif

@@ -11,41 +11,31 @@
 
 namespace generator {
 
-
 /// A path from point to point.
 /// @image html LinePath.svg
-class LinePath
-{
+class LinePath {
 private:
-
-	using Impl = ParametricPath;
-	Impl parametricPath_;
+    using Impl = ParametricPath;
+    Impl parametricPath_;
 
 public:
+    /// @param start Start point of the line.
+    /// @param end End point of the line.
+    /// @param normal Line normal. Should be parallel to the line.
+    /// @param segments Number of subdivisions along the line.
+    LinePath( const tire::algebra::vector<double, 3>& start = { 0.0, 0.0, -1.0 },
+              const tire::algebra::vector<double, 3>& end = { 0.0, 0.0, 1.0 },
+              const tire::algebra::vector<double, 3>& normal = { 1.0, 0.0, 0.0 }, int segments = 8 );
 
-	/// @param start Start point of the line.
-	/// @param end End point of the line.
-	/// @param normal Line normal. Should be parallel to the line.
-	/// @param segments Number of subdivisions along the line.
-	LinePath(
-		const tire::algebra::vector<double, 3>& start = {0.0, 0.0, -1.0},
-		const tire::algebra::vector<double, 3>& end = {0.0, 0.0, 1.0},
-		const tire::algebra::vector<double, 3>& normal = {1.0, 0.0, 0.0},
-		int segments = 8
-	);
+    using Edges = typename Impl::Edges;
 
-	using Edges = typename Impl::Edges;
+    Edges edges() const noexcept { return parametricPath_.edges(); }
 
-	Edges edges() const noexcept { return parametricPath_.edges(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return parametricPath_.vertices(); }
-
+    Vertices vertices() const noexcept { return parametricPath_.vertices(); }
 };
 
-
-}
-
+}  // namespace generator
 
 #endif

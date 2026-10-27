@@ -7,122 +7,106 @@
 #ifndef GENERATOR_MERGEPath_HPP
 #define GENERATOR_MERGEPath_HPP
 
-
 #include "PathVertex.hpp"
 #include "EmptyPath.hpp"
 #include "utils.hpp"
 
 namespace generator {
 
-
 /// Merges (concatenates) multiple paths together.
 template <typename... Path>
-class MergePath; // undefined
-
+class MergePath;  // undefined
 
 template <>
-class MergePath<> : public EmptyPath { };
-
+class MergePath<> : public EmptyPath {};
 
 template <typename Head, typename... Tail>
 class MergePath<Head, Tail...> {
 public:
+    class Edges {
+    public:
+        Edge generate() const {
+            if ( !head_.done() ) return head_.generate();
+            return tail_.generate() + head_VertexCount;
+        }
 
-	class Edges {
-	public:
+        bool done() const noexcept { return mAllDone; }
 
-		Edge generate() const {
-			if (!head_.done()) return head_.generate();
-			return tail_.generate() + head_VertexCount;
-		}
+        void next() {
+            if ( !head_.done() )
+                head_.next();
+            else
+                tail_.next();
 
-		bool done() const noexcept { return mAllDone; }
+            mAllDone = tail_.done() && head_.done();
+        }
 
-		void next() {
-			if (!head_.done()) head_.next();
-			else tail_.next();
+    private:
+        typename EdgeGeneratorType<Head>::type head_;
+        typename EdgeGeneratorType<MergePath<Tail...>>::type tail_;
 
-			mAllDone = tail_.done() && head_.done();
-		}
+        int head_VertexCount;
 
-	private:
+        bool mAllDone;
 
-		typename EdgeGeneratorType<Head>::type  head_;
-		typename EdgeGeneratorType<MergePath<Tail...>>::type tail_;
+        Edges( const MergePath& path )
+            : head_{ path.head_.triangles() }
+            , tail_( path.tail_.triangles() )
+            , head_VertexCount{ count( path.head_.vertices() ) }
+            , mAllDone{ tail_.done() && head_.done() } {}
 
-		int head_VertexCount;
+        friend class MergePath<Head, Tail...>;
+    };
 
-		bool mAllDone;
+    class Vertices {
+    public:
+        PathVertex generate() const {
+            if ( !head_.done() ) return head_.generate();
+            return tail_.generate();
+        }
 
-		Edges(const MergePath& path) :
-			head_{path.head_.triangles()},
-			tail_(path.tail_.triangles()),
-			head_VertexCount{count(path.head_.vertices())},
-			mAllDone{tail_.done() && head_.done()}
-		{ }
+        bool done() const noexcept { return mAllDone; }
 
-	friend class MergePath<Head, Tail...>;
-	};
+        void next() {
+            if ( !head_.done() )
+                head_.next();
+            else
+                tail_.next();
 
+            mAllDone = tail_.done() && head_.done();
+        }
 
-	class Vertices {
-	public:
+    private:
+        typename VertexGeneratorType<Head>::type head_;
+        typename VertexGeneratorType<MergePath<Tail...>>::type tail_;
+        bool mAllDone;
 
-		PathVertex generate() const {
-			if (!head_.done()) return head_.generate();
-			return tail_.generate();
-		}
+        Vertices( const MergePath& path )
+            : head_{ path.head_.vertices() }
+            , tail_( path.tail_.vertices() )
+            , mAllDone{ tail_.done() && head_.done() } {}
 
-		bool done() const noexcept { return mAllDone; }
+        friend class MergePath<Head, Tail...>;
+    };
 
-		void next() {
-			if (!head_.done()) head_.next();
-			else tail_.next();
+    MergePath( Head head, Tail... tail )
+        : head_{ head }
+        , tail_{ tail... } {}
 
-			mAllDone = tail_.done() && head_.done();
-		}
+    Edges edges() const noexcept { return *this; }
 
-	private:
-
-		typename VertexGeneratorType<Head>::type head_;
-		typename VertexGeneratorType<MergePath<Tail...>>::type tail_;
-		bool mAllDone;
-
-		Vertices(const MergePath& path) :
-			head_{path.head_.vertices()},
-			tail_(path.tail_.vertices()),
-			mAllDone{tail_.done() && head_.done()}
-		{ }
-
-	friend class MergePath<Head, Tail...>;
-	};
-
-
-
-	MergePath(Head head, Tail... tail) :
-		head_{head},
-		tail_{tail...}
-	{ }
-
-	Edges edges() const noexcept { return *this; }
-
-	Vertices vertices() const noexcept { return *this; }
-
+    Vertices vertices() const noexcept { return *this; }
 
 private:
-
-	Head head_;
-	MergePath<Tail...> tail_;
-
+    Head head_;
+    MergePath<Tail...> tail_;
 };
 
-
-
 template <typename... Path>
-MergePath<Path...> mergePath(Path... paths) {
-	return MergePath<Path...>{std::move(paths)...};
+MergePath<Path...> mergePath( Path... paths ) {
+    return MergePath<Path...>{ std::move( paths )... };
 }
 
-}
+}  // namespace generator
 
 #endif

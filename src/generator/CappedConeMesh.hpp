@@ -14,54 +14,36 @@
 #include "TranslateMesh.hpp"
 #include "UvFlipMesh.hpp"
 
-
 namespace generator {
-
-
 
 /// A cone with a cap centered at origin pointing towards positive z-axis.
 /// @image html CappedConeMesh.svg
-class CappedConeMesh
-{
+class CappedConeMesh {
 private:
-
-	using Impl = MergeMesh<
-		ConeMesh,
-		UvFlipMesh<FlipMesh<TranslateMesh<DiskMesh>>>
-	>;
-	Impl mergeMesh_;
+    using Impl = MergeMesh<ConeMesh, UvFlipMesh<FlipMesh<TranslateMesh<DiskMesh>>>>;
+    Impl mergeMesh_;
 
 public:
+    /// @param radius Radius of the flat (negative z) end along the xy-plane.
+    /// @param size Half of the length of the cylinder along the z-axis.
+    /// @param slices Number of subdivisions around the z-axis.
+    /// @param segments Number of subdivisions along the z-axis.
+    /// @param rings Number of subdivisions of the cap.
+    /// @param start Counterclockwise angle around the z-axis relative to the
+    /// positive x-axis.
+    /// @param sweep Counterclockwise angle around the z-axis.
+    CappedConeMesh( double radius = 1.0, double size = 1.0, int slices = 32, int segments = 8, int rings = 4,
+                    double start = 0.0, double sweep = tire::algebra::degToRad( 360.0 ) );
 
-	/// @param radius Radius of the flat (negative z) end along the xy-plane.
-	/// @param size Half of the length of the cylinder along the z-axis.
-	/// @param slices Number of subdivisions around the z-axis.
-	/// @param segments Number of subdivisions along the z-axis.
-	/// @param rings Number of subdivisions of the cap.
-	/// @param start Counterclockwise angle around the z-axis relative to the
-	/// positive x-axis.
-	/// @param sweep Counterclockwise angle around the z-axis.
-	CappedConeMesh(
-		double radius = 1.0,
-		double size = 1.0,
-		int slices = 32,
-		int segments = 8,
-		int rings = 4,
-		double start = 0.0,
-		double sweep = tire::algebra::degToRad(360.0)
-	);
+    using Triangles = typename Impl::Triangles;
 
-	using Triangles = typename Impl::Triangles;
+    Triangles triangles() const noexcept { return mergeMesh_.triangles(); }
 
-	Triangles triangles() const noexcept { return mergeMesh_.triangles(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return mergeMesh_.vertices(); }
-
+    Vertices vertices() const noexcept { return mergeMesh_.vertices(); }
 };
 
-
-}
+}  // namespace generator
 
 #endif

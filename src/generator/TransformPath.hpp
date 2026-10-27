@@ -12,76 +12,61 @@
 #include "PathVertex.hpp"
 #include "utils.hpp"
 
-
 namespace generator {
-
 
 /// Apply a mutator function to each vertex.
 template <typename Path>
-class TransformPath
-{
+class TransformPath {
 private:
-
-	using Impl = Path;
-	Impl path_;
+    using Impl = Path;
+    Impl path_;
 
 public:
+    class Vertices {
+    public:
+        PathVertex generate() const {
+            auto vertex = vertices_.generate();
+            path_->mutate_( vertex );
+            return vertex;
+        }
 
-	class Vertices {
-	public:
+        bool done() const noexcept { return vertices_.done(); }
 
-		PathVertex generate() const {
-			auto vertex = vertices_.generate();
-			path_->mutate_(vertex);
-			return vertex;
-		}
+        void next() { vertices_.next(); }
 
-		bool done() const noexcept { return vertices_.done(); }
+    private:
+        Vertices( const TransformPath& path )
+            : path_{ &path }
+            , vertices_{ path.path_.vertices() } {}
 
-		void next() { vertices_.next(); }
+        const TransformPath* path_;
 
-	private:
+        typename VertexGeneratorType<Path>::Type vertices_;
 
-		Vertices(const TransformPath& path) :
-			path_{&path},
-			vertices_{path.path_.vertices()}
-		{ }
+        friend class TransformPath;
+    };
 
-		const TransformPath* path_;
+    /// @param path Source data path.
+    /// @param mutate Callback function that gets called once per vertex.
+    TransformPath( Path path, std::function<void( PathVertex& )> mutate )
+        : path_{ std::move( path ) }
+        , mutate_{ mutate } {}
 
-		typename VertexGeneratorType<Path>::Type vertices_;
+    Vertices vertices() const noexcept { return *this; }
 
-	friend class TransformPath;
-	};
+    using Edges = typename Impl::Edges;
 
-	/// @param path Source data path.
-	/// @param mutate Callback function that gets called once per vertex.
-	TransformPath(Path path, std::function<void(PathVertex&)> mutate) :
-		path_{std::move(path)},
-		mutate_{mutate}
-	 { }
-
-	Vertices vertices() const noexcept { return*this; }
-
-	using Edges = typename Impl::Edges;
-
-	Edges edges() const noexcept { return path_.edges(); }
+    Edges edges() const noexcept { return path_.edges(); }
 
 private:
-
-	std::function<void(PathVertex&)> mutate_;
-
+    std::function<void( PathVertex& )> mutate_;
 };
 
-
 template <typename Path>
-TransformPath<Path> transformPath(
-	Path path, std::function<void(PathVertex&)> mutate
-) {
-	return TransformPath<Path>{std::move(path), std::move(mutate)};
+TransformPath<Path> transformPath( Path path, std::function<void( PathVertex& )> mutate ) {
+    return TransformPath<Path>{ std::move( path ), std::move( mutate ) };
 }
 
-
-}
+}  // namespace generator
 
 #endif

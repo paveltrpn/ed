@@ -9,46 +9,35 @@
 
 #include "TransformMesh.hpp"
 
-
 namespace generator {
-
 
 /// Translates the position of each vertex by given amount.
 template <typename Mesh>
-class TranslateMesh
-{
+class TranslateMesh {
 private:
-
-	using Impl = TransformMesh<Mesh>;
-	Impl transformMesh_;
+    using Impl = TransformMesh<Mesh>;
+    Impl transformMesh_;
 
 public:
+    /// @param mesh Source data mesh.
+    /// @param delta Amount to increment vertex positions.
+    TranslateMesh( Mesh mesh, const tire::algebra::vector<double, 3>& delta )
+        : transformMesh_{ std::move( mesh ), [delta]( MeshVertex& value ) { value.position += delta; } } {}
 
-	/// @param mesh Source data mesh.
-	/// @param delta Amount to increment vertex positions.
-	TranslateMesh(Mesh mesh, const tire::algebra::vector<double, 3>& delta) :
-		transformMesh_{
-			std::move(mesh),
-			[delta] (MeshVertex& value) { value.position += delta; }
-		}
-	{ }
+    using Triangles = typename Impl::Triangles;
 
-	using Triangles = typename Impl::Triangles;
+    Triangles triangles() const noexcept { return transformMesh_.triangles(); }
 
-	Triangles triangles() const noexcept { return transformMesh_.triangles(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return transformMesh_.vertices(); }
-
+    Vertices vertices() const noexcept { return transformMesh_.vertices(); }
 };
 
-
 template <typename Mesh>
-TranslateMesh<Mesh> translateMesh(Mesh mesh, const tire::algebra::vector<double, 3>& delta) {
-	return TranslateMesh<Mesh>{std::move(mesh), delta};
+TranslateMesh<Mesh> translateMesh( Mesh mesh, const tire::algebra::vector<double, 3>& delta ) {
+    return TranslateMesh<Mesh>{ std::move( mesh ), delta };
 }
 
-}
+}  // namespace generator
 
 #endif

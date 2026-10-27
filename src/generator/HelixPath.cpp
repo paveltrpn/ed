@@ -4,47 +4,31 @@
 // License as published by the Free Software Foundation; either
 // version 2.1 of the License, or (at your option) any later version.
 
-
 #include "generator/HelixPath.hpp"
-
 
 using namespace generator;
 
+HelixPath::HelixPath( double radius, double size, int segments, double start, double sweep )
+    : parametricPath_{ [radius, size, start, sweep]( double t ) {
+                          PathVertex vertex;
+                          const double angle = start + t * sweep;
+                          const double sine = std::sin( angle );
+                          const double cosine = std::cos( angle );
 
-HelixPath::HelixPath(
-	double radius,
-	double size,
-	int segments,
-	double start,
-	double sweep
-) :
-	parametricPath_{
-		[radius, size, start, sweep] (double t) {
-			PathVertex vertex;
-			const double angle = start + t * sweep;
-			const double sine = std::sin(angle);
-			const double cosine = std::cos(angle);
+                          vertex.position =
+                              tire::algebra::vector<double, 3>{ radius * cosine, radius * sine, 2.0 * t * size - size };
 
-			vertex.position = tire::algebra::vector<double, 3>{
-				radius * cosine,
-				radius * sine,
-				2.0 * t * size - size
-			};
+                          vertex.tangent = tire::algebra::normalize( tire::algebra::vector<double, 3>{
+                              -radius * sine,
+                              radius * cosine,
+                              2.0 * size / sweep,
+                          } );
 
-			vertex.tangent = tire::algebra::normalize(tire::algebra::vector<double, 3>{
-				-radius * sine,
-				radius * cosine,
-				2.0 * size / sweep,
-			});
+                          vertex.normal = tire::algebra::vector<double, 3>{ cosine, sine, 0.0 };
 
-			vertex.normal = tire::algebra::vector<double, 3>{cosine, sine, 0.0};
+                          vertex.texCoord = t;
 
-			vertex.texCoord = t;
-
-			return vertex;
-		},
-		segments
-	}
-{ }
-
-
+                          return vertex;
+                      },
+                       segments } {
+}

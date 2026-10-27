@@ -9,80 +9,66 @@
 
 #include <functional>
 
-
 #include "Triangle.hpp"
 #include "MeshVertex.hpp"
 
-
 namespace generator {
-
 
 /// A mesh with values evaluated using a callback function.
 class ParametricMesh {
 public:
+    class Triangles {
+    public:
+        Triangle generate() const;
+        bool done() const noexcept;
+        void next();
 
-	class Triangles {
-	public:
+    private:
+        Triangles( const ParametricMesh& mesh );
 
-		Triangle generate() const;
-		bool done() const noexcept;
-		void next();
+        const ParametricMesh* mesh_;
 
-	private:
+        tire::algebra::vector<int, 2> i_;
 
-		Triangles(const ParametricMesh& mesh);
+        bool even_;
 
-		const ParametricMesh* mesh_;
+        friend class ParametricMesh;
+    };
 
-		tire::algebra::vector<int, 2> i_;
+    class Vertices {
+    public:
+        MeshVertex generate() const;
+        bool done() const noexcept;
+        void next();
 
-		bool even_;
+    private:
+        Vertices( const ParametricMesh& mesh );
 
-	friend class ParametricMesh;
-	};
+        const ParametricMesh* mesh_;
 
-	class Vertices {
-	public:
+        tire::algebra::vector<int, 2> i_;
 
-		MeshVertex generate() const;
-		bool done() const noexcept;
-		void next();
+        friend class ParametricMesh;
+    };
 
-	private:
+    /// @param eval A callback that returns a MeshVertex for a given value.
+    /// @param segments The number of segments along the surface.
+    /// Both should be >= 1. If either is zero an empty mesh is generated.
+    explicit ParametricMesh( std::function<MeshVertex( const tire::algebra::vector<double, 2>& t )> eval,
+                             const tire::algebra::vector<int, 2>& segments = { 16, 16 } ) noexcept;
 
-		Vertices(const ParametricMesh& mesh);
+    Triangles triangles() const noexcept;
 
-		const ParametricMesh* mesh_;
-
-		tire::algebra::vector<int, 2> i_;
-
-	friend class ParametricMesh;
-	};
-
-
-	/// @param eval A callback that returns a MeshVertex for a given value.
-	/// @param segments The number of segments along the surface.
-	/// Both should be >= 1. If either is zero an empty mesh is generated.
-	explicit ParametricMesh(
-		std::function<MeshVertex(const tire::algebra::vector<double, 2>& t)> eval,
-		const tire::algebra::vector<int, 2>& segments = {16, 16}
-	) noexcept;
-
-	Triangles triangles() const noexcept;
-
-	Vertices vertices() const noexcept;
+    Vertices vertices() const noexcept;
 
 private:
+    std::function<MeshVertex( const tire::algebra::vector<double, 2>& t )> eval_;
 
-	std::function<MeshVertex(const tire::algebra::vector<double, 2>& t)> eval_;
+    tire::algebra::vector<int, 2> segments_;
 
-	tire::algebra::vector<int, 2> segments_;
-
-	tire::algebra::vector<double, 2> delta_;
-
+    tire::algebra::vector<double, 2> delta_;
 };
 
-
-}
+}  // namespace generator
 
 #endif

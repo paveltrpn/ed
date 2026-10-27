@@ -11,28 +11,22 @@
 
 namespace generator {
 
-
 class MeshVertex {
 public:
+    tire::algebra::vector<double, 3> position;
 
-	tire::algebra::vector<double, 3> position;
+    /// Unit vector perpendicular to the surface.
+    tire::algebra::vector<double, 3> normal;
 
-	/// Unit vector perpendicular to the surface.
-	tire::algebra::vector<double, 3> normal;
+    /// UV texture coordinates
+    tire::algebra::vector<double, 2> texCoord;
 
-	/// UV texture coordinates
-	tire::algebra::vector<double, 2> texCoord;
-
-	MeshVertex() noexcept :
-		position{},
-		normal{},
-		texCoord{}
-	{ }
-
+    MeshVertex() noexcept
+        : position{}
+        , normal{}
+        , texCoord{} {}
 };
 
-
-
-}
+}  // namespace generator
 
 #endif

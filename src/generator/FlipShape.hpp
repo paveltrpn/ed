@@ -7,77 +7,56 @@
 #ifndef GENERATOR_FLIPSHAPE_HPP
 #define GENERATOR_FLIPSHAPE_HPP
 
-
 #include "Edge.hpp"
 #include "TransformShape.hpp"
 
-
 namespace generator {
-
 
 /// Flips shape direction. Reverses edges and tangents.
 template <typename Shape>
-class FlipShape
-{
+class FlipShape {
 private:
-
-	using Impl = TransformShape<Shape>;
-	Impl transformShape_;
+    using Impl = TransformShape<Shape>;
+    Impl transformShape_;
 
 public:
+    class Edges {
+    public:
+        Edge generate() const {
+            Edge edge = edges_.generate();
+            std::swap( edge.vertices[0], edge.vertices[1] );
+            return edge;
+        }
 
-	class Edges {
-	public:
+        bool done() const noexcept { return edges_.done(); }
 
-		Edge generate() const {
-			Edge edge = edges_.generate();
-			std::swap(edge.vertices[0], edge.vertices[1]);
-			return edge;
-		}
+        void next() { edges_.next(); }
 
-		bool done() const noexcept { return edges_.done(); }
+    private:
+        typename EdgeGeneratorType<TransformShape<Shape>>::Type edges_;
 
-		void next() { edges_.next(); }
+        Edges( const TransformShape<Shape>& shape )
+            : edges_{ shape.edges() } {}
 
-	private:
+        friend class FlipShape;
+    };
 
-		typename EdgeGeneratorType<TransformShape<Shape>>::Type edges_;
+    /// @param shape Source data shape.
+    FlipShape( Shape shape )
+        : transformShape_{ std::move( shape ), []( ShapeVertex& vertex ) { vertex.tangent *= -1.0; } } {}
 
-		Edges(const TransformShape<Shape>& shape) :
-			edges_{shape.edges()}
-		{ }
+    Edges edges() const noexcept { return { *this }; }
 
-	friend class FlipShape;
-	};
+    using Vertices = typename Impl::Vertices;
 
-	/// @param shape Source data shape.
-	FlipShape(Shape shape) :
-		transformShape_{
-			std::move(shape),
-			[] (ShapeVertex& vertex) {
-				vertex.tangent *= -1.0;
-			}
-		}
-	{ }
-
-	Edges edges() const noexcept { return {*this}; }
-
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return transformShape_.vertices(); }
-
-
+    Vertices vertices() const noexcept { return transformShape_.vertices(); }
 };
 
-
 template <typename Shape>
-FlipShape<Shape> flipShape(Shape shape) {
-	return FlipShape<Shape>{std::move(shape)};
+FlipShape<Shape> flipShape( Shape shape ) {
+    return FlipShape<Shape>{ std::move( shape ) };
 }
 
-
-}
-
-
+}  // namespace generator
 
 #endif

@@ -11,24 +11,18 @@
 
 namespace generator {
 
-
-
 class Triangle {
 public:
+    /// Zero based indices of the triangle vertices in counterclockwise order.
+    tire::algebra::vector<int, 3> vertices;
 
-	/// Zero based indices of the triangle vertices in counterclockwise order.
-	tire::algebra::vector<int, 3> vertices;
+    Triangle() noexcept
+        : vertices{} {}
 
-	Triangle() noexcept :
-		vertices{}
-	{ }
-
-	explicit Triangle(const tire::algebra::vector<int, 3>& vertices) noexcept :
-		vertices{vertices}
-	{ }
-
+    explicit Triangle( const tire::algebra::vector<int, 3>& vertices ) noexcept
+        : vertices{ vertices } {}
 };
 
-}
+}  // namespace generator
 
 #endif

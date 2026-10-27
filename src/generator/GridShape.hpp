@@ -7,45 +7,36 @@
 #include "RepeatShape.hpp"
 #include "LineShape.hpp"
 
-
-namespace generator
-{
-
+namespace generator {
 
 /**
  * A 2d regular grid.
  */
-class GridShape
-{
+class GridShape {
 private:
+    using Impl = MergeShape<RepeatShape<LineShape>, RepeatShape<LineShape>>;
 
-	using Impl = MergeShape<RepeatShape<LineShape>, RepeatShape<LineShape>>;
-
-	Impl mImpl;
+    Impl mImpl;
 
 public:
+    using Edges = Impl::Edges;
 
-	using Edges = Impl::Edges;
+    using Vertices = Impl::Vertices;
 
-	using Vertices = Impl::Vertices;
+    /// @param size A half of the side length of the grid.
+    /// @param segments The Number of cells in the grid.
+    /// If <1 an empty shape results.
+    /// @param subSegments The number of segment along each cell edge.
+    /// If <1 an empty shape results.
+    explicit GridShape( const tire::algebra::vector<double, 2>& size = { 1.0, 1.0 },
+                        const tire::algebra::vector<int, 2>& segments = { 4, 4 },
+                        const tire::algebra::vector<int, 2>& subSegments = { 2, 2 } ) noexcept;
 
-	/// @param size A half of the side length of the grid.
-	/// @param segments The Number of cells in the grid.
-	/// If <1 an empty shape results.
-	/// @param subSegments The number of segment along each cell edge.
-	/// If <1 an empty shape results.
-	explicit GridShape(
-		const tire::algebra::vector<double, 2>& size = {1.0, 1.0},
-		const tire::algebra::vector<int, 2>& segments = {4, 4},
-		const tire::algebra::vector<int, 2>& subSegments = {2, 2}
-	) noexcept;
+    Edges edges() const noexcept;
 
-	Edges edges() const noexcept;
-
-	Vertices vertices() const noexcept;
-
+    Vertices vertices() const noexcept;
 };
 
-}
+}  // namespace generator
 
 #endif

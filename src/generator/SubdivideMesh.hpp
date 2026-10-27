@@ -15,216 +15,177 @@
 #include "Triangle.hpp"
 #include "utils.hpp"
 
-
 namespace generator {
 
-
 template <typename Mesh, int Iterations>
-class SubdivideMesh
-{
-	static_assert(Iterations > 0, "Iterations must be greater than zero!");
+class SubdivideMesh {
+    static_assert( Iterations > 0, "Iterations must be greater than zero!" );
 
 private:
-
-	using Impl = SubdivideMesh<SubdivideMesh<Mesh, Iterations-1>, 1>;
-	Impl subdivideMesh_;
+    using Impl = SubdivideMesh<SubdivideMesh<Mesh, Iterations - 1>, 1>;
+    Impl subdivideMesh_;
 
 public:
+    SubdivideMesh( Mesh mesh )
+        : subdivideMesh_{ SubdivideMesh<Mesh, Iterations - 1>{ std::move( mesh ) } } {}
 
-	SubdivideMesh(Mesh mesh) :
-		subdivideMesh_{
-			SubdivideMesh<Mesh, Iterations-1>{std::move(mesh)}
-		}
-	{ }
+    using Triangles = typename Impl::Triangles;
 
-	using Triangles = typename Impl::Triangles;
+    Triangles triangles() const noexcept { return subdivideMesh_.triangles(); }
 
-	Triangles triangles() const noexcept { return subdivideMesh_.triangles(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return subdivideMesh_.vertices(); }
-
+    Vertices vertices() const noexcept { return subdivideMesh_.vertices(); }
 };
-
 
 template <typename Mesh>
-class SubdivideMesh<Mesh, 0>
-{
+class SubdivideMesh<Mesh, 0> {
 private:
-
-	using Impl = Mesh;
-	Impl mesh_;
+    using Impl = Mesh;
+    Impl mesh_;
 
 public:
+    SubdivideMesh( Mesh mesh )
+        : mesh_{ std::move( mesh ) } {}
 
-	SubdivideMesh(Mesh mesh) :
-		mesh_{std::move(mesh)}
-	{ }
+    using Triangles = typename Impl::Triangles;
 
-	using Triangles = typename Impl::Triangles;
+    Triangles triangles() const noexcept { return mesh_.triangles(); }
 
-	Triangles triangles() const noexcept { return mesh_.triangles(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return mesh_.vertices(); }
+    Vertices vertices() const noexcept { return mesh_.vertices(); }
 };
-
-
 
 /// Subdivides each triangle to 4 parts by splitting edges.
 template <typename Mesh>
 class SubdivideMesh<Mesh, 1> {
 public:
+    class Triangles {
+    public:
+        bool done() const noexcept { return triangles_.done(); }
 
-	class Triangles {
-	public:
+        Triangle generate() const {
+            if ( i_ == 0 ) triangle_ = triangles_.generate();
 
-		bool done() const noexcept { return triangles_.done(); }
+            if ( i_ == 3 ) {
+                return Triangle{ { vertexFromEdge( triangle_.vertices[0], triangle_.vertices[1] ),
+                                   vertexFromEdge( triangle_.vertices[1], triangle_.vertices[2] ),
+                                   vertexFromEdge( triangle_.vertices[2], triangle_.vertices[0] ) } };
+            }
 
-		Triangle generate() const {
-			if (i_ == 0) triangle_ = triangles_.generate();
+            int j = ( i_ + 1 ) % 3;
+            int k = ( i_ + 2 ) % 3;
+            return Triangle{ { triangle_.vertices[i_], vertexFromEdge( triangle_.vertices[i_], triangle_.vertices[j] ),
+                               vertexFromEdge( triangle_.vertices[k], triangle_.vertices[i_] ) } };
+        }
 
-			if (i_ == 3) {
-				return Triangle{{
-					vertexFromEdge(triangle_.vertices[0], triangle_.vertices[1]),
-					vertexFromEdge(triangle_.vertices[1], triangle_.vertices[2]),
-					vertexFromEdge(triangle_.vertices[2], triangle_.vertices[0])
-				}};
-			}
+        void next() {
+            ++i_;
+            if ( i_ == 4 ) {
+                i_ = 0;
+                triangles_.next();
+            }
+        }
 
-			int j = (i_ + 1) % 3;
-			int k = (i_ + 2) % 3;
-			return Triangle{{
-				triangle_.vertices[i_],
-				vertexFromEdge(triangle_.vertices[i_], triangle_.vertices[j]),
-				vertexFromEdge(triangle_.vertices[k], triangle_.vertices[i_])
-			}};
-		}
+    private:
+        const SubdivideMesh* mesh_;
 
-		void next() {
-			++i_;
-			if (i_ == 4) {
-				i_ = 0;
-				triangles_.next();
-			}
-		}
+        int i_;
 
-	private:
+        typename TriangleGeneratorType<Mesh>::Type triangles_;
 
-		const SubdivideMesh* mesh_;
+        mutable Triangle triangle_;
 
-		int i_;
+        Triangles( const SubdivideMesh& mesh )
+            : mesh_{ &mesh }
+            , i_{ 0 }
+            , triangles_{ mesh.mesh_.triangles() }
+            , triangle_{} {}
 
-		typename TriangleGeneratorType<Mesh>::Type triangles_;
+        int vertexFromEdge( int a, int b ) const {
+            if ( a > b ) std::swap( a, b );
+            return static_cast<int>( mesh_->vertexCache_.size() ) + mesh_->edgeMap_.at( { a, b } );
+        }
 
-		mutable Triangle triangle_;
+        friend class SubdivideMesh;
+    };
 
-		Triangles(const SubdivideMesh& mesh) :
-			mesh_{&mesh},
-			i_{0},
-			triangles_{mesh.mesh_.triangles()},
-			triangle_{}
-		{ }
+    class Vertices {
+    public:
+        bool done() const noexcept {
+            return vertexIndex_ == mesh_->vertexCache_.size() && edgeIndex_ == mesh_->edgeCache_.size();
+        }
 
-		int vertexFromEdge(int a, int b) const {
-			if (a > b) std::swap(a, b);
-			return static_cast<int>(mesh_->vertexCache_.size()) + mesh_->edgeMap_.at({a, b});
-		}
+        MeshVertex generate() const {
+            if ( vertexIndex_ < mesh_->vertexCache_.size() ) return mesh_->vertexCache_[vertexIndex_];
 
-	friend class SubdivideMesh;
-	};
+            const MeshVertex& v1 = mesh_->vertexCache_[mesh_->edgeCache_[edgeIndex_].vertices[0]];
+            const MeshVertex& v2 = mesh_->vertexCache_[mesh_->edgeCache_[edgeIndex_].vertices[1]];
 
+            MeshVertex vertex;
+            vertex.position = tire::algebra::mix( v1.position, v2.position, 0.5 );
+            vertex.texCoord = tire::algebra::mix( v1.texCoord, v2.texCoord, 0.5 );
+            vertex.normal = tire::algebra::normalize( tire::algebra::mix( v1.normal, v2.normal, 0.5 ) );
+            return vertex;
+        }
 
-	class Vertices {
-	public:
+        void next() {
+            if ( vertexIndex_ < mesh_->vertexCache_.size() )
+                ++vertexIndex_;
+            else
+                ++edgeIndex_;
+        }
 
-		bool done() const noexcept {
-			return
-				vertexIndex_ == mesh_->vertexCache_.size() &&
-				edgeIndex_ == mesh_->edgeCache_.size();
-		}
+    private:
+        const SubdivideMesh* mesh_;
 
-		MeshVertex generate() const {
-			if (vertexIndex_ < mesh_->vertexCache_.size())
-				return mesh_->vertexCache_[vertexIndex_];
+        int edgeIndex_;
+        int vertexIndex_;
 
-			const MeshVertex& v1 = mesh_->vertexCache_[mesh_->edgeCache_[edgeIndex_].vertices[0]];
-			const MeshVertex& v2 = mesh_->vertexCache_[mesh_->edgeCache_[edgeIndex_].vertices[1]];
+        Vertices( const SubdivideMesh& mesh )
+            : mesh_{ &mesh }
+            , edgeIndex_{ 0 }
+            , vertexIndex_{ 0 } {}
 
-			MeshVertex vertex;
-			vertex.position = tire::algebra::mix(v1.position, v2.position, 0.5);
-			vertex.texCoord = tire::algebra::mix(v1.texCoord, v2.texCoord, 0.5);
-			vertex.normal = tire::algebra::normalize(tire::algebra::mix(v1.normal, v2.normal, 0.5));
-			return vertex;
-		}
+        friend class SubdivideMesh;
+    };
 
-		void next() {
-			if (vertexIndex_ < mesh_->vertexCache_.size()) ++vertexIndex_;
-			else ++edgeIndex_;
-		}
+    SubdivideMesh( Mesh mesh )
+        : mesh_{ std::move( mesh ) } {
+        for ( const MeshVertex& vertex : mesh_.vertices() ) {
+            vertexCache_.push_back( vertex );
+        }
 
-	private:
+        for ( const Triangle& triangle : mesh_.triangles() ) {
+            for ( int i = 0; i < 3; ++i ) {
+                int j = ( i + 1 ) % 3;
 
-		const SubdivideMesh* mesh_;
+                Edge e{ { triangle.vertices[i], triangle.vertices[j] } };
+                if ( e.vertices[0] > e.vertices[1] ) std::swap( e.vertices[0], e.vertices[1] );
 
-		int edgeIndex_;
-		int vertexIndex_;
+                if ( edgeMap_.find( e.vertices ) == edgeMap_.end() ) {
+                    edgeMap_[e.vertices] = static_cast<int>( edgeCache_.size() );
+                    edgeCache_.push_back( e );
+                }
+            }
+        }
+    }
 
-		Vertices(const SubdivideMesh& mesh) :
-			mesh_{&mesh},
-			edgeIndex_{0},
-			vertexIndex_{0}
-		{ }
+    Triangles triangles() const noexcept { return *this; }
 
-	friend class SubdivideMesh;
-	};
-
-
-	SubdivideMesh(Mesh mesh) :
-		mesh_{std::move(mesh)}
-	{
-		for (const MeshVertex& vertex : mesh_.vertices()) {
-			vertexCache_.push_back(vertex);
-		}
-
-		for (const Triangle& triangle : mesh_.triangles()) {
-			for (int i = 0; i < 3; ++i) {
-				int j = (i + 1) % 3;
-
-				Edge e{{triangle.vertices[i], triangle.vertices[j]}};
-				if (e.vertices[0] > e.vertices[1])
-					std::swap(e.vertices[0], e.vertices[1]);
-
-				if (edgeMap_.find(e.vertices) == edgeMap_.end()) {
-					edgeMap_[e.vertices] = static_cast<int>(edgeCache_.size());
-					edgeCache_.push_back(e);
-				}
-
-			}
-		}
-	}
-
-
-	Triangles triangles() const noexcept { return *this; }
-
-	Vertices vertices() const noexcept { return *this; }
+    Vertices vertices() const noexcept { return *this; }
 
 private:
+    Mesh mesh_;
 
-	Mesh mesh_;
+    std::vector<Edge> edgeCache_;
 
-	std::vector<Edge> edgeCache_;
+    std::map<tire::algebra::vector<int, 2>, int> edgeMap_;
 
-	std::map<tire::algebra::vector<int, 2>, int> edgeMap_;
-
-	std::vector<MeshVertex> vertexCache_;
-
+    std::vector<MeshVertex> vertexCache_;
 };
 
-
-}
+}  // namespace generator
 
 #endif
-

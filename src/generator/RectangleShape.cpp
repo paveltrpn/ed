@@ -4,22 +4,14 @@
 // License as published by the Free Software Foundation; either
 // version 2.1 of the License, or (at your option) any later version.
 
-
 #include "generator/RectangleShape.hpp"
-
 
 using namespace generator;
 
-
-RectangleShape::RectangleShape(
-	const tire::algebra::vector<double, 2>& size,
-	const tire::algebra::vector<int, 2>& segments
-) :
-	mergeShape_{
-		{{size[0], -size[1]}, size, segments[1]},
-		{size, {-size[0], size[1]}, segments[0]},
-		{{-size[0], size[1]}, -size, segments[1]},
-		{-size, {size[0], -size[1]}, segments[0]}
-	}
-{ }
-
+RectangleShape::RectangleShape( const tire::algebra::vector<double, 2>& size,
+                                const tire::algebra::vector<int, 2>& segments )
+    : mergeShape_{ { { size[0], -size[1] }, size, segments[1] },
+                   { size, { -size[0], size[1] }, segments[0] },
+                   { { -size[0], size[1] }, -size, segments[1] },
+                   { -size, { size[0], -size[1] }, segments[0] } } {
+}

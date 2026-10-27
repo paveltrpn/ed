@@ -9,49 +9,35 @@
 
 #include "TransformMesh.hpp"
 
-
 namespace generator {
-
 
 /// Swaps the texture coordinates axis u and v.
 template <typename Mesh>
-class UvSwapMesh
-{
+class UvSwapMesh {
 private:
-
-	using Impl = TransformMesh<Mesh>;
-	Impl transformMesh_;
+    using Impl = TransformMesh<Mesh>;
+    Impl transformMesh_;
 
 public:
+    /// @param mesh Source data mesh
+    UvSwapMesh( Mesh mesh )
+        : transformMesh_{ std::move( mesh ),
+                          []( MeshVertex& vertex ) { std::swap( vertex.texCoord[0], vertex.texCoord[1] ); } } {}
 
-	/// @param mesh Source data mesh
-	UvSwapMesh(Mesh mesh) :
-		transformMesh_{
-			std::move(mesh),
-			[] (MeshVertex& vertex) {
-				std::swap(vertex.texCoord[0], vertex.texCoord[1]);
-			}
-		}
-	{ }
+    using Triangles = typename Impl::Triangles;
 
-	using Triangles = typename Impl::Triangles;
+    Triangles triangles() const noexcept { return transformMesh_.triangles(); }
 
-	Triangles triangles() const noexcept { return transformMesh_.triangles(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return transformMesh_.vertices(); }
-
+    Vertices vertices() const noexcept { return transformMesh_.vertices(); }
 };
 
 template <typename Mesh>
-UvSwapMesh<Mesh> uvSwapMesh(Mesh mesh) {
-	return UvSwapMesh<Mesh>{std::move(mesh)};
+UvSwapMesh<Mesh> uvSwapMesh( Mesh mesh ) {
+    return UvSwapMesh<Mesh>{ std::move( mesh ) };
 }
 
-
-}
-
+}  // namespace generator
 
 #endif
-

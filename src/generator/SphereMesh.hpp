@@ -12,52 +12,37 @@
 #include "LatheMesh.hpp"
 #include "UvFlipMesh.hpp"
 
-
 namespace generator {
-
-
 
 /// A sphere of the given radius centered around the origin.
 /// Subdivided around the z-axis in slices and along the z-axis in segments.
 /// @image html SphereMesh.svg
-class SphereMesh
-{
+class SphereMesh {
 private:
-
-	using Impl = AxisSwapMesh<LatheMesh<CircleShape>>;
-	Impl axisSwapMesh_;
+    using Impl = AxisSwapMesh<LatheMesh<CircleShape>>;
+    Impl axisSwapMesh_;
 
 public:
+    /// @param radius The radius of the sphere
+    /// @param slices Subdivisions around the z-azis (longitudes).
+    /// @param segments Subdivisions along the z-azis (latitudes).
+    /// @param sliceStart Counterclockwise angle around the z-axis relative to x-axis.
+    /// @param sliceSweep Counterclockwise angle.
+    /// @param segmentStart Counterclockwise angle relative to the z-axis.
+    /// @param segmentSweep Counterclockwise angle.
+    SphereMesh( double radius = 1.0, int slices = 32, int segments = 16, double sliceStart = 0.0,
+                double sliceSweep = tire::algebra::degToRad( 360.0 ), double segmentStart = 0.0,
+                double segmentSweep = tire::algebra::degToRad( 180.0 ) );
 
-	/// @param radius The radius of the sphere
-	/// @param slices Subdivisions around the z-azis (longitudes).
-	/// @param segments Subdivisions along the z-azis (latitudes).
-	/// @param sliceStart Counterclockwise angle around the z-axis relative to x-axis.
-	/// @param sliceSweep Counterclockwise angle.
-	/// @param segmentStart Counterclockwise angle relative to the z-axis.
-	/// @param segmentSweep Counterclockwise angle.
-	SphereMesh(
-		double radius = 1.0,
-		int slices = 32,
-		int segments = 16,
-		double sliceStart = 0.0,
-		double sliceSweep = tire::algebra::degToRad(360.0),
-		double segmentStart = 0.0,
-		double segmentSweep = tire::algebra::degToRad(180.0)
-	);
+    using Triangles = typename Impl::Triangles;
 
-	using Triangles = typename Impl::Triangles;
+    Triangles triangles() const noexcept { return axisSwapMesh_.triangles(); }
 
-	Triangles triangles() const noexcept { return axisSwapMesh_.triangles(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return axisSwapMesh_.vertices(); }
-
+    Vertices vertices() const noexcept { return axisSwapMesh_.vertices(); }
 };
 
-}
+}  // namespace generator
 
 #endif
-
-

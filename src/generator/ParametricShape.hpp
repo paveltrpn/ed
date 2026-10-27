@@ -9,77 +9,63 @@
 
 #include <functional>
 
-
 #include "Edge.hpp"
 #include "ShapeVertex.hpp"
 
 namespace generator {
 
-
 /// A shape with values evaluated using a callback function.
 class ParametricShape {
 public:
+    class Edges {
+    public:
+        Edge generate() const;
+        bool done() const noexcept;
+        void next();
 
-	class Edges {
-	public:
+    private:
+        Edges( const ParametricShape& shape );
 
-		Edge generate() const;
-		bool done() const noexcept;
-		void next();
+        const ParametricShape* shape_;
 
-	private:
+        int i_;
 
-		Edges(const ParametricShape& shape);
+        friend class ParametricShape;
+    };
 
-		const ParametricShape* shape_;
+    class Vertices {
+    public:
+        ShapeVertex generate() const;
+        bool done() const noexcept;
+        void next();
 
-		int i_;
+    private:
+        Vertices( const ParametricShape& shape );
 
-	friend class ParametricShape;
-	};
+        const ParametricShape* shape_;
 
-	class Vertices {
-	public:
+        int i_;
 
-		ShapeVertex generate() const;
-		bool done() const noexcept;
-		void next();
+        friend class ParametricShape;
+    };
 
-	private:
+    /// @param eval A callback that returns a ShapeVertex for a given value.
+    /// @param segments The number of segments along the shape.
+    /// Should be >= 1. Zero yields an empty shape.
+    explicit ParametricShape( std::function<ShapeVertex( double )> eval, int segments = 16 ) noexcept;
 
-		Vertices(const ParametricShape& shape);
+    Edges edges() const noexcept;
 
-		const ParametricShape* shape_;
-
-		int i_;
-
-	friend class ParametricShape;
-	};
-
-
-	/// @param eval A callback that returns a ShapeVertex for a given value.
-	/// @param segments The number of segments along the shape.
-	/// Should be >= 1. Zero yields an empty shape.
-	explicit ParametricShape(
-		std::function<ShapeVertex(double)> eval,
-		int segments = 16
-	) noexcept;
-
-	Edges edges() const noexcept;
-
-	Vertices vertices() const noexcept;
+    Vertices vertices() const noexcept;
 
 private:
+    std::function<ShapeVertex( double )> eval_;
 
-	std::function<ShapeVertex(double)> eval_;
+    int segments_;
 
-	int segments_;
-
-	double delta_;
-
+    double delta_;
 };
 
-
-}
+}  // namespace generator
 
 #endif

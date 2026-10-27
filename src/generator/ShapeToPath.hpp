@@ -7,86 +7,68 @@
 #ifndef GENERATOR_SHAPETOPATH_HPP
 #define GENERATOR_SHAPETOPATH_HPP
 
-
 #include "PathVertex.hpp"
 #include "ShapeVertex.hpp"
 #include "utils.hpp"
 
-
 namespace generator {
-
-
 
 /// Converts a Shape to a Path.
 /// The shape position coordinates are used as the x and y and 0 is used as z.
 /// Shape tangent becomes the path tangent and z-axis becomes normal vector and
 /// thus the shape normal becomes the path binormal.
 template <typename Shape>
-class ShapeToPath
-{
+class ShapeToPath {
 private:
-
-	using Impl = Shape;
-	Impl shape_;
+    using Impl = Shape;
+    Impl shape_;
 
 public:
+    class Vertices {
+    public:
+        PathVertex generate() const {
+            ShapeVertex shapeVertex = vertices_.generate();
 
-	class Vertices {
-	public:
+            PathVertex vertex;
 
-		PathVertex generate() const {
+            vertex.position = tire::algebra::vector<double, 3>( shapeVertex.position, 0.0 );
 
-			ShapeVertex shapeVertex = vertices_.generate();
+            vertex.tangent = tire::algebra::vector<double, 3>( shapeVertex.tangent, 0.0 );
+            vertex.normal = tire::algebra::vector<double, 3>{ 0.0, 0.0, 1.0 };
 
-			PathVertex vertex;
+            vertex.texCoord = shapeVertex.texCoord;
 
-			vertex.position = tire::algebra::vector<double, 3>(shapeVertex.position, 0.0);
+            return vertex;
+        }
 
-			vertex.tangent = tire::algebra::vector<double, 3>(shapeVertex.tangent, 0.0);
-			vertex.normal = tire::algebra::vector<double, 3>{0.0, 0.0, 1.0};
+        bool done() const noexcept { return vertices_.done(); }
 
-			vertex.texCoord = shapeVertex.texCoord;
+        void next() { vertices_.next(); }
 
-			return vertex;
-		}
+    private:
+        typename VertexGeneratorType<Shape>::Type vertices_;
 
-		bool done() const noexcept { return vertices_.done(); }
+        Vertices( const Shape& shape )
+            : vertices_{ shape.vertices() } {}
 
-		void next() { vertices_.next(); }
+        friend class ShapeToPath;
+    };
 
-	private:
+    ShapeToPath( Shape shape )
+        : shape_{ std::move( shape ) } {}
 
-		typename VertexGeneratorType<Shape>::Type vertices_;
+    using Edges = typename Impl::Edges;
 
-		Vertices(const Shape& shape) :
-			vertices_{shape.vertices()}
-		{ }
+    Edges edges() const noexcept { return shape_.edges(); }
 
-	friend class ShapeToPath;
-	};
-
-	ShapeToPath(Shape shape) :
-		shape_{std::move(shape)}
-	{ }
-
-	using Edges = typename Impl::Edges;
-
-	Edges edges() const noexcept { return shape_.edges(); }
-
-	Vertices vertices() const { return *this; }
-
+    Vertices vertices() const { return *this; }
 };
 
-
-
 template <typename Shape>
-ShapeToPath<Shape> shapeToPath(Shape shape) {
-	return ShapeToPath<Shape>{std::move(shape)};
+ShapeToPath<Shape> shapeToPath( Shape shape ) {
+    return ShapeToPath<Shape>{ std::move( shape ) };
 }
 
-
-}
-
-
+}  // namespace generator
 
 #endif

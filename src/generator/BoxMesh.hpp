@@ -20,90 +20,69 @@ namespace generator {
 
 namespace detail {
 
-
-class BoxFace
-{
+class BoxFace {
 private:
-
-	using Impl = TranslateMesh<PlaneMesh>;
-	Impl translateMesh_;
+    using Impl = TranslateMesh<PlaneMesh>;
+    Impl translateMesh_;
 
 public:
+    BoxFace( const tire::algebra::vector<double, 2>& size, const tire::algebra::vector<int, 2>& segments,
+             double delta );
 
-	BoxFace(const tire::algebra::vector<double, 2>& size, const tire::algebra::vector<int, 2>& segments, double delta);
+    using Triangles = typename Impl::Triangles;
 
-	using Triangles = typename Impl::Triangles;
+    Triangles triangles() const noexcept { return translateMesh_.triangles(); }
 
-	Triangles triangles() const noexcept { return translateMesh_.triangles(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return translateMesh_.vertices(); }
-
+    Vertices vertices() const noexcept { return translateMesh_.vertices(); }
 };
 
-
-class BoxFaces
-{
+class BoxFaces {
 private:
-
-	using Impl = MergeMesh<BoxFace, UvFlipMesh<FlipMesh<BoxFace>>>;
-	Impl mergeMesh_;
+    using Impl = MergeMesh<BoxFace, UvFlipMesh<FlipMesh<BoxFace>>>;
+    Impl mergeMesh_;
 
 public:
+    BoxFaces( const tire::algebra::vector<double, 2>& size, const tire::algebra::vector<int, 2>& segments,
+              double delta );
 
-	BoxFaces(const tire::algebra::vector<double, 2>& size, const tire::algebra::vector<int, 2>& segments, double delta);
+    using Triangles = typename Impl::Triangles;
 
-	using Triangles = typename Impl::Triangles;
+    Triangles triangles() const noexcept { return mergeMesh_.triangles(); }
 
-	Triangles triangles() const noexcept { return mergeMesh_.triangles(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return mergeMesh_.vertices(); }
-
+    Vertices vertices() const noexcept { return mergeMesh_.vertices(); }
 };
 
-
-}
-
-
+}  // namespace detail
 
 /// Rectangular box centered at origin aligned along the x, y and z axis.
 /// @image html BoxMesh.svg
-class BoxMesh
-{
+class BoxMesh {
 private:
-
-	using Impl = MergeMesh<
-		AxisSwapMesh<detail::BoxFaces>,
-		UvFlipMesh<AxisSwapMesh<detail::BoxFaces>>,
-		detail::BoxFaces
-	>;
-	Impl mergeMesh_;
+    using Impl =
+        MergeMesh<AxisSwapMesh<detail::BoxFaces>, UvFlipMesh<AxisSwapMesh<detail::BoxFaces>>, detail::BoxFaces>;
+    Impl mergeMesh_;
 
 public:
+    /// @param size Half of the side length in x (0), y (1) and z (2) direction.
+    /// @param segments The number of segments in x (0), y (1) and z (2)
+    /// directions. All should be >= 1. If any one is zero faces in that
+    /// direction are not genereted. If more than one is zero the mesh is empty.
+    explicit BoxMesh( const tire::algebra::vector<double, 3>& size = { 1.0, 1.0, 1.0 },
+                      const tire::algebra::vector<int, 3>& segments = { 8, 8, 8 } ) noexcept;
 
-	/// @param size Half of the side length in x (0), y (1) and z (2) direction.
-	/// @param segments The number of segments in x (0), y (1) and z (2)
-	/// directions. All should be >= 1. If any one is zero faces in that
-	/// direction are not genereted. If more than one is zero the mesh is empty.
-	explicit BoxMesh(
-		const tire::algebra::vector<double, 3>& size = {1.0, 1.0, 1.0},
-		const tire::algebra::vector<int, 3>& segments = {8, 8, 8}
-	) noexcept;
+    using Triangles = typename Impl::Triangles;
 
-	using Triangles = typename Impl::Triangles;
+    Triangles triangles() const noexcept { return mergeMesh_.triangles(); }
 
-	Triangles triangles() const noexcept { return mergeMesh_.triangles(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return mergeMesh_.vertices(); }
-
+    Vertices vertices() const noexcept { return mergeMesh_.vertices(); }
 };
 
-
-}
+}  // namespace generator
 
 #endif

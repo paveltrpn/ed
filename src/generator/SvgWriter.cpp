@@ -4,238 +4,183 @@
 // License as published by the Free Software Foundation; either
 // version 2.1 of the License, or (at your option) any later version.
 
-
-
 #include <algorithm>
 #include <sstream>
 #include <memory>
 #include <map>
 
-
-
 #include "generator/SvgWriter.hpp"
-
 
 using namespace generator;
 
-
 namespace {
 
-std::string toColor(const tire::algebra::vector<double, 3>& c) {
-	std::stringstream ss;
-	auto fn = [] (double c) {
-		c = tire::algebra::clamp(c, 0.0, 1.0);
-		return static_cast<int>(255*c);
-	};
+std::string toColor( const tire::algebra::vector<double, 3>& c ) {
+    std::stringstream ss;
+    auto fn = []( double c ) {
+        c = tire::algebra::clamp( c, 0.0, 1.0 );
+        return static_cast<int>( 255 * c );
+    };
 
-	ss << "rgb(" << fn(c[0]) << "," << fn(c[1]) << "," << fn(c[2]) << ")";
+    ss << "rgb(" << fn( c[0] ) << "," << fn( c[1] ) << "," << fn( c[2] ) << ")";
 
-	return ss.str();
+    return ss.str();
 }
 
+}  // namespace
+
+SvgWriter::BaseElem::BaseElem( double z, const tire::algebra::vector<double, 3>& color )
+    : z_{ z }
+    , color_{ color } {
 }
 
-
-
-
-SvgWriter::BaseElem::BaseElem(double z, const tire::algebra::vector<double, 3>& color) :
-	z_{z},
-	color_{color}
-{ }
-
-
-SvgWriter::BaseElem::~BaseElem() { }
-
-
-SvgWriter::VertexElem::VertexElem(const tire::algebra::vector<double, 3>& p, const tire::algebra::vector<double, 3>& color) :
-	BaseElem{p[2], color},
-	p_{p}
-{ }
-
-
-void SvgWriter::VertexElem::stream(std::ostream& os) const {
-	os
-	<< "<circle "
-	<< "cx=\"" << p_[0] << "\" cy=\"" << p_[1] << "\" "
-	<< "r=\"3\" style=\"fill: " << toColor(color_) << "\" />\n";
+SvgWriter::BaseElem::~BaseElem() {
 }
 
-
-
-SvgWriter::LineElem::LineElem(
-	const tire::algebra::vector<double, 3>& p1, const tire::algebra::vector<double, 3>& p2, const tire::algebra::vector<double, 3>& color
-) :
-	BaseElem{(p1[2]+p2[2])/2.0, color},
-	p1_(p1),
-	p2_(p2)
-{ }
-
-
-void SvgWriter::LineElem::stream(std::ostream& os) const {
-	os
-	<< "<line "
-	<< "x1=\""<< p1_[0]  << "\" y1=\""<< p1_[1] << "\" "
-	<< "x2=\""<< p2_[0]  << "\" y2=\""<< p2_[1]  << "\" "
-	<< "style=\"stroke: " << toColor(color_) << ";\" />\n";
+SvgWriter::VertexElem::VertexElem( const tire::algebra::vector<double, 3>& p,
+                                   const tire::algebra::vector<double, 3>& color )
+    : BaseElem{ p[2], color }
+    , p_{ p } {
 }
 
-
-
-
-SvgWriter::TriangleElem::TriangleElem(
-	const tire::algebra::vector<double, 3>& p1, const tire::algebra::vector<double, 3>& p2, const tire::algebra::vector<double, 3>& p3,
-	const tire::algebra::vector<double, 3>& color
-) :
-	BaseElem{(p1[2]+p2[2]+p3[2])/3.0, color},
-	p_{{ p1, p2, p3 }}
-{ }
-
-
-void SvgWriter::TriangleElem::stream(std::ostream& os) const {
-	os
-	<< "<polygon " << "points=\"";
-	for (tire::algebra::vector<double, 3> p : p_) {
-		os << p[0] << "," << p[1] << " ";
-	}
-	os << "\" ";
-	os << "style=\"fill: " << toColor(color_)  << ";\" />\n";
+void SvgWriter::VertexElem::stream( std::ostream& os ) const {
+    os << "<circle "
+       << "cx=\"" << p_[0] << "\" cy=\"" << p_[1] << "\" "
+       << "r=\"3\" style=\"fill: " << toColor( color_ ) << "\" />\n";
 }
 
-
-
-
-tire::algebra::vector<double, 3> SvgWriter::project(const tire::algebra::vector<double, 3>& p) const {
-	auto temp = tire::algebra::project(p, viewProjMatrix_, viewportOrigin_, viewportSize_);
-	temp[1] = size_[1] - temp[1];
-	return temp;
+SvgWriter::LineElem::LineElem( const tire::algebra::vector<double, 3>& p1, const tire::algebra::vector<double, 3>& p2,
+                               const tire::algebra::vector<double, 3>& color )
+    : BaseElem{ ( p1[2] + p2[2] ) / 2.0, color }
+    , p1_( p1 )
+    , p2_( p2 ) {
 }
 
-tire::algebra::vector<double, 3> SvgWriter::normalToColor(const tire::algebra::vector<double, 3>& normal) const {
-	double d = tire::algebra::dot(normal, lightDir_);
-	d = tire::algebra::clamp(d, 0.0, 1.0);
-	d = 0.1 + 0.8 * d;
-	return {d, d, d};
+void SvgWriter::LineElem::stream( std::ostream& os ) const {
+    os << "<line "
+       << "x1=\"" << p1_[0] << "\" y1=\"" << p1_[1] << "\" "
+       << "x2=\"" << p2_[0] << "\" y2=\"" << p2_[1] << "\" "
+       << "style=\"stroke: " << toColor( color_ ) << ";\" />\n";
 }
 
-
-
-
-
-
-SvgWriter::SvgWriter(int width, int height) :
-	size_{width, height},
-	viewMatrix_{1.0},
-	projMatrix_{1.0},
-	viewProjMatrix_{1.0},
-	viewportOrigin_{0, 0},
-	viewportSize_{width, height},
-	lightDir_{1.0, 2.0, 3.0},
-	cullface_{true},
-	elems_{}
-{
-	lightDir_ = normalize(lightDir_);
+SvgWriter::TriangleElem::TriangleElem( const tire::algebra::vector<double, 3>& p1,
+                                       const tire::algebra::vector<double, 3>& p2,
+                                       const tire::algebra::vector<double, 3>& p3,
+                                       const tire::algebra::vector<double, 3>& color )
+    : BaseElem{ ( p1[2] + p2[2] + p3[2] ) / 3.0, color }
+    , p_{ { p1, p2, p3 } } {
 }
 
-
-void SvgWriter::modelView(const tire::algebra::matrix<double, 4, 4>& matrix) {
-	viewMatrix_ = matrix;
-	viewProjMatrix_ = projMatrix_ * viewMatrix_;
+void SvgWriter::TriangleElem::stream( std::ostream& os ) const {
+    os << "<polygon "
+       << "points=\"";
+    for ( tire::algebra::vector<double, 3> p : p_ ) {
+        os << p[0] << "," << p[1] << " ";
+    }
+    os << "\" ";
+    os << "style=\"fill: " << toColor( color_ ) << ";\" />\n";
 }
 
-
-void SvgWriter::perspective(double fovy, double aspect, double zNear, double zFar) {
-	projMatrix_ = tire::algebra::perspectiveRadians(fovy, aspect, zNear, zFar);
-	viewProjMatrix_ = projMatrix_ * viewMatrix_;
+tire::algebra::vector<double, 3> SvgWriter::project( const tire::algebra::vector<double, 3>& p ) const {
+    auto temp = tire::algebra::project( p, viewProjMatrix_, viewportOrigin_, viewportSize_ );
+    temp[1] = size_[1] - temp[1];
+    return temp;
 }
 
-
-void SvgWriter::ortho(double left, double right, double bottom, double top) {
-	projMatrix_ = tire::algebra::ortho2D(left, right, bottom, top);
-	viewProjMatrix_ = projMatrix_ * viewMatrix_;
+tire::algebra::vector<double, 3> SvgWriter::normalToColor( const tire::algebra::vector<double, 3>& normal ) const {
+    double d = tire::algebra::dot( normal, lightDir_ );
+    d = tire::algebra::clamp( d, 0.0, 1.0 );
+    d = 0.1 + 0.8 * d;
+    return { d, d, d };
 }
 
-
-void SvgWriter::viewport(int x, int y, int width, int height) {
-	viewportOrigin_ = tire::algebra::vector<int, 2>{x, y};
-	viewportSize_ = tire::algebra::vector<int, 2>{width, height};
+SvgWriter::SvgWriter( int width, int height )
+    : size_{ width, height }
+    , viewMatrix_{ 1.0 }
+    , projMatrix_{ 1.0 }
+    , viewProjMatrix_{ 1.0 }
+    , viewportOrigin_{ 0, 0 }
+    , viewportSize_{ width, height }
+    , lightDir_{ 1.0, 2.0, 3.0 }
+    , cullface_{ true }
+    , elems_{} {
+    lightDir_ = normalize( lightDir_ );
 }
 
-
-void SvgWriter::cullface(bool cullface) {
-	cullface_ =  cullface;
+void SvgWriter::modelView( const tire::algebra::matrix<double, 4, 4>& matrix ) {
+    viewMatrix_ = matrix;
+    viewProjMatrix_ = projMatrix_ * viewMatrix_;
 }
 
-
-void SvgWriter::writePoint(const tire::algebra::vector<double, 3>& p, const tire::algebra::vector<double, 3>& color) {
-	elems_.push_back(std::unique_ptr<BaseElem>{new VertexElem{project(p), color}});
+void SvgWriter::perspective( double fovy, double aspect, double zNear, double zFar ) {
+    projMatrix_ = tire::algebra::perspectiveRadians( fovy, aspect, zNear, zFar );
+    viewProjMatrix_ = projMatrix_ * viewMatrix_;
 }
 
-
-void SvgWriter::writeLine(
-	const tire::algebra::vector<double, 3>& p1, const tire::algebra::vector<double, 3>& p2, const tire::algebra::vector<double, 3>& color
-) {
-	if (p1 == p2) return;
-	elems_.push_back(
-		std::unique_ptr<BaseElem>{new LineElem{project(p1), project(p2), color}}
-	);
+void SvgWriter::ortho( double left, double right, double bottom, double top ) {
+    projMatrix_ = tire::algebra::ortho2D( left, right, bottom, top );
+    viewProjMatrix_ = projMatrix_ * viewMatrix_;
 }
 
-
-void SvgWriter::writeTriangle(
-	const tire::algebra::vector<double, 3>& p1, const tire::algebra::vector<double, 3>& p2, const tire::algebra::vector<double, 3>& p3,
-	const tire::algebra::vector<double, 3>& color
-) {
-	if (p1 == p2 || p2 == p3 || p1 == p3) return;
-
-	auto pp1 = project(p1);
-	auto pp2 = project(p2);
-	auto pp3 = project(p3);
-
-	if (cullface_ && tire::algebra::normal(pp1, pp2, pp3)[2] > 0.0) return;
-
-	elems_.push_back(std::unique_ptr<BaseElem>{new TriangleElem(
-		pp1, pp2, pp3, color
-	)});
+void SvgWriter::viewport( int x, int y, int width, int height ) {
+    viewportOrigin_ = tire::algebra::vector<int, 2>{ x, y };
+    viewportSize_ = tire::algebra::vector<int, 2>{ width, height };
 }
 
-
-void SvgWriter::writeTriangle(
-	const tire::algebra::vector<double, 3>& p1, const tire::algebra::vector<double, 3>& p2, const tire::algebra::vector<double, 3>& p3
-) {
-	writeTriangle(p1, p2, p3, normalToColor(tire::algebra::normal(p1, p2, p3)));
+void SvgWriter::cullface( bool cullface ) {
+    cullface_ = cullface;
 }
 
+void SvgWriter::writePoint( const tire::algebra::vector<double, 3>& p, const tire::algebra::vector<double, 3>& color ) {
+    elems_.push_back( std::unique_ptr<BaseElem>{ new VertexElem{ project( p ), color } } );
+}
+
+void SvgWriter::writeLine( const tire::algebra::vector<double, 3>& p1, const tire::algebra::vector<double, 3>& p2,
+                           const tire::algebra::vector<double, 3>& color ) {
+    if ( p1 == p2 ) return;
+    elems_.push_back( std::unique_ptr<BaseElem>{ new LineElem{ project( p1 ), project( p2 ), color } } );
+}
+
+void SvgWriter::writeTriangle( const tire::algebra::vector<double, 3>& p1, const tire::algebra::vector<double, 3>& p2,
+                               const tire::algebra::vector<double, 3>& p3,
+                               const tire::algebra::vector<double, 3>& color ) {
+    if ( p1 == p2 || p2 == p3 || p1 == p3 ) return;
+
+    auto pp1 = project( p1 );
+    auto pp2 = project( p2 );
+    auto pp3 = project( p3 );
+
+    if ( cullface_ && tire::algebra::normal( pp1, pp2, pp3 )[2] > 0.0 ) return;
+
+    elems_.push_back( std::unique_ptr<BaseElem>{ new TriangleElem( pp1, pp2, pp3, color ) } );
+}
+
+void SvgWriter::writeTriangle( const tire::algebra::vector<double, 3>& p1, const tire::algebra::vector<double, 3>& p2,
+                               const tire::algebra::vector<double, 3>& p3 ) {
+    writeTriangle( p1, p2, p3, normalToColor( tire::algebra::normal( p1, p2, p3 ) ) );
+}
 
 std::string SvgWriter::str() const {
-	std::stringstream ss;
+    std::stringstream ss;
 
-	ss
-	<< "<svg "
-	<< "width=\"" << size_[0] << "\" height=\"" << size_[1] << "\" "
-	<< "version=\"1.1\" "
-	<< "xmlns=\"http://www.w3.org/2000/svg\""
-	<< ">\n";
+    ss << "<svg "
+       << "width=\"" << size_[0] << "\" height=\"" << size_[1] << "\" "
+       << "version=\"1.1\" "
+       << "xmlns=\"http://www.w3.org/2000/svg\""
+       << ">\n";
 
-	ss
-	<< "<rect "
-	<< "width=\"" << size_[0] << "\" height=\"" << size_[1] << "\" "
-	<< "style=\"fill:white\""
-	<< "/>\n";
+    ss << "<rect "
+       << "width=\"" << size_[0] << "\" height=\"" << size_[1] << "\" "
+       << "style=\"fill:white\""
+       << "/>\n";
 
-	std::stable_sort(
-		elems_.begin(), elems_.end(),
-		[] (
-			const std::unique_ptr<BaseElem>& e1,
-			const std::unique_ptr<BaseElem>& e2
-		) {
-			return e1->z_ > e2->z_;
-		}
-	);
+    std::stable_sort(
+        elems_.begin(), elems_.end(),
+        []( const std::unique_ptr<BaseElem>& e1, const std::unique_ptr<BaseElem>& e2 ) { return e1->z_ > e2->z_; } );
 
-	for (const auto &elem : elems_) elem->stream(ss);
+    for ( const auto& elem : elems_ ) elem->stream( ss );
 
-	ss << "</svg>\n";
+    ss << "</svg>\n";
 
-	return ss.str();
+    return ss.str();
 }
-

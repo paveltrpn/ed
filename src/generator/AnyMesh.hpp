@@ -13,69 +13,54 @@
 #include "MeshVertex.hpp"
 #include "Triangle.hpp"
 
-
 namespace generator {
 
-
 /// A type erasing container that can store any mesh.
-class AnyMesh 
-{
+class AnyMesh {
 public:
+    template <typename Mesh>
+    AnyMesh( Mesh mesh )
+        : base_{ new Derived<Mesh>{ std::move( mesh ) } } {}
 
-	template <typename Mesh>
-	AnyMesh(Mesh mesh) :
-		base_{new Derived<Mesh>{std::move(mesh)}}
-	{ }
+    AnyMesh( const AnyMesh& that );
 
-	AnyMesh(const AnyMesh& that);
+    AnyMesh( AnyMesh&& ) = default;
 
-	AnyMesh(AnyMesh&&) = default;
+    AnyMesh& operator=( const AnyMesh& that );
 
-	AnyMesh& operator=(const AnyMesh& that);
+    AnyMesh& operator=( AnyMesh&& ) = default;
 
-	AnyMesh& operator=(AnyMesh&&) = default;
+    AnyGenerator<Triangle> triangles() const noexcept;
 
-	AnyGenerator<Triangle> triangles() const noexcept;
-
-	AnyGenerator<MeshVertex> vertices() const noexcept;
+    AnyGenerator<MeshVertex> vertices() const noexcept;
 
 private:
+    class Base {
+    public:
+        virtual ~Base();
+        virtual std::unique_ptr<Base> clone() const = 0;
+        virtual AnyGenerator<Triangle> triangles() const = 0;
+        virtual AnyGenerator<MeshVertex> vertices() const = 0;
+    };
 
-	class Base {
-	public:
-		virtual ~Base();
-		virtual std::unique_ptr<Base> clone() const = 0;
-		virtual AnyGenerator<Triangle> triangles() const = 0;
-		virtual AnyGenerator<MeshVertex> vertices() const = 0;
-	};
+    template <typename Mesh>
+    class Derived : public Base {
+    public:
+        Derived( Mesh mesh )
+            : mesh_( std::move( mesh ) ) {}
 
-	template <typename Mesh>
-	class Derived : public Base {
-	public:
+        virtual std::unique_ptr<Base> clone() const override { return std::unique_ptr<Base>{ new Derived{ mesh_ } }; }
 
-		Derived(Mesh mesh) : mesh_(std::move(mesh)) { }
+        virtual AnyGenerator<Triangle> triangles() const override { return mesh_.triangles(); }
 
-		virtual std::unique_ptr<Base> clone() const override {
-			return std::unique_ptr<Base>{new Derived{mesh_}};
-		}
+        virtual AnyGenerator<MeshVertex> vertices() const override { return mesh_.vertices(); }
 
-		virtual AnyGenerator<Triangle> triangles() const override { 
-			return mesh_.triangles();
-		}
+        Mesh mesh_;
+    };
 
-		virtual AnyGenerator<MeshVertex> vertices() const override { 
-			return mesh_.vertices();
-		}
-
-		Mesh mesh_;
-
-	};
-
-	std::unique_ptr<Base> base_;
-
+    std::unique_ptr<Base> base_;
 };
 
-}
-
+}  // namespace generator
 
 #endif

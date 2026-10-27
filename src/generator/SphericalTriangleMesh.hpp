@@ -12,86 +12,69 @@
 #include "MeshVertex.hpp"
 #include "Triangle.hpp"
 
-
 namespace generator {
-
 
 /// A triangular region on a surface of a sphere.
 /// @image html SphericalTriangleMesh.svg
-class SphericalTriangleMesh
-{
+class SphericalTriangleMesh {
 public:
+    class Triangles {
+    public:
+        bool done() const noexcept;
 
-	class Triangles {
-	public:
+        Triangle generate() const;
 
-		bool done() const noexcept;
+        void next();
 
-		Triangle generate() const;
+    private:
+        const SphericalTriangleMesh* mesh_;
+        int row_;
+        int col_;
+        int i_;
 
-		void next();
+        Triangles( const SphericalTriangleMesh& mesh );
 
-	private:
+        friend class SphericalTriangleMesh;
+    };
 
-		const SphericalTriangleMesh* mesh_;
-		int row_;
-		int col_;
-		int i_;
+    class Vertices {
+    public:
+        bool done() const noexcept;
 
-		Triangles(const SphericalTriangleMesh& mesh);
+        MeshVertex generate() const;
 
-	friend class SphericalTriangleMesh;
-	};
+        void next();
 
-	class Vertices {
-	public:
+    private:
+        const SphericalTriangleMesh* mesh_;
+        int row_;
+        int col_;
 
-		bool done() const noexcept;
+        Vertices( const SphericalTriangleMesh& mesh );
 
-		MeshVertex generate() const;
+        friend class SphericalTriangleMesh;
+    };
 
-		void next();
+    /// @param radius Radius of the containing sphere.
+    /// @param segments Number of subdivisions along each edge.
+    SphericalTriangleMesh( double radius = 1.0, int segments = 4 );
 
-	private:
+    /// @param segments Number of subdivisions along each edge.
+    SphericalTriangleMesh( const tire::algebra::vector<double, 3>& v0, const tire::algebra::vector<double, 3>& v1,
+                           const tire::algebra::vector<double, 3>& v2, int segments = 4 );
 
-		const SphericalTriangleMesh* mesh_;
-		int row_;
-		int col_;
+    Triangles triangles() const noexcept;
 
-		Vertices(const SphericalTriangleMesh& mesh);
-
-	friend class SphericalTriangleMesh;
-	};
-
-	/// @param radius Radius of the containing sphere.
-	/// @param segments Number of subdivisions along each edge.
-	SphericalTriangleMesh(
-		double radius = 1.0,
-		int segments = 4
-	);
-
-	/// @param segments Number of subdivisions along each edge.
-	SphericalTriangleMesh(
-		const tire::algebra::vector<double, 3>& v0, const tire::algebra::vector<double, 3>& v1, const tire::algebra::vector<double, 3>& v2,
-		int segments = 4
-	);
-
-	Triangles triangles() const noexcept;
-
-	Vertices vertices() const noexcept;
+    Vertices vertices() const noexcept;
 
 private:
+    tire::algebra::vector<double, 3> v0_, v1_, v2_;
 
-	tire::algebra::vector<double, 3> v0_, v1_, v2_;
+    tire::algebra::vector<double, 3> normal_;
 
-	tire::algebra::vector<double, 3> normal_;
-
-	int segments_;
-
+    int segments_;
 };
 
-
-}
-
+}  // namespace generator
 
 #endif

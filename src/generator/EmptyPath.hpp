@@ -13,48 +13,40 @@
 
 namespace generator {
 
-
 /// Empty path with zero vertices and edges.
 class EmptyPath {
 public:
+    class Edges {
+    public:
+        Edge generate() const;
+        bool done() const noexcept;
+        void next();
 
-	class Edges {
-	public:
+    private:
+        Edges();
 
-		Edge generate() const;
-		bool done() const noexcept;
-		void next();
+        friend class EmptyPath;
+    };
 
-	private:
+    class Vertices {
+    public:
+        PathVertex generate() const;
+        bool done() const noexcept;
+        void next();
 
-		Edges();
+    private:
+        Vertices();
 
-	friend class EmptyPath;
-	};
+        friend class EmptyPath;
+    };
 
-	class Vertices {
-	public:
+    EmptyPath();
 
-		PathVertex generate() const;
-		bool done() const noexcept;
-		void next();
+    Edges edges() const noexcept;
 
-	private:
-
-		Vertices();
-
-	friend class EmptyPath;
-	};
-
-	EmptyPath();
-
-	Edges edges() const noexcept;
-
-	Vertices vertices() const noexcept;
-
+    Vertices vertices() const noexcept;
 };
 
-
-}
+}  // namespace generator
 
 #endif

@@ -6,29 +6,20 @@
 
 #include "generator/CircleShape.hpp"
 
-
 using namespace generator;
 
+CircleShape::CircleShape( double radius, int segments, double start, double sweep )
+    : parametricShape_{ [radius, start, sweep]( double t ) {
+                           const double angle = t * sweep + start;
+                           const double sine = std::sin( angle );
+                           const double cosine = std::cos( angle );
 
-CircleShape::CircleShape(
-	double radius,
-	int segments,
-	double start,
-	double sweep
-) :
-	parametricShape_{
-		[radius, start, sweep] (double t) {
-			const double angle = t * sweep + start;
-			const double sine = std::sin(angle);
-			const double cosine = std::cos(angle);
+                           ShapeVertex vertex;
+                           vertex.position = tire::algebra::vector<double, 2>{ radius * cosine, radius * sine };
+                           vertex.tangent = tire::algebra::vector<double, 2>{ -sine, cosine };
+                           vertex.texCoord = t;
 
-			ShapeVertex vertex;
-			vertex.position = tire::algebra::vector<double, 2>{radius * cosine, radius * sine};
-			vertex.tangent = tire::algebra::vector<double, 2>{-sine, cosine};
-			vertex.texCoord = t;
-
-			return vertex;
-		},
-		segments
-	}
-{ }
+                           return vertex;
+                       },
+                        segments } {
+}

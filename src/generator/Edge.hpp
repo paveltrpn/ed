@@ -13,19 +13,15 @@ namespace generator {
 
 class Edge {
 public:
+    tire::algebra::vector<int, 2> vertices;
 
-	tire::algebra::vector<int, 2> vertices;
+    Edge() noexcept
+        : vertices{} {}
 
-	Edge() noexcept :
-		vertices{}
-	{ }
-
-	explicit Edge(const tire::algebra::vector<int, 2>& vertices) noexcept :
-		vertices{vertices}
-	{ }
-
+    explicit Edge( const tire::algebra::vector<int, 2>& vertices ) noexcept
+        : vertices{ vertices } {}
 };
 
-}
+}  // namespace generator
 
 #endif

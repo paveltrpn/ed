@@ -12,130 +12,108 @@
 #include "utils.hpp"
 #include "ShapeVertex.hpp"
 
-
 namespace generator {
-
 
 template <typename Path>
 class SubdividePath {
 public:
+    class Edges {
+    public:
+        bool done() const noexcept { return edges_.done(); }
 
-	class Edges {
-	public:
+        Edge generate() const {
+            Edge edge_ = edges_.generate();
 
-		bool done() const noexcept { return edges_.done(); }
+            if ( i_ % 2 == 0 )
+                return Edge{ { edge_.vertices[0], static_cast<int>( path_->vertexCache_.size() ) + i_ / 2 } };
 
-		Edge generate() const {
-			Edge edge_ = edges_.generate();
+            return Edge{ { static_cast<int>( path_->vertexCache_.size() ) + i_ / 2, edge_.vertices[1] } };
+        }
 
-			if (i_ % 2 == 0) return Edge{{
-				edge_.vertices[0],
-				static_cast<int>(path_->vertexCache_.size()) + i_ / 2
-			}};
+        void next() {
+            ++i_;
+            if ( i_ % 2 == 0 ) edges_.next();
+        }
 
-			return Edge{{
-				static_cast<int>(path_->vertexCache_.size()) + i_ / 2,
-				edge_.vertices[1]
-			}};
-		}
+    private:
+        const SubdividePath* path_;
 
-		void next() {
-			++i_;
-			if (i_ % 2 == 0) edges_.next();
-		}
+        typename EdgeGeneratorType<Path>::Type edges_;
 
-	private:
+        int i_;
 
-		const SubdividePath* path_;
+        Edges( const SubdividePath& path )
+            : path_{ &path }
+            , edges_{ path.path_.edges() }
+            , i_{ 0 } {}
 
-		typename EdgeGeneratorType<Path>::Type edges_;
+        friend class SubdividePath;
+    };
 
-		int i_;
+    class Vertices {
+    public:
+        bool done() const noexcept { return vertexIndex_ == path_->vertexCache_.size() && edges_.done(); }
 
-		Edges(const SubdividePath& path) :
-			path_{&path},
-			edges_{path.path_.edges()},
-			i_{0}
-		{ }
+        PathVertex generate() const {
+            if ( vertexIndex_ < path_->vertexCache_.size() ) return path_->vertexCache_[vertexIndex_];
 
-	friend class SubdividePath;
-	};
+            const Edge edge = edges_.generate();
+            const PathVertex& v1 = path_->vertexCache_[edge.vertices[0]];
+            const PathVertex& v2 = path_->vertexCache_[edge.vertices[1]];
 
+            PathVertex vertex;
+            vertex.position = tire::algebra::mix( v1.position, v2.position, 0.5 );
+            vertex.tangent = tire::algebra::normalize( tire::algebra::mix( v1.tangent, v2.tangent, 0.5 ) );
+            vertex.normal = tire::algebra::normalize( tire::algebra::mix( v1.normal, v2.normal, 0.5 ) );
+            vertex.texCoord = 0.5 * v1.texCoord + 0.5 * v2.texCoord;
+            return vertex;
+        }
 
-	class Vertices {
-	public:
+        void next() {
+            if ( vertexIndex_ < path_->vertexCache_.size() )
+                ++vertexIndex_;
+            else
+                edges_.next();
+        }
 
-		bool done() const noexcept {
-			return vertexIndex_ == path_->vertexCache_.size() && edges_.done();
-		}
+    private:
+        const SubdividePath* path_;
 
-		PathVertex generate() const {
-			if (vertexIndex_ < path_->vertexCache_.size())
-				return path_->vertexCache_[vertexIndex_];
+        int vertexIndex_;
 
-			const Edge edge = edges_.generate();
-			const PathVertex& v1 = path_->vertexCache_[edge.vertices[0]];
-			const PathVertex& v2 = path_->vertexCache_[edge.vertices[1]];
+        typename EdgeGeneratorType<Path>::Type edges_;
 
-			PathVertex vertex;
-			vertex.position = tire::algebra::mix(v1.position, v2.position, 0.5);
-			vertex.tangent = tire::algebra::normalize(tire::algebra::mix(v1.tangent, v2.tangent, 0.5));
-			vertex.normal = tire::algebra::normalize(tire::algebra::mix(v1.normal, v2.normal, 0.5));
-			vertex.texCoord = 0.5 * v1.texCoord + 0.5 * v2.texCoord;
-			return vertex;
-		}
+        Vertices( const SubdividePath& path )
+            : path_{ &path }
+            , vertexIndex_{ 0 }
+            , edges_{ path.path_.edges() } {}
 
-		void next() {
-			if (vertexIndex_ < path_->vertexCache_.size()) ++vertexIndex_;
-			else edges_.next();
-		}
+        friend class SubdividePath;
+    };
 
-	private:
+    SubdividePath( Path path )
+        : path_( std::move( path ) )
+        , vertexCache_{} {
+        for ( const PathVertex& vertex : path_.vertices() ) {
+            vertexCache_.push_back( vertex );
+        }
+    }
 
-		const SubdividePath* path_;
+    Edges edges() const { return *this; }
 
-		int vertexIndex_;
-
-		typename EdgeGeneratorType<Path>::Type edges_;
-
-		Vertices(const SubdividePath& path) :
-			path_{&path},
-			vertexIndex_{0},
-			edges_{path.path_.edges()}
-		{ }
-
-	friend class SubdividePath;
-	};
-
-
-	SubdividePath(Path path) :
-		path_(std::move(path)),
-		vertexCache_{}
-	{
-		for (const PathVertex& vertex : path_.vertices()) {
-			vertexCache_.push_back(vertex);
-		}
-	}
-
-	Edges edges() const { return *this; }
-
-	Vertices vertices() const { return *this; }
+    Vertices vertices() const { return *this; }
 
 private:
+    Path path_;
 
-	Path path_;
-
-	std::vector<PathVertex> vertexCache_;
-
+    std::vector<PathVertex> vertexCache_;
 };
 
-
 template <typename Path>
-SubdividePath<Path> subdividePath(Path path) {
-	return SubdividePath<Path>{std::move(path)};
+SubdividePath<Path> subdividePath( Path path ) {
+    return SubdividePath<Path>{ std::move( path ) };
 }
 
-
-}
+}  // namespace generator
 
 #endif

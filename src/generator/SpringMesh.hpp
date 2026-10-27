@@ -13,49 +13,34 @@
 
 namespace generator {
 
-
 /// A spring aligned along the z-axis winding counterclockwise
 /// @image html SpringMesh.svg
-class SpringMesh
-{
+class SpringMesh {
 private:
-
-	using Impl = ExtrudeMesh<CircleShape, HelixPath>;
-	Impl extrudeMesh_;
+    using Impl = ExtrudeMesh<CircleShape, HelixPath>;
+    Impl extrudeMesh_;
 
 public:
+    /// @param minor Radius of the spring it self.
+    /// @param major Radius from the z-axis
+    /// @param size Half of the length along the z-axis.
+    /// @param slices Subdivisions around the spring.
+    /// @param segments Subdivisions along the path.
+    /// @param majorStart Counterclockwise angle around the z-axis relative to the x-axis.
+    /// @param majorSweep Counterclockwise angle arounf the z-axis.
+    SpringMesh( double minor = 0.25, double major = 1.0, double size = 1.0, int slices = 8, int segments = 32,
+                double minorStart = 0.0, double minorSweep = tire::algebra::degToRad( 360.0 ), double majorStart = 0.0,
+                double majorSweep = tire::algebra::degToRad( 720.0 ) );
 
-	/// @param minor Radius of the spring it self.
-	/// @param major Radius from the z-axis
-	/// @param size Half of the length along the z-axis.
-	/// @param slices Subdivisions around the spring.
-	/// @param segments Subdivisions along the path.
-	/// @param majorStart Counterclockwise angle around the z-axis relative to the x-axis.
-	/// @param majorSweep Counterclockwise angle arounf the z-axis.
-	SpringMesh(
-		double minor = 0.25,
-		double major = 1.0,
-		double size = 1.0,
-		int slices = 8,
-		int segments = 32,
-		double minorStart = 0.0,
-		double minorSweep = tire::algebra::degToRad(360.0),
-		double majorStart = 0.0,
-		double majorSweep = tire::algebra::degToRad(720.0)
-	);
+    using Triangles = typename Impl::Triangles;
 
-	using Triangles = typename Impl::Triangles;
+    Triangles triangles() const noexcept { return extrudeMesh_.triangles(); }
 
-	Triangles triangles() const noexcept { return extrudeMesh_.triangles(); }
+    using Vertices = typename Impl::Vertices;
 
-	using Vertices = typename Impl::Vertices;
-
-	Vertices vertices() const noexcept { return extrudeMesh_.vertices(); }
-
+    Vertices vertices() const noexcept { return extrudeMesh_.vertices(); }
 };
 
-}
-
-
+}  // namespace generator
 
 #endif

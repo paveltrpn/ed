@@ -4,49 +4,26 @@
 // License as published by the Free Software Foundation; either
 // version 2.1 of the License, or (at your option) any later version.
 
-
 #include "generator/BoxMesh.hpp"
-
 
 using namespace generator;
 
 using namespace generator::detail;
 
+BoxFace::BoxFace( const tire::algebra::vector<double, 2>& size, const tire::algebra::vector<int, 2>& segments,
+                  double delta )
+    : translateMesh_{ { size, segments }, { 0.0, 0.0, delta } } {
+}
 
+BoxFaces::BoxFaces( const tire::algebra::vector<double, 2>& size, const tire::algebra::vector<int, 2>& segments,
+                    double delta )
+    : mergeMesh_{ { size, segments, delta }, { { { size, segments, -delta } }, true, false } } {
+}
 
-
-BoxFace::BoxFace(
-	const tire::algebra::vector<double, 2>& size, const tire::algebra::vector<int, 2>& segments, double delta
-) :
-	translateMesh_{{size, segments}, {0.0, 0.0, delta}}
-{ }
-
-
-BoxFaces::BoxFaces(
-	const tire::algebra::vector<double, 2>& size, const tire::algebra::vector<int, 2>& segments, double delta
-) :
-	mergeMesh_{
-		{size, segments, delta},
-		{{{size, segments, -delta}}, true, false}
-	}
-{ }
-
-
-
-BoxMesh::BoxMesh(const tire::algebra::vector<double, 3>& size, const tire::algebra::vector<int, 3>& segments) noexcept :
-	mergeMesh_{
-		{
-			{{size[1], size[2]}, {segments[1], segments[2]}, size[0]},
-			Axis::Z, Axis::X, Axis::Y
-		},
-		{
-			{
-				{{size[0], size[2]}, {segments[0], segments[2]}, size[1]},
-				Axis::X, Axis::Z, Axis::Y
-			},
-			true, false
-		},
-		{{size[0], size[1]}, {segments[0], segments[1]}, size[2]}
-	}
-{ }
-
+BoxMesh::BoxMesh( const tire::algebra::vector<double, 3>& size, const tire::algebra::vector<int, 3>& segments ) noexcept
+    : mergeMesh_{ { { { size[1], size[2] }, { segments[1], segments[2] }, size[0] }, Axis::Z, Axis::X, Axis::Y },
+                  { { { { size[0], size[2] }, { segments[0], segments[2] }, size[1] }, Axis::X, Axis::Z, Axis::Y },
+                    true,
+                    false },
+                  { { size[0], size[1] }, { segments[0], segments[1] }, size[2] } } {
+}

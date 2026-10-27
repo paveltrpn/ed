@@ -5,189 +5,135 @@
 #include "MeshVertex.hpp"
 #include "Triangle.hpp"
 
-namespace generator
-{
-
+namespace generator {
 
 /**
  * Repeats the same mesh a given number of time at given intervals.
  */
 template <typename Mesh>
-class RepeatMesh
-{
+class RepeatMesh {
 public:
+    class Triangles {
+    public:
+        bool done() const noexcept { return mIndex >= mRepeatMesh->mInstances; }
 
-	class Triangles
-	{
-	public:
+        Triangle generate() const {
+            Triangle temp = mTriangles.generate();
+            temp.vertices += mDelta;
+            return temp;
+        }
 
-		bool done() const noexcept
-		{
-			return mIndex >= mRepeatMesh->mInstances;
-		}
+        void next() noexcept {
+            mTriangles.next();
 
-		Triangle generate() const
-		{
-			Triangle temp = mTriangles.generate();
-			temp.vertices += mDelta;
-			return temp;
-		}
+            if ( mTriangles.done() ) {
+                ++mIndex;
+                mDelta += mRepeatMesh->mVertexCount;
+                mTriangles = mRepeatMesh->mMesh.triangles();
+            }
+        }
 
-		void next() noexcept
-		{
-			mTriangles.next();
+    private:
+        const RepeatMesh* mRepeatMesh;
 
-			if (mTriangles.done()) {
-				++mIndex;
-				mDelta += mRepeatMesh->mVertexCount;
-				mTriangles = mRepeatMesh->mMesh.triangles();
-			}
-		}
+        typename TriangleGeneratorType<Mesh>::Type mTriangles;
 
-	private:
+        int mIndex;
 
-		const RepeatMesh* mRepeatMesh;
+        int mDelta;
 
-		typename TriangleGeneratorType<Mesh>::Type mTriangles;
+        explicit Triangles( const RepeatMesh* repeatMesh ) noexcept
+            : mRepeatMesh{ repeatMesh }
+            , mTriangles{ repeatMesh->mMesh.triangles() }
+            , mIndex{ repeatMesh->mVertexCount > 0 ? 0 : repeatMesh->mInstances }
+            , mDelta{ 0 } {}
 
-		int mIndex;
+        int countTriangles() const noexcept {
+            if ( mRepeatMesh->mInstances < 1 ) return 0;
 
-		int mDelta;
+            return count( mRepeatMesh->mMesh.triangles() ) * ( mRepeatMesh->mInstances - mIndex - 1 ) +
+                   count( mTriangles );
+        }
 
-		explicit Triangles(const RepeatMesh* repeatMesh) noexcept :
-			mRepeatMesh{repeatMesh},
-			mTriangles{repeatMesh->mMesh.triangles()},
-			mIndex{repeatMesh->mVertexCount > 0 ? 0 : repeatMesh->mInstances},
-			mDelta{0}
-		{ }
+        friend int count( const Triangles& generator ) noexcept { return generator.countTriangles(); }
 
-		int countTriangles() const noexcept
-		{
-			if (mRepeatMesh->mInstances < 1) return 0;
+        friend class RepeatMesh;
+    };
 
-			return
-				count(mRepeatMesh->mMesh.triangles()) *
-				(mRepeatMesh->mInstances - mIndex - 1) +
-				count(mTriangles);
-		}
+    class Vertices {
+    public:
+        bool done() const noexcept { return mIndex >= mRepeatMesh->mInstances; }
 
-	friend
-		int count(const Triangles& generator) noexcept
-		{
-			return generator.countTriangles();
-		}
+        MeshVertex generate() const {
+            MeshVertex temp = mVertices.generate();
+            temp.position += mDelta;
+            return temp;
+        }
 
-	friend class RepeatMesh;
-	};
+        void next() {
+            mVertices.next();
 
+            if ( mVertices.done() ) {
+                ++mIndex;
+                mDelta += mRepeatMesh->mDelta;
+                mVertices = mRepeatMesh->mMesh.vertices();
+            }
+        }
 
-	class Vertices
-	{
-	public:
+    private:
+        explicit Vertices( const RepeatMesh* repeatMesh )
+            : mRepeatMesh{ repeatMesh }
+            , mVertices{ repeatMesh->mMesh.vertices() }
+            , mIndex{ repeatMesh->mVertexCount > 0 ? 0 : repeatMesh->mInstances }
+            , mDelta{} {}
 
-		bool done() const noexcept
-		{
-			return mIndex >= mRepeatMesh->mInstances;
-		}
+        const RepeatMesh* mRepeatMesh;
 
-		MeshVertex generate() const
-		{
-			MeshVertex temp = mVertices.generate();
-			temp.position += mDelta;
-			return temp;
-		}
+        typename VertexGeneratorType<Mesh>::Type mVertices;
 
-		void next()
-		{
-			mVertices.next();
+        int mIndex;
 
-			if (mVertices.done()) {
-				++mIndex;
-				mDelta += mRepeatMesh->mDelta;
-				mVertices = mRepeatMesh->mMesh.vertices();
-			}
-		}
+        tire::algebra::vector<double, 3> mDelta;
 
-	private:
+        int countVertices() const noexcept {
+            if ( mRepeatMesh->mInstances < 1 ) return 0;
 
-		explicit Vertices(const RepeatMesh* repeatMesh) :
-			mRepeatMesh{repeatMesh},
-			mVertices{repeatMesh->mMesh.vertices()},
-			mIndex{repeatMesh->mVertexCount > 0 ? 0 : repeatMesh->mInstances},
-			mDelta{}
-		{ }
+            return mRepeatMesh->mVertexCount * ( mRepeatMesh->mInstances - mIndex - 1 ) + count( mVertices );
+        }
 
-		const RepeatMesh* mRepeatMesh;
+        friend int count( const Vertices& generator ) noexcept { return generator.countVertices(); }
 
-		typename VertexGeneratorType<Mesh>::Type mVertices;
+        friend class RepeatMesh;
+    };
 
-		int mIndex;
+    /// @param mesh The mesh to repeat.
+    /// @param instances Number of times to repeat. If <1 an empty mesh results.
+    /// @param delta An offset aplied to each copy.
+    explicit RepeatMesh( Mesh mesh, int instances, const tire::algebra::vector<double, 3>& delta ) noexcept
+        : mMesh{ std::move( mesh ) }
+        , mInstances{ instances }
+        , mDelta{ delta }
+        , mVertexCount{ count( mMesh.vertices() ) } {}
 
-		tire::algebra::vector<double, 3> mDelta;
+    Triangles triangles() const noexcept { return Triangles{ this }; }
 
-		int countVertices() const noexcept
-		{
-			if (mRepeatMesh->mInstances < 1) return 0;
-
-			return
-				mRepeatMesh->mVertexCount *
-				(mRepeatMesh->mInstances - mIndex - 1) +
-				count(mVertices);
-		}
-
-	friend
-		int count(const Vertices& generator) noexcept
-		{
-			return generator.countVertices();
-		}
-
-	friend class RepeatMesh;
-	};
-
-
-	/// @param mesh The mesh to repeat.
-	/// @param instances Number of times to repeat. If <1 an empty mesh results.
-	/// @param delta An offset aplied to each copy.
-	explicit RepeatMesh(Mesh mesh, int instances, const tire::algebra::vector<double, 3>& delta) noexcept :
-		mMesh{std::move(mesh)},
-		mInstances{instances},
-		mDelta{delta},
-		mVertexCount{count(mMesh.vertices())}
-	{ }
-
-	Triangles triangles() const noexcept
-	{
-		return Triangles{this};
-	}
-
-	Vertices vertices() const noexcept
-	{
-		return Vertices{this};
-	}
+    Vertices vertices() const noexcept { return Vertices{ this }; }
 
 private:
+    Mesh mMesh;
 
-	Mesh mMesh;
+    int mInstances;
 
-	int mInstances;
+    tire::algebra::vector<double, 3> mDelta;
 
-	tire::algebra::vector<double, 3> mDelta;
-
-	int mVertexCount;
-
+    int mVertexCount;
 };
 
-
-
-
-
 template <typename Mesh>
-RepeatMesh<Mesh> repeatMesh(Mesh mesh, int instances, const tire::algebra::vector<double, 3>& delta) noexcept
-{
-	return RepeatMesh<Mesh>{std::move(mesh), instances, delta};
+RepeatMesh<Mesh> repeatMesh( Mesh mesh, int instances, const tire::algebra::vector<double, 3>& delta ) noexcept {
+    return RepeatMesh<Mesh>{ std::move( mesh ), instances, delta };
 }
 
-
-}
+}  // namespace generator
 
 #endif
