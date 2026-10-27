@@ -9,6 +9,7 @@
 
 #include "tired.h"
 #include "log/log.h"
+#include "algebra/common.h"
 
 #include "sceneobject/sceneobjectdata.h"
 
@@ -175,9 +176,9 @@ Tired::Tired( QObject* parent )
                                              { "slices", 16 },
                                              { "segments", 8 },
                                              { "sliceStart", 0.0 },
-                                             { "sliceSweep", gml::radians( 360.0 ) },
+                                             { "sliceSweep", algebra::degToRad( 360.0 ) },
                                              { "segmentStart", 0.0 },
-                                             { "segmentSweep", gml::radians( 180.0 ) } } );
+                                             { "segmentSweep", algebra::degToRad( 180.0 ) } } );
 
         _scenegraph->scene()->addObject( data );
     }
@@ -191,7 +192,7 @@ Tired::Tired( QObject* parent )
                                              { "segments", 8 },
                                              { "rings", 4 },
                                              { "start", 0.0 },
-                                             { "sweep", gml::radians( 360.0 ) } } );
+                                             { "sweep", algebra::degToRad( 360.0 ) } } );
 
         _scenegraph->scene()->addObject( data );
     }
@@ -204,7 +205,7 @@ Tired::Tired( QObject* parent )
                                              { "segments", 8 },
                                              { "rings", 4 },
                                              { "start", 0.0 },
-                                             { "sweep", gml::radians( 360.0 ) } } );
+                                             { "sweep", algebra::degToRad( 360.0 ) } } );
 
         _scenegraph->scene()->addObject( data );
     }
@@ -245,7 +246,7 @@ Tired::Tired( QObject* parent )
                                              { "slices", 16 },
                                              { "rings", 4 },
                                              { "start", 0.0 },
-                                             { "sweep", gml::radians( 360.0 ) } } );
+                                             { "sweep", algebra::degToRad( 360.0 ) } } );
 
         _scenegraph->scene()->addObject( data );
     }
@@ -258,7 +259,7 @@ Tired::Tired( QObject* parent )
                                              { "slices", 16 },
                                              { "segments", 8 },
                                              { "start", 0.0 },
-                                             { "sweep", gml::radians( 360.0 ) } } );
+                                             { "sweep", algebra::degToRad( 360.0 ) } } );
 
         _scenegraph->scene()->addObject( data );
     }
@@ -272,7 +273,7 @@ Tired::Tired( QObject* parent )
                                              { "segments", 8 },
                                              { "rings", 1 },
                                              { "start", 0.0 },
-                                             { "sweep", gml::radians( 360.0 ) } } );
+                                             { "sweep", algebra::degToRad( 360.0 ) } } );
 
         _scenegraph->scene()->addObject( data );
     }
@@ -300,7 +301,7 @@ Tired::Tired( QObject* parent )
                                              { "segments", 8 },
                                              { "rings", 4 },
                                              { "start", 0.0 },
-                                             { "sweep", gml::radians( 360.0 ) } } );
+                                             { "sweep", algebra::degToRad( 360.0 ) } } );
 
         _scenegraph->scene()->addObject( data );
     }
@@ -320,9 +321,9 @@ Tired::Tired( QObject* parent )
                                              { "slices", 8 },
                                              { "segments", 32 },
                                              { "minorStart", 0.0 },
-                                             { "minorSweep", gml::radians( 360.0 ) },
+                                             { "minorSweep", algebra::degToRad( 360.0 ) },
                                              { "majorStart", 0.0 },
-                                             { "majorSweep", gml::radians( 720.0 ) } } );
+                                             { "majorSweep", algebra::degToRad( 720.0 ) } } );
 
         _scenegraph->scene()->addObject( data );
     }

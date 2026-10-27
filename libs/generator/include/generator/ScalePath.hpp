@@ -26,13 +26,13 @@ public:
 
 	/// @param path Source data path.
 	/// @param scale Scale Factor. Must not have zero components!
-	ScalePath(Path path, const gml::dvec3& scale) :
+	ScalePath(Path path, const tire::algebra::vector<double, 3>& scale) :
 		transformPath_{
 			std::move(path),
 			[scale] (PathVertex& value) { 
 				value.position *= scale;
-				value.tangent = gml::normalize(scale * value.tangent);
-				value.normal = gml::normalize(scale * value.normal);  
+				value.tangent = tire::algebra::normalize(scale * value.tangent);
+				value.normal = tire::algebra::normalize(scale * value.normal);
 			}
 		}
 	{ }
@@ -49,7 +49,7 @@ public:
 
 
 template <typename Path>
-ScalePath<Path> scalePath(Path path, const gml::dvec3& scale) {
+ScalePath<Path> scalePath(Path path, const tire::algebra::vector<double, 3>& scale) {
 	return ScalePath<Path>{std::move(path), scale};
 }
 

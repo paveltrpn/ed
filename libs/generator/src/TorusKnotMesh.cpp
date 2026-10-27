@@ -18,7 +18,7 @@ TorusKnotMesh::TorusKnotMesh(
 	int segments
 ) :
 	extrudeMesh_{
-		{0.25, slices, 0.0, gml::radians(360.0)},
+		{0.25, slices, 0.0, tire::algebra::degToRad(360.0)},
 		{p, q, segments}
 	}
 { }

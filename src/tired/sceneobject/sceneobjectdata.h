@@ -8,7 +8,7 @@
 
 #include <vsg/all.h>
 
-#include <gml/gml.hpp>
+#include "algebra/common.h"
 
 namespace tire {
 
@@ -293,9 +293,9 @@ public:
     int _slices{ 16 };
     int _segments{ 8 };
     double _sliceStart{ 0.0 };
-    double _sliceSweep{ gml::radians( 360.0 ) };
+    double _sliceSweep{ algebra::degToRad( 360.0 ) };
     double _segmentStart{ 0.0 };
-    double _segmentSweep{ gml::radians( 180.0 ) };
+    double _segmentSweep{ algebra::degToRad( 180.0 ) };
 };
 
 // ======================================================================================
@@ -348,7 +348,7 @@ public:
     int _segments = { 8 };
     int _rings = { 4 };
     double _start = { 0.0 };
-    double _sweep = { gml::radians( 360.0 ) };
+    double _sweep = { algebra::degToRad( 360.0 ) };
 };
 
 // ======================================================================================
@@ -401,7 +401,7 @@ public:
     int _segments = { 8 };
     int _rings = { 4 };
     double _start = { 0.0 };
-    double _sweep = { gml::radians( 360.0 ) };
+    double _sweep = { algebra::degToRad( 360.0 ) };
 };
 
 // ======================================================================================
@@ -454,7 +454,7 @@ public:
     int _segments = { 8 };
     int _rings = { 4 };
     double _start = { 0.0 };
-    double _sweep = { gml::radians( 360.0 ) };
+    double _sweep = { algebra::degToRad( 360.0 ) };
 };
 
 // ======================================================================================
@@ -508,9 +508,9 @@ public:
     int _slices{ 16 };
     int _segments{ 32 };
     double _minorStart{ 0.0 };
-    double _minorSweep{ gml::radians( 360.0 ) };
+    double _minorSweep{ algebra::degToRad( 360.0 ) };
     double _majorStart{ 0.0 };
-    double _majorSweep{ gml::radians( 360.0 ) };
+    double _majorSweep{ algebra::degToRad( 360.0 ) };
 };
 
 // ======================================================================================
@@ -951,7 +951,7 @@ public:
     int _slices{ 16 };
     int _rings{ 4 };
     double _start{ 0.0 };
-    double _sweep{ gml::radians( 360.0 ) };
+    double _sweep{ algebra::degToRad( 360.0 ) };
 };
 
 // ======================================================================================
@@ -1005,7 +1005,7 @@ public:
     int _slices{ 16 };
     int _segments{ 8 };
     double _start{ 0.0 };
-    double _sweep{ gml::radians( 360.0 ) };
+    double _sweep{ algebra::degToRad( 360.0 ) };
 };
 
 // ======================================================================================
@@ -1062,7 +1062,7 @@ public:
     int _segments{ 8 };
     int _rings{ 1 };
     double _start{ 0.0 };
-    double _sweep{ gml::radians( 360.0 ) };
+    double _sweep{ algebra::degToRad( 360.0 ) };
 };
 
 // ======================================================================================
@@ -1171,7 +1171,7 @@ public:
     int _segments{ 8 };
     int _rings{ 4 };
     double _start{ 0.0 };
-    double _sweep{ gml::radians( 360.0 ) };
+    double _sweep{ algebra::degToRad( 360.0 ) };
 };
 
 // ======================================================================================
@@ -1276,9 +1276,9 @@ public:
     int _slices{ 8 };
     int _segments{ 32 };
     double _minorStart{ 0.0 };
-    double _minorSweep{ gml::radians( 360.0 ) };
+    double _minorSweep{ algebra::degToRad( 360.0 ) };
     double _majorStart{ 0.0 };
-    double _majorSweep{ gml::radians( 720.0 ) };
+    double _majorSweep{ algebra::degToRad( 720.0 ) };
 };
 
 // ======================================================================================

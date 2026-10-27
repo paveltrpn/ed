@@ -139,10 +139,10 @@ MeshVertex ConvexPolygonMesh::Vertices::generate() const {
 		const double segmentDelta = static_cast<double>(mSegmentIndex) / mMesh->mSegments;
 
 		const int nextSide = (mSideIndex + 1) % mMesh->mVertices.size();
-		const gml::dvec3 a = gml::mix(mMesh->mVertices.at(mSideIndex), mMesh->mCenter, ringDelta);
-		const gml::dvec3 b = gml::mix(mMesh->mVertices.at(nextSide), mMesh->mCenter, ringDelta);
+		const tire::algebra::vector<double, 3> a = tire::algebra::mix(mMesh->mVertices.at(mSideIndex), mMesh->mCenter, ringDelta);
+		const tire::algebra::vector<double, 3> b = tire::algebra::mix(mMesh->mVertices.at(nextSide), mMesh->mCenter, ringDelta);
 
-		vertex.position = gml::mix(a, b, segmentDelta);
+		vertex.position = tire::algebra::mix(a, b, segmentDelta);
 	}
 	else {
 		vertex.position = mMesh->mCenter;
@@ -150,10 +150,10 @@ MeshVertex ConvexPolygonMesh::Vertices::generate() const {
 
 	vertex.normal = mMesh->mNormal;
 
-	const gml::dvec3 delta = vertex.position - mMesh->mCenter;
+	const tire::algebra::vector<double, 3> delta = vertex.position - mMesh->mCenter;
 
-	vertex.texCoord[0] = gml::dot(mMesh->mTangent, delta);
-	vertex.texCoord[1] = gml::dot(mMesh->mBitangent, delta);
+	vertex.texCoord[0] = tire::algebra::dot(mMesh->mTangent, delta);
+	vertex.texCoord[1] = tire::algebra::dot(mMesh->mBitangent, delta);
 
 	vertex.texCoord -= mMesh->mTexDelta;
 
@@ -192,12 +192,12 @@ void ConvexPolygonMesh::Vertices::next() {
 namespace {
 
 
-std::vector<gml::dvec3> makeVertices(double radius, int sides) noexcept {
-	std::vector<gml::dvec3> result{};
+std::vector<tire::algebra::vector<double, 3>> makeVertices(double radius, int sides) noexcept {
+	std::vector<tire::algebra::vector<double, 3>> result{};
 
 	CircleShape circle{radius, sides};
 	for (const auto& v : circle.vertices()) {
-		result.push_back(gml::dvec3{v.position[0], v.position[1], 0.0});
+		result.push_back(tire::algebra::vector<double, 3>{v.position[0], v.position[1], 0.0});
 	}
 	result.pop_back(); // The last one is a dublicate with the first one
 
@@ -206,19 +206,19 @@ std::vector<gml::dvec3> makeVertices(double radius, int sides) noexcept {
 
 
 
-std::vector<gml::dvec3> convertVertices(const std::vector<gml::dvec2>& vertices) noexcept {
-	std::vector<gml::dvec3> result(vertices.size());
+std::vector<tire::algebra::vector<double, 3>> convertVertices(const std::vector<tire::algebra::vector<double, 2>>& vertices) noexcept {
+	std::vector<tire::algebra::vector<double, 3>> result(vertices.size());
 
 	for (std::size_t i = 0; i < vertices.size(); ++i) {
-		result.at(i) = gml::dvec3{vertices.at(i)[0], vertices.at(i)[1], 0.0};
+		result.at(i) = tire::algebra::vector<double, 3>{vertices.at(i)[0], vertices.at(i)[1], 0.0};
 	}
 
 	return result;
 }
 
 
-gml::dvec3 calcCenter(const std::vector<gml::dvec3>& vertices) noexcept {
-	gml::dvec3 result{};
+tire::algebra::vector<double, 3> calcCenter(const std::vector<tire::algebra::vector<double, 3>>& vertices) noexcept {
+	tire::algebra::vector<double, 3> result{};
 	for (const auto& v : vertices) {
 		result += v;
 	}
@@ -226,12 +226,12 @@ gml::dvec3 calcCenter(const std::vector<gml::dvec3>& vertices) noexcept {
 }
 
 
-gml::dvec3 calcNormal(const gml::dvec3& center, const std::vector<gml::dvec3>& vertices) {
-	gml::dvec3 normal{};
+tire::algebra::vector<double, 3> calcNormal(const tire::algebra::vector<double, 3>& center, const std::vector<tire::algebra::vector<double, 3>>& vertices) {
+	tire::algebra::vector<double, 3> normal{};
 	for (int i = 0; i < static_cast<int>(vertices.size()); ++i) {
-		normal += gml::normal(center, vertices[i], vertices[(i + 1) % vertices.size()]);
+		normal += tire::algebra::normal(center, vertices[i], vertices[(i + 1) % vertices.size()]);
 	}
-	return gml::normalize(normal);
+	return tire::algebra::normalize(normal);
 }
 
 
@@ -246,14 +246,14 @@ ConvexPolygonMesh::ConvexPolygonMesh(
 
 
 ConvexPolygonMesh::ConvexPolygonMesh(
-	const std::vector<gml::dvec2>& vertices, int segments, int rings
+	const std::vector<tire::algebra::vector<double, 2>>& vertices, int segments, int rings
 ) noexcept :
 	ConvexPolygonMesh{convertVertices(vertices), segments, rings}
 { }
 
 
 ConvexPolygonMesh::ConvexPolygonMesh(
-	std::vector<gml::dvec3> vertices, int segments, int rings
+	std::vector<tire::algebra::vector<double, 3>> vertices, int segments, int rings
 ) noexcept :
 	mVertices{std::move(vertices)},
 	mSegments{segments},
@@ -266,21 +266,21 @@ ConvexPolygonMesh::ConvexPolygonMesh(
 {
 
 	if (mVertices.size() > 0) {
-		mTangent = gml::normalize(mVertices.at(0) - mCenter);
-		mBitangent = gml::cross(mNormal, mTangent);
+		mTangent = tire::algebra::normalize(mVertices.at(0) - mCenter);
+		mBitangent = tire::algebra::cross(mNormal, mTangent);
 
-		gml::dvec2 texMax{};
+		tire::algebra::vector<double, 2> texMax{};
 
-		for (const gml::dvec3& vertex : mVertices) {
-			gml::dvec3 delta = vertex - mCenter;
+		for (const tire::algebra::vector<double, 3>& vertex : mVertices) {
+			tire::algebra::vector<double, 3> delta = vertex - mCenter;
 
-			gml::dvec2 uv{gml::dot(mTangent, delta), gml::dot(mBitangent, delta)};
+			tire::algebra::vector<double, 2> uv{tire::algebra::dot(mTangent, delta), tire::algebra::dot(mBitangent, delta)};
 
-			mTexDelta = gml::min(mTexDelta, uv);
-			texMax = gml::max(texMax, uv);
+			mTexDelta = tire::algebra::min(mTexDelta, uv);
+			texMax = tire::algebra::max(texMax, uv);
 		}
 
-		gml::dvec2 size = texMax - mTexDelta;
+		tire::algebra::vector<double, 2> size = texMax - mTexDelta;
 
 		mTangent /= size[0];
 		mBitangent /= size[1];

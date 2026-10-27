@@ -30,7 +30,7 @@ private:
 
 public:
 
-	BoxFace(const gml::dvec2& size, const gml::ivec2& segments, double delta);
+	BoxFace(const tire::algebra::vector<double, 2>& size, const tire::algebra::vector<int, 2>& segments, double delta);
 
 	using Triangles = typename Impl::Triangles;
 
@@ -52,7 +52,7 @@ private:
 
 public:
 
-	BoxFaces(const gml::dvec2& size, const gml::ivec2& segments, double delta);
+	BoxFaces(const tire::algebra::vector<double, 2>& size, const tire::algebra::vector<int, 2>& segments, double delta);
 
 	using Triangles = typename Impl::Triangles;
 
@@ -89,8 +89,8 @@ public:
 	/// directions. All should be >= 1. If any one is zero faces in that
 	/// direction are not genereted. If more than one is zero the mesh is empty.
 	explicit BoxMesh(
-		const gml::dvec3& size = {1.0, 1.0, 1.0},
-		const gml::ivec3& segments = {8, 8, 8}
+		const tire::algebra::vector<double, 3>& size = {1.0, 1.0, 1.0},
+		const tire::algebra::vector<int, 3>& segments = {8, 8, 8}
 	) noexcept;
 
 	using Triangles = typename Impl::Triangles;

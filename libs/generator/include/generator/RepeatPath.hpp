@@ -109,7 +109,7 @@ public:
 
 		int mIndex;
 
-		gml::dvec3 mDelta;
+		tire::algebra::vector<double, 3> mDelta;
 
 		int countVertices() const noexcept
 		{
@@ -134,7 +134,7 @@ public:
 	/// @param path The path to repeat.
 	/// @param instances Number of times to repeat. If <1 an empty path results.
 	/// @param delta An offset aplied to each copy.
-	explicit RepeatPath(Path path, int instances, const gml::dvec3& delta) noexcept :
+	explicit RepeatPath(Path path, int instances, const tire::algebra::vector<double, 3>& delta) noexcept :
 		mPath{std::move(path)},
 		mInstances{instances},
 		mDelta{delta},
@@ -157,7 +157,7 @@ private:
 
 	int mInstances;
 
-	gml::dvec3 mDelta;
+	tire::algebra::vector<double, 3> mDelta;
 
 	int mVertexCount;
 
@@ -165,7 +165,7 @@ private:
 
 
 template <typename Path>
-RepeatPath<Path> repeatPath(Path path, int instances, const gml::dvec3& delta) noexcept
+RepeatPath<Path> repeatPath(Path path, int instances, const tire::algebra::vector<double, 3>& delta) noexcept
 {
 	return RepeatPath<Path>{std::move(path), instances, delta};
 }

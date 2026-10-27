@@ -34,9 +34,9 @@ private:
 
 		double z_;
 
-		gml::dvec3 color_;
+		tire::algebra::vector<double, 3> color_;
 
-		BaseElem(double z, const gml::dvec3& color);
+		BaseElem(double z, const tire::algebra::vector<double, 3>& color);
 
 		virtual ~BaseElem();
 
@@ -48,9 +48,9 @@ private:
 	class VertexElem : public BaseElem {
 	public:
 
-		gml::dvec3 p_;
+		tire::algebra::vector<double, 3> p_;
 
-		VertexElem(const gml::dvec3& p, const gml::dvec3& color);
+		VertexElem(const tire::algebra::vector<double, 3>& p, const tire::algebra::vector<double, 3>& color);
 
 		virtual void stream(std::ostream& os) const override;
 
@@ -59,10 +59,10 @@ private:
 	class LineElem : public BaseElem {
 	public:
 
-		gml::dvec3 p1_, p2_;
+		tire::algebra::vector<double, 3> p1_, p2_;
 
 		LineElem(
-			const gml::dvec3& p1, const gml::dvec3& p2, const gml::dvec3& color
+			const tire::algebra::vector<double, 3>& p1, const tire::algebra::vector<double, 3>& p2, const tire::algebra::vector<double, 3>& color
 		);
 
 		virtual void stream(std::ostream& os) const override;
@@ -72,30 +72,30 @@ private:
 	class TriangleElem : public BaseElem {
 	public:
 
-		std::array<gml::dvec3, 3> p_;
+		std::array<tire::algebra::vector<double, 3>, 3> p_;
 
 		TriangleElem(
-			const gml::dvec3& p1, const gml::dvec3& p2, const gml::dvec3& p3,
-			const gml::dvec3& color
+			const tire::algebra::vector<double, 3>& p1, const tire::algebra::vector<double, 3>& p2, const tire::algebra::vector<double, 3>& p3,
+			const tire::algebra::vector<double, 3>& color
 		);
 
 		virtual void stream(std::ostream& os) const override;
 
 	};
 
-	gml::dvec3 project(const gml::dvec3& p) const;
+	tire::algebra::vector<double, 3> project(const tire::algebra::vector<double, 3>& p) const;
 
-	gml::dvec3 normalToColor(const gml::dvec3& normal) const;
+	tire::algebra::vector<double, 3> normalToColor(const tire::algebra::vector<double, 3>& normal) const;
 
-	gml::ivec2 size_;
+	tire::algebra::vector<int, 2> size_;
 
-	gml::dmat4 viewMatrix_;
-	gml::dmat4 projMatrix_;
-	gml::dmat4 viewProjMatrix_;
-	gml::ivec2 viewportOrigin_;
-	gml::ivec2 viewportSize_;
+	tire::algebra::matrix<double, 4, 4> viewMatrix_;
+	tire::algebra::matrix<double, 4, 4> projMatrix_;
+	tire::algebra::matrix<double, 4, 4> viewProjMatrix_;
+	tire::algebra::vector<int, 2> viewportOrigin_;
+	tire::algebra::vector<int, 2> viewportSize_;
 
-	gml::dvec3 lightDir_;
+	tire::algebra::vector<double, 3> lightDir_;
 
 	bool cullface_;
 
@@ -108,7 +108,7 @@ public:
 	SvgWriter(int width, int height);
 
 	/// Sets the model view matrix. Default is the identity matrix.
-	void modelView(const gml::dmat4& matrix);
+	void modelView(const tire::algebra::matrix<double, 4, 4>& matrix);
 
 	/// Sets the projection mode to perspective projection.
 	/// Default is the orthographic.
@@ -130,24 +130,24 @@ public:
 
 	/// Write one point. Drawn as a circle.
 	void writePoint(
-		const gml::dvec3& p, const gml::dvec3& color = {0.0, 0.0, 0.0}
+		const tire::algebra::vector<double, 3>& p, const tire::algebra::vector<double, 3>& color = {0.0, 0.0, 0.0}
 	);
 
 	/// Write one line.
 	void writeLine(
-		const gml::dvec3& p1, const gml::dvec3& p2,
-		const gml::dvec3& color = {0.0, 0.0, 0.0}
+		const tire::algebra::vector<double, 3>& p1, const tire::algebra::vector<double, 3>& p2,
+		const tire::algebra::vector<double, 3>& color = {0.0, 0.0, 0.0}
 	);
 
 	/// Write one triangle.
 	void writeTriangle(
-		const gml::dvec3& p1, const gml::dvec3& p2, const gml::dvec3& p3,
-		const gml::dvec3& color
+		const tire::algebra::vector<double, 3>& p1, const tire::algebra::vector<double, 3>& p2, const tire::algebra::vector<double, 3>& p3,
+		const tire::algebra::vector<double, 3>& color
 	);
 
 	/// Write one triangle with color automatically calculated from light.
 	void writeTriangle(
-		const gml::dvec3& p1, const gml::dvec3& p2, const gml::dvec3& p3
+		const tire::algebra::vector<double, 3>& p1, const tire::algebra::vector<double, 3>& p2, const tire::algebra::vector<double, 3>& p3
 	);
 
 	/// Write all shaped edges and optionally vertices, tangents and normals.
@@ -162,17 +162,17 @@ public:
 		}
 
 		for (auto e : shape.edges()) {
-			auto p1 = gml::dvec3{vertices[e.vertices[0]].position, 0.0};
-			auto p2 = gml::dvec3{vertices[e.vertices[1]].position, 0.0};
+			auto p1 = tire::algebra::vector<double, 3>{vertices[e.vertices[0]].position, 0.0};
+			auto p2 = tire::algebra::vector<double, 3>{vertices[e.vertices[1]].position, 0.0};
 
 			writeLine(p1, p2, {0.5, 0.5, 0.5});
 		}
 
 		if (writeAxis) {
 			for (auto v : vertices) {
-				auto p1 = gml::dvec3{v.position, 0.0};
-				auto p2 = gml::dvec3{v.position + 0.1 * v.tangent, 0.0};
-				auto p3 = gml::dvec3{v.position + 0.1 * v.normal(), 0.0};
+				auto p1 = tire::algebra::vector<double, 3>{v.position, 0.0};
+				auto p2 = tire::algebra::vector<double, 3>{v.position + 0.1 * v.tangent, 0.0};
+				auto p3 = tire::algebra::vector<double, 3>{v.position + 0.1 * v.normal(), 0.0};
 
 				writeLine(p1, p2, {0.0, 1.0, 0.0});
 				writeLine(p1, p3, {1.0, 0.0, 0.0});
@@ -181,7 +181,7 @@ public:
 
 		if (writeVertices) {
 			for (auto v : shape.vertices()) {
-					writePoint(gml::dvec3{v.position, 0.0});
+					writePoint(tire::algebra::vector<double, 3>{v.position, 0.0});
 			}
 		}
 	}

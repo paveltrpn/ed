@@ -23,7 +23,7 @@ namespace generator {
 template <typename Shape>
 class LatheMesh {
 private:
-    gml::dvec3 axis_;
+    tire::algebra::vector<double, 3> axis_;
 
     Shape shape_;
 
@@ -89,16 +89,16 @@ public:
             MeshVertex vertex;
 
             const auto shapeVertex = shapeVertices_.generate();
-            const gml::dvec2 normal = shapeVertex.normal();
+            const tire::algebra::vector<double, 2> normal = shapeVertex.normal();
 
             double deltaAngle = mesh_->sweep_ / mesh_->slices_;
             double angle = i_ * deltaAngle + mesh_->start_;
 
-            const gml::dquat q = gml::qrotate( angle, mesh_->axis_ );
+            const tire::algebra::quaternion<double> q = tire::algebra::quaternionRotate( angle, mesh_->axis_ );
 
-            vertex.position = gml::transform( q, gml::dvec3{ shapeVertex.position[0], shapeVertex.position[1], 0.0 } );
+            vertex.position = tire::algebra::transform( q, tire::algebra::vector<double, 3>{ shapeVertex.position[0], shapeVertex.position[1], 0.0 } );
 
-            vertex.normal = gml::transform( q, gml::dvec3{ normal[0], normal[1], 0.0 } );
+            vertex.normal = tire::algebra::transform( q, tire::algebra::vector<double, 3>{ normal[0], normal[1], 0.0 } );
 
             vertex.texCoord[0] = shapeVertex.texCoord;
             vertex.texCoord[1] = angle / mesh_->sweep_;
@@ -138,8 +138,8 @@ public:
     /// @param start Counterclockwise angle around the given axis relative to the
     /// xy-plane. relative to the xy-plane.
     /// @param sweep Counterclockwise angle around the given axis.
-    LatheMesh( Shape shape, const gml::dvec2 &axis, int slices = 32, double start = 0.0,
-               double sweep = gml::radians( 360.0 ) )
+    LatheMesh( Shape shape, const tire::algebra::vector<double, 2> &axis, int slices = 32, double start = 0.0,
+               double sweep = tire::algebra::degToRad( 360.0 ) )
         : axis_{ axis, 0.0 }
         , shape_{ std::move( shape ) }
         , slices_{ slices }
@@ -153,7 +153,7 @@ public:
 
 template <typename Shape>
 LatheMesh<Shape> lathe( Shape shape, Axis axis = Axis::X, int slices = 32, double start = 0.0,
-                        double sweep = gml::radians( 360.0 ) ) {
+                        double sweep = tire::algebra::degToRad( 360.0 ) ) {
     return LatheMesh<Shape>{ std::move( shape ), axis, slices, start, sweep };
 }
 

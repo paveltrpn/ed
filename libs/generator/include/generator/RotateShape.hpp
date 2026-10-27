@@ -30,9 +30,9 @@ public:
 		transformShape_{
 			std::move(shape),
 			[angle] (ShapeVertex& value) {
-				auto rotation = gml::rotate(angle);
-				value.position = gml::transform(rotation, value.position);
-				value.tangent = gml::transform(rotation, value.tangent);
+				auto rotation = tire::algebra::rotate(angle);
+				value.position = tire::algebra::transform(rotation, value.position);
+				value.tangent = tire::algebra::transform(rotation, value.tangent);
 			}
 		}
 	{ }

@@ -4,7 +4,7 @@ include_directories(${CMAKE_SOURCE_DIR}/libs/generator/include)
 set(TARGET_NAME ${CMAKE_STATIC_LIBRARY_PREFIX}generator${SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 include_directories ("${CMAKE_SOURCE_DIR}/libs/generator/include")
-include_directories ("${CMAKE_SOURCE_DIR}/libs/gml/include")
+include_directories ("${CMAKE_SOURCE_DIR}/src")
 
 set(GENERATOR_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libs/generator/include/generator")
 set(GENERATOR_SOURCE_DIR "${CMAKE_SOURCE_DIR}/libs/generator/src")

@@ -23,13 +23,13 @@ CapsuleMesh::CapsuleMesh(
 	mergeMesh_{
 		{radius, size, slices, segments, start, sweep},
 		{
-			{radius, slices, rings, start, sweep, 0.0, gml::radians(90.0)},
+			{radius, slices, rings, start, sweep, 0.0, tire::algebra::degToRad(90.0)},
 			{0.0, 0.0, size}
 		},
 		{
 			{
 				radius, slices, rings, start, sweep,
-				gml::radians(90.0), gml::radians(90.0)
+				tire::algebra::degToRad(90.0), tire::algebra::degToRad(90.0)
 			},
 			{0.0, 0.0, -size}
 		}

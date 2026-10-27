@@ -16,7 +16,7 @@ using namespace generator;
 
 static const double a = (1.0 + std::sqrt(5.0)) / 2.0;
 
-static const std::array<gml::dvec3, 20> vertices {{
+static const std::array<tire::algebra::vector<double, 3>, 20> vertices {{
 	{ 1.0,  1.0, -1.0},
 	{-1.0,  1.0, -1.0},
 	{ 1.0, -1.0, -1.0},
@@ -59,10 +59,10 @@ static const std::array<std::array<int, 5>, 12> polygons{{
 }};
 
 
-static std::vector<gml::dvec3> makeVertices(int faceIndex) noexcept {
-	std::vector<gml::dvec3> result(5);
+static std::vector<tire::algebra::vector<double, 3>> makeVertices(int faceIndex) noexcept {
+	std::vector<tire::algebra::vector<double, 3>> result(5);
 	for (int i = 0; i < 5; ++i) {
-		result.at(i) = gml::normalize(vertices.at(polygons.at(faceIndex)[i]));
+		result.at(i) = tire::algebra::normalize(vertices.at(polygons.at(faceIndex)[i]));
 	}
 	return result;
 }

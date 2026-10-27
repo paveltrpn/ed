@@ -72,21 +72,21 @@ private:
 	friend class ConvexPolygonMesh;
 	};
 
-	std::vector<gml::dvec3> mVertices;
+	std::vector<tire::algebra::vector<double, 3>> mVertices;
 
 	int mSegments;
 
 	int mRings;
 
-	gml::dvec3 mCenter;
+	tire::algebra::vector<double, 3> mCenter;
 
-	gml::dvec3 mNormal;
+	tire::algebra::vector<double, 3> mNormal;
 
-	gml::dvec3 mTangent;
+	tire::algebra::vector<double, 3> mTangent;
 
-	gml::dvec3 mBitangent;
+	tire::algebra::vector<double, 3> mBitangent;
 
-	gml::dvec2 mTexDelta;
+	tire::algebra::vector<double, 2> mTexDelta;
 
 public:
 
@@ -102,14 +102,14 @@ public:
 
 	//// @param vertices The corner vertex coordinates. Should form a convex polygon.
 	explicit ConvexPolygonMesh(
-		const std::vector<gml::dvec2>& vertices, int segments = 1, int rings = 1
+		const std::vector<tire::algebra::vector<double, 2>>& vertices, int segments = 1, int rings = 1
 	) noexcept;
 
 	/// @param vertices The corner vertex coordinates. Should be coplanar and
 	/// form a convex polygon.
 	/// calculated as an avarage.
 	explicit ConvexPolygonMesh(
-		std::vector<gml::dvec3> vertices, int segments = 1, int rings = 1
+		std::vector<tire::algebra::vector<double, 3>> vertices, int segments = 1, int rings = 1
 	) noexcept;
 
 	Triangles triangles() const noexcept;

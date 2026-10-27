@@ -41,9 +41,9 @@ public:
 		int slices = 32,
 		int segments = 16,
 		double sliceStart = 0.0,
-		double sliceSweep = gml::radians(360.0),
+		double sliceSweep = tire::algebra::degToRad(360.0),
 		double segmentStart = 0.0,
-		double segmentSweep = gml::radians(180.0)
+		double segmentSweep = tire::algebra::degToRad(180.0)
 	);
 
 	using Triangles = typename Impl::Triangles;

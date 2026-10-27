@@ -98,8 +98,8 @@ void ParametricMesh::Vertices::next() {
 
 
 ParametricMesh::ParametricMesh(
-	std::function<MeshVertex(const gml::dvec2& t)> eval,
-	const gml::ivec2& segments
+	std::function<MeshVertex(const tire::algebra::vector<double, 2>& t)> eval,
+	const tire::algebra::vector<int, 2>& segments
 ) noexcept :
 	eval_{std::move(eval)},
 	segments_{segments},

@@ -154,9 +154,9 @@ public:
 			const MeshVertex& v2 = mesh_->vertexCache_[mesh_->edgeCache_[edgeIndex_].vertices[1]];
 
 			MeshVertex vertex;
-			vertex.position = gml::mix(v1.position, v2.position, 0.5);
-			vertex.texCoord = gml::mix(v1.texCoord, v2.texCoord, 0.5);
-			vertex.normal = gml::normalize(gml::mix(v1.normal, v2.normal, 0.5));
+			vertex.position = tire::algebra::mix(v1.position, v2.position, 0.5);
+			vertex.texCoord = tire::algebra::mix(v1.texCoord, v2.texCoord, 0.5);
+			vertex.normal = tire::algebra::normalize(tire::algebra::mix(v1.normal, v2.normal, 0.5));
 			return vertex;
 		}
 
@@ -217,7 +217,7 @@ private:
 
 	std::vector<Edge> edgeCache_;
 
-	std::map<gml::ivec2, int> edgeMap_;
+	std::map<tire::algebra::vector<int, 2>, int> edgeMap_;
 
 	std::vector<MeshVertex> vertexCache_;
 

@@ -11,9 +11,9 @@ using namespace generator;
 
 
 LinePath::LinePath(
-	const gml::dvec3& start,
-	const gml::dvec3& end,
-	const gml::dvec3& normal,
+	const tire::algebra::vector<double, 3>& start,
+	const tire::algebra::vector<double, 3>& end,
+	const tire::algebra::vector<double, 3>& normal,
 	int segments
 ):
 	parametricPath_{

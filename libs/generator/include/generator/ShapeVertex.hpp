@@ -18,11 +18,11 @@ namespace generator {
 class ShapeVertex {
 public:
 
-	gml::dvec2 position;
+	tire::algebra::vector<double, 2> position;
 
 	/// Unit length vector parallel to the shape at this point.
 	/// Also the y-axis of the shape's local coordinate system.
-	gml::dvec2 tangent;
+	tire::algebra::vector<double, 2> tangent;
 
 	double texCoord;
 
@@ -34,8 +34,8 @@ public:
 
 	/// Returns the tangent rotated 90 dec clockwise.
 	/// Also the x-axis of the shape's local coordinate system.
-	gml::dvec2 normal() const noexcept {
-		return -gml::cross(tangent);
+	tire::algebra::vector<double, 2> normal() const noexcept {
+		return -tire::algebra::cross(tangent);
 	}
 
 };

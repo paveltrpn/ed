@@ -17,13 +17,13 @@ class Triangle {
 public:
 
 	/// Zero based indices of the triangle vertices in counterclockwise order.
-	gml::ivec3 vertices;
+	tire::algebra::vector<int, 3> vertices;
 
 	Triangle() noexcept :
 		vertices{}
 	{ }
 
-	explicit Triangle(const gml::ivec3& vertices) noexcept :
+	explicit Triangle(const tire::algebra::vector<int, 3>& vertices) noexcept :
 		vertices{vertices}
 	{ }
 

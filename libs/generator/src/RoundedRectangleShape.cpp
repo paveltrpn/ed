@@ -14,19 +14,19 @@ using namespace generator;
 
 RoundedRectangleShape::RoundedRectangleShape(
 	double radius,
-	const gml::dvec2& size,
+	const tire::algebra::vector<double, 2>& size,
 	int slices,
-	const gml::ivec2& segments
+	const tire::algebra::vector<int, 2>& segments
 ) :
 	mergeShape_{
 		{{size[0]+radius, -size[1]}, {size[0]+radius, size[1]}, segments[1]},
-		{{radius, slices, 0.0, gml::radians(90.0)}, size},
+		{{radius, slices, 0.0, tire::algebra::degToRad(90.0)}, size},
 		{{size[0], size[1]+radius}, {-size[0], size[1]+radius}, segments[0]},
-		{{radius, slices, gml::radians(90.0), gml::radians(90.0)}, {-size[0], size[1]}},
+		{{radius, slices, tire::algebra::degToRad(90.0), tire::algebra::degToRad(90.0)}, {-size[0], size[1]}},
 		{{-size[0]-radius, size[1]}, {-size[0]-radius, -size[1]}, segments[1]},
-		{{radius, slices, gml::radians(180.0), gml::radians(90.0)}, -size},
+		{{radius, slices, tire::algebra::degToRad(180.0), tire::algebra::degToRad(90.0)}, -size},
 		{{-size[0], -size[1]-radius}, {size[0], -size[1]-radius}, segments[0]},
-		{{radius, slices, gml::radians(270.0), gml::radians(90.0)}, {size[0], -size[1]}}
+		{{radius, slices, tire::algebra::degToRad(270.0), tire::algebra::degToRad(90.0)}, {size[0], -size[1]}}
 	}
 { }
 

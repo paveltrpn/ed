@@ -14,13 +14,13 @@ namespace generator {
 class Edge {
 public:
 
-	gml::ivec2 vertices;
+	tire::algebra::vector<int, 2> vertices;
 
 	Edge() noexcept :
 		vertices{}
 	{ }
 
-	explicit Edge(const gml::ivec2& vertices) noexcept :
+	explicit Edge(const tire::algebra::vector<int, 2>& vertices) noexcept :
 		vertices{vertices}
 	{ }
 

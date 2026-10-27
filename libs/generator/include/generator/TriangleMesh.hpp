@@ -68,7 +68,7 @@ public:
 	/// @param v0,v1,v2 The vertex positions of the triangle.
 	/// @param segments The number of segments along each edge. Must be >= 1.
 	TriangleMesh(
-		const gml::dvec3& v0, const gml::dvec3& v1, const gml::dvec3& v2,
+		const tire::algebra::vector<double, 3>& v0, const tire::algebra::vector<double, 3>& v1, const tire::algebra::vector<double, 3>& v2,
 		int segments = 4
 	);
 
@@ -78,9 +78,9 @@ public:
 
 private:
 
-	gml::dvec3 v0_, v1_, v2_;
+	tire::algebra::vector<double, 3> v0_, v1_, v2_;
 
-	gml::dvec3 normal_;
+	tire::algebra::vector<double, 3> normal_;
 
 	int segments_;
 

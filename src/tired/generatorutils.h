@@ -2,6 +2,7 @@
 
 #include <vsg/all.h>
 
+#include "algebra/vector.h"
 #include "generator/Triangle.hpp"
 #include "generator/MeshVertex.hpp"
 
@@ -26,7 +27,8 @@ struct VsgMeshData final {
 
 struct VsgMeshDataGenerator final {
 public:
-    static auto box( const gml::dvec3& size, const gml::ivec3& segments ) -> VsgMeshData;
+    static auto box( const algebra::vector<double, 3>& size, const algebra::vector<int, 3>& segments )
+        -> VsgMeshData;
 
     static auto sphere( double radius, int slices, int segments, double sliceStart, double sliceSweep,
                         double segmentStart, double segmentSweep ) -> VsgMeshData;
@@ -49,7 +51,8 @@ public:
 
     static auto dodecahedron( double radius, int segments, int rings ) -> VsgMeshData;
 
-    static auto plane( const gml::dvec2& size, const gml::ivec2& segments ) -> VsgMeshData;
+    static auto plane( const algebra::vector<double, 2>& size, const algebra::vector<int, 2>& segments )
+        -> VsgMeshData;
 
     static auto disk( double radius, double innerRadius, int slices, int rings, double start, double sweep )
         -> VsgMeshData;
@@ -60,8 +63,8 @@ public:
     static auto cappedTube( double radius, double innerRadius, double size, int slices, int segments, int rings,
                             double start, double sweep ) -> VsgMeshData;
 
-    static auto roundedBox( double radius, const gml::dvec3& size, int slices, const gml::ivec3& segments )
-        -> VsgMeshData;
+    static auto roundedBox( double radius, const algebra::vector<double, 3>& size, int slices,
+                            const algebra::vector<int, 3>& segments ) -> VsgMeshData;
 
     static auto sphericalCone( double radius, double size, int slices, int segments, int rings, double start,
                                double sweep ) -> VsgMeshData;

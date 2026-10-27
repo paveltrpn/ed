@@ -33,17 +33,17 @@ public:
 		transformPath_{
 			std::move(path),
 			[x, y, z] (PathVertex& vertex) {
-				vertex.position	= gml::dvec3{
+				vertex.position	= tire::algebra::vector<double, 3>{
 					vertex.position[static_cast<int>(x)],
 					vertex.position[static_cast<int>(y)],
 					vertex.position[static_cast<int>(z)]
 				};
-				vertex.tangent = gml::dvec3{
+				vertex.tangent = tire::algebra::vector<double, 3>{
 					vertex.tangent[static_cast<int>(x)],
 					vertex.tangent[static_cast<int>(y)],
 					vertex.tangent[static_cast<int>(z)]
 				};
-				vertex.normal = gml::dvec3{
+				vertex.normal = tire::algebra::vector<double, 3>{
 					vertex.normal[static_cast<int>(x)],
 					vertex.normal[static_cast<int>(y)],
 					vertex.normal[static_cast<int>(z)]

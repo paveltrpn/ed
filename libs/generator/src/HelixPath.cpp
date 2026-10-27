@@ -25,19 +25,19 @@ HelixPath::HelixPath(
 			const double sine = std::sin(angle);
 			const double cosine = std::cos(angle);
 
-			vertex.position = gml::dvec3{
+			vertex.position = tire::algebra::vector<double, 3>{
 				radius * cosine,
 				radius * sine,
 				2.0 * t * size - size
 			};
 
-			vertex.tangent = gml::normalize(gml::dvec3{
+			vertex.tangent = tire::algebra::normalize(tire::algebra::vector<double, 3>{
 				-radius * sine,
 				radius * cosine,
 				2.0 * size / sweep,
 			});
 
-			vertex.normal = gml::dvec3{cosine, sine, 0.0};
+			vertex.normal = tire::algebra::vector<double, 3>{cosine, sine, 0.0};
 
 			vertex.texCoord = t;
 

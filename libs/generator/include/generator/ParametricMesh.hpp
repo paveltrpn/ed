@@ -34,7 +34,7 @@ public:
 
 		const ParametricMesh* mesh_;
 
-		gml::ivec2 i_;
+		tire::algebra::vector<int, 2> i_;
 
 		bool even_;
 
@@ -54,7 +54,7 @@ public:
 
 		const ParametricMesh* mesh_;
 
-		gml::ivec2 i_;
+		tire::algebra::vector<int, 2> i_;
 
 	friend class ParametricMesh;
 	};
@@ -64,8 +64,8 @@ public:
 	/// @param segments The number of segments along the surface.
 	/// Both should be >= 1. If either is zero an empty mesh is generated.
 	explicit ParametricMesh(
-		std::function<MeshVertex(const gml::dvec2& t)> eval,
-		const gml::ivec2& segments = {16, 16}
+		std::function<MeshVertex(const tire::algebra::vector<double, 2>& t)> eval,
+		const tire::algebra::vector<int, 2>& segments = {16, 16}
 	) noexcept;
 
 	Triangles triangles() const noexcept;
@@ -74,11 +74,11 @@ public:
 
 private:
 
-	std::function<MeshVertex(const gml::dvec2& t)> eval_;
+	std::function<MeshVertex(const tire::algebra::vector<double, 2>& t)> eval_;
 
-	gml::ivec2 segments_;
+	tire::algebra::vector<int, 2> segments_;
 
-	gml::dvec2 delta_;
+	tire::algebra::vector<double, 2> delta_;
 
 };
 

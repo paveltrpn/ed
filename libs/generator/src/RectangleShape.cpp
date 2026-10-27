@@ -12,8 +12,8 @@ using namespace generator;
 
 
 RectangleShape::RectangleShape(
-	const gml::dvec2& size,
-	const gml::ivec2& segments
+	const tire::algebra::vector<double, 2>& size,
+	const tire::algebra::vector<int, 2>& segments
 ) :
 	mergeShape_{
 		{{size[0], -size[1]}, size, segments[1]},

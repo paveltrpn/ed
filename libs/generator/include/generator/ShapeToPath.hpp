@@ -40,10 +40,10 @@ public:
 
 			PathVertex vertex;
 
-			vertex.position = gml::dvec3(shapeVertex.position, 0.0);
+			vertex.position = tire::algebra::vector<double, 3>(shapeVertex.position, 0.0);
 
-			vertex.tangent = gml::dvec3(shapeVertex.tangent, 0.0);
-			vertex.normal = gml::dvec3{0.0, 0.0, 1.0};
+			vertex.tangent = tire::algebra::vector<double, 3>(shapeVertex.tangent, 0.0);
+			vertex.normal = tire::algebra::vector<double, 3>{0.0, 0.0, 1.0};
 
 			vertex.texCoord = shapeVertex.texCoord;
 

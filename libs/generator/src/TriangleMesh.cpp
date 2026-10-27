@@ -76,16 +76,16 @@ MeshVertex TriangleMesh::Vertices::generate() const {
 
 	if (row_ == mesh_->segments_) {
 		vertex.position = mesh_->v2_;
-		vertex.texCoord = gml::dvec2{0.5, 1.0};
+		vertex.texCoord = tire::algebra::vector<double, 2>{0.5, 1.0};
 	}
 	else {
 		const double t = 1.0 / mesh_->segments_ * row_;
 		const double t2 = 1.0 / (mesh_->segments_ - row_) * col_;
 
-		const auto e1 = gml::mix(mesh_->v0_, mesh_->v2_, t);
-		const auto e2 = gml::mix(mesh_->v1_, mesh_->v2_, t);
+		const auto e1 = tire::algebra::mix(mesh_->v0_, mesh_->v2_, t);
+		const auto e2 = tire::algebra::mix(mesh_->v1_, mesh_->v2_, t);
 
-		vertex.position = gml::mix(e1, e2, t2);
+		vertex.position = tire::algebra::mix(e1, e2, t2);
 
 		vertex.texCoord[0] = t2;
 		vertex.texCoord[1] = t;
@@ -110,9 +110,9 @@ void TriangleMesh::Vertices::next() {
 
 TriangleMesh::TriangleMesh(double radius, int segments) :
 	TriangleMesh{
-		radius * gml::normalize(gml::dvec3{-1.0, -1.0, 0.0}),
-		radius * gml::normalize(gml::dvec3{1.0, -1.0, 0.0}),
-		gml::dvec3{0.0, radius, 0.0},
+		radius * tire::algebra::normalize(tire::algebra::vector<double, 3>{-1.0, -1.0, 0.0}),
+		radius * tire::algebra::normalize(tire::algebra::vector<double, 3>{1.0, -1.0, 0.0}),
+		tire::algebra::vector<double, 3>{0.0, radius, 0.0},
 		segments
 	}
 { }
@@ -120,13 +120,13 @@ TriangleMesh::TriangleMesh(double radius, int segments) :
 
 
 TriangleMesh::TriangleMesh(
-	const gml::dvec3& v0, const gml::dvec3& v1, const gml::dvec3& v2,
+	const tire::algebra::vector<double, 3>& v0, const tire::algebra::vector<double, 3>& v1, const tire::algebra::vector<double, 3>& v2,
 	int segments
 ) :
 	v0_{v0},
 	v1_{v1},
 	v2_{v2},
-	normal_{gml::normal(v0, v1, v2)},
+	normal_{tire::algebra::normal(v0, v1, v2)},
 	segments_{segments}
 { }
 

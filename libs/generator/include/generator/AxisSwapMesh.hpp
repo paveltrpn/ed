@@ -61,12 +61,12 @@ public:
 		transformMesh_{
 			std::move(mesh),
 			[x, y, z] (MeshVertex& vertex) {
-				vertex.position	= gml::dvec3{
+				vertex.position	= tire::algebra::vector<double, 3>{
 					vertex.position[static_cast<int>(x)],
 					vertex.position[static_cast<int>(y)],
 					vertex.position[static_cast<int>(z)]
 				};
-				vertex.normal = gml::dvec3{
+				vertex.normal = tire::algebra::vector<double, 3>{
 					vertex.normal[static_cast<int>(x)],
 					vertex.normal[static_cast<int>(y)],
 					vertex.normal[static_cast<int>(z)]

@@ -26,7 +26,7 @@ public:
 
 	/// @param mesh Source data mesh.
 	/// @param delta Amount to increment vertex positions.
-	TranslateMesh(Mesh mesh, const gml::dvec3& delta) :
+	TranslateMesh(Mesh mesh, const tire::algebra::vector<double, 3>& delta) :
 		transformMesh_{
 			std::move(mesh),
 			[delta] (MeshVertex& value) { value.position += delta; }
@@ -45,7 +45,7 @@ public:
 
 
 template <typename Mesh>
-TranslateMesh<Mesh> translateMesh(Mesh mesh, const gml::dvec3& delta) {
+TranslateMesh<Mesh> translateMesh(Mesh mesh, const tire::algebra::vector<double, 3>& delta) {
 	return TranslateMesh<Mesh>{std::move(mesh), delta};
 }
 

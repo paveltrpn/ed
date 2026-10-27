@@ -27,7 +27,7 @@ public:
 
 	/// @param path Source data path.
 	/// @param delta Amount to increment each vertex position.
-	TranslatePath(Path path, const gml::dvec3& delta) :
+	TranslatePath(Path path, const tire::algebra::vector<double, 3>& delta) :
 		transformPath_{
 			std::move(path),
 			[delta] (PathVertex& value) { value.position += delta;	}
@@ -46,7 +46,7 @@ public:
 
 
 template <typename Path>
-TranslatePath<Path> translatePath(Path path, const gml::dvec3& delta) {
+TranslatePath<Path> translatePath(Path path, const tire::algebra::vector<double, 3>& delta) {
 	return TranslatePath<Path>{std::move(path), delta};
 }
 

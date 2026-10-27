@@ -78,7 +78,7 @@ public:
 		int segments = 8,
 		int rings = 1,
 		double start = 0.0,
-		double sweep = gml::radians(360.0)
+		double sweep = tire::algebra::degToRad(360.0)
 	);
 
 	using Triangles = typename Impl::Triangles;

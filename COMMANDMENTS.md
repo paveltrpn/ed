@@ -27,3 +27,5 @@ Follow it and all will be ok.
 - Class declaration must preamble with 79-char three-line class preamble banners - commented quals sign line, class name
   enclosed with equals signs line end enclosing equals signs line.
 - Always use trailing return type syntax for functions and class methods only except for Q_INVOKABLE marked methods.
+
+- Do not use comment style with three slashes like "///", use two slashes or classic C lang comments "/* ... */"

@@ -1,13 +1,22 @@
 
 #pragma once
 
+#include <concepts>
 #include <type_traits>
 
 namespace tire::algebra {
 
 template <typename T>
-concept Algebraic = std::is_same_v<T, float> || std::is_same_v<T, double> || std::is_same_v<T, int> ||
-                    std::is_same_v<T, unsigned int> || std::is_same_v<T, long> || std::is_same_v<T, long long>;
+concept Algebraic = std::integral<T> || std::floating_point<T>;
+
+template <typename T>
+concept SignedIntegral = std::integral<T> && std::signed_integral<T>;
+
+template <typename T>
+concept UnsignedIntegral = std::integral<T> && std::unsigned_integral<T>;
+
+template <auto N>
+concept Positive = ( N > 0 );
 
 template <typename T>
 requires Algebraic<T> struct matrix2;

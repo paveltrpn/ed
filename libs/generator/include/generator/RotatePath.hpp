@@ -25,28 +25,28 @@ private:
 
 public:
 
-	RotatePath(Path path, const gml::dquat& rotation) :
+	RotatePath(Path path, const tire::algebra::quaternion<double>& rotation) :
 		transformPath_{
 			std::move(path),
 			[rotation] (PathVertex& value) {
-				value.position = gml::transform(rotation, value.position);
-				value.normal = gml::transform(rotation, value.normal);
+				value.position = tire::algebra::transform(rotation, value.position);
+				value.normal = tire::algebra::transform(rotation, value.normal);
 			}
 		}
 	{ }
 
-	RotatePath(Path path, double angle, const gml::dvec3& axis) :
-		RotatePath{std::move(path), gml::qrotate(angle, axis)}
+	RotatePath(Path path, double angle, const tire::algebra::vector<double, 3>& axis) :
+		RotatePath{std::move(path), tire::algebra::quaternionRotate(angle, axis)}
 	{ }
 
 	RotatePath(Path path, double angle, Axis axis) :
 		RotatePath{
 			std::move(path),
-			gml::qrotate(
+			tire::algebra::quaternionRotate(
 				angle,
 				axis == Axis::X ?
-					gml::dvec3{1.0, 0.0, 0.0} :
-					(axis == Axis::Y ? gml::dvec3{0.0, 1.0, 0.0} : gml::dvec3{0.0, 0.0, 1.0})
+					tire::algebra::vector<double, 3>{1.0, 0.0, 0.0} :
+					(axis == Axis::Y ? tire::algebra::vector<double, 3>{0.0, 1.0, 0.0} : tire::algebra::vector<double, 3>{0.0, 0.0, 1.0})
 			)
 		}
 	{ }
@@ -63,13 +63,13 @@ public:
 
 
 template <typename Path>
-RotatePath<Path> rotatePath(Path path, const gml::dquat& rotation) {
+RotatePath<Path> rotatePath(Path path, const tire::algebra::quaternion<double>& rotation) {
 	return RotatePath<Path>{std::move(path), rotation};
 }
 
 
 template <typename Path>
-RotatePath<Path> rotatePath(Path path, double angle, const gml::dvec3& axis) {
+RotatePath<Path> rotatePath(Path path, double angle, const tire::algebra::vector<double, 3>& axis) {
 	return RotatePath<Path>{std::move(path), angle, axis};
 }
 

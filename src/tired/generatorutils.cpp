@@ -22,7 +22,8 @@
 
 namespace tire {
 
-auto VsgMeshDataGenerator::box( const gml::dvec3& size, const gml::ivec3& segments ) -> VsgMeshData {
+auto VsgMeshDataGenerator::box( const algebra::vector<double, 3>& size,
+                                const algebra::vector<int, 3>& segments ) -> VsgMeshData {
     auto mesh = generator::BoxMesh{ size, segments };
     return copy( mesh.vertices(), mesh.triangles() );
 }
@@ -72,7 +73,8 @@ auto VsgMeshDataGenerator::dodecahedron( double radius, int segments, int rings 
     return copy( mesh.vertices(), mesh.triangles() );
 }
 
-auto VsgMeshDataGenerator::plane( const gml::dvec2& size, const gml::ivec2& segments ) -> VsgMeshData {
+auto VsgMeshDataGenerator::plane( const algebra::vector<double, 2>& size,
+                                  const algebra::vector<int, 2>& segments ) -> VsgMeshData {
     auto mesh = generator::PlaneMesh{ size, segments };
     return copy( mesh.vertices(), mesh.triangles() );
 }
@@ -95,8 +97,8 @@ auto VsgMeshDataGenerator::cappedTube( double radius, double innerRadius, double
     return copy( mesh.vertices(), mesh.triangles() );
 }
 
-auto VsgMeshDataGenerator::roundedBox( double radius, const gml::dvec3& size, int slices,
-                                       const gml::ivec3& segments ) -> VsgMeshData {
+auto VsgMeshDataGenerator::roundedBox( double radius, const algebra::vector<double, 3>& size, int slices,
+                                       const algebra::vector<int, 3>& segments ) -> VsgMeshData {
     auto mesh = generator::RoundedBoxMesh{ radius, size, slices, segments };
     return copy( mesh.vertices(), mesh.triangles() );
 }

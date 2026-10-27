@@ -15,23 +15,23 @@ using namespace generator::detail;
 
 
 BoxEdge::BoxEdge(
-	const gml::dvec2& position, double radius, double size,
+	const tire::algebra::vector<double, 2>& position, double radius, double size,
 	int slices, int segments
 ) :
 	translateMesh_{
-		{radius, size, slices, segments, 0.0, gml::radians(90.0)},
-		gml::dvec3{position, 0.0}
+		{radius, size, slices, segments, 0.0, tire::algebra::degToRad(90.0)},
+		tire::algebra::vector<double, 3>{position, 0.0}
 	}
 { }
 
 
 BoxEdges::BoxEdges(
-	const gml::dvec3& size, double radius,
+	const tire::algebra::vector<double, 3>& size, double radius,
 	int slices, int segments
 ) :
 	mirrorMesh_{
 		{
-			{gml::dvec2{size}, radius, size[2], slices, segments},
+			{tire::algebra::vector<double, 2>{size}, radius, size[2], slices, segments},
 			Axis::Y
 		},
 		Axis::X
@@ -40,13 +40,13 @@ BoxEdges::BoxEdges(
 
 
 BoxCorner::BoxCorner(
-	const gml::dvec3& position, double radius, int slices
+	const tire::algebra::vector<double, 3>& position, double radius, int slices
 ) :
 	translateMesh_{
 		{
-			gml::dvec3{radius, 0.0, 0.0},
-			gml::dvec3{0.0, radius, 0.0},
-			gml::dvec3{0.0, 0.0, radius},
+			tire::algebra::vector<double, 3>{radius, 0.0, 0.0},
+			tire::algebra::vector<double, 3>{0.0, radius, 0.0},
+			tire::algebra::vector<double, 3>{0.0, 0.0, radius},
 			slices
 		},
 		position
@@ -54,7 +54,7 @@ BoxCorner::BoxCorner(
 { }
 
 
-BoxCorners::BoxCorners(const gml::dvec3& size, double radius, int slices) :
+BoxCorners::BoxCorners(const tire::algebra::vector<double, 3>& size, double radius, int slices) :
 	mirrorMesh_{{{{size, radius, slices}, Axis::X}, Axis::Y}, Axis::Z}
 { }
 
@@ -62,9 +62,9 @@ BoxCorners::BoxCorners(const gml::dvec3& size, double radius, int slices) :
 
 RoundedBoxMesh::RoundedBoxMesh(
 	double radius,
-	const gml::dvec3& size,
+	const tire::algebra::vector<double, 3>& size,
 	int slices,
-	const gml::ivec3& segments
+	const tire::algebra::vector<int, 3>& segments
 ) :
 	mergeMesh_{
 		{

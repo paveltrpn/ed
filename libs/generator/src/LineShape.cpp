@@ -12,8 +12,8 @@ using namespace generator;
 
 
 LineShape::LineShape(
-	const gml::dvec2& start,
-	const gml::dvec2& end,
+	const tire::algebra::vector<double, 2>& start,
+	const tire::algebra::vector<double, 2>& end,
 	int segments
 ) :
 	parametricShape_{

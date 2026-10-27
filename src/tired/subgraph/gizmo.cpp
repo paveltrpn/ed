@@ -4,6 +4,7 @@
 
 #include "gizmo.h"
 #include "program/program.h"
+#include "algebra/common.h"
 #include "../generatorutils.h"
 #include "../dynamicrendergraphicspipeline.h"
 
@@ -499,7 +500,7 @@ MoveDragger::MoveDragger( DraggerAxis axis )
                                                  /* segments */ 4,
                                                  /* rings */ 4,
                                                  /* start */ 0.0,
-                                                 /* sweep */ gml::radians( 360.0 ) );
+                                                 /* sweep */ algebra::degToRad( 360.0 ) );
 
     auto tip = VsgMeshDataGenerator::cone( /* radius */ 0.30,
                                            /* size */ 0.5,
@@ -507,7 +508,7 @@ MoveDragger::MoveDragger( DraggerAxis axis )
                                            /* segments */ 4,
                                            /* rings */ 4,
                                            /* start */ 0.0,
-                                           /* sweep */ gml::radians( 360.0 ) );
+                                           /* sweep */ algebra::degToRad( 360.0 ) );
 
     for ( size_t i{}; i < tip._vertices->size(); ++i ) {
         ( *tip._vertices )[i] += vsg::vec3( 0.0f, 0.0f, 1.0f );
@@ -567,9 +568,9 @@ RotationDragger::RotationDragger( DraggerAxis axis )
                                               /* slices */ 12,
                                               /* segments */ 24,
                                               /* minorStart */ 0.0,
-                                              /* minorSweep */ gml::radians( 360.0 ),
+                                              /* minorSweep */ algebra::degToRad( 360.0 ),
                                               /* majorStart */ 0.0,
-                                              /* majorSweep */ gml::radians( 360.0 ) );
+                                              /* majorSweep */ algebra::degToRad( 360.0 ) );
 
     switch ( _axis ) {
         case tire::DraggerAxis::X: {
@@ -620,7 +621,7 @@ ScaleDragger::ScaleDragger( DraggerAxis axis )
                                                  /* segments */ 4,
                                                  /* rings */ 4,
                                                  /* start */ 0.0,
-                                                 /* sweep */ gml::radians( 360.0 ) );
+                                                 /* sweep */ algebra::degToRad( 360.0 ) );
 
     auto tip = VsgMeshDataGenerator::cylinder( /* radius */ 0.25,
                                                /* size */ 0.45,
@@ -628,7 +629,7 @@ ScaleDragger::ScaleDragger( DraggerAxis axis )
                                                /* segments */ 4,
                                                /* rings */ 4,
                                                /* start */ 0.0,
-                                               /* sweep */ gml::radians( 360.0 ) );
+                                               /* sweep */ algebra::degToRad( 360.0 ) );
 
     for ( size_t i{}; i < tip._vertices->size(); ++i ) {
         ( *tip._vertices )[i] += vsg::vec3( 0.0f, 0.0f, 1.0f );

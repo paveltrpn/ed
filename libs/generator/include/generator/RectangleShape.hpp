@@ -30,8 +30,8 @@ public:
 	/// @param size Half of the length of an edge.
 	/// @param segments Number of subdivisions per edge.
 	RectangleShape(
-		const gml::dvec2& size = gml::dvec2{1.0, 1.0},
-		const gml::ivec2& segments = gml::ivec2{8, 8}
+		const tire::algebra::vector<double, 2>& size = tire::algebra::vector<double, 2>{1.0, 1.0},
+		const tire::algebra::vector<int, 2>& segments = tire::algebra::vector<int, 2>{8, 8}
 	);
 
 	using Edges = typename Impl::Edges;

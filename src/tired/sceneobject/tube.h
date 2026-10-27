@@ -36,7 +36,7 @@ private:
     int _slices{ 16 };
     int _segments{ 8 };
     double _start{ 0.0 };
-    double _sweep{ gml::radians( 360.0 ) };
+    double _sweep{ algebra::degToRad( 360.0 ) };
 };
 
 // ======================================================================================

@@ -123,7 +123,7 @@ public:
 
 		int mIndex;
 
-		gml::dvec3 mDelta;
+		tire::algebra::vector<double, 3> mDelta;
 
 		int countVertices() const noexcept
 		{
@@ -148,7 +148,7 @@ public:
 	/// @param mesh The mesh to repeat.
 	/// @param instances Number of times to repeat. If <1 an empty mesh results.
 	/// @param delta An offset aplied to each copy.
-	explicit RepeatMesh(Mesh mesh, int instances, const gml::dvec3& delta) noexcept :
+	explicit RepeatMesh(Mesh mesh, int instances, const tire::algebra::vector<double, 3>& delta) noexcept :
 		mMesh{std::move(mesh)},
 		mInstances{instances},
 		mDelta{delta},
@@ -171,7 +171,7 @@ private:
 
 	int mInstances;
 
-	gml::dvec3 mDelta;
+	tire::algebra::vector<double, 3> mDelta;
 
 	int mVertexCount;
 
@@ -182,7 +182,7 @@ private:
 
 
 template <typename Mesh>
-RepeatMesh<Mesh> repeatMesh(Mesh mesh, int instances, const gml::dvec3& delta) noexcept
+RepeatMesh<Mesh> repeatMesh(Mesh mesh, int instances, const tire::algebra::vector<double, 3>& delta) noexcept
 {
 	return RepeatMesh<Mesh>{std::move(mesh), instances, delta};
 }

@@ -13,8 +13,8 @@ using namespace generator;
 
 namespace {
 
-gml::dvec3 knot(int p, int q, double t) {
-	t *= gml::radians(360.0);
+tire::algebra::vector<double, 3> knot(int p, int q, double t) {
+	t *= tire::algebra::degToRad(360.0);
 
 	const double pt = p * t;
 	const double qt = q * t;
@@ -26,7 +26,7 @@ gml::dvec3 knot(int p, int q, double t) {
 
 	const double r = 0.5 * (2.0 + sinqt);
 
-	return gml::dvec3{r * cospt, r * sinpt, r * cosqt};
+	return tire::algebra::vector<double, 3>{r * cospt, r * sinpt, r * cosqt};
 }
 
 }
@@ -43,8 +43,8 @@ KnotPath::KnotPath(
 
 			vertex.position = knot(p, q, t);
 
-			const gml::dvec3 prev = knot(p, q, t - 0.01);
-			const gml::dvec3 next = knot(p, q, t + 0.01);
+			const tire::algebra::vector<double, 3> prev = knot(p, q, t - 0.01);
+			const tire::algebra::vector<double, 3> next = knot(p, q, t + 0.01);
 
 			vertex.tangent = normalize(next - prev);
 

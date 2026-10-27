@@ -25,7 +25,7 @@ TorusMesh::TorusMesh(
 	axisSwapMesh_{
 		{
 			{
-				{minor, slices, minorStart+gml::radians(90.0), minorSweep},
+				{minor, slices, minorStart+tire::algebra::degToRad(90.0), minorSweep},
 				{0.0, major}
 			},
 			{1.0, 0.0}, segments, majorStart, majorSweep

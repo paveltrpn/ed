@@ -26,7 +26,7 @@ public:
 
 	/// @param mesh Source data mesh.
 	/// @param scale Scale factors. Must not be zero!
-	ScaleMesh(Mesh mesh, const gml::dvec3& scale) :
+	ScaleMesh(Mesh mesh, const tire::algebra::vector<double, 3>& scale) :
 		transformMesh_{
 			std::move(mesh),
 			[scale] (MeshVertex& value) {
@@ -48,7 +48,7 @@ public:
 
 
 template <typename Mesh>
-ScaleMesh<Mesh> scaleMesh(Mesh mesh, const gml::dvec3& delta) {
+ScaleMesh<Mesh> scaleMesh(Mesh mesh, const tire::algebra::vector<double, 3>& delta) {
 	return ScaleMesh<Mesh>{std::move(mesh), delta};
 }
 

@@ -13,13 +13,15 @@ namespace tire::algebra {
 template <std::floating_point T>
 constexpr T _half_circle = T{ 180 };
 
+/// Converts degrees to radians
 template <std::floating_point T>
-constexpr T degToRad( T deg ) {
+constexpr auto degToRad( T deg ) -> T {
     return deg * ( std::numbers::pi_v<T> / _half_circle<T> );
 }
 
+/// Converts radians to degrees
 template <std::floating_point T>
-constexpr T radToDeg( T rad ) {
+constexpr auto radToDeg( T rad ) -> T {
     return rad * ( _half_circle<T> / std::numbers::pi_v<T> );
 }
 

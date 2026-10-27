@@ -38,9 +38,9 @@ public:
 	/// @param segments Number of subdivisions along each edge.
 	RoundedRectangleShape(
 		double radius = 0.25,
-		const gml::dvec2& size = {0.75, 0.75},
+		const tire::algebra::vector<double, 2>& size = {0.75, 0.75},
 		int slices = 4,
-		const gml::ivec2& segments = {8, 8}
+		const tire::algebra::vector<int, 2>& segments = {8, 8}
 	);
 
 	using Edges = typename Impl::Edges;

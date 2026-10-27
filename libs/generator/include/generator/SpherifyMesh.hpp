@@ -28,14 +28,14 @@ public:
 		transformMesh_{
 			std::move(mesh),
 			[radius, factor] (MeshVertex& value) {
-				 value.position = gml::mix(
+				 value.position = tire::algebra::mix(
 					value.position, 
-					radius * gml::normalize(value.position), 
+					radius * tire::algebra::normalize(value.position),
 					factor
 				);
-				value.normal = gml::normalize(gml::mix(
+				value.normal = tire::algebra::normalize(tire::algebra::mix(
 					value.normal, 
-					gml::normalize(value.position), 
+					tire::algebra::normalize(value.position),
 					factor
 				));
 			}

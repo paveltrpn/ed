@@ -27,7 +27,7 @@ public:
 
 	/// @param shape Source data shape.
 	/// @param delta Amount to increment vertex positions.
-	TranslateShape(Shape shape, const gml::dvec2& delta) :
+	TranslateShape(Shape shape, const tire::algebra::vector<double, 2>& delta) :
 		transformShape_{
 			std::move(shape),
 			[delta] (ShapeVertex& value) { value.position += delta;	}
@@ -46,7 +46,7 @@ public:
 
 
 template <typename Shape>
-TranslateShape<Shape> translateShape(Shape shape, const gml::dvec2& delta) {
+TranslateShape<Shape> translateShape(Shape shape, const tire::algebra::vector<double, 2>& delta) {
 	return TranslateShape<Shape>{std::move(shape), delta};
 }
 

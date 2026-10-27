@@ -32,33 +32,33 @@ private:
 
 	struct ArrayWrapper
 	{
-		gml::dvec3 data[D1][D0];
+		tire::algebra::vector<double, 3> data[D1][D0];
 
-		ArrayWrapper(const gml::dvec3 (&p)[D1][D0])
+		ArrayWrapper(const tire::algebra::vector<double, 3> (&p)[D1][D0])
 		{
 			std::copy(&p[0][0], &p[0][0] + D1 * D0, &data[0][0]);
 		}
 	};
 
 	explicit BezierMesh(
-		const ArrayWrapper& p, const gml::ivec2& segments
+		const ArrayWrapper& p, const tire::algebra::vector<int, 2>& segments
 	) :
 		mParametricMesh{
-			[p] (const gml::dvec2& t) {
+			[p] (const tire::algebra::vector<double, 2>& t) {
 				MeshVertex vertex;
 
-				vertex.position = gml::bezier2(p.data, t);
+				vertex.position = tire::algebra::bezier2(p.data, t);
 
-				gml::dmat2x3 J = gml::bezier2Jacobian<1>(p.data, t);
-				vertex.normal = gml::cross(J[0], J[1]);
+				tire::algebra::matrix<double, 2, 3> J = tire::algebra::bezier2Jacobian<1>(p.data, t);
+				vertex.normal = tire::algebra::cross(J[0], J[1]);
 
 				// If the normal was zero try a again near by.
 				const double e = std::numeric_limits<double>::epsilon();
 				if (dot(vertex.normal, vertex.normal) < e) {
-					J = gml::bezier2Jacobian<1>(p.data, t + 10.0 * e);
-					vertex.normal = gml::cross(J[0], J[1]);
+					J = tire::algebra::bezier2Jacobian<1>(p.data, t + 10.0 * e);
+					vertex.normal = tire::algebra::cross(J[0], J[1]);
 				}
-				vertex.normal = gml::normalize(vertex.normal);
+				vertex.normal = tire::algebra::normalize(vertex.normal);
 
 				vertex.texCoord = t;
 
@@ -73,7 +73,7 @@ public:
 	/// @param p Control points
 	/// @param segments Number of subdivisions along each axis
 	explicit BezierMesh(
-		const gml::dvec3 (&p)[D1][D0], const gml::ivec2& segments = {16, 16}
+		const tire::algebra::vector<double, 3> (&p)[D1][D0], const tire::algebra::vector<int, 2>& segments = {16, 16}
 	) :
 		// Work around a msvc lambda capture bug by wrapping the array.
 		BezierMesh{ArrayWrapper{p}, segments}

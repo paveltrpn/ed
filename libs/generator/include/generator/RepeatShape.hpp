@@ -123,7 +123,7 @@ public:
 
 		int mIndex;
 
-		gml::dvec2 mDelta;
+		tire::algebra::vector<double, 2> mDelta;
 
 		int countVertices() const noexcept
 		{
@@ -148,7 +148,7 @@ public:
 	/// @param shape The shape to repeat.
 	/// @param instances Number of times to repeat. If <1 an empty shape results.
 	/// @param delta An offset aplied to each copy.
-	explicit RepeatShape(Shape shape, int instances, const gml::dvec2& delta) noexcept :
+	explicit RepeatShape(Shape shape, int instances, const tire::algebra::vector<double, 2>& delta) noexcept :
 		mShape{std::move(shape)},
 		mInstances{instances},
 		mDelta{delta},
@@ -171,7 +171,7 @@ private:
 
 	int mInstances;
 
-	gml::dvec2 mDelta;
+	tire::algebra::vector<double, 2> mDelta;
 
 	int mVertexCount;
 
@@ -179,7 +179,7 @@ private:
 
 
 template <typename Shape>
-RepeatShape<Shape> repeatShape(Shape shape, int instances, const gml::dvec2& delta) noexcept
+RepeatShape<Shape> repeatShape(Shape shape, int instances, const tire::algebra::vector<double, 2>& delta) noexcept
 {
 	return RepeatShape<Shape>{std::move(shape), instances, delta};
 }

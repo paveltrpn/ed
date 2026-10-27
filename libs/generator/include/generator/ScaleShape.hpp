@@ -26,7 +26,7 @@ public:
 
 	/// @param shape Source data shape.
 	/// @param scale Scale factor.
-	ScaleShape(Shape shape, const gml::dvec2& scale) :
+	ScaleShape(Shape shape, const tire::algebra::vector<double, 2>& scale) :
 		transformShape_{
 			std::move(shape),
 			[scale] (ShapeVertex& value) { 
@@ -48,7 +48,7 @@ public:
 
 
 template <typename Shape>
-ScaleShape<Shape> scaleShape(Shape shape, const gml::dvec2& scale) {
+ScaleShape<Shape> scaleShape(Shape shape, const tire::algebra::vector<double, 2>& scale) {
 	return ScaleShape<Shape>{std::move(shape), scale};
 }
 

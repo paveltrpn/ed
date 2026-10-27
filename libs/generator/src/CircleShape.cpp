@@ -23,8 +23,8 @@ CircleShape::CircleShape(
 			const double cosine = std::cos(angle);
 
 			ShapeVertex vertex;
-			vertex.position = gml::dvec2{radius * cosine, radius * sine};
-			vertex.tangent = gml::dvec2{-sine, cosine};
+			vertex.position = tire::algebra::vector<double, 2>{radius * cosine, radius * sine};
+			vertex.tangent = tire::algebra::vector<double, 2>{-sine, cosine};
 			vertex.texCoord = t;
 
 			return vertex;

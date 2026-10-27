@@ -28,8 +28,8 @@ public:
 	/// @param end End position
 	/// @param segments Number of subdivisions
 	LineShape(
-		const gml::dvec2& start = {0.0, -1.0},
-		const gml::dvec2& end = {0.0, 1.0},
+		const tire::algebra::vector<double, 2>& start = {0.0, -1.0},
+		const tire::algebra::vector<double, 2>& end = {0.0, 1.0},
 		int segments = 8
 	);
 

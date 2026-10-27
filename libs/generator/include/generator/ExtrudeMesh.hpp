@@ -90,11 +90,11 @@ public:
             const auto &shapeVertex = shapeVertices_.generate();
             const auto &pathVertex = pathVertices_.generate();
 
-            gml::dvec3 pathBinormal = pathVertex.binormal();
+            tire::algebra::vector<double, 3> pathBinormal = pathVertex.binormal();
             vertex.position = pathVertex.position + shapeVertex.position[0] * pathVertex.normal +
                               shapeVertex.position[1] * pathBinormal;
 
-            gml::dvec2 shapeNormal = shapeVertex.normal();
+            tire::algebra::vector<double, 2> shapeNormal = shapeVertex.normal();
             vertex.normal = shapeNormal[0] * pathVertex.normal + shapeNormal[1] * pathBinormal;
 
             vertex.texCoord[0] = shapeVertex.texCoord;

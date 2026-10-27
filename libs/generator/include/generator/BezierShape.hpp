@@ -30,9 +30,9 @@ private:
 
 	struct ArrayWrapper
 	{
-		gml::dvec2 data[D];
+		tire::algebra::vector<double, 2> data[D];
 
-		ArrayWrapper(const gml::dvec2 (&p)[D])
+		ArrayWrapper(const tire::algebra::vector<double, 2> (&p)[D])
 		{
 			std::copy(&p[0], &p[0] + D, &data[0]);
 		}
@@ -44,17 +44,17 @@ private:
 			[p] (double t) {
 				ShapeVertex vertex;
 
-				vertex.position = gml::bezier(p.data, t);
+				vertex.position = tire::algebra::bezier(p.data, t);
 
-				vertex.tangent = gml::bezierDerivative<1>(p.data, t);
+				vertex.tangent = tire::algebra::bezierDerivative<1>(p.data, t);
 
 				// If tangent is zero try again near by.
 				const double e = std::numeric_limits<double>::epsilon();
-				if (gml::dot(vertex.tangent, vertex.tangent) < e) {
-					vertex.tangent = gml::bezierDerivative<1>(p.data, t + 10.0 * e);
+				if (tire::algebra::dot(vertex.tangent, vertex.tangent) < e) {
+					vertex.tangent = tire::algebra::bezierDerivative<1>(p.data, t + 10.0 * e);
 				}
 
-				vertex.tangent = gml::normalize(vertex.tangent);
+				vertex.tangent = tire::algebra::normalize(vertex.tangent);
 
 				vertex.texCoord = t;
 
@@ -69,7 +69,7 @@ public:
 
 	/// @param p Control points
 	/// @param segments Number of subdivisions
-	explicit BezierShape(const gml::dvec2 (&p)[D], int segments = 16) :
+	explicit BezierShape(const tire::algebra::vector<double, 2> (&p)[D], int segments = 16) :
 		// Work around a msvc lambda capture bug by wrapping the array.
 		BezierShape{ArrayWrapper{p}, segments}
 	{ }

@@ -15,13 +15,13 @@ namespace generator {
 class MeshVertex {
 public:
 
-	gml::dvec3 position;
+	tire::algebra::vector<double, 3> position;
 
 	/// Unit vector perpendicular to the surface.
-	gml::dvec3 normal;
+	tire::algebra::vector<double, 3> normal;
 
 	/// UV texture coordinates
-	gml::dvec2 texCoord;
+	tire::algebra::vector<double, 2> texCoord;
 
 	MeshVertex() noexcept :
 		position{},

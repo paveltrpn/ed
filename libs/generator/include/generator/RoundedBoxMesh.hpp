@@ -33,7 +33,7 @@ private:
 public:
 
 	BoxEdge(
-		const gml::dvec2& position, double radius, double size,
+		const tire::algebra::vector<double, 2>& position, double radius, double size,
 		int slices, int segments
 	);
 
@@ -58,7 +58,7 @@ private:
 public:
 
 	BoxEdges(
-		const gml::dvec3& size, double radius,
+		const tire::algebra::vector<double, 3>& size, double radius,
 		int slices, int segments
 	);
 
@@ -82,7 +82,7 @@ private:
 
 public:
 
-	BoxCorner(const gml::dvec3& position, double radius, int slices);
+	BoxCorner(const tire::algebra::vector<double, 3>& position, double radius, int slices);
 
 	using Triangles = typename Impl::Triangles;
 
@@ -103,7 +103,7 @@ private:
 	Impl mirrorMesh_;
 
 public:
-	BoxCorners(const gml::dvec3& size, double radius, int slices);
+	BoxCorners(const tire::algebra::vector<double, 3>& size, double radius, int slices);
 
 	using Triangles = typename Impl::Triangles;
 
@@ -145,9 +145,9 @@ public:
 	/// direction for the flat faces.
 	RoundedBoxMesh(
 		double radius = 0.25,
-		const gml::dvec3& size = {0.75, 0.75, 0.75},
+		const tire::algebra::vector<double, 3>& size = {0.75, 0.75, 0.75},
 		int slices = 4,
-		const gml::ivec3& segments = {8, 8, 8}
+		const tire::algebra::vector<int, 3>& segments = {8, 8, 8}
 	);
 
 	using Triangles = typename Impl::Triangles;

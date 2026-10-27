@@ -35,9 +35,9 @@ public:
 	/// @param subSegments The number of segment along each cell edge.
 	/// If <1 an empty shape results.
 	explicit GridShape(
-		const gml::dvec2& size = {1.0, 1.0},
-		const gml::ivec2& segments = {4, 4},
-		const gml::ivec2& subSegments = {2, 2}
+		const tire::algebra::vector<double, 2>& size = {1.0, 1.0},
+		const tire::algebra::vector<int, 2>& segments = {4, 4},
+		const tire::algebra::vector<int, 2>& subSegments = {2, 2}
 	) noexcept;
 
 	Edges edges() const noexcept;

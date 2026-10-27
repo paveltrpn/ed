@@ -28,9 +28,9 @@ public:
 	/// @param normal Line normal. Should be parallel to the line.
 	/// @param segments Number of subdivisions along the line.
 	LinePath(
-		const gml::dvec3& start = {0.0, 0.0, -1.0},
-		const gml::dvec3& end = {0.0, 0.0, 1.0},
-		const gml::dvec3& normal = {1.0, 0.0, 0.0},
+		const tire::algebra::vector<double, 3>& start = {0.0, 0.0, -1.0},
+		const tire::algebra::vector<double, 3>& end = {0.0, 0.0, 1.0},
+		const tire::algebra::vector<double, 3>& normal = {1.0, 0.0, 0.0},
 		int segments = 8
 	);
 

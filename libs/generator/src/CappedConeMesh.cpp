@@ -24,7 +24,7 @@ CappedConeMesh::CappedConeMesh(
 		{radius, size, slices, segments, start, sweep},
 		{{{
 			DiskMesh{radius, 0.0, slices, rings},
-			gml::dvec3{0.0, 0.0, -size}
+			tire::algebra::vector<double, 3>{0.0, 0.0, -size}
 		}}, true, false}
 	}
 { }

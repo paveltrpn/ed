@@ -31,7 +31,7 @@ public:
 		double radius = 1.0,
 		int segments = 32,
 		double start = 0.0,
-		double sweep = gml::radians(360.0)
+		double sweep = tire::algebra::degToRad(360.0)
 	);
 
 	using Edges = typename Impl::Edges;

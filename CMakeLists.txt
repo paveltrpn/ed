@@ -25,7 +25,6 @@ find_library(LIBUV_LIBRARIES NAMES uv libuv)
 
 include_directories(src)
 include_directories(libs/generator/include)
-include_directories(libs/gml/include)
 include_directories(libs/OpenMesh/Core)
 include_directories(libs/OpenMesh/Tools)
 
@@ -63,6 +62,7 @@ target_compile_options(config PRIVATE "${CXX_STANDART}")
 # ================================
 file(GLOB_RECURSE MOD_ALGEBRA_SRC "src/algebra/*.h")
 add_library(algebra ${MOD_ALGEBRA_SRC})
+target_link_libraries(generator PUBLIC algebra)
 set_target_properties(algebra PROPERTIES AUTOMOC TRUE)
 target_compile_options(algebra PRIVATE "${CXX_STANDART}")
 
@@ -86,6 +86,7 @@ set_target_properties(image PROPERTIES AUTOMOC TRUE)
 target_compile_options(image PRIVATE "${CXX_STANDART}")
 target_link_libraries(image
     log
+    algebra
 )
 
 # ================================
@@ -150,6 +151,7 @@ target_link_libraries(tired
     SPIRV-Tools-reduce
     SPIRV
     log
+    algebra
     image
     event
     vsg

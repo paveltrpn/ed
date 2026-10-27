@@ -78,9 +78,9 @@ public:
 			const PathVertex& v2 = path_->vertexCache_[edge.vertices[1]];
 
 			PathVertex vertex;
-			vertex.position = gml::mix(v1.position, v2.position, 0.5);
-			vertex.tangent = gml::normalize(gml::mix(v1.tangent, v2.tangent, 0.5));
-			vertex.normal = gml::normalize(gml::mix(v1.normal, v2.normal, 0.5));
+			vertex.position = tire::algebra::mix(v1.position, v2.position, 0.5);
+			vertex.tangent = tire::algebra::normalize(tire::algebra::mix(v1.tangent, v2.tangent, 0.5));
+			vertex.normal = tire::algebra::normalize(tire::algebra::mix(v1.normal, v2.normal, 0.5));
 			vertex.texCoord = 0.5 * v1.texCoord + 0.5 * v2.texCoord;
 			return vertex;
 		}

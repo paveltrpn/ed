@@ -14,7 +14,7 @@ using namespace generator;
 
 
 
-static const gml::dvec3 teapotData[32][4][4] = {
+static const tire::algebra::vector<double, 3> teapotData[32][4][4] = {
 {
 	{{ 1.40, 0.00, 2.40}, { 1.40,-0.78, 2.40}, { 0.78,-1.40, 2.40}, { 0.00,-1.40, 2.40}},
 	{{ 1.34, 0.00, 2.53}, { 1.34,-0.75, 2.53}, { 0.75,-1.34, 2.53}, { 0.00,-1.34, 2.53}},
@@ -182,7 +182,7 @@ static const gml::dvec3 teapotData[32][4][4] = {
 TeapotMesh::Triangles::Triangles(const TeapotMesh& mesh) noexcept :
 	mMesh{&mesh},
 	mIndex{0},
-	mPatchMesh{std::make_shared<BezierMesh<4, 4>>(teapotData[0], gml::ivec2{mesh.mSegments, mesh.mSegments})},
+	mPatchMesh{std::make_shared<BezierMesh<4, 4>>(teapotData[0], tire::algebra::vector<int, 2>{mesh.mSegments, mesh.mSegments})},
 	mTriangles{mPatchMesh->triangles()}
 { }
 
@@ -220,7 +220,7 @@ void TeapotMesh::Triangles::next()
 
 		if (!done()) {
 			mPatchMesh = std::make_shared<BezierMesh<4, 4>>(
-				teapotData[mIndex], gml::ivec2{mMesh->mSegments, mMesh->mSegments}
+				teapotData[mIndex], tire::algebra::vector<int, 2>{mMesh->mSegments, mMesh->mSegments}
 			);
 
 			mTriangles = mPatchMesh->triangles();
@@ -232,7 +232,7 @@ void TeapotMesh::Triangles::next()
 TeapotMesh::Vertices::Vertices(const TeapotMesh& mesh) noexcept :
 	mMesh{&mesh},
 	mIndex{0},
-	mPatchMesh{std::make_shared<BezierMesh<4, 4>>(teapotData[0], gml::ivec2{mesh.mSegments, mesh.mSegments})},
+	mPatchMesh{std::make_shared<BezierMesh<4, 4>>(teapotData[0], tire::algebra::vector<int, 2>{mesh.mSegments, mesh.mSegments})},
 	mVertices{mPatchMesh->vertices()}
 {
 
@@ -260,7 +260,7 @@ void TeapotMesh::Vertices::next()
 
 		if (!done()) {
 			mPatchMesh = std::make_shared<BezierMesh<4, 4>>(
-				teapotData[mIndex], gml::ivec2{mMesh->mSegments, mMesh->mSegments}
+				teapotData[mIndex], tire::algebra::vector<int, 2>{mMesh->mSegments, mMesh->mSegments}
 			);
 
 			mVertices = mPatchMesh->vertices();

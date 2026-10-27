@@ -18,7 +18,7 @@ static const double d = std::sqrt(1.0 + a * a);
 static const double x = 1.0 / d;
 static const double y = a / d;
 
-static const std::array<gml::dvec3, 12> vertices {{
+static const std::array<tire::algebra::vector<double, 3>, 12> vertices {{
 	{-x, y, 0.0},
 	{x, y, 0.0},
 	{-x, -y, 0.0},
@@ -34,7 +34,7 @@ static const std::array<gml::dvec3, 12> vertices {{
 }};
 
 
-static const std::array<gml::ivec3, 20> triangles{{
+static const std::array<tire::algebra::vector<int, 3>, 20> triangles{{
 	{0,  11, 5},
 	{0,  5,  1},
 	{0,  1,  7},
