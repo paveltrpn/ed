@@ -1,6 +1,6 @@
 #pragma once
 
-#include "algebra/vector4.h"
+#include "algebra/vector3.h"
 
 namespace tire {
 
@@ -11,7 +11,7 @@ namespace tire {
 struct SimpleMaterial {
     SimpleMaterial() = default;
 
-    SimpleMaterial( algebra::vector4f baseColor );
+    SimpleMaterial( algebra::vector3f baseColor, float transparancy );
 
     SimpleMaterial( const SimpleMaterial &other ) = default;
     SimpleMaterial( SimpleMaterial &&other ) = default;
@@ -22,7 +22,8 @@ struct SimpleMaterial {
     virtual ~SimpleMaterial() = default;
 
 private:
-    algebra::vector4f _baseColor{};
+    algebra::vector3f _baseColor{ 1.0f, 1.0f, 1.0f };
+    float _transparancy{ 1.0f };
 };
 
 }  // namespace tire
