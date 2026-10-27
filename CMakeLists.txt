@@ -235,6 +235,15 @@ target_compile_options(io PRIVATE "${CXX_STANDART}")
 target_link_libraries(io log uv rt_std)
 
 # ================================
+# Module dsbtt
+# ================================
+file(GLOB MOD_DSBTT_SRC "src/dsbtt/*.cpp" "src/dsbtt/*.h")
+add_library(dsbtt ${MOD_DSBTT_SRC})
+target_include_directories(dsbtt PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_compile_options(dsbtt PRIVATE "${CXX_STANDART}")
+target_link_libraries(dsbtt log uv rt_std)
+
+# ================================
 # tire raytracer executable
 # ================================
 set(TIRE_RAYTRACER_EXE rt)
@@ -246,4 +255,5 @@ target_link_libraries(${TIRE_RAYTRACER_EXE}
     log
     rt_std
     io
+    dsbtt
 )
