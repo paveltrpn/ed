@@ -10,10 +10,10 @@ template <typename T>
 concept Algebraic = std::integral<T> || std::floating_point<T>;
 
 template <typename T>
-concept SignedIntegral = std::integral<T> && std::signed_integral<T>;
+concept SignedIntegral = std::integral<T>&& std::signed_integral<T>;
 
 template <typename T>
-concept UnsignedIntegral = std::integral<T> && std::unsigned_integral<T>;
+concept UnsignedIntegral = std::integral<T>&& std::unsigned_integral<T>;
 
 template <auto N>
 concept Positive = ( N > 0 );

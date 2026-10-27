@@ -15,34 +15,27 @@ namespace tire::algebra {
 // ============================================================================
 
 template <typename T>
-    requires Algebraic<T>
-struct vector2 final {
+requires Algebraic<T> struct vector2 final {
     using value_type = T;
     using self = vector2<value_type>;
 
     vector2() = default;
 
-    vector2( value_type x, value_type y ) : _data{ x, y } {}
+    vector2( value_type x, value_type y )
+        : _data{ x, y } {}
 
-    vector2( const std::array<value_type, 2>& arr ) : _data{ arr[0], arr[1] } {}
+    vector2( const std::array<value_type, 2>& arr )
+        : _data{ arr[0], arr[1] } {}
 
     vector2( const self& rhs ) = default;
 
-    auto x() -> value_type {
-        return _data[0];
-    }
+    auto x() -> value_type { return _data[0]; }
 
-    auto y() -> value_type {
-        return _data[1];
-    }
+    auto y() -> value_type { return _data[1]; }
 
-    auto plus( const self& b ) -> void {
-        _data += b._data;
-    }
+    auto plus( const self& b ) -> void { _data += b._data; }
 
-    auto minus( const self& b ) -> void {
-        _data -= b._data;
-    }
+    auto minus( const self& b ) -> void { _data -= b._data; }
 
     template <typename U>
     auto scaleSelf( U factor ) -> void {
@@ -57,13 +50,9 @@ struct vector2 final {
         return { value_type( x ), value_type( y ) };
     }
 
-    auto dot( const self& b ) const -> value_type {
-        return algebra::dot( _data, b._data );
-    }
+    auto dot( const self& b ) const -> value_type { return algebra::dot( _data, b._data ); }
 
-    auto sqLength() const -> value_type {
-        return dot( *this );
-    }
+    auto sqLength() const -> value_type { return dot( *this ); }
 
     auto length() -> value_type const {
         // TODO: call proper square root function for float and double
@@ -100,13 +89,9 @@ struct vector2 final {
         return *this;
     }
 
-    auto data() -> value_type* {
-        return &_data[0];
-    }
+    auto data() -> value_type* { return &_data[0]; }
 
-    auto data() const -> const value_type* {
-        return &_data[0];
-    }
+    auto data() const -> const value_type* { return &_data[0]; }
 
 private:
     vector<value_type, 2> _data{};

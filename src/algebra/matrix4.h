@@ -52,33 +52,19 @@ struct matrix4 final {
         return data()[index];
     }
 
-    [[nodiscard]] auto size() const -> size_t {
-        return 16;
-    }
+    [[nodiscard]] auto size() const -> size_t { return 16; }
 
-    [[nodiscard]] auto data() -> pointer {
-        return &_data[0][0];
-    }
+    [[nodiscard]] auto data() -> pointer { return &_data[0][0]; }
 
-    [[nodiscard]] auto data() const -> const_pointer {
-        return &_data[0][0];
-    }
+    [[nodiscard]] auto data() const -> const_pointer { return &_data[0][0]; }
 
-    auto zero() -> void {
-        _data = matrix<value_type, 4, 4>{};
-    }
+    auto zero() -> void { _data = matrix<value_type, 4, 4>{}; }
 
-    auto idtt() -> void {
-        _data = matrix<value_type, 4, 4>{ value_type{ 1 } };
-    }
+    auto idtt() -> void { _data = matrix<value_type, 4, 4>{ value_type{ 1 } }; }
 
-    [[nodiscard]] auto transpose() const -> self {
-        return self{ algebra::transpose( _data ) };
-    }
+    [[nodiscard]] auto transpose() const -> self { return self{ algebra::transpose( _data ) }; }
 
-    auto transpose_self() -> void {
-        _data = algebra::transpose( _data );
-    }
+    auto transpose_self() -> void { _data = algebra::transpose( _data ); }
 
     auto multiply( const self& rhs ) -> void {
         /*
@@ -168,9 +154,7 @@ struct matrix4 final {
     }
 
     // Full 4x4 determinant via cofactor expansion along row 0.
-    [[nodiscard]] auto determinant() const -> value_type {
-        return algebra::determinant( _data );
-    }
+    [[nodiscard]] auto determinant() const -> value_type { return algebra::determinant( _data ); }
 
     // Angles in radians. Column-major equivalent of the former row-major
     // Rz(yaw)*Rx(pitch)*Rz(roll) composition; transposing flips application
@@ -573,7 +557,8 @@ struct matrix4 final {
     }
 
 private:
-    explicit matrix4( const matrix<value_type, 4, 4>& data ) : _data{ data } {}
+    explicit matrix4( const matrix<value_type, 4, 4>& data )
+        : _data{ data } {}
 
     matrix<value_type, 4, 4> _data{};
 };

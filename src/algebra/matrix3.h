@@ -16,8 +16,7 @@ namespace tire::algebra {
 // ============================================================================
 
 template <typename T>
-    requires Algebraic<T>
-struct matrix3 final {
+requires Algebraic<T> struct matrix3 final {
     using value_type = T;
     using self = matrix3<value_type>;
     using reference = value_type&;
@@ -25,9 +24,11 @@ struct matrix3 final {
     using pointer = value_type*;
     using const_pointer = const value_type*;
 
-    matrix3() : _data{ value_type{ 1 } } {}
+    matrix3()
+        : _data{ value_type{ 1 } } {}
 
-    matrix3( std::initializer_list<value_type> list ) : _data{ value_type{ 0 } } {
+    matrix3( std::initializer_list<value_type> list )
+        : _data{ value_type{ 0 } } {
         size_t i = 0;
         for ( const auto e : list ) {
             data()[i] = e;
@@ -35,46 +36,26 @@ struct matrix3 final {
         }
     }
 
-    [[nodiscard]] auto operator[]( size_t index ) -> reference {
-        return data()[index];
-    }
+    [[nodiscard]] auto operator[]( size_t index ) -> reference { return data()[index]; }
 
-    [[nodiscard]] auto operator[]( size_t index ) const -> const_reference {
-        return data()[index];
-    }
+    [[nodiscard]] auto operator[]( size_t index ) const -> const_reference { return data()[index]; }
 
-    [[nodiscard]] auto size() const -> size_t {
-        return 9;
-    }
+    [[nodiscard]] auto size() const -> size_t { return 9; }
 
-    [[nodiscard]] auto data() -> pointer {
-        return &_data[0][0];
-    }
+    [[nodiscard]] auto data() -> pointer { return &_data[0][0]; }
 
-    [[nodiscard]] auto data() const -> const_pointer {
-        return &_data[0][0];
-    }
+    [[nodiscard]] auto data() const -> const_pointer { return &_data[0][0]; }
 
-    auto zero() -> void {
-        _data = matrix<value_type, 3, 3>{};
-    }
+    auto zero() -> void { _data = matrix<value_type, 3, 3>{}; }
 
-    auto idtt() -> void {
-        _data = matrix<value_type, 3, 3>{ value_type{ 1 } };
-    }
+    auto idtt() -> void { _data = matrix<value_type, 3, 3>{ value_type{ 1 } }; }
 
     // Storage convention: row-major, data()[i*3 + j] is row i, column j.
-    [[nodiscard]] auto transpose() -> self {
-        return self{ algebra::transpose( _data ) };
-    }
+    [[nodiscard]] auto transpose() -> self { return self{ algebra::transpose( _data ) }; }
 
-    auto transposeSelf() -> void {
-        _data = algebra::transpose( _data );
-    }
+    auto transposeSelf() -> void { _data = algebra::transpose( _data ); }
 
-    auto multiply( const self& rhs ) -> void {
-        _data = rhs._data * _data;
-    }
+    auto multiply( const self& rhs ) -> void { _data = rhs._data * _data; }
 
     auto operator*( const self& rhs ) const -> self {
         auto tmp{ *this };
@@ -89,9 +70,7 @@ struct matrix3 final {
     }
 
     // NOTE: LLM generated.
-    [[nodiscard]] auto determinant() -> value_type {
-        return algebra::determinant( _data );
-    }
+    [[nodiscard]] auto determinant() -> value_type { return algebra::determinant( _data ); }
 
     auto rotation( value_type yaw, value_type pitch, value_type roll ) -> void {
         auto siny = std::sin( yaw );
@@ -115,7 +94,8 @@ struct matrix3 final {
     }
 
 private:
-    explicit matrix3( const matrix<value_type, 3, 3>& data ) : _data{ data } {}
+    explicit matrix3( const matrix<value_type, 3, 3>& data )
+        : _data{ data } {}
 
     matrix<value_type, 3, 3> _data;
 };

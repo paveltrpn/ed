@@ -18,16 +18,17 @@ namespace tire::algebra {
 // ============================================================================
 
 template <typename T>
-    requires Algebraic<T>
-struct vector4 final {
+requires Algebraic<T> struct vector4 final {
     using value_type = T;
     using self = vector4<value_type>;
 
     vector4() = default;
 
-    vector4( value_type x, value_type y, value_type z, value_type w ) : _data{ x, y, z, w } {}
+    vector4( value_type x, value_type y, value_type z, value_type w )
+        : _data{ x, y, z, w } {}
 
-    vector4( const std::array<value_type, 4>& arr ) : _data{ arr[0], arr[1], arr[2], arr[3] } {}
+    vector4( const std::array<value_type, 4>& arr )
+        : _data{ arr[0], arr[1], arr[2], arr[3] } {}
 
     vector4( const std::array<value_type, 3>& arr, value_type w = 0.0 )
         : _data{ arr[0], arr[1], arr[2], w } {}
@@ -62,29 +63,17 @@ struct vector4 final {
 
     ~vector4() = default;
 
-    auto x() const -> value_type {
-        return _data[0];
-    }
+    auto x() const -> value_type { return _data[0]; }
 
-    auto y() const -> value_type {
-        return _data[1];
-    }
+    auto y() const -> value_type { return _data[1]; }
 
-    auto z() const -> value_type {
-        return _data[2];
-    }
+    auto z() const -> value_type { return _data[2]; }
 
-    auto w() const -> value_type {
-        return _data[3];
-    }
+    auto w() const -> value_type { return _data[3]; }
 
-    auto plus( const self& b ) -> void {
-        _data += b._data;
-    }
+    auto plus( const self& b ) -> void { _data += b._data; }
 
-    auto minus( const self& b ) -> void {
-        _data -= b._data;
-    }
+    auto minus( const self& b ) -> void { _data -= b._data; }
 
     template <typename U>
     auto scaleSelf( U factor ) -> void {
@@ -103,13 +92,9 @@ struct vector4 final {
         return { value_type( x ), value_type( y ), value_type( z ), value_type( w ) };
     }
 
-    auto dot( const self& b ) const -> value_type {
-        return algebra::dot( _data, b._data );
-    }
+    auto dot( const self& b ) const -> value_type { return algebra::dot( _data, b._data ); }
 
-    auto sqLength() const -> value_type {
-        return dot( *this );
-    }
+    auto sqLength() const -> value_type { return dot( *this ); }
 
     auto length() -> value_type const {
         // TODO: call proper square root function for float and double
@@ -124,13 +109,9 @@ struct vector4 final {
         }
     }
 
-    auto operator[]( size_t index ) -> value_type& {
-        return _data[static_cast<int>( index )];
-    }
+    auto operator[]( size_t index ) -> value_type& { return _data[static_cast<int>( index )]; }
 
-    auto operator[]( size_t index ) const -> const value_type& {
-        return _data[static_cast<int>( index )];
-    }
+    auto operator[]( size_t index ) const -> const value_type& { return _data[static_cast<int>( index )]; }
 
     friend auto operator+( const self& lhs, const self& rhs ) -> self {
         auto rt = lhs;
@@ -154,13 +135,9 @@ struct vector4 final {
         return *this;
     }
 
-    auto data() -> value_type* {
-        return &_data[0];
-    }
+    auto data() -> value_type* { return &_data[0]; }
 
-    auto data() const -> const value_type* {
-        return &_data[0];
-    }
+    auto data() const -> const value_type* { return &_data[0]; }
 
     // std::get overload for structured binding vector4 types
     template <size_t I>
@@ -211,8 +188,7 @@ struct tuple_size<tire::algebra::vector4d> : std::integral_constant<size_t, 4> {
 // ============================================================================
 
 template <size_t I, typename T>
-    requires tire::algebra::Algebraic<T>
-struct tuple_element<I, tire::algebra::vector4<T>> {
+requires tire::algebra::Algebraic<T> struct tuple_element<I, tire::algebra::vector4<T>> {
     using type = T;
 };
 

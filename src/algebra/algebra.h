@@ -1,7 +1,5 @@
-// Copyright 2015 Markus Ilmola
+// Portions of this code belongs to GML linear algebra library by Markus Ilmola.
 // Distributed under the Boost Software License, Version 1.0.
-// (See accompanying file LICENSE.txt or copy at
-// http://www.boost.org/LICENSE_1_0.txt)
 
 #pragma once
 
