@@ -921,8 +921,6 @@ requires SignedIntegral<TI>&& std::floating_point<TF>&& Positive<N> auto packSno
 
 /**
  * Pack a linear srgb color value to (non-linear) fixed-point.
- * @tparam TI Must be an unsigned integral type.
- * @tparam TF Must be a floating point type.
  */
 template <typename TI, typename TF>
 requires UnsignedIntegral<TI>&& std::floating_point<TF> auto packSrgb( const vector<TF, 3>& v ) -> vector<TI, 3> {
@@ -945,8 +943,6 @@ requires UnsignedIntegral<TI>&& std::floating_point<TF> auto packSrgb( const vec
 /**
  * Pack a linear srgba color value to (non-linear) fixed-point.
  * Alpha is unpacked as is and is not delinearized.
- * @tparam TI Must be an unsigned integral type.
- * @tparam TF Must be a floating point type.
  */
 template <typename TI, typename TF>
 requires UnsignedIntegral<TI>&& std::floating_point<TF> auto packSrgba( const vector<TF, 4>& v ) -> vector<TI, 4> {
@@ -956,8 +952,6 @@ requires UnsignedIntegral<TI>&& std::floating_point<TF> auto packSrgba( const ve
 
 /**
  * Unpack a linear srgb color value from (non-linear) fixed-point.
- * @tparam TF Must be a floating point type.
- * @tparam TI Must be an unsigned integral type.
  */
 template <typename TF, typename TI>
 requires std::floating_point<TF>&& UnsignedIntegral<TI> auto unpackSrgb( const vector<TI, 3>& v ) -> vector<TF, 3> {
@@ -975,8 +969,6 @@ requires std::floating_point<TF>&& UnsignedIntegral<TI> auto unpackSrgb( const v
 /**
  * Unpack a linear srgb color value from (non-linear) fixed-point.
  * Alpha is unpacked as is and is not linearized.
- * @tparam TF Must be a floating point type.
- * @tparam TI Must be an unsigned integral type.
  */
 template <typename TF, typename TI>
 requires std::floating_point<TF>&& UnsignedIntegral<TI> auto unpackSrgba( const vector<TI, 4>& v ) -> vector<TF, 4> {
