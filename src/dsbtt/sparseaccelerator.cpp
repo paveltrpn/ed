@@ -8,44 +8,50 @@
 
 #include "sparseaccelerator.h"
 
-inline int sibling( int node ) {
+inline auto sibling( int node ) -> int {
     return node + ( ( node & 1 ) << 1 ) - 1;
 }
 
 SparseAccelerator::SparseAccelerator( Bvh& bvh )
-    : bvh( bvh ) {
+    : _bvh{ bvh } {
 }
 
-const Triangle* SparseAccelerator::trace( Ray& ray ) const {
-    const Triangle* nearest = 0;
+auto SparseAccelerator::trace( Ray& ray ) const -> const Triangle* {
+    const Triangle* nearest{};
 
-    const Triangle* triangles = bvh.getTriangles();
-    const Bvh::Node* nodes = bvh.getNodes();
+    const auto* triangles{ _bvh.triangles() };
+    const auto* nodes{ _bvh.nodes() };
 
-    unsigned levelIndex = 0;
-    unsigned node = 0;
+    unsigned levelIndex{ 0 };
+    unsigned node{ 0 };
 
     do {
-        const Bvh::Node& n = nodes[node];
+        const auto& n{ nodes[node] };
 
-        if ( !n.kind ) {
-            for ( unsigned i = n.first; i < n.last; ++i ) {
-                if ( triangles[i].intersect( ray ) ) nearest = &triangles[i];
+        if ( !n._kind ) {
+            for ( size_t i{ n._first }; i < n._last; ++i ) {
+                if ( triangles[i].intersect( ray ) ) {
+                    nearest = &triangles[i];
+                }
             }
         } else {
-            float maxT = ray.maxT;
+            const auto maxT{ ray._maxT };
 
-            float t0 = n.left.intersect( ray );
-            float t1 = n.right.intersect( ray );
+            const auto t0{ n._left.intersect( ray ) };
+            const auto t1{ n._right.intersect( ray ) };
 
             if ( t0 != maxT || t1 != maxT ) {
                 levelIndex += levelIndex;
                 if ( t0 < t1 ) {
-                    node = n.first;
-                    if ( t1 == maxT ) ++levelIndex;
+                    node = n._first;
+                    if ( t1 == maxT ) {
+                        ++levelIndex;
+                    }
                 } else {
-                    node = n.last;
-                    if ( t0 == maxT ) ++levelIndex;
+                    node = n._last;
+                    if ( t0 == maxT ) {
+                        ++levelIndex;
+                    }
                 }
                 continue;
             }
@@ -54,7 +60,7 @@ const Triangle* SparseAccelerator::trace( Ray& ray ) const {
         ++levelIndex;
 
         while ( ( levelIndex & 1 ) == 0 ) {
-            node = nodes[node].parent;
+            node = nodes[node]._parent;
             levelIndex >>= 1;
         }
 

@@ -9,25 +9,31 @@
 #ifndef tracer_random_h
 #define tracer_random_h
 
+// ============================================================================
+// ================================== Random ==================================
+// ============================================================================
 class Random {
 private:
-    unsigned int w;
-    unsigned int z;
+    unsigned int _w;
+    unsigned int _z;
 
 public:
     Random( int seed ) {
-        w = seed + 1;
-        z = seed * seed + seed + 2;
+        _w = seed + 1;
+        _z = seed * seed + seed + 2;
     }
 
-    int nextInt() {
-        z = 36969 * ( z & 65535 ) + ( z >> 16 );
-        w = 18000 * ( w & 65535 ) + ( w >> 16 );
+    auto nextInt() -> int {
+        _z = 36969 * ( _z & 65535 ) + ( _z >> 16 );
+        _w = 18000 * ( _w & 65535 ) + ( _w >> 16 );
 
-        return ( z << 16 ) + w;
+        return ( _z << 16 ) + _w;
     }
 
-    float nextFloat() { return ( nextInt() & 0xffff ) * ( 1.0f / 0xffff ); }
+    auto nextFloat() -> float {
+        //
+        return ( nextInt() & 0xffff ) * ( 1.0f / 0xffff );
+    }
 };
 
 #endif

@@ -135,12 +135,12 @@ int main( int argc, const char* argv[] ) {
                 for ( int sx = 0; sx < samplesRoot; ++sx ) {
                     Tracer::HitPoint h = hitPoints[currentHitPoint++];
 
-                    if ( !h.hit ) {
+                    if ( !h._hit ) {
                         c += 1.0f;
                         continue;
                     }
 
-                    aoRays += Tracer::aoSamplesRoot * Tracer::aoSamplesRoot;
+                    aoRays += Tracer::_aoSamplesRoot * Tracer::_aoSamplesRoot;
                     c += tracer.sampleAO( h );
                 }
             }

@@ -11,44 +11,58 @@
 
 #include "ray.h"
 
+// ============================================================================
+// ================================= Triangle =================================
+// ============================================================================
 struct Triangle {
-    tire::algebra::vector<float, 3> p0, p1, p2;
-    tire::algebra::vector<float, 3> n;
-    float padding[4];
+    tire::algebra::vector<float, 3> _p0, _p1, _p2;
+    tire::algebra::vector<float, 3> _n;
+    float _padding[4];
 
-    tire::algebra::vector<float, 3> center() const { return ( p0 + p1 + p2 ) * ( 1.0f / 3.0f ); }
+    auto center() const -> tire::algebra::vector<float, 3> {
+        //
+        return ( _p0 + _p1 + _p2 ) * ( 1.0f / 3.0f );
+    }
 
-    inline bool intersect( Ray& ray ) const {
-        const float epsilon = 1e-6f;
+    inline auto intersect( Ray& ray ) const -> bool {
+        const auto epsilon{ 1e-6f };
 
-        tire::algebra::vector<float, 3> d = ray.dir;
-        tire::algebra::vector<float, 3> p = ray.origin;
+        const auto d{ ray._dir };
+        const auto p{ ray._origin };
 
-        tire::algebra::vector<float, 3> e1 = dsbtt::subtract( p1, p0 );
-        tire::algebra::vector<float, 3> e2 = dsbtt::subtract( p2, p0 );
+        const auto e1{ dsbtt::subtract( _p1, _p0 ) };
+        const auto e2{ dsbtt::subtract( _p2, _p0 ) };
 
-        tire::algebra::vector<float, 3> n = dsbtt::cross( e1, e2 );
-        float s = -dsbtt::dot( d, n );
+        const auto n{ dsbtt::cross( e1, e2 ) };
+        auto s{ -dsbtt::dot( d, n ) };
 
-        if ( std::fabs( s ) < epsilon ) return false;
+        if ( std::fabs( s ) < epsilon ) {
+            return false;
+        }
 
         s = 1.0f / s;
 
-        tire::algebra::vector<float, 3> r = dsbtt::subtract( p, p0 );
-        float t = dsbtt::dot( r, n ) * s;
+        const auto r{ dsbtt::subtract( p, _p0 ) };
+        const auto t{ dsbtt::dot( r, n ) * s };
 
-        if ( t <= ray.minT || t >= ray.maxT ) return false;
+        if ( t <= ray._minT || t >= ray._maxT ) {
+            return false;
+        }
 
-        tire::algebra::vector<float, 3> q = dsbtt::negate( dsbtt::cross( d, r ) );
-        float v = dsbtt::dot( q, e2 ) * s;
+        const auto q{ dsbtt::negate( dsbtt::cross( d, r ) ) };
+        const auto v{ dsbtt::dot( q, e2 ) * s };
 
-        if ( v < 0.0f ) return false;
+        if ( v < 0.0f ) {
+            return false;
+        }
 
-        float w = -dsbtt::dot( e1, q ) * s;
+        const auto w{ -dsbtt::dot( e1, q ) * s };
 
-        if ( w < 0.0f || v + w > 1.0f ) return false;
+        if ( w < 0.0f || v + w > 1.0f ) {
+            return false;
+        }
 
-        ray.maxT = t;
+        ray._maxT = t;
         return true;
     }
 };

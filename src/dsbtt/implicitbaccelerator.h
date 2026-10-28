@@ -12,14 +12,17 @@
 #include "bvh.h"
 #include "rayaccelerator.h"
 
+// ============================================================================
+// =========================== ImplicitBAccelerator ===========================
+// ============================================================================
 class ImplicitBAccelerator : public RayAccelerator {
 private:
-    Bvh& bvh;
+    Bvh& _bvh;
 
 public:
     ImplicitBAccelerator( Bvh& bvh );
 
-    virtual const Triangle* trace( Ray& ray ) const;
+    virtual auto trace( Ray& ray ) const -> const Triangle*;
 };
 
 #endif

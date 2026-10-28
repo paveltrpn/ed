@@ -13,6 +13,9 @@
 #include <cstdio>
 #include <xmmintrin.h>
 
+// ============================================================================
+// ============================= AlignedAllocator =============================
+// ============================================================================
 template <typename T, std::size_t Alignment>
 class AlignedAllocator {
 public:
@@ -24,6 +27,9 @@ public:
     typedef std::size_t size_type;
     typedef std::ptrdiff_t difference_type;
 
+// ============================================================================
+// ================================== rebind ==================================
+// ============================================================================
     template <typename U>
     struct rebind {
         typedef AlignedAllocator<U, Alignment> other;
@@ -36,43 +42,67 @@ public:
     template <typename U>
     AlignedAllocator( const AlignedAllocator<U, Alignment>& ) {}
 
-    std::size_t max_size() const {
+    auto max_size() const -> std::size_t {
+        //
         return ( static_cast<std::size_t>( 0 ) - static_cast<std::size_t>( 1 ) ) / sizeof( T );
     }
 
-    T* address( T& r ) const { return &r; }
-
-    const T* address( const T& s ) const { return &s; }
-
-    void construct( T* const p, const T& t ) const {
-        void* const pv = static_cast<void*>( p );
-        new ( pv ) T( t );
+    auto address( T& r ) const -> T* {
+        //
+        return &r;
     }
 
-    void destroy( T* const p ) const { p->~T(); }
+    auto address( const T& s ) const -> const T* {
+        //
+        return &s;
+    }
 
-    bool operator==( const AlignedAllocator& other ) const { return true; }
+    auto construct( T* const p, const T& t ) const -> void {
+        auto* const pv{ static_cast<void*>( p ) };
+        new ( pv ) T{ t };
+    }
 
-    bool operator!=( const AlignedAllocator& other ) const { return !( *this == other ); }
+    auto destroy( T* const p ) const -> void {
+        //
+        p->~T();
+    }
 
-    T* allocate( const std::size_t n ) const {
+    auto operator==( const AlignedAllocator& other ) const -> bool {
+        //
+        return true;
+    }
+
+    auto operator!=( const AlignedAllocator& other ) const -> bool {
+        //
+        return !( *this == other );
+    }
+
+    auto allocate( const std::size_t n ) const -> T* {
         if ( n == 0 ) {
             return NULL;
         }
 
-        if ( n > max_size() ) throw std::bad_alloc();
+        if ( n > max_size() ) {
+            throw std::bad_alloc();
+        }
 
-        void* const pv = _mm_malloc( n * sizeof( T ), Alignment );
+        auto* const pv{ _mm_malloc( n * sizeof( T ), Alignment ) };
 
-        if ( pv == NULL ) throw std::bad_alloc();
+        if ( pv == NULL ) {
+            throw std::bad_alloc();
+        }
 
         return static_cast<T*>( pv );
     }
 
-    void deallocate( T* const p, const std::size_t n ) const { _mm_free( p ); }
+    auto deallocate( T* const p, const std::size_t n ) const -> void {
+        //
+        _mm_free( p );
+    }
 
     template <typename U>
-    T* allocate( const std::size_t n, const U* ) const {
+    auto allocate( const std::size_t n, const U* ) const -> T* {
+        //
         return allocate( n );
     }
 };

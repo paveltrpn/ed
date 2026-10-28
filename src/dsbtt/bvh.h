@@ -13,40 +13,45 @@
 #include "aabb.h"
 #include "alignedallocator.h"
 
+// ============================================================================
+// =================================== Bvh ====================================
+// ============================================================================
+
 class Bvh {
 public:
     struct Node {
-        unsigned kind, parent;
-        unsigned first, last;
-        Aabb left, right;
+        unsigned _kind, _parent;
+        unsigned _first, _last;
+        Aabb _left, _right;
     };
 
 private:
-    unsigned depth;
-    Mesh& mesh;
-    std::vector<Node, AlignedAllocator<Node, 64>> nodes;
+    unsigned _depth;
+    Mesh& _mesh;
+    std::vector<Node, AlignedAllocator<Node, 64>> _nodes;
 
 public:
     Bvh( Mesh& mesh );
 
-    unsigned getDepth() const;
+    auto depth() const -> unsigned;
 
-    const Node* getNodes() const;
+    auto nodes() const -> const Node*;
 
-    const Triangle* getTriangles() const;
+    auto triangles() const -> const Triangle*;
 
-    void makeImplicit();
+    auto makeImplicit() -> void;
 
 private:
-    void buildImplicit( int node, Bvh::Node* implicitNodes, int depth, int levelIndex );
+    auto buildImplicit( int node, Bvh::Node* implicitNodes, int depth, int levelIndex ) -> void;
 
-    void build( const Aabb& bounds, unsigned node, unsigned first, unsigned last, Triangle* triangles, unsigned depth );
+    auto build( const Aabb& bounds, unsigned node, unsigned first, unsigned last, Triangle* triangles, unsigned depth )
+        -> void;
 
-    unsigned medianPartition( const Aabb& bounds, unsigned first, unsigned last, Triangle* triangles, unsigned depth,
-                              unsigned& kind );
+    auto medianPartition( const Aabb& bounds, unsigned first, unsigned last, Triangle* triangles, unsigned depth,
+                          unsigned& kind ) -> unsigned;
 
-    unsigned sahPartition( const Aabb& parentBounds, unsigned first, unsigned last, Triangle* triangles, unsigned depth,
-                           unsigned& kind );
+    auto sahPartition( const Aabb& parentBounds, unsigned first, unsigned last, Triangle* triangles, unsigned depth,
+                       unsigned& kind ) -> unsigned;
 };
 
 #endif

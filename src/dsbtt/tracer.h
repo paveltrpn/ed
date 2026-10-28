@@ -13,28 +13,34 @@
 #include "random.h"
 #include "rayaccelerator.h"
 
+// ============================================================================
+// ================================== Tracer ==================================
+// ============================================================================
 class Tracer {
 public:
-    static const int aoSamplesRoot = 4;
+    static const int _aoSamplesRoot{ 4 };
 
+// ============================================================================
+// ================================= HitPoint =================================
+// ============================================================================
     struct HitPoint {
-        bool hit;
-        tire::algebra::vector<float, 3> p;
-        tire::algebra::vector<float, 3> n;
-        float padding;
+        bool _hit;
+        tire::algebra::vector<float, 3> _p;
+        tire::algebra::vector<float, 3> _n;
+        float _padding;
     };
 
 private:
-    Random rnd;
-    Camera& camera;
-    RayAccelerator& accelerator;
+    Random _rnd;
+    Camera& _camera;
+    RayAccelerator& _accelerator;
 
 public:
     Tracer( Camera& camera, RayAccelerator& accelerator );
 
-    HitPoint samplePrimary( float px, float py );
+    auto samplePrimary( float px, float py ) -> HitPoint;
 
-    float sampleAO( const HitPoint& h );
+    auto sampleAO( const HitPoint& h ) -> float;
 };
 
 #endif

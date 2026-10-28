@@ -13,14 +13,17 @@
 #include "alignedallocator.h"
 #include <vector>
 
+// ============================================================================
+// =================================== Mesh ===================================
+// ============================================================================
 class Mesh {
 private:
-    std::vector<Triangle, AlignedAllocator<Triangle, 64>> triangles;
+    std::vector<Triangle, AlignedAllocator<Triangle, 64>> _triangles;
 
 public:
     Mesh( const char* filename, bool flipFaces );
 
-    std::vector<Triangle, AlignedAllocator<Triangle, 64>>& getTriangles();
+    auto triangles() -> std::vector<Triangle, AlignedAllocator<Triangle, 64>>&;
 };
 
 #endif

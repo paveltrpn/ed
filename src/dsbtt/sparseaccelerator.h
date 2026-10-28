@@ -12,14 +12,17 @@
 #include "bvh.h"
 #include "rayaccelerator.h"
 
+// ============================================================================
+// ============================ SparseAccelerator =============================
+// ============================================================================
 class SparseAccelerator : public RayAccelerator {
 private:
-    Bvh& bvh;
+    Bvh& _bvh;
 
 public:
     SparseAccelerator( Bvh& bvh );
 
-    virtual const Triangle* trace( Ray& ray ) const;
+    virtual auto trace( Ray& ray ) const -> const Triangle*;
 };
 
 #endif

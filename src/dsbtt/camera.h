@@ -11,18 +11,22 @@
 
 #include "ray.h"
 
+// ============================================================================
+// ================================== Camera ==================================
+// ============================================================================
 class Camera {
 private:
-    tire::algebra::vector<float, 3> origin;
-    tire::algebra::vector<float, 3> view;
-    tire::algebra::vector<float, 3> right;
-    tire::algebra::vector<float, 3> up;
+    tire::algebra::vector<float, 3> _origin;
+    tire::algebra::vector<float, 3> _view;
+    tire::algebra::vector<float, 3> _right;
+    tire::algebra::vector<float, 3> _up;
 
 public:
-    void lookAt( const tire::algebra::vector<float, 3>& origin, const tire::algebra::vector<float, 3>& target,
-                 const tire::algebra::vector<float, 3>& up, float fov, float near, float far, int width, int height );
+    auto lookAt( const tire::algebra::vector<float, 3>& origin, const tire::algebra::vector<float, 3>& target,
+                 const tire::algebra::vector<float, 3>& up, float fov, float near, float far, int width, int height )
+        -> void;
 
-    Ray generateRay( float px, float py ) const;
+    auto generateRay( float px, float py ) const -> Ray;
 };
 
 #endif

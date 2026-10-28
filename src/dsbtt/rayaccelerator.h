@@ -12,9 +12,12 @@
 #include "ray.h"
 #include "mesh.h"
 
+// ============================================================================
+// ============================== RayAccelerator ==============================
+// ============================================================================
 class RayAccelerator {
 public:
-    virtual const Triangle* trace( Ray& ray ) const = 0;
+    virtual auto trace( Ray& ray ) const -> const Triangle* = 0;
     virtual ~RayAccelerator() {}
 };
 

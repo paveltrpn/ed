@@ -8,42 +8,44 @@
 
 #include "implicitbaccelerator.h"
 
-inline unsigned sibling( unsigned levelIndex ) {
+inline auto sibling( unsigned levelIndex ) -> unsigned {
     return levelIndex + 1 - ( ( levelIndex & 1 ) << 1 );
 }
 
 ImplicitBAccelerator::ImplicitBAccelerator( Bvh& bvh )
-    : bvh( bvh ) {
-    bvh.makeImplicit();
+    : _bvh{ bvh } {
+    _bvh.makeImplicit();
 }
 
-const Triangle* ImplicitBAccelerator::trace( Ray& ray ) const {
-    const Triangle* nearest = 0;
+auto ImplicitBAccelerator::trace( Ray& ray ) const -> const Triangle* {
+    const Triangle* nearest{};
 
-    const Triangle* triangles = bvh.getTriangles();
-    const Bvh::Node* nodes = bvh.getNodes();
+    const auto* triangles{ _bvh.triangles() };
+    const auto* nodes{ _bvh.nodes() };
 
-    unsigned node = 1;
-    unsigned traversal = 0;
+    unsigned node{ 1 };
+    unsigned traversal{ 0 };
 
     for ( ;; ) {
-        const Bvh::Node& n = nodes[node - 1];
+        const auto& n{ nodes[node - 1] };
 
-        if ( !n.kind ) {
-            for ( unsigned i = n.first; i < n.last; ++i ) {
-                if ( triangles[i].intersect( ray ) ) nearest = &triangles[i];
+        if ( !n._kind ) {
+            for ( size_t i{ n._first }; i < n._last; ++i ) {
+                if ( triangles[i].intersect( ray ) ) {
+                    nearest = &triangles[i];
+                }
             }
         } else {
-            float maxT = ray.maxT;
+            const auto maxT{ ray._maxT };
 
-            float t0 = n.left.intersect( ray );
-            float t1 = n.right.intersect( ray );
+            const auto t0{ n._left.intersect( ray ) };
+            const auto t1{ n._right.intersect( ray ) };
 
-            int firsthit = t0 != maxT;
-            int lasthit = t1 != maxT;
+            const auto firsthit{ static_cast<int>( t0 != maxT ) };
+            const auto lasthit{ static_cast<int>( t1 != maxT ) };
 
             if ( firsthit | lasthit ) {
-                int single = firsthit ^ lasthit;
+                const auto single{ firsthit ^ lasthit };
                 node += node + ( t0 >= t1 );
                 traversal += traversal + single;
                 continue;
@@ -53,20 +55,24 @@ const Triangle* ImplicitBAccelerator::trace( Ray& ray ) const {
         ++traversal;
 
 #ifdef _WIN32
-        int up;
-        if ( !_BitScanForward( (unsigned long*)&up, traversal ) ) up = 0;
+        int up{};
+        if ( !_BitScanForward( reinterpret_cast<unsigned long*>( &up ), traversal ) ) {
+            up = 0;
+        }
 #else
-        int up = __builtin_ctz( traversal );
+        const auto up{ __builtin_ctz( traversal ) };
 #endif
 
         traversal >>= up;
         node >>= up;
 
-        unsigned level = node;
+        const auto level{ node };
 
         node = sibling( node );
 
-        if ( level <= 1 ) break;
+        if ( level <= 1 ) {
+            break;
+        }
     }
 
     return nearest;

@@ -8,27 +8,29 @@
 
 #include "camera.h"
 
-void Camera::lookAt( const tire::algebra::vector<float, 3>& origin, const tire::algebra::vector<float, 3>& target,
-                     const tire::algebra::vector<float, 3>& up, float fov, float near, float far, int width, int height ) {
-    tire::algebra::vector<float, 3> forward = tire::algebra::normalize( target - origin );
-    tire::algebra::vector<float, 3> right = tire::algebra::normalize( tire::algebra::cross( forward, up ) );
-    tire::algebra::vector<float, 3> cameraUp = tire::algebra::cross( right, forward );
+auto Camera::lookAt( const tire::algebra::vector<float, 3>& origin, const tire::algebra::vector<float, 3>& target,
+                     const tire::algebra::vector<float, 3>& up, float fov, float near, float far, int width, int height )
+    -> void {
+    const auto forward{ tire::algebra::normalize( target - origin ) };
+    const auto right{ tire::algebra::normalize( tire::algebra::cross( forward, up ) ) };
+    const auto cameraUp{ tire::algebra::cross( right, forward ) };
 
-    float aspect = (float)height / (float)width;
-    float imageExtentX = std::tan( tire::algebra::degToRad( 0.5f * fov ) );
-    float imageExtentY = std::tan( tire::algebra::degToRad( 0.5f * fov * aspect ) );
+    const auto aspect{ static_cast<float>( height ) / static_cast<float>( width ) };
+    const auto imageExtentX{ std::tan( tire::algebra::degToRad( 0.5f * fov ) ) };
+    const auto imageExtentY{ std::tan( tire::algebra::degToRad( 0.5f * fov * aspect ) ) };
 
-    this->origin = origin;
-    this->right = right * ( 2.0f / (float)width * imageExtentX );
-    this->up = cameraUp * ( -2.0f / (float)height * imageExtentY );
-    this->view = forward - right * imageExtentX + cameraUp * imageExtentY;
+    _origin = origin;
+    _right = right * ( 2.0f / static_cast<float>( width ) * imageExtentX );
+    _up = cameraUp * ( -2.0f / static_cast<float>( height ) * imageExtentY );
+    _view = forward - right * imageExtentX + cameraUp * imageExtentY;
 }
 
-Ray Camera::generateRay( float px, float py ) const {
-    tire::algebra::vector<float, 3> d =
-        dsbtt::normalize( dsbtt::add( dsbtt::add( view, dsbtt::scale( right, px ) ), dsbtt::scale( up, py ) ) );
-    const float* data = d.data();
+auto Camera::generateRay( float px, float py ) const -> Ray {
+    const auto d{
+        dsbtt::normalize( dsbtt::add( dsbtt::add( _view, dsbtt::scale( _right, px ) ), dsbtt::scale( _up, py ) ) )
+    };
+    const auto* data{ d.data() };
 
-    return { origin, d, tire::algebra::vector<float, 3>( 1.0f / data[0], 1.0f / data[1], 1.0f / data[2] ), 1e-3f,
+    return { _origin, d, tire::algebra::vector<float, 3>{ 1.0f / data[0], 1.0f / data[1], 1.0f / data[2] }, 1e-3f,
              1e+6 };
 }

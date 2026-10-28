@@ -9,204 +9,218 @@
 #include "bvh.h"
 #include <algorithm>
 
+// ============================================================================
+// ================================ Predicate =================================
+// ============================================================================
 struct Predicate {
-    unsigned axis;
+    unsigned _axis;
 
-    bool operator()( const Triangle& i, const Triangle& j ) const { return i.center()[axis] < j.center()[axis]; }
+    auto operator()( const Triangle& i, const Triangle& j ) const -> bool {
+        //
+        return i.center()[_axis] < j.center()[_axis];
+    }
 };
 
 Bvh::Bvh( Mesh& mesh )
-    : mesh( mesh ) {
-    depth = 0;
+    : _mesh{ mesh } {
+    _depth = 0;
 
-    Node root = { 0, 0xffffffff };
-    nodes.push_back( root );
+    Node root{ 0, 0xffffffff };
+    _nodes.push_back( root );
 
-    std::vector<Triangle, AlignedAllocator<Triangle, 64>>& triangles = mesh.getTriangles();
+    auto& triangles{ _mesh.triangles() };
 
-    Aabb bounds;
+    Aabb bounds{};
     bounds.reset();
 
-    for ( unsigned i = 0; i < (unsigned)triangles.size(); ++i ) {
+    for ( size_t i{ 0 }; i < triangles.size(); ++i ) {
         bounds.include( triangles[i] );
     }
 
-    build( bounds, 0, 0, (unsigned)triangles.size(), &triangles[0], 0 );
+    build( bounds, 0, 0, static_cast<unsigned>( triangles.size() ), &triangles[0], 0 );
 }
 
-unsigned Bvh::getDepth() const {
-    return depth;
+auto Bvh::depth() const -> unsigned {
+    return _depth;
 }
 
-const Bvh::Node* Bvh::getNodes() const {
-    return &nodes[0];
+auto Bvh::nodes() const -> const Bvh::Node* {
+    return &_nodes[0];
 }
 
-const Triangle* Bvh::getTriangles() const {
-    return &mesh.getTriangles()[0];
+auto Bvh::triangles() const -> const Triangle* {
+    return &_mesh.triangles()[0];
 }
 
-void Bvh::makeImplicit() {
-    std::vector<Bvh::Node, AlignedAllocator<Bvh::Node, 64>> implicitNodes;
-    implicitNodes.resize( ( 1 << ( depth + 1 ) ) - 1 );
+auto Bvh::makeImplicit() -> void {
+    std::vector<Bvh::Node, AlignedAllocator<Bvh::Node, 64>> implicitNodes{};
+    implicitNodes.resize( ( 1 << ( _depth + 1 ) ) - 1 );
 
     buildImplicit( 0, &implicitNodes[0], 0, 0 );
-    std::swap( nodes, implicitNodes );
+    std::swap( _nodes, implicitNodes );
 }
 
-void Bvh::buildImplicit( int node, Bvh::Node* implicitNodes, int depth, int levelIndex ) {
-    Node n = nodes[node];
+auto Bvh::buildImplicit( int node, Bvh::Node* implicitNodes, int depth, int levelIndex ) -> void {
+    auto n{ _nodes[node] };
 
-    n.parent = ( 1 << ( depth - 1 ) ) - 1 + ( levelIndex >> 1 );
+    n._parent = ( 1 << ( depth - 1 ) ) - 1 + ( levelIndex >> 1 );
 
-    if ( n.kind ) {
-        n.first = ( 1 << ( depth + 1 ) ) - 1 + ( levelIndex << 1 );
-        n.last = ( 1 << ( depth + 1 ) ) + ( levelIndex << 1 );
+    if ( n._kind ) {
+        n._first = ( 1 << ( depth + 1 ) ) - 1 + ( levelIndex << 1 );
+        n._last = ( 1 << ( depth + 1 ) ) + ( levelIndex << 1 );
     }
 
     implicitNodes[( 1 << depth ) - 1 + levelIndex] = n;
 
-    if ( n.kind ) {
-        buildImplicit( nodes[node].first, implicitNodes, depth + 1, levelIndex << 1 );
-        buildImplicit( nodes[node].last, implicitNodes, depth + 1, ( levelIndex << 1 ) + 1 );
+    if ( n._kind ) {
+        buildImplicit( _nodes[node]._first, implicitNodes, depth + 1, levelIndex << 1 );
+        buildImplicit( _nodes[node]._last, implicitNodes, depth + 1, ( levelIndex << 1 ) + 1 );
     }
 }
 
-void Bvh::build( const Aabb& bounds, unsigned node, unsigned first, unsigned last, Triangle* triangles,
-                 unsigned depth ) {
-    if ( this->depth < depth ) this->depth = depth;
+auto Bvh::build( const Aabb& bounds, unsigned node, unsigned first, unsigned last, Triangle* triangles, unsigned depth )
+    -> void {
+    if ( _depth < depth ) {
+        _depth = depth;
+    }
 
     if ( last - first < 8 ) {
-        nodes[node].first = first;
-        nodes[node].last = last;
+        _nodes[node]._first = first;
+        _nodes[node]._last = last;
         return;
     }
 
-    unsigned pivot;
+    unsigned pivot{};
 
     if ( depth > 8 ) {
-        pivot = medianPartition( bounds, first, last, triangles, depth, nodes[node].kind );
+        pivot = medianPartition( bounds, first, last, triangles, depth, _nodes[node]._kind );
     } else {
-        pivot = sahPartition( bounds, first, last, triangles, depth, nodes[node].kind );
+        pivot = sahPartition( bounds, first, last, triangles, depth, _nodes[node]._kind );
     }
 
     if ( pivot == 0xffffffff ) {
-        nodes[node].first = first;
-        nodes[node].last = last;
+        _nodes[node]._first = first;
+        _nodes[node]._last = last;
         return;
     }
 
-    unsigned left = (unsigned)nodes.size();
-    unsigned right = (unsigned)nodes.size() + 1;
+    const auto left{ static_cast<unsigned>( _nodes.size() ) };
+    const auto right{ static_cast<unsigned>( _nodes.size() + 1 ) };
 
-    Aabb leftBounds, rightBounds;
+    Aabb leftBounds{}, rightBounds{};
     leftBounds.reset();
     rightBounds.reset();
 
-    for ( unsigned i = first; i < pivot; ++i ) {
+    for ( size_t i{ first }; i < pivot; ++i ) {
         leftBounds.include( triangles[i] );
     }
 
-    for ( unsigned i = pivot; i < last; ++i ) {
+    for ( size_t i{ pivot }; i < last; ++i ) {
         rightBounds.include( triangles[i] );
     }
 
-    Node child = { 0, node };
-    nodes.push_back( child );
-    nodes.push_back( child );
+    Node child{ 0, node };
+    _nodes.push_back( child );
+    _nodes.push_back( child );
 
-    nodes[node].first = left;
-    nodes[node].last = right;
-    nodes[node].left = leftBounds;
-    nodes[node].right = rightBounds;
+    _nodes[node]._first = left;
+    _nodes[node]._last = right;
+    _nodes[node]._left = leftBounds;
+    _nodes[node]._right = rightBounds;
 
     build( leftBounds, left, first, pivot, triangles, depth + 1 );
     build( rightBounds, right, pivot, last, triangles, depth + 1 );
 }
 
-unsigned Bvh::medianPartition( const Aabb& bounds, unsigned first, unsigned last, Triangle* triangles, unsigned depth,
-                               unsigned& kind ) {
-    unsigned pivot = ( first + last ) / 2;
+auto Bvh::medianPartition( const Aabb& bounds, unsigned first, unsigned last, Triangle* triangles, unsigned depth,
+                           unsigned& kind ) -> unsigned {
+    const auto pivot{ ( first + last ) / 2 };
 
-    unsigned bestDim = bounds.largestAxis();
-    float bestSeparation = -1e+10f;
+    auto bestDim{ bounds.largestAxis() };
+    auto bestSeparation{ -1e+10f };
 
-    for ( unsigned dim = 0; dim < 3; ++dim ) {
-        Predicate predicate = { dim };
+    for ( size_t dim{ 0 }; dim < 3; ++dim ) {
+        Predicate predicate{ static_cast<unsigned>( dim ) };
         std::sort( triangles + first, triangles + last, predicate );
 
-        Aabb left, right;
+        Aabb left{}, right{};
         left.reset();
         right.reset();
 
-        for ( unsigned i = first; i < pivot; ++i ) left.include( triangles[i] );
+        for ( size_t i{ first }; i < pivot; ++i ) {
+            left.include( triangles[i] );
+        }
 
-        for ( unsigned i = pivot; i < last; ++i ) right.include( triangles[i] );
+        for ( size_t i{ pivot }; i < last; ++i ) {
+            right.include( triangles[i] );
+        }
 
-        float separation = right.center()[dim] - left.center()[dim];
+        const auto separation{ right.center()[dim] - left.center()[dim] };
 
         if ( separation > bestSeparation ) {
-            bestDim = dim;
+            bestDim = static_cast<unsigned>( dim );
             bestSeparation = separation;
         }
     }
 
     kind = bestDim + 1;
-    Predicate predicate = { bestDim };
+    Predicate predicate{ bestDim };
     std::sort( triangles + first, triangles + last, predicate );
     return pivot;
 }
 
-unsigned Bvh::sahPartition( const Aabb& parentBounds, unsigned first, unsigned last, Triangle* triangles,
-                            unsigned depth, unsigned& kind ) {
-    const float traversalCost = 2.0f;
-    const float intersectionCost = 1.0f;
+auto Bvh::sahPartition( const Aabb& parentBounds, unsigned first, unsigned last, Triangle* triangles, unsigned depth,
+                        unsigned& kind ) -> unsigned {
+    const auto traversalCost{ 2.0f };
+    const auto intersectionCost{ 1.0f };
 
-    static std::vector<float> accumulatedArea;
+    static std::vector<float> accumulatedArea{};
 
-    float divPsa = 1.0f / parentBounds.surfaceArea();
+    const auto divPsa{ 1.0f / parentBounds.surfaceArea() };
 
-    float bestSah = 1e+10f;
-    unsigned bestDim = 0xffffffff;
-    unsigned bestSplit = 0xffffffff;
+    auto bestSah{ 1e+10f };
+    auto bestDim{ 0xffffffff };
+    auto bestSplit{ 0xffffffff };
 
-    for ( unsigned dim = 0; dim < 3; ++dim ) {
-        Predicate predicate = { dim };
+    for ( size_t dim{ 0 }; dim < 3; ++dim ) {
+        Predicate predicate{ static_cast<unsigned>( dim ) };
         std::sort( triangles + first, triangles + last, predicate );
 
-        Aabb bounds;
+        Aabb bounds{};
         bounds.reset();
         accumulatedArea.resize( 0 );
 
-        for ( unsigned i = first; i < last - 1; ++i ) {
+        for ( size_t i{ first }; i < last - 1; ++i ) {
             bounds.include( triangles[i] );
             accumulatedArea.push_back( bounds.surfaceArea() );
         }
 
         bounds.reset();
 
-        for ( int i = (int)last - 1; i > (int)first; --i ) {
+        for ( size_t i{ last - 1 }; i > first; --i ) {
             bounds.include( triangles[i] );
 
-            float lsa = accumulatedArea[i - first - 1];
-            float rsa = bounds.surfaceArea();
+            const auto lsa{ accumulatedArea[i - first - 1] };
+            const auto rsa{ bounds.surfaceArea() };
 
-            float sah = traversalCost + intersectionCost * divPsa *             // Constant cost.
-                                            ( lsa * ( (float)( i - first ) ) +  // Left child.
-                                              rsa * ( (float)( last - i ) ) );  // Right child.
+            const auto sah{ traversalCost + intersectionCost * divPsa *  // Constant cost.
+                                ( lsa * static_cast<float>( i - first ) +  // Left child.
+                                  rsa * static_cast<float>( last - i ) ) };  // Right child.
 
             if ( sah < bestSah ) {
                 bestSah = sah;
-                bestSplit = i;
-                bestDim = dim;
+                bestSplit = static_cast<unsigned>( i );
+                bestDim = static_cast<unsigned>( dim );
             }
         }
     }
 
-    if ( bestSah > (float)( last - first ) * intersectionCost ) return 0xffffffff;
+    if ( bestSah > static_cast<float>( last - first ) * intersectionCost ) {
+        return 0xffffffff;
+    }
 
     kind = bestDim + 1;
-    Predicate predicate = { bestDim };
+    Predicate predicate{ bestDim };
     std::sort( triangles + first, triangles + last, predicate );
     return bestSplit;
 }

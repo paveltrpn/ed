@@ -25,7 +25,7 @@ Follow it and all will be ok.
 - No ternary operators, only explicit `if` statements.
 - Use maximum verbose lambda syntax.
 - Class declaration must preamble with 79-char three-line class preamble banners - commented quals sign line, class name
-  enclosed with equals signs line end enclosing equals signs line.
+  enclosed with equals signs line end enclosing equals signs line (do not use that pattern for nested classes), place empty line after preable.
 - Always use trailing return type syntax for functions and class methods only except for Q_INVOKABLE marked methods.
 
 - Do not use comment style with three slashes like "///", use two slashes or classic C lang comments "/* ... */"
@@ -34,3 +34,10 @@ Follow it and all will be ok.
 - Use `auto`, `const auto` (same with star or ref qualification) when appropriate. 
 - Prefer `const auto foo{0}` style initialization instead of assignment operator.
 - Prefer `size_t` type for counter in loops.
+- Always use c++ style casts! Deprecate c-style casts.
+
+- Prefer struct over class object declaration.
+- Never use private, protected or virtual inheritance.
+- Never use multiple inheritance, except inharitance only from multiple pure virtual bases (interfaces).
+
+- Prefer `#pragma once` guard over ifdefs.
