@@ -31,3 +31,6 @@ Follow it and all will be ok.
 - Do not use comment style with three slashes like "///", use two slashes or classic C lang comments "/* ... */"
 - Use curly brace (unicorn) initialization style.
 - If a class method placed in header file and it body occupy only one string - place a double slash "//" symbol at first line and next line must be a function body (for appropriate formatting with existing formatting rules))
+- Use `auto`, `const auto` (same with star or ref qualification) when appropriate. 
+- Prefer `const auto foo{0}` style initialization instead of assignment operator.
+- Prefer `size_t` type for counter in loops.

@@ -23,6 +23,7 @@ Tracer::HitPoint Tracer::samplePrimary( float px, float py ) {
     if ( ( tri = accelerator.trace( r ) ) != 0 ) {
         return { true, dsbtt::add( r.origin, dsbtt::scale( r.dir, r.maxT ) ), tri->n, 0.0f };
     }
+
     return {};
 }
 
@@ -41,20 +42,23 @@ float Tracer::sampleAO( const Tracer::HitPoint& h ) {
 
     for ( int sy = 0; sy < aoSamplesRoot; ++sy ) {
         for ( int sx = 0; sx < aoSamplesRoot; ++sx ) {
-            float r1 = 2.0f * std::numbers::pi_v<float> * ( sx + rnd.nextFloat() ) * ( 1.0f / aoSamplesRoot );
-            float r2 = ( sy + rnd.nextFloat() ) * ( 1.0f / aoSamplesRoot );
-            float r2s = std::sqrt( r2 );
+            auto r1 = 2.0f * std::numbers::pi_v<float> * ( sx + rnd.nextFloat() ) * ( 1.0f / aoSamplesRoot );
+            auto r2 = ( sy + rnd.nextFloat() ) * ( 1.0f / aoSamplesRoot );
+            auto r2s = std::sqrt( r2 );
 
             tire::algebra::vector<float, 3> d = dsbtt::add(
                 dsbtt::add( dsbtt::scale( u, std::cos( r1 ) * r2s ), dsbtt::scale( v, std::sin( r1 ) * r2s ) ),
                 dsbtt::scale( h.n, std::sqrt( 1.0f - r2 ) ) );
             d = dsbtt::normalize( d );
-            const float* data = d.data();
 
-            Ray r = { h.p, d, tire::algebra::vector<float, 3>( 1.0f / data[0], 1.0f / data[1], 1.0f / data[2] ),
-                      1e-3f, radius };
+            const auto* data = d.data();
 
-            if ( accelerator.trace( r ) ) f += 1.0f;
+            Ray r = { h.p, d, tire::algebra::vector<float, 3>( 1.0f / data[0], 1.0f / data[1], 1.0f / data[2] ), 1e-3f,
+                      radius };
+
+            if ( accelerator.trace( r ) ) {
+                f += 1.0f;
+            }
         }
     }
 
