@@ -8,13 +8,11 @@
 #include <cassert>
 #include <cmath>
 #include <concepts>
-#include <cstddef>
 #include <iostream>
 #include <limits>
 #include <sstream>
 #include <string>
 #include <tuple>
-#include <type_traits>
 #include <utility>
 
 #include "concepts.h"
@@ -569,21 +567,21 @@ requires Numerical<T> auto rotate( const vector<T, 3>& angle ) -> matrix<T, 4, 4
     const T cr = cos( angle[0] );
 
     const std::array<T, 16> data = { cp * cy,
-                         sr * sp * cy + cr * -sy,
-                         cr * sp * cy + -sr * -sy,
-                         T{ 0 },
-                         cp * sy,
-                         sr * sp * sy + cr * cy,
-                         cr * sp * sy + -sr * cy,
-                         T{ 0 },
-                         -sp,
-                         sr * cp,
-                         cr * cp,
-                         T{ 0 },
-                         T{ 0 },
-                         T{ 0 },
-                         T{ 0 },
-                         T{ 1 } };
+                                     sr * sp * cy + cr * -sy,
+                                     cr * sp * cy + -sr * -sy,
+                                     T{ 0 },
+                                     cp * sy,
+                                     sr * sp * sy + cr * cy,
+                                     cr * sp * sy + -sr * cy,
+                                     T{ 0 },
+                                     -sp,
+                                     sr * cp,
+                                     cr * cp,
+                                     T{ 0 },
+                                     T{ 0 },
+                                     T{ 0 },
+                                     T{ 0 },
+                                     T{ 1 } };
     return matrix<T, 4, 4>{ data.data(), false };
 }
 
@@ -606,21 +604,21 @@ requires Numerical<T> auto rotate( const T& angle, const vector<T, 3>& axis ) ->
     const T zz = axis[2] * axis[2];
 
     const std::array<T, 16> data = { rcos + xx * rcos_1,
-                         -axis[2] * rsin + xy * rcos_1,
-                         axis[1] * rsin + xz * rcos_1,
-                         T{ 0 },
-                         axis[2] * rsin + xy * rcos_1,
-                         rcos + yy * rcos_1,
-                         -axis[0] * rsin + yz * rcos_1,
-                         T{ 0 },
-                         -axis[1] * rsin + xz * rcos_1,
-                         axis[0] * rsin + yz * rcos_1,
-                         rcos + zz * rcos_1,
-                         T{ 0 },
-                         T{ 0 },
-                         T{ 0 },
-                         T{ 0 },
-                         T{ 1 } };
+                                     -axis[2] * rsin + xy * rcos_1,
+                                     axis[1] * rsin + xz * rcos_1,
+                                     T{ 0 },
+                                     axis[2] * rsin + xy * rcos_1,
+                                     rcos + yy * rcos_1,
+                                     -axis[0] * rsin + yz * rcos_1,
+                                     T{ 0 },
+                                     -axis[1] * rsin + xz * rcos_1,
+                                     axis[0] * rsin + yz * rcos_1,
+                                     rcos + zz * rcos_1,
+                                     T{ 0 },
+                                     T{ 0 },
+                                     T{ 0 },
+                                     T{ 0 },
+                                     T{ 1 } };
     return matrix<T, 4, 4>{ data.data(), false };
 }
 
@@ -640,21 +638,21 @@ requires Numerical<T> auto rotate( const quaternion<T>& q ) -> matrix<T, 4, 4> {
     const T zw = q.imag()[2] * q.real();
 
     const std::array<T, 16> data = { T{ 1 } - T{ 2 } * ( yy + zz ),
-                         T{ 2 } * ( xy - zw ),
-                         T{ 2 } * ( xz + yw ),
-                         T{ 0 },
-                         T{ 2 } * ( xy + zw ),
-                         T{ 1 } - T{ 2 } * ( xx + zz ),
-                         T{ 2 } * ( yz - xw ),
-                         T{ 0 },
-                         T{ 2 } * ( xz - yw ),
-                         T{ 2 } * ( yz + xw ),
-                         T{ 1 } - T{ 2 } * ( xx + yy ),
-                         T{ 0 },
-                         T{ 0 },
-                         T{ 0 },
-                         T{ 0 },
-                         T{ 1 } };
+                                     T{ 2 } * ( xy - zw ),
+                                     T{ 2 } * ( xz + yw ),
+                                     T{ 0 },
+                                     T{ 2 } * ( xy + zw ),
+                                     T{ 1 } - T{ 2 } * ( xx + zz ),
+                                     T{ 2 } * ( yz - xw ),
+                                     T{ 0 },
+                                     T{ 2 } * ( xz - yw ),
+                                     T{ 2 } * ( yz + xw ),
+                                     T{ 1 } - T{ 2 } * ( xx + yy ),
+                                     T{ 0 },
+                                     T{ 0 },
+                                     T{ 0 },
+                                     T{ 0 },
+                                     T{ 1 } };
     return matrix<T, 4, 4>{ data.data(), false };
 }
 
@@ -786,21 +784,21 @@ requires Numerical<T> auto frustum( const T& left, const T& right, const T& bott
     const T dY = top - bottom;
     const T dZ = zFar - zNear;
     const std::array<T, 16> data = { ( T{ 2 } * zNear ) / dX,
-                         T{ 0 },
-                         ( right + left ) / dX,
-                         T{ 0 },
-                         T{ 0 },
-                         ( T{ 2 } * zNear ) / dY,
-                         ( top + bottom ) / dY,
-                         T{ 0 },
-                         T{ 0 },
-                         T{ 0 },
-                         -( zFar + zNear ) / dZ,
-                         ( T{ -2 } * zFar * zNear ) / dZ,
-                         T{ 0 },
-                         T{ 0 },
-                         T{ -1 },
-                         T{ 0 } };
+                                     T{ 0 },
+                                     ( right + left ) / dX,
+                                     T{ 0 },
+                                     T{ 0 },
+                                     ( T{ 2 } * zNear ) / dY,
+                                     ( top + bottom ) / dY,
+                                     T{ 0 },
+                                     T{ 0 },
+                                     T{ 0 },
+                                     -( zFar + zNear ) / dZ,
+                                     ( T{ -2 } * zFar * zNear ) / dZ,
+                                     T{ 0 },
+                                     T{ 0 },
+                                     T{ -1 },
+                                     T{ 0 } };
     return matrix<T, 4, 4>{ data.data(), false };
 }
 
@@ -854,7 +852,7 @@ requires Numerical<T> auto lookAt( const vector<T, 3>& eye, const vector<T, 3>& 
     const vector<T, 3> y = cross( x, z );
 
     const std::array<T, 16> data = { x[0],  x[1],  x[2],  T{ 0 }, y[0],   y[1],   y[2],   T{ 0 },
-                         -z[0], -z[1], -z[2], T{ 0 }, T{ 0 }, T{ 0 }, T{ 0 }, T{ 1 } };
+                                     -z[0], -z[1], -z[2], T{ 0 }, T{ 0 }, T{ 0 }, T{ 0 }, T{ 1 } };
     return matrix<T, 4, 4>{ data.data(), false } * translate( -eye );
 }
 
@@ -1083,7 +1081,7 @@ template <typename T, int N>
 requires Numerical<T>&& Positive<N> auto solveGauss( const matrix<T, N, N>& m, const vector<T, N>& rhs )
     -> vector<T, N> {
     constexpr int stride = N + 1;
-    std::array<T, N * ( N + 1 )> augmented{};
+    std::array<T, N*( N + 1 )> augmented{};
     vector<T, N> result{};
 
     for ( int row = 0; row < N; ++row ) {
@@ -1096,8 +1094,7 @@ requires Numerical<T>&& Positive<N> auto solveGauss( const matrix<T, N, N>& m, c
     for ( int column = 0; column < N; ++column ) {
         int pivotRow = column;
         for ( int row = column + 1; row < N; ++row ) {
-            if ( std::fabs( augmented[pivotRow * stride + column] ) <
-                 std::fabs( augmented[row * stride + column] ) ) {
+            if ( std::fabs( augmented[pivotRow * stride + column] ) < std::fabs( augmented[row * stride + column] ) ) {
                 pivotRow = row;
             }
         }
@@ -1136,7 +1133,7 @@ requires Numerical<T>&& Positive<N> auto insertColumn( matrix<T, N, N>& m, const
     }
 }
 
-}
+}  // namespace detail
 
 template <typename T, int N>
 requires Numerical<T>&& Positive<N> auto solveKramer( const matrix<T, N, N>& m, const vector<T, N>& rhs )
