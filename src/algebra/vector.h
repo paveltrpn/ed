@@ -314,7 +314,7 @@ public:
     /**
      * Returns a pointer to the first component
      */
-    auto data() const noexcept -> const T* { return _data.data(); }
+    auto data() const noexcept -> const T* { return &_data[0]; }
 
     /**
      * Returns the number of components in the vector.
@@ -325,16 +325,16 @@ public:
     /**
      * Iterator to the first component.
      */
-    auto begin() noexcept -> T* { return _data.data(); }
+    auto begin() noexcept -> T* { return &_data[0]; }
 
-    auto begin() const noexcept -> const T* { return _data.data(); }
+    auto begin() const noexcept -> const T* { return &_data[0]; }
 
     /**
      * Iterator to one past last component.
      */
-    auto end() noexcept -> T* { return _data.data() + N; }
+    auto end() noexcept -> T* { return &_data[0] + N; }
 
-    auto end() const noexcept -> const T* { return _data.data() + N; }
+    auto end() const noexcept -> const T* { return &_data[0] + N; }
 
 private:
     std::array<T, N> _data{};

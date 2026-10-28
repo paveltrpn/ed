@@ -31,14 +31,18 @@ requires Numerical<T> struct matrix3 final {
         : _data{ value_type{ 0 } } {
         size_t i = 0;
         for ( const auto e : list ) {
-            data()[i] = e;
+            _data[static_cast<int>( i / 3 )][static_cast<int>( i % 3 )] = e;
             ++i;
         }
     }
 
-    [[nodiscard]] auto operator[]( size_t index ) -> reference { return data()[index]; }
+    [[nodiscard]] auto operator[]( size_t index ) -> reference {
+        return _data[static_cast<int>( index / 3 )][static_cast<int>( index % 3 )];
+    }
 
-    [[nodiscard]] auto operator[]( size_t index ) const -> const_reference { return data()[index]; }
+    [[nodiscard]] auto operator[]( size_t index ) const -> const_reference {
+        return _data[static_cast<int>( index / 3 )][static_cast<int>( index % 3 )];
+    }
 
     [[nodiscard]] auto size() const -> size_t { return 9; }
 
@@ -80,17 +84,17 @@ requires Numerical<T> struct matrix3 final {
         auto sinr = std::sin( roll );
         auto cosr = std::cos( roll );
 
-        data()[0] = cosy * cosr - siny * cosp * sinr;
-        data()[1] = -cosy * sinr - siny * cosp * cosr;
-        data()[2] = siny * sinp;
+        _data[0][0] = cosy * cosr - siny * cosp * sinr;
+        _data[0][1] = -cosy * sinr - siny * cosp * cosr;
+        _data[0][2] = siny * sinp;
 
-        data()[3] = siny * cosr + cosy * cosp * sinr;
-        data()[4] = -siny * sinr + cosy * cosp * cosr;
-        data()[5] = -cosy * sinp;
+        _data[1][0] = siny * cosr + cosy * cosp * sinr;
+        _data[1][1] = -siny * sinr + cosy * cosp * cosr;
+        _data[1][2] = -cosy * sinp;
 
-        data()[6] = sinp * sinr;
-        data()[7] = sinp * cosr;
-        data()[8] = cosp;
+        _data[2][0] = sinp * sinr;
+        _data[2][1] = sinp * cosr;
+        _data[2][2] = cosp;
     }
 
 private:

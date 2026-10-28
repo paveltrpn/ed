@@ -37,19 +37,19 @@ struct matrix4 final {
 
     matrix4( std::initializer_list<value_type> list ) {
         for ( auto i = 0; const auto e : list ) {
-            data()[i] = e;
+            _data[i / 4][i % 4] = e;
             ++i;
         }
     }
 
     [[nodiscard]] auto operator[]( size_t index ) -> reference {
         //
-        return data()[index];
+        return _data[static_cast<int>( index / 4 )][static_cast<int>( index % 4 )];
     }
 
     [[nodiscard]] auto operator[]( size_t index ) const -> const_reference {
         //
-        return data()[index];
+        return _data[static_cast<int>( index / 4 )][static_cast<int>( index % 4 )];
     }
 
     [[nodiscard]] auto size() const -> size_t { return 16; }
@@ -169,25 +169,25 @@ struct matrix4 final {
         auto sinr = std::sin( roll );
         auto cosr = std::cos( roll );
 
-        data()[0] = cosy * cosr - siny * cosp * sinr;
-        data()[4] = -cosy * sinr - siny * cosp * cosr;
-        data()[8] = siny * sinp;
-        data()[12] = 0.0;
+        _data[0][0] = cosy * cosr - siny * cosp * sinr;
+        _data[1][0] = -cosy * sinr - siny * cosp * cosr;
+        _data[2][0] = siny * sinp;
+        _data[3][0] = 0.0;
 
-        data()[1] = siny * cosr + cosy * cosp * sinr;
-        data()[5] = -siny * sinr + cosy * cosp * cosr;
-        data()[9] = -cosy * sinp;
-        data()[13] = 0.0;
+        _data[0][1] = siny * cosr + cosy * cosp * sinr;
+        _data[1][1] = -siny * sinr + cosy * cosp * cosr;
+        _data[2][1] = -cosy * sinp;
+        _data[3][1] = 0.0;
 
-        data()[2] = sinp * sinr;
-        data()[6] = sinp * cosr;
-        data()[10] = cosp;
-        data()[14] = 0.0;
+        _data[0][2] = sinp * sinr;
+        _data[1][2] = sinp * cosr;
+        _data[2][2] = cosp;
+        _data[3][2] = 0.0;
 
-        data()[3] = 0.0;
-        data()[7] = 0.0;
-        data()[11] = 0.0;
-        data()[15] = 1.0;
+        _data[0][3] = 0.0;
+        _data[1][3] = 0.0;
+        _data[2][3] = 0.0;
+        _data[3][3] = 1.0;
     }
 
     auto perspective( value_type fov, value_type aspect, value_type near, value_type far ) -> void {
@@ -207,28 +207,28 @@ struct matrix4 final {
         value_type tanFov = sinFov / cosFov;
         value_type focal = static_cast<value_type>( 1.0 ) / tanFov;
 
-        data()[0] = focal / aspect;
-        data()[1] = value_type{ 0 };
-        data()[2] = value_type{ 0 };
-        data()[3] = value_type{ 0 };
-        data()[4] = value_type{ 0 };
-        data()[5] = focal;
-        data()[6] = value_type{ 0 };
-        data()[7] = value_type{ 0 };
-        data()[8] = value_type{ 0 };
-        data()[9] = value_type{ 0 };
-        data()[11] = value_type{ -1 };
-        data()[12] = value_type{ 0 };
-        data()[13] = value_type{ 0 };
-        data()[15] = value_type{ 0 };
+        _data[0][0] = focal / aspect;
+        _data[0][1] = value_type{ 0 };
+        _data[0][2] = value_type{ 0 };
+        _data[0][3] = value_type{ 0 };
+        _data[1][0] = value_type{ 0 };
+        _data[1][1] = focal;
+        _data[1][2] = value_type{ 0 };
+        _data[1][3] = value_type{ 0 };
+        _data[2][0] = value_type{ 0 };
+        _data[2][1] = value_type{ 0 };
+        _data[2][3] = value_type{ -1 };
+        _data[3][0] = value_type{ 0 };
+        _data[3][1] = value_type{ 0 };
+        _data[3][3] = value_type{ 0 };
 
         if ( far >= std::numeric_limits<value_type>::epsilon() ) {
             value_type nf{ static_cast<value_type>( 1.0 ) / ( far - near ) };
-            data()[10] = -( far + near ) * nf;
-            data()[14] = -( 2.0 * far * near ) * nf;
+            _data[2][2] = -( far + near ) * nf;
+            _data[3][2] = -( 2.0 * far * near ) * nf;
         } else {
-            data()[10] = value_type{ -1 };
-            data()[14] = -2.0 * near;
+            _data[2][2] = value_type{ -1 };
+            _data[3][2] = -2.0 * near;
         }
     }
 
@@ -250,25 +250,25 @@ struct matrix4 final {
         value_type focal = 1.0 / tanFov;
         value_type nf{ near / ( far - near ) };
 
-        data()[0] = focal / aspect;
-        data()[4] = value_type{ 0 };
-        data()[8] = value_type{ 0 };
-        data()[12] = value_type{ 0 };
+        _data[0][0] = focal / aspect;
+        _data[1][0] = value_type{ 0 };
+        _data[2][0] = value_type{ 0 };
+        _data[3][0] = value_type{ 0 };
 
-        data()[1] = value_type{ 0 };
-        data()[5] = -focal;
-        data()[9] = value_type{ 0 };
-        data()[13] = value_type{ 0 };
+        _data[0][1] = value_type{ 0 };
+        _data[1][1] = -focal;
+        _data[2][1] = value_type{ 0 };
+        _data[3][1] = value_type{ 0 };
 
-        data()[2] = value_type{ 0 };
-        data()[6] = value_type{ 0 };
-        data()[10] = nf;
-        data()[14] = far * nf;
+        _data[0][2] = value_type{ 0 };
+        _data[1][2] = value_type{ 0 };
+        _data[2][2] = nf;
+        _data[3][2] = far * nf;
 
-        data()[3] = value_type{ 0 };
-        data()[7] = value_type{ 0 };
-        data()[11] = value_type{ -1 };
-        data()[15] = value_type{ 0 };
+        _data[0][3] = value_type{ 0 };
+        _data[1][3] = value_type{ 0 };
+        _data[2][3] = value_type{ -1 };
+        _data[3][3] = value_type{ 0 };
 
         // TODO: Check and write in transpose version.
         /*
@@ -313,25 +313,25 @@ struct matrix4 final {
         value_type focal = static_cast<value_type>( 1.0 ) / tanFov;
         value_type nf{ far / ( far - near ) };
 
-        data()[0] = focal / aspect;
-        data()[1] = value_type{ 0 };
-        data()[2] = value_type{ 0 };
-        data()[3] = value_type{ 0 };
+        _data[0][0] = focal / aspect;
+        _data[0][1] = value_type{ 0 };
+        _data[0][2] = value_type{ 0 };
+        _data[0][3] = value_type{ 0 };
 
-        data()[4] = value_type{ 0 };
-        data()[5] = focal;
-        data()[6] = value_type{ 0 };
-        data()[7] = value_type{ 0 };
+        _data[1][0] = value_type{ 0 };
+        _data[1][1] = focal;
+        _data[1][2] = value_type{ 0 };
+        _data[1][3] = value_type{ 0 };
 
-        data()[8] = value_type{ 0 };
-        data()[9] = value_type{ 0 };
-        data()[10] = nf;
-        data()[11] = -near * nf;
+        _data[2][0] = value_type{ 0 };
+        _data[2][1] = value_type{ 0 };
+        _data[2][2] = nf;
+        _data[2][3] = -near * nf;
 
-        data()[12] = value_type{ 0 };
-        data()[13] = value_type{ 0 };
-        data()[14] = value_type{ 1 };
-        data()[15] = value_type{ 0 };
+        _data[3][0] = value_type{ 0 };
+        _data[3][1] = value_type{ 0 };
+        _data[3][2] = value_type{ 1 };
+        _data[3][3] = value_type{ 0 };
     }
 
     auto lookAt( const vector3<value_type>& eye, const vector3<value_type>& target, const vector3<value_type>& up )
@@ -384,69 +384,69 @@ struct matrix4 final {
             y2 *= len;
         }
 
-        data()[0] = x0;
-        data()[1] = y0;
-        data()[2] = z0;
-        data()[3] = 0.0;
-        data()[4] = x1;
-        data()[5] = y1;
-        data()[6] = z1;
-        data()[7] = 0.0;
-        data()[8] = x2;
-        data()[9] = y2;
-        data()[10] = z2;
-        data()[11] = 0.0;
-        data()[12] = -( x0 * eye[0] + x1 * eye[1] + x2 * eye[2] );
-        data()[13] = -( y0 * eye[0] + y1 * eye[1] + y2 * eye[2] );
-        data()[14] = -( z0 * eye[0] + z1 * eye[1] + z2 * eye[2] );
-        data()[15] = 1.0;
+        _data[0][0] = x0;
+        _data[0][1] = y0;
+        _data[0][2] = z0;
+        _data[0][3] = 0.0;
+        _data[1][0] = x1;
+        _data[1][1] = y1;
+        _data[1][2] = z1;
+        _data[1][3] = 0.0;
+        _data[2][0] = x2;
+        _data[2][1] = y2;
+        _data[2][2] = z2;
+        _data[2][3] = 0.0;
+        _data[3][0] = -( x0 * eye[0] + x1 * eye[1] + x2 * eye[2] );
+        _data[3][1] = -( y0 * eye[0] + y1 * eye[1] + y2 * eye[2] );
+        _data[3][2] = -( z0 * eye[0] + z1 * eye[1] + z2 * eye[2] );
+        _data[3][3] = 1.0;
     }
 
     auto orthographic( value_type left, value_type right, value_type bottom, value_type top, value_type near,
                        value_type far ) -> void {
-        data()[0] = 2.0 / ( right - left );
-        data()[1] = 0.0;
-        data()[2] = 0.0;
-        data()[3] = 0.0;
+        _data[0][0] = 2.0 / ( right - left );
+        _data[0][1] = 0.0;
+        _data[0][2] = 0.0;
+        _data[0][3] = 0.0;
 
-        data()[4] = 0.0;
-        data()[5] = 2.0 / ( top - bottom );
-        data()[6] = 0.0;
-        data()[7] = 0.0;
+        _data[1][0] = 0.0;
+        _data[1][1] = 2.0 / ( top - bottom );
+        _data[1][2] = 0.0;
+        _data[1][3] = 0.0;
 
-        data()[8] = 0.0;
-        data()[9] = 0.0;
-        data()[10] = -2.0 / ( far - near );
-        data()[11] = 0.0;
+        _data[2][0] = 0.0;
+        _data[2][1] = 0.0;
+        _data[2][2] = -2.0 / ( far - near );
+        _data[2][3] = 0.0;
 
-        data()[12] = -( right + left ) / ( right - left );
-        data()[13] = -( top + bottom ) / ( top - bottom );
-        data()[14] = -( far + near ) / ( far - near );
-        data()[15] = 1.0;
+        _data[3][0] = -( right + left ) / ( right - left );
+        _data[3][1] = -( top + bottom ) / ( top - bottom );
+        _data[3][2] = -( far + near ) / ( far - near );
+        _data[3][3] = 1.0;
     }
 
     auto scale( const vector3<value_type>& offset ) -> void {
         idtt();
 
-        data()[0] = offset.x();
-        data()[5] = offset.y();
-        data()[10] = offset.z();
+        _data[0][0] = offset.x();
+        _data[1][1] = offset.y();
+        _data[2][2] = offset.z();
     }
 
     auto translate( const vector3<value_type>& offset ) -> void {
         idtt();
 
-        data()[12] = offset.x();
-        data()[13] = offset.y();
-        data()[14] = offset.z();
+        _data[3][0] = offset.x();
+        _data[3][1] = offset.y();
+        _data[3][2] = offset.z();
     }
 
     auto translate( value_type dx, value_type dy, value_type dz ) -> void {
         idtt();
 
-        data()[12] = dx;
-        data()[13] = dy;
-        data()[14] = dz;
+        _data[3][0] = dx;
+        _data[3][1] = dy;
+        _data[3][2] = dz;
     }
 
     auto rotation_yaw( value_type angl ) -> void {
@@ -462,10 +462,10 @@ struct matrix4 final {
             sincosf( a, &sa, &ca );
         }
 
-        data()[5] = ca;
-        data()[9] = -sa;
-        data()[6] = sa;
-        data()[10] = ca;
+        _data[1][1] = ca;
+        _data[2][1] = -sa;
+        _data[1][2] = sa;
+        _data[2][2] = ca;
     }
 
     auto rotation_pitch( value_type angl ) -> void {
@@ -481,10 +481,10 @@ struct matrix4 final {
             sincosf( a, &sa, &ca );
         }
 
-        data()[0] = ca;
-        data()[8] = sa;
-        data()[2] = -sa;
-        data()[10] = ca;
+        _data[0][0] = ca;
+        _data[2][0] = sa;
+        _data[0][2] = -sa;
+        _data[2][2] = ca;
     }
 
     auto rotation_roll( value_type angl ) -> void {
@@ -500,10 +500,10 @@ struct matrix4 final {
             sincosf( a, &sa, &ca );
         }
 
-        data()[0] = ca;
-        data()[4] = -sa;
-        data()[1] = sa;
-        data()[5] = ca;
+        _data[0][0] = ca;
+        _data[1][0] = -sa;
+        _data[0][1] = sa;
+        _data[1][1] = ca;
     }
 
     auto euler( value_type yaw, value_type pitch, value_type roll ) -> void {
@@ -528,25 +528,25 @@ struct matrix4 final {
         vy = ax.y();
         vz = ax.z();
 
-        data()[0] = cosphi + ( 1.0 - cosphi ) * vx * vx;
-        data()[1] = ( 1.0 - cosphi ) * vxvy + sinphi * vz;
-        data()[2] = ( 1.0 - cosphi ) * vxvz - sinphi * vy;
-        data()[3] = 0.0f;
+        _data[0][0] = cosphi + ( 1.0 - cosphi ) * vx * vx;
+        _data[0][1] = ( 1.0 - cosphi ) * vxvy + sinphi * vz;
+        _data[0][2] = ( 1.0 - cosphi ) * vxvz - sinphi * vy;
+        _data[0][3] = 0.0f;
 
-        data()[4] = ( 1.0 - cosphi ) * vxvy - sinphi * vz;
-        data()[5] = cosphi + ( 1.0 - cosphi ) * vy * vy;
-        data()[6] = ( 1.0 - cosphi ) * vyvz + sinphi * vx;
-        data()[7] = 0.0f;
+        _data[1][0] = ( 1.0 - cosphi ) * vxvy - sinphi * vz;
+        _data[1][1] = cosphi + ( 1.0 - cosphi ) * vy * vy;
+        _data[1][2] = ( 1.0 - cosphi ) * vyvz + sinphi * vx;
+        _data[1][3] = 0.0f;
 
-        data()[8] = ( 1.0 - cosphi ) * vxvz + sinphi * vy;
-        data()[9] = ( 1.0 - cosphi ) * vyvz - sinphi * vx;
-        data()[10] = cosphi + ( 1.0 - cosphi ) * vz * vz;
-        data()[11] = 0.0f;
+        _data[2][0] = ( 1.0 - cosphi ) * vxvz + sinphi * vy;
+        _data[2][1] = ( 1.0 - cosphi ) * vyvz - sinphi * vx;
+        _data[2][2] = cosphi + ( 1.0 - cosphi ) * vz * vz;
+        _data[2][3] = 0.0f;
 
-        data()[12] = 0.0f;
-        data()[13] = 0.0f;
-        data()[14] = 0.0f;
-        data()[15] = 1.0f;
+        _data[3][0] = 0.0f;
+        _data[3][1] = 0.0f;
+        _data[3][2] = 0.0f;
+        _data[3][3] = 1.0f;
     }
 
     auto inverse() const -> self {

@@ -283,7 +283,7 @@ public:
      * Returns pointer to the first component.
      * The matrix data is in column major order
      */
-    auto data() const noexcept -> const T* { return _data[0].data(); }
+    auto data() const noexcept -> const T* { return &_data[0][0]; }
 
     /**
      * Returns the number of columns in the matrix
@@ -295,16 +295,16 @@ public:
     /**
      * Iterator to the first column
      */
-    auto begin() noexcept -> vector<T, R>* { return _data.data(); }
+    auto begin() noexcept -> vector<T, R>* { return &_data[0]; }
 
-    auto begin() const noexcept -> const vector<T, R>* { return _data.data(); }
+    auto begin() const noexcept -> const vector<T, R>* { return &_data[0]; }
 
     /**
      * Iterator to the one past the last column
      */
-    auto end() noexcept -> vector<T, R>* { return _data.data() + C; }
+    auto end() noexcept -> vector<T, R>* { return &_data[0] + C; }
 
-    auto end() const noexcept -> const vector<T, R>* { return _data.data() + C; }
+    auto end() const noexcept -> const vector<T, R>* { return &_data[0] + C; }
 
 private:
     std::array<vector<T, R>, C> _data{};

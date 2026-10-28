@@ -29,14 +29,18 @@ requires Numerical<T> struct matrix2 final {
         : _data{ value_type{ 0 } } {
         size_t i = 0;
         for ( const auto e : list ) {
-            data()[i] = e;
+            _data[static_cast<int>( i / 2 )][static_cast<int>( i % 2 )] = e;
             ++i;
         }
     }
 
-    [[nodiscard]] auto operator[]( size_t index ) -> reference { return data()[index]; }
+    [[nodiscard]] auto operator[]( size_t index ) -> reference {
+        return _data[static_cast<int>( index / 2 )][static_cast<int>( index % 2 )];
+    }
 
-    [[nodiscard]] auto operator[]( size_t index ) const -> const_reference { return data()[index]; }
+    [[nodiscard]] auto operator[]( size_t index ) const -> const_reference {
+        return _data[static_cast<int>( index / 2 )][static_cast<int>( index % 2 )];
+    }
 
     [[nodiscard]] auto size() -> size_t { return 4; }
 
