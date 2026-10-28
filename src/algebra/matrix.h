@@ -1007,374 +1007,155 @@ requires Numerical<T> auto normalMatrix( const matrix<T, 4, 4>& m ) -> matrix<T,
     return transpose( inverse( matrix<T, 3, 3>{ m } ) );
 }
 
-// ============================================================================
-// ======================= matrix_base ========================================
-// ============================================================================
+template <typename T, int N>
+requires Numerical<T>&& Positive<N> auto decomposeLu( const matrix<T, N, N>& m )
+    -> std::pair<matrix<T, N, N>, matrix<T, N, N>> {
+    matrix<T, N, N> lower{};
+    matrix<T, N, N> upper{};
 
-template <typename T, size_t row, size_t column>
-    requires Numerical<T>&& Positive<row>&& Positive<column> &&
-    ( row <= static_cast<size_t>( std::numeric_limits<int>::max() ) ) &&
-    ( column <= static_cast<size_t>( std::numeric_limits<int>::max() ) ) struct matrix_base {
-    using self = matrix_base<T, row, column>;
-    using value_type = T;
-    using reference = value_type&;
-    using const_reference = const value_type&;
-    using pointer = value_type*;
-    using const_pointer = const value_type*;
-
-    [[nodiscard]] auto operator[]( size_t index ) -> reference { return data()[index]; }
-
-    [[nodiscard]] auto operator[]( size_t index ) const -> const_reference { return data()[index]; }
-
-    [[nodiscard]] auto size() -> size_t { return _data.size(); }
-
-    [[nodiscard]] auto data() -> pointer { return _data.data(); }
-
-    [[nodiscard]] auto data() const -> const_pointer { return _data.data(); }
-
-    [[nodiscard]] consteval auto rows() -> size_t { return row; }
-
-    [[nodiscard]] consteval auto columnes() -> size_t { return column; }
-
-protected:
-    std::array<value_type, row * column> _data{};
-};
-
-// ============================================================================
-// ====================== matrix_sqr_base =====================================
-// ============================================================================
-
-template <typename T, size_t rng>
-    requires Numerical<T>&& Positive<rng> &&
-    ( rng <= static_cast<size_t>( std::numeric_limits<int>::max() ) ) struct matrix_sqr_base
-    : matrix_base<T, rng, rng> {
-    using base_type = matrix_base<T, rng, rng>;
-    using self = matrix_sqr_base<T, rng>;
-    using value_type = T;
-    using reference = value_type&;
-    using const_reference = const value_type&;
-    using pointer = value_type*;
-    using const_pointer = const value_type*;
-
-    using base_type::_data;
-
-    [[nodiscard]] consteval auto range() -> size_t { return rng; }
-
-    auto transpose() -> void {
-        value_type tmp;
-        auto rt = *this;
-
-        for ( size_t i = 0; i < rng; ++i ) {
-            for ( size_t j = 0; j < i; ++j ) {
-                tmp = rt[j * rng + i];
-                rt[j * rng + i] = rt[i * rng + j];
-                rt[i * rng + j] = tmp;
+    for ( int i = 0; i < N; ++i ) {
+        for ( int k = i; k < N; ++k ) {
+            T sum{};
+            for ( int j = 0; j < i; ++j ) {
+                sum += lower[j][i] * upper[k][j];
             }
+            upper[k][i] = m[k][i] - sum;
         }
 
-        *this = rt;
-    }
-
-    auto lu() -> std::pair<self, self> {
-        self lm, um;
-        size_t i, j, k;
-        T sum;
-
-        for ( i = 0; i < rng; i++ ) {
-            for ( k = i; k < rng; k++ ) {
-                sum = 0;
-                for ( j = 0; j < i; j++ ) {
-                    sum += ( lm[i * rng + j] * um[j * rng + k] );
+        for ( int k = i; k < N; ++k ) {
+            if ( i == k ) {
+                lower[i][i] = T{ 1 };
+            } else {
+                T sum{};
+                for ( int j = 0; j < i; ++j ) {
+                    sum += lower[j][k] * upper[i][j];
                 }
-                um[i * rng + k] = ( *this )[i * rng + k] - sum;
+                lower[i][k] = ( m[i][k] - sum ) / upper[i][i];
+            }
+        }
+    }
+
+    return { lower, upper };
+}
+
+template <typename T, int N>
+requires Numerical<T>&& Positive<N> auto determinantLu( const matrix<T, N, N>& m ) -> T {
+    T determinant{ 1 };
+    const auto factors = decomposeLu( m );
+
+    for ( int i = 0; i < N; ++i ) {
+        determinant *= factors.second[i][i];
+    }
+
+    return determinant;
+}
+
+template <typename T, int N>
+requires Numerical<T>&& Positive<N> auto decomposeLdlt( const matrix<T, N, N>& m )
+    -> std::pair<matrix<T, N, N>, vector<T, N>> {
+    matrix<T, N, N> lower{};
+    vector<T, N> diagonal{};
+
+    for ( int i = 0; i < N; ++i ) {
+        for ( int j = i; j < N; ++j ) {
+            T sum = m[i][j];
+            for ( int k = 0; k < i; ++k ) {
+                sum -= lower[k][i] * diagonal[k] * lower[k][j];
             }
 
-            for ( k = i; k < rng; k++ ) {
-                if ( i == k ) {
-                    lm[i * rng + i] = T{ 1 };
-                } else {
-                    sum = 0;
-                    for ( j = 0; j < i; j++ ) {
-                        sum += lm[k * rng + j] * um[j * rng + i];
-                    }
-                    lm[k * rng + i] = ( ( *this )[k * rng + i] - sum ) / um[i * rng + i];
+            if ( i == j ) {
+                if ( sum <= T{ 0 } ) {
+                    std::cout << "decomposeLdlt(): matrix is not positive definite";
+                    return { matrix<T, N, N>{}, vector<T, N>{} };
                 }
+                diagonal[i] = sum;
+                lower[i][i] = T{ 1 };
+            } else {
+                lower[i][j] = sum / diagonal[i];
+            }
+        }
+    }
+
+    return { lower, diagonal };
+}
+
+template <typename T, int N>
+requires Numerical<T>&& Positive<N> auto solveGauss( const matrix<T, N, N>& m, const vector<T, N>& rhs )
+    -> vector<T, N> {
+    constexpr int stride = N + 1;
+    std::array<T, N * ( N + 1 )> augmented{};
+    vector<T, N> result{};
+
+    for ( int row = 0; row < N; ++row ) {
+        for ( int column = 0; column < N; ++column ) {
+            augmented[row * stride + column] = m[column][row];
+        }
+        augmented[row * stride + N] = rhs[row];
+    }
+
+    for ( int column = 0; column < N; ++column ) {
+        int pivotRow = column;
+        for ( int row = column + 1; row < N; ++row ) {
+            if ( std::fabs( augmented[pivotRow * stride + column] ) <
+                 std::fabs( augmented[row * stride + column] ) ) {
+                pivotRow = row;
             }
         }
 
-        return { lm, um };
-    }
-
-    auto determinant_lu() -> value_type {
-        T det{ 1 };
-
-        auto [_, u] = lu();
-        for ( size_t i = 0; i < rng; i++ ) {
-            det *= u[i * rng + i];
+        if ( pivotRow != column ) {
+            for ( int i = column; i <= N; ++i ) {
+                std::swap( augmented[column * stride + i], augmented[pivotRow * stride + i] );
+            }
         }
 
-        return det;
+        for ( int row = column + 1; row < N; ++row ) {
+            const T factor = augmented[row * stride + column] / augmented[column * stride + column];
+            for ( int i = column; i <= N; ++i ) {
+                augmented[row * stride + i] -= factor * augmented[column * stride + i];
+            }
+        }
     }
-};
+
+    for ( int row = N - 1; row >= 0; --row ) {
+        T sum = augmented[row * stride + N];
+        for ( int column = row + 1; column < N; ++column ) {
+            sum -= augmented[row * stride + column] * result[column];
+        }
+        result[row] = sum / augmented[row * stride + row];
+    }
+
+    return result;
+}
 
 namespace detail {
 
-template <typename T, size_t pSize_>
-auto matrix_sqr_set_zero( matrix_sqr_base<T, pSize_>& a ) -> void {
-    for ( size_t i = 0; i < pSize_; i++ ) {
-        for ( size_t j = 0; j < pSize_; j++ ) {
-            a[i * pSize_ + j] = T{};
-        }
+template <typename T, int N>
+requires Numerical<T>&& Positive<N> auto insertColumn( matrix<T, N, N>& m, const vector<T, N>& v, int column ) -> void {
+    for ( int row = 0; row < N; ++row ) {
+        m[column][row] = v[row];
     }
 }
 
-template <typename T, size_t pSize_>
-auto matrix_sqr_set_idtt( matrix_sqr_base<T, pSize_>& a ) -> void {
-    for ( size_t i = 0; i < pSize_; i++ ) {
-        for ( size_t j = 0; j < pSize_; j++ ) {
-            if ( i == j ) {
-                a[i * pSize_ + j] = static_cast<T>( 1.0 );
-            } else {
-                a[i * pSize_ + j] = T{};
-            }
-        }
-    }
 }
 
-template <typename T, size_t pSize_>
-auto matrix_sqr_mult( const matrix_sqr_base<T, pSize_>& a, const matrix_sqr_base<T, pSize_>& b )
-    -> matrix_sqr_base<T, pSize_> {
-    matrix_sqr_base<T, pSize_> rt{};
+template <typename T, int N>
+requires Numerical<T>&& Positive<N> auto solveKramer( const matrix<T, N, N>& m, const vector<T, N>& rhs )
+    -> vector<T, N> {
+    vector<T, N> result{};
+    const T determinant = determinantLu( m );
 
-    for ( size_t i = 0; i < pSize_; i++ ) {
-        for ( size_t j = 0; j < pSize_; j++ ) {
-            for ( size_t k = 0; k < pSize_; k++ ) {
-                rt[i * pSize_ + j] += a[k * pSize_ + j] * b[i * pSize_ + k];
-            }
-        }
+    if ( std::fabs( determinant ) < std::numeric_limits<T>::epsilon() ) {
+        std::cout << "solveKramer(): system has no solve\n";
+        return vector<T, N>{};
     }
 
-    return rt;
+    for ( int i = 0; i < N; ++i ) {
+        matrix<T, N, N> kramerMatrix{ m };
+        detail::insertColumn( kramerMatrix, rhs, i );
+        result[i] = determinantLu( kramerMatrix ) / determinant;
+    }
+
+    return result;
 }
-
-template <typename T, size_t pSize_>
-auto matrix_sqr_sum( const matrix_sqr_base<T, pSize_>& a, const matrix_sqr_base<T, pSize_>& b )
-    -> matrix_sqr_base<T, pSize_> {
-    matrix_sqr_base<T, pSize_> rt{};
-
-    for ( size_t i = 0; i < pSize_; i++ ) {
-        for ( size_t j = 0; j < pSize_; j++ ) {
-            rt[i * pSize_ + j] = a[i * pSize_ + j] + b[i * pSize_ + j];
-        }
-    }
-
-    return rt;
-}
-
-template <typename T, size_t pSize_>
-auto matrix_sqr_sub( const matrix_sqr_base<T, pSize_>& a, const matrix_sqr_base<T, pSize_>& b )
-    -> matrix_sqr_base<T, pSize_> {
-    matrix_sqr_base<T, pSize_> rt{};
-
-    for ( size_t i = 0; i < pSize_; i++ ) {
-        for ( size_t j = 0; j < pSize_; j++ ) {
-            rt[i * pSize_ + j] = a[i * pSize_ + j] - b[i * pSize_ + j];
-        }
-    }
-
-    return rt;
-}
-
-template <typename T, size_t pSize_>
-auto matrix_sqr_transpose( const matrix_sqr_base<T, pSize_>& m ) -> matrix_sqr_base<T, pSize_> {
-    T tmp;
-    auto rt = m;
-
-    for ( size_t i = 0; i < pSize_; ++i ) {
-        for ( size_t j = 0; j < i; ++j ) {
-            tmp = rt[i * pSize_ + j];
-            rt[i * pSize_ + j] = rt[j * pSize_ + i];
-            rt[j * pSize_ + i] = tmp;
-        }
-    }
-
-    return rt;
-}
-
-template <typename T, size_t pSize_>
-auto matrix_sqr_multVec( const matrix_sqr_base<T, pSize_>& m, const vector<T, static_cast<int>(pSize_)>& v )
-    -> matrix_sqr_base<T, pSize_> {
-    std::decay_t<decltype( m )> rt;
-
-    for ( size_t i = 0; i < pSize_; i++ ) {
-        for ( size_t j = 0; j < pSize_; j++ ) {
-            rt[i] += m[i * pSize_ + j] * v[j];
-        }
-    }
-
-    return rt;
-}
-
-template <typename T, size_t pSize_>
-auto matrix_sqr_lu( const matrix_sqr_base<T, pSize_>& m )
-    -> std::pair<matrix_sqr_base<T, pSize_>, matrix_sqr_base<T, pSize_>> {
-    std::decay_t<decltype( m )> lm, um;
-    size_t i, j, k;
-    T sum;
-
-    for ( i = 0; i < pSize_; i++ ) {
-        for ( k = i; k < pSize_; k++ ) {
-            sum = 0;
-            for ( j = 0; j < i; j++ ) {
-                sum += ( lm[i * pSize_ + j] * um[j * pSize_ + k] );
-            }
-            um[i * pSize_ + k] = m[i * pSize_ + k] - sum;
-        }
-
-        for ( k = i; k < pSize_; k++ ) {
-            if ( i == k ) {
-                lm[i * pSize_ + i] = T{ 1 };
-            } else {
-                sum = 0;
-                for ( j = 0; j < i; j++ ) {
-                    sum += lm[k * pSize_ + j] * um[j * pSize_ + i];
-                }
-                lm[k * pSize_ + i] = ( m[k * pSize_ + i] - sum ) / um[i * pSize_ + i];
-            }
-        }
-    }
-
-    return { lm, um };
-}
-
-template <typename T, size_t pSize_>
-auto matrix_sqr_det_lu( const matrix_sqr_base<T, pSize_>& m ) -> T {
-    T det{ 1 };
-
-    auto [_, u] = __matrix_sqr_lu( m );
-    for ( size_t i = 0; i < pSize_; i++ ) {
-        det *= u[i * pSize_ + i];
-    }
-
-    return det;
-}
-
-template <typename T, size_t pSize_>
-auto matrix_sqr_ldlt( const matrix_sqr_base<T, pSize_>& m )
-    -> std::pair<matrix_sqr_base<T, pSize_>, matrix_sqr_base<T, pSize_>> {
-    std::decay_t<decltype( m )> lm;
-    vector<T, static_cast<int>(pSize_)> dv;
-    size_t i, j, k;
-    T sum;
-
-    for ( i = 0; i < pSize_; i++ ) {
-        for ( j = i; j < pSize_; j++ ) {
-            sum = m[j * pSize_ + i];
-            for ( k = 0; k < i; k++ ) {
-                sum = sum - lm[i * pSize_ + k] * dv[k] * lm[j * pSize_ + k];
-                if ( i == j ) {
-                    if ( sum <= 0 ) {
-                        std::cout << "matrix_sqr_ldlt(): matrix is not "
-                                     "positive deﬁnite";
-                        return { matrix_sqr_base<T, pSize_>{}, vector<T, static_cast<int>(pSize_)>{} };
-                    }
-                    dv[i] = sum;
-                    lm[i * pSize_ + i] = 1.0;
-                } else {
-                    lm[j * pSize_ + i] = sum / dv[i];
-                }
-            }
-        }
-    }
-
-    return { lm, dv };
-}
-
-template <typename T, size_t pSize_>
-auto matrix_sqr_solve_gauss( const matrix_sqr_base<T, pSize_>& m, const vector<T, static_cast<int>(pSize_)>& v )
-    -> vector<T, static_cast<int>(pSize_)> {
-    size_t i, j, k;
-    T t;
-    std::array<T, pSize_*( pSize_ + 1 )> a;
-    vector<T, static_cast<int>(pSize_)> rt;
-
-    for ( i = 0; i < pSize_; i++ ) {
-        for ( j = 0; j < pSize_; j++ ) {
-            a[i * ( pSize_ + 1 ) + j] = m[i * pSize_ + j];
-            a[i * ( pSize_ + 1 ) + pSize_] = v[i];
-        }
-    }
-
-    /* Pivotisation */
-    for ( i = 0; i < pSize_; i++ ) {
-        for ( k = i + 1; k < pSize_; k++ ) {
-            if ( fabs( a[i * ( pSize_ + 1 ) + i] ) < fabs( a[k * ( pSize_ + 1 ) + i] ) ) {
-                for ( j = 0; j <= pSize_; j++ ) {
-                    t = a[i * ( pSize_ + 1 ) + j];
-                    a[i * ( pSize_ + 1 ) + j] = a[k * ( pSize_ + 1 ) + j];
-                    a[k * ( pSize_ + 1 ) + j] = t;
-                }
-            }
-        }
-    }
-
-    /* прямой ход */
-    for ( k = 1; k < pSize_; k++ ) {
-        for ( j = k; j < pSize_; j++ ) {
-            t = a[j * ( pSize_ + 1 ) + k - 1] / a[( k - 1 ) * ( pSize_ + 1 ) + k - 1];
-            for ( i = 0; i < pSize_ + 1; i++ ) {
-                a[j * ( pSize_ + 1 ) + i] = a[j * ( pSize_ + 1 ) + i] - t * a[( k - 1 ) * ( pSize_ + 1 ) + i];
-            }
-        }
-    }
-
-    /* обратный ход */
-    for ( i = pSize_ - 1; i > 0; i-- ) {
-        rt[i] = a[i * ( pSize_ + 1 ) + pSize_] / a[i * ( pSize_ + 1 ) + i];
-        for ( j = pSize_ - 1; j > i; j-- ) {
-            rt[i] = rt[i] - a[i * ( pSize_ + 1 ) + j] * rt[j] / a[i * ( pSize_ + 1 ) + i];
-        }
-    }
-
-    return rt;
-}
-
-template <typename T, size_t pSize_>
-auto matrix_sqr_insert_cmn( matrix_sqr_base<T, pSize_>& m, const matrix_sqr_base<T, pSize_>& v ) -> void {
-    size_t i, j = 0;
-
-    auto rt = m;
-
-    for ( i = pSize_; i < pSize_ * pSize_; i += pSize_ ) {
-        rt[i] = v[j];
-        j++;
-    }
-
-    m = rt;
-}
-
-template <typename T, size_t pSize_>
-auto matrix_sqr_solve_kramer( const matrix_sqr_base<T, pSize_>& m, const vector<T, static_cast<int>(pSize_)>& v )
-    -> vector<T, static_cast<int>(pSize_)> {
-    T det;
-    std::decay_t<decltype( m )> kr_mtrx;
-    vector<T, static_cast<int>(pSize_)> rt;
-
-    det = matrix_sqr_det_lu( m );
-
-    if ( fabs( det ) < std::numeric_limits<float>::epsilon() ) {
-        std::cout << "matrix_sqr_solve_kramer(): system has no solve\n";
-        return vector<T, static_cast<int>(pSize_)>{};
-    }
-
-    for ( size_t i = 0; i < pSize_; i++ ) {
-        matrix_sqr_insert_cmn( kr_mtrx, v, i );
-        rt[i] = matrix_sqr_det_lu( kr_mtrx ) / det;
-    }
-
-    return rt;
-}
-
-}  // namespace detail
 
 }  // namespace tire::algebra
