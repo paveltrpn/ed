@@ -15,7 +15,7 @@ namespace tire::algebra {
 // ============================================================================
 
 template <typename T>
-requires Algebraic<T> struct vector2 final {
+requires Numerical<T> struct vector2 final {
     using value_type = T;
     using self = vector2<value_type>;
 

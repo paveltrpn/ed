@@ -30,7 +30,7 @@ namespace tire::algebra {
  * @tparam N Number of components. Must not be zero!
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> class vector {
+requires Numerical<T>&& Positive<N> class vector {
 public:
     /**
      * The type of a single component.
@@ -346,7 +346,7 @@ private:
  * Negates all components
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto operator-( const vector<T, N>& v ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto operator-( const vector<T, N>& v ) -> vector<T, N> {
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
         temp[i] = -v[i];
@@ -358,7 +358,7 @@ requires Algebraic<T>&& Positive<N> auto operator-( const vector<T, N>& v ) -> v
  * Component-wise sum
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto operator+( const T& a, const vector<T, N>& v ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto operator+( const T& a, const vector<T, N>& v ) -> vector<T, N> {
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
         temp[i] = a + v[i];
@@ -370,7 +370,7 @@ requires Algebraic<T>&& Positive<N> auto operator+( const T& a, const vector<T, 
  * Component-wise subtraction
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto operator-( const T& a, const vector<T, N>& v ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto operator-( const T& a, const vector<T, N>& v ) -> vector<T, N> {
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
         temp[i] = a - v[i];
@@ -382,7 +382,7 @@ requires Algebraic<T>&& Positive<N> auto operator-( const T& a, const vector<T, 
  * Component-wise multiplication
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto operator*( const T& a, const vector<T, N>& v ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto operator*( const T& a, const vector<T, N>& v ) -> vector<T, N> {
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
         temp[i] = a * v[i];
@@ -394,7 +394,7 @@ requires Algebraic<T>&& Positive<N> auto operator*( const T& a, const vector<T, 
  * Component-wise division
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto operator/( const T& a, const vector<T, N>& v ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto operator/( const T& a, const vector<T, N>& v ) -> vector<T, N> {
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
         temp[i] = a / v[i];
@@ -406,7 +406,7 @@ requires Algebraic<T>&& Positive<N> auto operator/( const T& a, const vector<T, 
  * Prints the vector to a stream inside brackets components separated by a comma.
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto operator<<( std::ostream& os, const vector<T, N>& v ) -> std::ostream& {
+requires Numerical<T>&& Positive<N> auto operator<<( std::ostream& os, const vector<T, N>& v ) -> std::ostream& {
     os << '(';
     for ( int i = 0; i < N; ++i ) {
         if ( i > 0 ) {
@@ -423,7 +423,7 @@ requires Algebraic<T>&& Positive<N> auto operator<<( std::ostream& os, const vec
  * The vector must be inside brackets components separated by a comma.
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto operator>>( std::istream& is, vector<T, N>& v ) -> std::istream& {
+requires Numerical<T>&& Positive<N> auto operator>>( std::istream& is, vector<T, N>& v ) -> std::istream& {
     char tmp;
     is >> tmp;
     for ( int i = 0; i < N; ++i ) {
@@ -437,7 +437,7 @@ requires Algebraic<T>&& Positive<N> auto operator>>( std::istream& is, vector<T,
  * Converts a vector to std::string.
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto toString( const vector<T, N>& v ) -> std::string {
+requires Numerical<T>&& Positive<N> auto toString( const vector<T, N>& v ) -> std::string {
     std::stringstream ss{};
     ss << v;
     return ss.str();
@@ -447,7 +447,7 @@ requires Algebraic<T>&& Positive<N> auto toString( const vector<T, N>& v ) -> st
  * Dot products of vectors v1 and v2
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto dot( const vector<T, N>& v1, const vector<T, N>& v2 ) -> T {
+requires Numerical<T>&& Positive<N> auto dot( const vector<T, N>& v1, const vector<T, N>& v2 ) -> T {
     T temp = v1[0] * v2[0];
     for ( int i = 1; i < N; ++i ) {
         temp += v1[i] * v2[i];
@@ -459,7 +459,7 @@ requires Algebraic<T>&& Positive<N> auto dot( const vector<T, N>& v1, const vect
  * Dot product where v1 is replaced by vector rotated 90 degrees counter clockwise
  */
 template <typename T>
-requires Algebraic<T> auto perpDot( const vector<T, 2>& v1, const vector<T, 2>& v2 ) -> T {
+requires Numerical<T> auto perpDot( const vector<T, 2>& v1, const vector<T, 2>& v2 ) -> T {
     return v1[0] * v2[1] - v1[1] * v2[0];
 }
 
@@ -467,7 +467,7 @@ requires Algebraic<T> auto perpDot( const vector<T, 2>& v1, const vector<T, 2>& 
  * Cross product of two 3 component vectors
  */
 template <typename T>
-requires Algebraic<T> auto cross( const vector<T, 3>& v1, const vector<T, 3>& v2 ) -> vector<T, 3> {
+requires Numerical<T> auto cross( const vector<T, 3>& v1, const vector<T, 3>& v2 ) -> vector<T, 3> {
     return vector<T, 3>{ v1[1] * v2[2] - v1[2] * v2[1], v1[2] * v2[0] - v1[0] * v2[2], v1[0] * v2[1] - v1[1] * v2[0] };
 }
 
@@ -476,7 +476,7 @@ requires Algebraic<T> auto cross( const vector<T, 3>& v1, const vector<T, 3>& v2
  * See: http://reference.wolfram.com/language/ref/Cross.html
  */
 template <typename T>
-requires Algebraic<T> auto cross( const vector<T, 2>& v ) -> vector<T, 2> {
+requires Numerical<T> auto cross( const vector<T, 2>& v ) -> vector<T, 2> {
     return vector<T, 2>{ -v[1], v[0] };
 }
 
@@ -484,7 +484,7 @@ requires Algebraic<T> auto cross( const vector<T, 2>& v ) -> vector<T, 2> {
  * Returns the geometric length of the vector.
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto length( const vector<T, N>& v ) -> T {
+requires Numerical<T>&& Positive<N> auto length( const vector<T, N>& v ) -> T {
     using std::sqrt;
     return sqrt( dot( v, v ) );
 }
@@ -494,7 +494,7 @@ requires Algebraic<T>&& Positive<N> auto length( const vector<T, N>& v ) -> T {
  * The vector must not have a zero length!
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto normalize( const vector<T, N>& v ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto normalize( const vector<T, N>& v ) -> vector<T, N> {
     return v / length( v );
 }
 
@@ -502,7 +502,7 @@ requires Algebraic<T>&& Positive<N> auto normalize( const vector<T, N>& v ) -> v
  * Returns the length of the vector from p1 to p2
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto distance( const vector<T, N>& p1, const vector<T, N>& p2 ) -> T {
+requires Numerical<T>&& Positive<N> auto distance( const vector<T, N>& p1, const vector<T, N>& p2 ) -> T {
     return length( p2 - p1 );
 }
 
@@ -510,7 +510,7 @@ requires Algebraic<T>&& Positive<N> auto distance( const vector<T, N>& p1, const
  * Computes the area between the 3 points
  */
 template <typename T>
-requires Algebraic<T> auto area( const vector<T, 3>& p1, const vector<T, 3>& p2, const vector<T, 3>& p3 ) -> T {
+requires Numerical<T> auto area( const vector<T, 3>& p1, const vector<T, 3>& p2, const vector<T, 3>& p3 ) -> T {
     return length( cross( p2 - p1, p3 - p1 ) ) / T{ 2 };
 }
 
@@ -519,7 +519,7 @@ requires Algebraic<T> auto area( const vector<T, 3>& p1, const vector<T, 3>& p2,
  * n must be normalized
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto reflect( const vector<T, N>& v, const vector<T, N>& n ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto reflect( const vector<T, N>& v, const vector<T, N>& n ) -> vector<T, N> {
     return v - T{ 2 } * dot( v, n ) * n;
 }
 
@@ -527,7 +527,7 @@ requires Algebraic<T>&& Positive<N> auto reflect( const vector<T, N>& v, const v
  * Projects one vector on to another.
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto project( const vector<T, N>& v, const vector<T, N>& u ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto project( const vector<T, N>& v, const vector<T, N>& u ) -> vector<T, N> {
     return dot( v, u ) / dot( u, u ) * u;
 }
 
@@ -538,7 +538,7 @@ requires Algebraic<T>&& Positive<N> auto project( const vector<T, N>& v, const v
  * @param eta Index of refraction
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto refract( const vector<T, N>& v, const vector<T, N>& n, const T& eta )
+requires Numerical<T>&& Positive<N> auto refract( const vector<T, N>& v, const vector<T, N>& n, const T& eta )
     -> vector<T, N> {
     using std::sqrt;
     T d = dot( n, v );
@@ -553,7 +553,7 @@ requires Algebraic<T>&& Positive<N> auto refract( const vector<T, N>& v, const v
  * Linear interpolation between v1 and v2 using a as factor
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto mix( const vector<T, N>& v1, const vector<T, N>& v2, const T& a )
+requires Numerical<T>&& Positive<N> auto mix( const vector<T, N>& v1, const vector<T, N>& v2, const T& a )
     -> vector<T, N> {
     return ( T{ 1 } - a ) * v1 + a * v2;
 }
@@ -562,7 +562,7 @@ requires Algebraic<T>&& Positive<N> auto mix( const vector<T, N>& v1, const vect
  * Linear interpolation between v1 and v2 using a as factor
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto mix( const vector<T, N>& v1, const vector<T, N>& v2, const vector<T, N>& a )
+requires Numerical<T>&& Positive<N> auto mix( const vector<T, N>& v1, const vector<T, N>& v2, const vector<T, N>& a )
     -> vector<T, N> {
     return ( vector<T, N>{ 1 } - a ) * v1 + a * v2;
 }
@@ -571,7 +571,7 @@ requires Algebraic<T>&& Positive<N> auto mix( const vector<T, N>& v1, const vect
  * Linear spherical interpolation between v1 and v2 using a as factor
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto slerp( const vector<T, N>& v1, const vector<T, N>& v2, const T& a )
+requires Numerical<T>&& Positive<N> auto slerp( const vector<T, N>& v1, const vector<T, N>& v2, const T& a )
     -> vector<T, N> {
     using std::sin;
     const T theta = angle( v1, v2 );
@@ -584,7 +584,7 @@ requires Algebraic<T>&& Positive<N> auto slerp( const vector<T, N>& v1, const ve
  * If v1 or v2 is zero length zero is returned.
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto angle( const vector<T, N>& v1, const vector<T, N>& v2 ) -> T {
+requires Numerical<T>&& Positive<N> auto angle( const vector<T, N>& v1, const vector<T, N>& v2 ) -> T {
     using std::acos;
     using std::numeric_limits;
     using std::sqrt;
@@ -600,7 +600,7 @@ requires Algebraic<T>&& Positive<N> auto angle( const vector<T, N>& v1, const ve
  * Component-wise min
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto min( const vector<T, N>& v1, const vector<T, N>& v2 ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto min( const vector<T, N>& v1, const vector<T, N>& v2 ) -> vector<T, N> {
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
         if ( v1[i] < v2[i] ) {
@@ -616,7 +616,7 @@ requires Algebraic<T>&& Positive<N> auto min( const vector<T, N>& v1, const vect
  * Component-wise min
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto min( const vector<T, N>& v, const T& a ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto min( const vector<T, N>& v, const T& a ) -> vector<T, N> {
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
         if ( v[i] < a ) {
@@ -632,7 +632,7 @@ requires Algebraic<T>&& Positive<N> auto min( const vector<T, N>& v, const T& a 
  * Component-wise max
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto max( const vector<T, N>& v1, const vector<T, N>& v2 ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto max( const vector<T, N>& v1, const vector<T, N>& v2 ) -> vector<T, N> {
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
         if ( v1[i] > v2[i] ) {
@@ -648,7 +648,7 @@ requires Algebraic<T>&& Positive<N> auto max( const vector<T, N>& v1, const vect
  * Component-wise max
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto max( const vector<T, N>& v, const T& a ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto max( const vector<T, N>& v, const T& a ) -> vector<T, N> {
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
         if ( v[i] > a ) {
@@ -664,7 +664,7 @@ requires Algebraic<T>&& Positive<N> auto max( const vector<T, N>& v, const T& a 
  * Constrain components to lie between given values
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto clamp( const vector<T, N>& v, const vector<T, N>& minVal,
+requires Numerical<T>&& Positive<N> auto clamp( const vector<T, N>& v, const vector<T, N>& minVal,
                                                 const vector<T, N>& maxVal ) -> vector<T, N> {
     return min( max( v, minVal ), maxVal );
 }
@@ -673,7 +673,7 @@ requires Algebraic<T>&& Positive<N> auto clamp( const vector<T, N>& v, const vec
  * Constrain components to lie between given values
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto clamp( const vector<T, N>& v, const T& minVal, const T& maxVal )
+requires Numerical<T>&& Positive<N> auto clamp( const vector<T, N>& v, const T& minVal, const T& maxVal )
     -> vector<T, N> {
     return min( max( v, minVal ), maxVal );
 }
@@ -683,7 +683,7 @@ requires Algebraic<T>&& Positive<N> auto clamp( const vector<T, N>& v, const T& 
  * The points must not lie on the same line!
  */
 template <typename T>
-requires Algebraic<T> auto normal( const vector<T, 3>& p1, const vector<T, 3>& p2, const vector<T, 3>& p3 )
+requires Numerical<T> auto normal( const vector<T, 3>& p1, const vector<T, 3>& p2, const vector<T, 3>& p3 )
     -> vector<T, 3> {
     return normalize( cross( p2 - p1, p3 - p1 ) );
 }
@@ -692,7 +692,7 @@ requires Algebraic<T> auto normal( const vector<T, 3>& p1, const vector<T, 3>& p
  * Component-wise sin
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto sin( const vector<T, N>& v ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto sin( const vector<T, N>& v ) -> vector<T, N> {
     using std::sin;
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
@@ -705,7 +705,7 @@ requires Algebraic<T>&& Positive<N> auto sin( const vector<T, N>& v ) -> vector<
  * Component-wise cos
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto cos( const vector<T, N>& v ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto cos( const vector<T, N>& v ) -> vector<T, N> {
     using std::cos;
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
@@ -718,7 +718,7 @@ requires Algebraic<T>&& Positive<N> auto cos( const vector<T, N>& v ) -> vector<
  * Component-wise tan
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto tan( const vector<T, N>& v ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto tan( const vector<T, N>& v ) -> vector<T, N> {
     using std::tan;
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
@@ -731,7 +731,7 @@ requires Algebraic<T>&& Positive<N> auto tan( const vector<T, N>& v ) -> vector<
  * Component-wise asin
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto asin( const vector<T, N>& v ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto asin( const vector<T, N>& v ) -> vector<T, N> {
     using std::asin;
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
@@ -744,7 +744,7 @@ requires Algebraic<T>&& Positive<N> auto asin( const vector<T, N>& v ) -> vector
  * Component-wise acos
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto acos( const vector<T, N>& v ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto acos( const vector<T, N>& v ) -> vector<T, N> {
     using std::acos;
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
@@ -757,7 +757,7 @@ requires Algebraic<T>&& Positive<N> auto acos( const vector<T, N>& v ) -> vector
  * Component-wise atan
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto atan( const vector<T, N>& v ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto atan( const vector<T, N>& v ) -> vector<T, N> {
     using std::atan;
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
@@ -770,7 +770,7 @@ requires Algebraic<T>&& Positive<N> auto atan( const vector<T, N>& v ) -> vector
  * Component-wise sqrt
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto sqrt( const vector<T, N>& v ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto sqrt( const vector<T, N>& v ) -> vector<T, N> {
     using std::sqrt;
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
@@ -783,7 +783,7 @@ requires Algebraic<T>&& Positive<N> auto sqrt( const vector<T, N>& v ) -> vector
  * Component-wise abs
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto abs( const vector<T, N>& v ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto abs( const vector<T, N>& v ) -> vector<T, N> {
     using std::abs;
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
@@ -796,7 +796,7 @@ requires Algebraic<T>&& Positive<N> auto abs( const vector<T, N>& v ) -> vector<
  * Component-wise pow
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto pow( const vector<T, N>& v1, const vector<T, N>& v2 ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto pow( const vector<T, N>& v1, const vector<T, N>& v2 ) -> vector<T, N> {
     using std::pow;
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
@@ -809,7 +809,7 @@ requires Algebraic<T>&& Positive<N> auto pow( const vector<T, N>& v1, const vect
  * Component-wise exp
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto exp( const vector<T, N>& v ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto exp( const vector<T, N>& v ) -> vector<T, N> {
     using std::exp;
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
@@ -822,7 +822,7 @@ requires Algebraic<T>&& Positive<N> auto exp( const vector<T, N>& v ) -> vector<
  * Component-wise log
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto log( const vector<T, N>& v ) -> vector<T, N> {
+requires Numerical<T>&& Positive<N> auto log( const vector<T, N>& v ) -> vector<T, N> {
     using std::log;
     vector<T, N> temp;
     for ( int i = 0; i < N; ++i ) {
@@ -859,7 +859,7 @@ requires Positive<N> auto radToDeg( const vector<T, N>& v ) -> vector<T, N> {
  * Static cast each component from T2 to T1.
  */
 template <typename T1, typename T2, int N>
-requires Algebraic<T1>&& Algebraic<T2>&& Positive<N> auto staticVectorCast( const vector<T2, N>& v ) -> vector<T1, N> {
+requires Numerical<T1>&& Numerical<T2>&& Positive<N> auto staticVectorCast( const vector<T2, N>& v ) -> vector<T1, N> {
     vector<T1, N> temp;
     for ( int i = 0; i < N; ++i ) {
         temp[i] = static_cast<T1>( v[i] );
@@ -989,7 +989,7 @@ requires std::floating_point<TF>&& UnsignedIntegral<TI> auto unpackSrgba( const 
 // ============================================================================
 
 template <typename T, size_t size>
-    requires Algebraic<T>&& Positive<size> &&
+    requires Numerical<T>&& Positive<size> &&
     ( size <= static_cast<size_t>( std::numeric_limits<int>::max() ) ) struct vector_base {
     using self = vector_base<T, size>;
     using value_type = T;

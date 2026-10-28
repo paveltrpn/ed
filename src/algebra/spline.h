@@ -11,7 +11,7 @@ namespace tire::algebra {
 
 namespace detail {
 
-template <Algebraic T, int N>
+template <Numerical T, int N>
 requires Positive<N> auto bezierImpl( const vector<T, N>* p, int n, T t1, T t2, int stride = 1 ) -> vector<T, N> {
     if ( n == 1 ) {
         return *p;
@@ -30,7 +30,7 @@ requires Positive<N> auto bezierImpl( const vector<T, N>* p, int n, T t1, T t2, 
  * @param p Control points.
  * @param t Interpolation value [0-1].
  */
-template <int D, Algebraic T, int N>
+template <int D, Numerical T, int N>
 requires Positive<D>&& Positive<N> auto bezier( const vector<T, N> ( &p )[D], T t ) -> vector<T, N> {
     return detail::bezierImpl( &p[0], D, static_cast<T>( 1 ) - t, t );
 }
@@ -42,7 +42,7 @@ requires Positive<D>&& Positive<N> auto bezier( const vector<T, N> ( &p )[D], T 
  * @param p Control points.
  * @param t Interpolation value [0-1].
  */
-template <int D0, int D1, Algebraic T, int N>
+template <int D0, int D1, Numerical T, int N>
 requires Positive<D0>&& Positive<D1>&& Positive<N> auto bezier2( const vector<T, N> ( &p )[D1][D0],
                                                                  const vector<T, 2>& t ) -> vector<T, N> {
     vector<T, N> temp[D1];
@@ -54,7 +54,7 @@ requires Positive<D0>&& Positive<D1>&& Positive<N> auto bezier2( const vector<T,
 
 namespace detail {
 
-template <int O, int D, Algebraic T, int N>
+template <int O, int D, Numerical T, int N>
     requires( O >= 0 ) && Positive<D>&& Positive<N> auto bezierDerivativeImpl( const vector<T, N> ( &p )[D], T t )
                               -> vector<T, N> {
     if constexpr ( O == 0 ) {
@@ -81,7 +81,7 @@ template <int O, int D, Algebraic T, int N>
  * @param p Control points.
  * @param t Interpolation value [0-1].
  */
-template <int O, int D, Algebraic T, int N>
+template <int O, int D, Numerical T, int N>
 requires Positive<O>&& Positive<D>&& Positive<N> auto bezierDerivative( const vector<T, N> ( &p )[D], T t )
     -> vector<T, N> {
     return detail::bezierDerivativeImpl<O>( p, t );
@@ -98,7 +98,7 @@ requires Positive<O>&& Positive<D>&& Positive<N> auto bezierDerivative( const ve
  * @param p Control points.
  * @param t Interpolation value [0-1].
  */
-template <int O, int D0, int D1, Algebraic T, int N>
+template <int O, int D0, int D1, Numerical T, int N>
 requires Positive<O>&& Positive<D0>&& Positive<D1>&& Positive<N> auto bezier2Jacobian(
     const vector<T, N> ( &p )[D1][D0], const vector<T, 2>& t ) -> matrix<T, 2, N> {
     vector<T, N> temp0[D0];

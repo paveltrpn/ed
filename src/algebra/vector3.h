@@ -17,7 +17,7 @@ namespace tire::algebra {
 // ============================================================================
 
 template <typename T>
-requires Algebraic<T> struct vector3 final {
+requires Numerical<T> struct vector3 final {
     using value_type = T;
     using self = vector3<value_type>;
 
@@ -160,7 +160,7 @@ struct tuple_size<tire::algebra::vector3d> : std::integral_constant<size_t, 3> {
 // ============================================================================
 
 template <size_t I, typename T>
-requires tire::algebra::Algebraic<T> struct tuple_element<I, tire::algebra::vector3<T>> {
+requires tire::algebra::Numerical<T> struct tuple_element<I, tire::algebra::vector3<T>> {
     using type = T;
 };
 

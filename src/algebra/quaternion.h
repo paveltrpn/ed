@@ -29,7 +29,7 @@ namespace tire::algebra {
  * Complex number with scalar as real part and 3-vector as imaginary part.
  * Used for rotations and for storing orientation in 3d space.
  */
-template <Algebraic T>
+template <Numerical T>
 class quaternion {
 public:
     /**
@@ -227,7 +227,7 @@ private:
 /**
  * Multiplies scalar (aka quaternion with zero imaginary part) and quaternion
  */
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto operator*( const T& a, const quaternion<T>& q ) -> quaternion<T> {
     return quaternion<T>{ a * q.real(), a * q.imag() };
 }
@@ -235,7 +235,7 @@ template <Algebraic T>
 /**
  * Multiply quaternion and vector as it were the imaginary part of a quaternion.
  */
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto operator*( const vector<T, 3>& v, const quaternion<T>& q ) -> quaternion<T> {
     return quaternion<T>{ -dot( v, q.imag() ), q.real() * v + cross( v, q.imag() ) };
 }
@@ -243,27 +243,27 @@ template <Algebraic T>
 /**
  * Add quaternion and vector as it were the imaginary part of a quaternion.
  */
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto operator+( vector<T, 3> v, const quaternion<T>& q ) -> quaternion<T> {
     return quaternion<T>{ q.real(), v + q.imag() };
 }
 
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto operator+( const T& a, const quaternion<T>& q ) -> quaternion<T> {
     return quaternion<T>{ a + q.real(), q.imag() };
 }
 
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto operator-( const quaternion<T>& q ) -> quaternion<T> {
     return quaternion<T>{ -q.real(), -q.imag() };
 }
 
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto operator-( const T& a, const quaternion<T>& q ) -> quaternion<T> {
     return quaternion<T>{ a - q.real(), -q.imag() };
 }
 
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto operator-( const vector<T, 3>& v, const quaternion<T>& q ) -> quaternion<T> {
     return quaternion<T>{ -q.real(), v - q.imag() };
 }
@@ -271,7 +271,7 @@ template <Algebraic T>
 /**
  * Write a quaternion to a stream inside brackets parts separated by a comma.
  */
-template <Algebraic T>
+template <Numerical T>
 auto operator<<( std::ostream& os, const quaternion<T>& q ) -> std::ostream& {
     os << '(' << q.real() << ',' << q.imag() << ')';
     return os;
@@ -281,7 +281,7 @@ auto operator<<( std::ostream& os, const quaternion<T>& q ) -> std::ostream& {
  * Reads a quaternion from a stream.
  * The parts must be inside brackets separated be a comma.
  */
-template <Algebraic T>
+template <Numerical T>
 auto operator>>( std::istream& is, quaternion<T>& q ) -> std::istream& {
     char ch = 0;
     is >> ch >> q.real() >> ch >> q.imag() >> ch;
@@ -291,7 +291,7 @@ auto operator>>( std::istream& is, quaternion<T>& q ) -> std::istream& {
 /**
  * Converts a quaternion to std::string.
  */
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto toString( const quaternion<T>& q ) -> std::string {
     std::stringstream ss{};
     ss << q;
@@ -301,7 +301,7 @@ template <Algebraic T>
 /**
  * Returns the squared magnitude of the quaternion q
  */
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto norm( const quaternion<T>& q ) -> T {
     return q.real() * q.real() + dot( q.imag(), q.imag() );
 }
@@ -309,7 +309,7 @@ template <Algebraic T>
 /**
  * Returns the magnitude of the quaternion q.
  */
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto abs( const quaternion<T>& q ) -> T {
     using std::sqrt;
     return sqrt( norm( q ) );
@@ -318,7 +318,7 @@ template <Algebraic T>
 /**
  * Makes the quaternion a unit quaternion.
  */
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto normalize( const quaternion<T>& q ) -> quaternion<T> {
     return q / abs( q );
 }
@@ -326,7 +326,7 @@ template <Algebraic T>
 /**
  * Quaternion conjugate (negates imaginary part)
  */
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto conj( const quaternion<T>& q ) -> quaternion<T> {
     return quaternion<T>{ q.real(), -q.imag() };
 }
@@ -336,7 +336,7 @@ template <Algebraic T>
  * @param angle Rotation angle in radians
  * @param axis Unit length rotation axis.
  */
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto quaternionRotate( const T& angle, const vector<T, 3>& axis ) -> quaternion<T> {
     using std::cos;
     using std::sin;
@@ -349,7 +349,7 @@ template <Algebraic T>
  * Generates rotation quaternion from Euler angles
  * @param angle Euler angles in radians.
  */
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto quaternionRotate( const vector<T, 3>& angle ) -> quaternion<T> {
     using std::cos;
     using std::sin;
@@ -373,7 +373,7 @@ template <Algebraic T>
 /**
  * Decomposes a rotation quaternion to angle and axis.
  */
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto decomposeRotate( const quaternion<T>& q ) -> std::tuple<T, vector<T, 3>> {
     using std::acos;
     using std::max;
@@ -391,7 +391,7 @@ template <Algebraic T>
  * Linear interpolation between quaternions.
  * the resulting quaternion is NOT normalized
  */
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto mix( const quaternion<T>& q1, const quaternion<T>& q2, const T& a ) -> quaternion<T> {
     return ( T{ 1 } - a ) * q1 + a * q2;
 }
@@ -400,7 +400,7 @@ template <Algebraic T>
  * Rotates 3-vector v with quaternion q (computes q*v*conj(q))
  * Note q has to be a unit quaternion.
  */
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto transform( const quaternion<T>& q, const vector<T, 3>& v ) -> vector<T, 3> {
     const vector<T, 3> temp = T{ 2 } * cross( q.imag(), v );
     return v + q.real() * temp + cross( q.imag(), temp );
@@ -409,7 +409,7 @@ template <Algebraic T>
 /**
  * Inverse of quaternion.
  */
-template <Algebraic T>
+template <Numerical T>
 [[nodiscard]] auto inverse( const quaternion<T>& q ) -> quaternion<T> {
     return conj( q ) / norm( q );
 }
@@ -417,7 +417,7 @@ template <Algebraic T>
 /**
  * Static cast each component from T2 to T1.
  */
-template <Algebraic T1, Algebraic T2>
+template <Numerical T1, Numerical T2>
 [[nodiscard]] auto staticQuaternionCast( const quaternion<T2>& q ) -> quaternion<T1> {
     return quaternion<T1>{ static_cast<T1>( q.real() ), staticVectorCast<T1>( q.imag() ) };
 }
@@ -427,7 +427,7 @@ template <Algebraic T1, Algebraic T2>
 // ============================================================================
 
 template <typename T>
-requires Algebraic<T> struct quaternion_base {
+requires Numerical<T> struct quaternion_base {
     using value_type = T;
     using self = quaternion_base<value_type>;
     using reference = value_type&;

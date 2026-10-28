@@ -21,7 +21,7 @@ namespace tire::algebra {
 // ======================== matrix4 ===========================================
 // ============================================================================
 
-template <Algebraic T>
+template <Numerical T>
 struct matrix4 final {
     using value_type = T;
     using self = matrix4<value_type>;

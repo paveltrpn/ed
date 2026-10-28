@@ -13,7 +13,7 @@
 
 namespace tire::algebra {
 
-template <Algebraic T>
+template <Numerical T>
 auto clamp( T val, T minVal, T maxVal ) -> T {
     return std::min<T>( std::max<T>( val, minVal ), maxVal );
 }

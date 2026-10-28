@@ -7,7 +7,7 @@
 namespace tire::algebra {
 
 template <typename T>
-concept Algebraic = std::integral<T> || std::floating_point<T>;
+concept Numerical = std::integral<T> || std::floating_point<T>;
 
 template <typename T>
 concept SignedIntegral = std::integral<T>&& std::signed_integral<T>;
@@ -19,22 +19,22 @@ template <auto N>
 concept Positive = ( N > 0 );
 
 template <typename T>
-requires Algebraic<T> struct matrix2;
+requires Numerical<T> struct matrix2;
 
 template <typename T>
-requires Algebraic<T> struct matrix3;
+requires Numerical<T> struct matrix3;
 
-template <Algebraic T>
+template <Numerical T>
 struct matrix4;
 
 template <typename T>
-requires Algebraic<T> struct vector2;
+requires Numerical<T> struct vector2;
 
 template <typename T>
-requires Algebraic<T> struct vector3;
+requires Numerical<T> struct vector3;
 
 template <typename T>
-requires Algebraic<T> struct vector4;
+requires Numerical<T> struct vector4;
 
 template <typename T>
 concept MatrixFloat =

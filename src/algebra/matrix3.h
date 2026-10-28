@@ -16,7 +16,7 @@ namespace tire::algebra {
 // ============================================================================
 
 template <typename T>
-requires Algebraic<T> struct matrix3 final {
+requires Numerical<T> struct matrix3 final {
     using value_type = T;
     using self = matrix3<value_type>;
     using reference = value_type&;

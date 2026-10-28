@@ -33,7 +33,7 @@ namespace tire::algebra {
  * @tparam R Number of rows (length of column vectors)
  */
 template <typename T, int C, int R>
-requires Algebraic<T>&& Positive<C>&& Positive<R> class matrix {
+requires Numerical<T>&& Positive<C>&& Positive<R> class matrix {
 public:
     /**
      * The type of a single component (Not the type of single column!)
@@ -316,7 +316,7 @@ private:
  * Multiplies all components of the matrix with a scalar
  */
 template <typename T, int C, int R>
-requires Algebraic<T>&& Positive<C>&& Positive<R> auto operator*( const T& a, const matrix<T, C, R>& m )
+requires Numerical<T>&& Positive<C>&& Positive<R> auto operator*( const T& a, const matrix<T, C, R>& m )
     -> matrix<T, C, R> {
     matrix<T, C, R> temp;
     for ( int i = 0; i < C; ++i ) {
@@ -329,7 +329,7 @@ requires Algebraic<T>&& Positive<C>&& Positive<R> auto operator*( const T& a, co
  * Prints the matrix to a stream inside brackets columns separated by a comma.
  */
 template <typename T, int C, int R>
-requires Algebraic<T>&& Positive<C>&& Positive<R> auto operator<<( std::ostream& os, const matrix<T, C, R>& m )
+requires Numerical<T>&& Positive<C>&& Positive<R> auto operator<<( std::ostream& os, const matrix<T, C, R>& m )
     -> std::ostream& {
     os << '(';
     for ( int i = 0; i < C; ++i ) {
@@ -347,7 +347,7 @@ requires Algebraic<T>&& Positive<C>&& Positive<R> auto operator<<( std::ostream&
  * The matrix must be inside brackets columns separeted by a comma.
  */
 template <typename T, int C, int R>
-requires Algebraic<T>&& Positive<C>&& Positive<R> auto operator>>( std::istream& is, matrix<T, C, R>& m )
+requires Numerical<T>&& Positive<C>&& Positive<R> auto operator>>( std::istream& is, matrix<T, C, R>& m )
     -> std::istream& {
     char tmp;
     is >> tmp;
@@ -362,7 +362,7 @@ requires Algebraic<T>&& Positive<C>&& Positive<R> auto operator>>( std::istream&
  * Converts a matrix to std::string.
  */
 template <typename T, int C, int R>
-requires Algebraic<T>&& Positive<C>&& Positive<R> auto toString( const matrix<T, C, R>& m ) -> std::string {
+requires Numerical<T>&& Positive<C>&& Positive<R> auto toString( const matrix<T, C, R>& m ) -> std::string {
     std::stringstream ss{};
     ss << m;
     return ss.str();
@@ -372,7 +372,7 @@ requires Algebraic<T>&& Positive<C>&& Positive<R> auto toString( const matrix<T,
  * Returns the transpose of the matrix.
  */
 template <typename T, int C, int R>
-requires Algebraic<T>&& Positive<C>&& Positive<R> auto transpose( const matrix<T, C, R>& m ) -> matrix<T, R, C> {
+requires Numerical<T>&& Positive<C>&& Positive<R> auto transpose( const matrix<T, C, R>& m ) -> matrix<T, R, C> {
     matrix<T, R, C> temp;
     for ( int i = 0; i < C; ++i ) {      // C
         for ( int j = 0; j < R; ++j ) {  // R
@@ -386,7 +386,7 @@ requires Algebraic<T>&& Positive<C>&& Positive<R> auto transpose( const matrix<T
  * Component wise multiplication of matrices
  */
 template <typename T, int C, int R>
-requires Algebraic<T>&& Positive<C>&& Positive<R> auto matrixCompMult( const matrix<T, C, R>& m1,
+requires Numerical<T>&& Positive<C>&& Positive<R> auto matrixCompMult( const matrix<T, C, R>& m1,
                                                                        const matrix<T, C, R>& m2 ) -> matrix<T, C, R> {
     matrix<T, C, R> temp;
     for ( int i = 0; i < C; ++i ) {
@@ -399,7 +399,7 @@ requires Algebraic<T>&& Positive<C>&& Positive<R> auto matrixCompMult( const mat
  * Treats the first vector as matrix with one column and second as matrix with one row
  */
 template <typename T, int C, int R>
-requires Algebraic<T>&& Positive<C>&& Positive<R> auto outerProduct( const vector<T, R>& v1, const vector<T, C>& v2 )
+requires Numerical<T>&& Positive<C>&& Positive<R> auto outerProduct( const vector<T, R>& v1, const vector<T, C>& v2 )
     -> matrix<T, C, R> {
     matrix<T, C, R> temp;
     for ( int i = 0; i < C; ++i ) {
@@ -416,12 +416,12 @@ requires Algebraic<T>&& Positive<C>&& Positive<R> auto outerProduct( const vecto
  * @param row Index of the row to remove (must be [0, N - 1])
  */
 template <typename T, int N>
-    requires Algebraic<T> && ( N > 1 ) auto firstMinor( const matrix<T, N, N>& m, int col, int row ) -> T {
+    requires Numerical<T> && ( N > 1 ) auto firstMinor( const matrix<T, N, N>& m, int col, int row ) -> T {
     return determinant( matrix<T, N - 1, N - 1>{ m, col, row } );
 }
 
 template <typename T>
-requires Algebraic<T> auto firstMinor( const matrix<T, 3, 3>& m, int col, int row ) -> T {
+requires Numerical<T> auto firstMinor( const matrix<T, 3, 3>& m, int col, int row ) -> T {
     assert( col >= 0 && col < 3 );
     assert( row >= 0 && row < 3 );
 
@@ -446,7 +446,7 @@ requires Algebraic<T> auto firstMinor( const matrix<T, 3, 3>& m, int col, int ro
 }
 
 template <typename T>
-requires Algebraic<T> auto firstMinor( const matrix<T, 2, 2>& m, int col, int row ) -> T {
+requires Numerical<T> auto firstMinor( const matrix<T, 2, 2>& m, int col, int row ) -> T {
     assert( col >= 0 && col < 2 );
     assert( row >= 0 && row < 2 );
 
@@ -457,7 +457,7 @@ requires Algebraic<T> auto firstMinor( const matrix<T, 2, 2>& m, int col, int ro
  * Computes the determinant of a matrix
  */
 template <typename T, int N>
-    requires Algebraic<T> && ( N > 1 ) auto determinant( const matrix<T, N, N>& m ) -> T {
+    requires Numerical<T> && ( N > 1 ) auto determinant( const matrix<T, N, N>& m ) -> T {
     T det = 0;
     for ( int i = 0; i < N; ++i ) {
         if ( i % 2 == 0 ) {
@@ -473,7 +473,7 @@ template <typename T, int N>
  * Computes the determinant of a 1x1 matrix
  */
 template <typename T>
-requires Algebraic<T> auto determinant( const matrix<T, 1, 1>& m ) -> T {
+requires Numerical<T> auto determinant( const matrix<T, 1, 1>& m ) -> T {
     return m[0][0];
 }
 
@@ -481,7 +481,7 @@ requires Algebraic<T> auto determinant( const matrix<T, 1, 1>& m ) -> T {
  * Computes the determinant of a 2x2 matrix
  */
 template <typename T>
-requires Algebraic<T> auto determinant( const matrix<T, 2, 2>& m ) -> T {
+requires Numerical<T> auto determinant( const matrix<T, 2, 2>& m ) -> T {
     return m[0][0] * m[1][1] - m[1][0] * m[0][1];
 }
 
@@ -489,7 +489,7 @@ requires Algebraic<T> auto determinant( const matrix<T, 2, 2>& m ) -> T {
  * Computes the inverse of a matrix
  */
 template <typename T, int N>
-    requires Algebraic<T> && ( N > 1 ) auto inverse( const matrix<T, N, N>& m ) -> matrix<T, N, N> {
+    requires Numerical<T> && ( N > 1 ) auto inverse( const matrix<T, N, N>& m ) -> matrix<T, N, N> {
     matrix<T, N, N> temp;
     const T a = determinant( m );
     for ( int i = 0; i < N; ++i ) {
@@ -508,7 +508,7 @@ template <typename T, int N>
  * Computes the inverse of a 1x1 matrix
  */
 template <typename T>
-requires Algebraic<T> auto inverse( const matrix<T, 1, 1>& m ) -> matrix<T, 1, 1> {
+requires Numerical<T> auto inverse( const matrix<T, 1, 1>& m ) -> matrix<T, 1, 1> {
     return matrix<T, 1, 1>{ T{ 1 } / m[0][0] };
 }
 
@@ -517,7 +517,7 @@ requires Algebraic<T> auto inverse( const matrix<T, 1, 1>& m ) -> matrix<T, 1, 1
  * This the same matrix that would generated by glTranslate
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto translate( const vector<T, N>& v ) -> matrix<T, N + 1, N + 1> {
+requires Numerical<T>&& Positive<N> auto translate( const vector<T, N>& v ) -> matrix<T, N + 1, N + 1> {
     matrix<T, N + 1, N + 1> result{ T{ 1 } };
     for ( int i = 0; i < N; ++i ) {
         result[N][i] = v[i];
@@ -530,7 +530,7 @@ requires Algebraic<T>&& Positive<N> auto translate( const vector<T, N>& v ) -> m
  * This the same matrix that would generated by glScale
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto scale( const vector<T, N>& v ) -> matrix<T, N + 1, N + 1> {
+requires Numerical<T>&& Positive<N> auto scale( const vector<T, N>& v ) -> matrix<T, N + 1, N + 1> {
     matrix<T, N + 1, N + 1> result{ T{ 1 } };
     for ( int i = 0; i < N; ++i ) {
         result[i][i] = v[i];
@@ -542,7 +542,7 @@ requires Algebraic<T>&& Positive<N> auto scale( const vector<T, N>& v ) -> matri
  * Generates rotations matrix so that
  */
 template <typename T>
-requires Algebraic<T> auto rotate( const T& angle ) -> matrix<T, 3, 3> {
+requires Numerical<T> auto rotate( const T& angle ) -> matrix<T, 3, 3> {
     using std::cos;
     using std::sin;
 
@@ -557,7 +557,7 @@ requires Algebraic<T> auto rotate( const T& angle ) -> matrix<T, 3, 3> {
  * Generates rotation matrix from Eular angles
  */
 template <typename T>
-requires Algebraic<T> auto rotate( const vector<T, 3>& angle ) -> matrix<T, 4, 4> {
+requires Numerical<T> auto rotate( const vector<T, 3>& angle ) -> matrix<T, 4, 4> {
     using std::cos;
     using std::sin;
 
@@ -591,7 +591,7 @@ requires Algebraic<T> auto rotate( const vector<T, 3>& angle ) -> matrix<T, 4, 4
  * Generates rotation matrix from angle and axis
  */
 template <typename T>
-requires Algebraic<T> auto rotate( const T& angle, const vector<T, 3>& axis ) -> matrix<T, 4, 4> {
+requires Numerical<T> auto rotate( const T& angle, const vector<T, 3>& axis ) -> matrix<T, 4, 4> {
     using std::cos;
     using std::sin;
 
@@ -628,7 +628,7 @@ requires Algebraic<T> auto rotate( const T& angle, const vector<T, 3>& axis ) ->
  * Generates rotation matrix from a rotation quaternion
  */
 template <typename T>
-requires Algebraic<T> auto rotate( const quaternion<T>& q ) -> matrix<T, 4, 4> {
+requires Numerical<T> auto rotate( const quaternion<T>& q ) -> matrix<T, 4, 4> {
     const T xx = q.imag()[0] * q.imag()[0];
     const T xy = q.imag()[0] * q.imag()[1];
     const T xz = q.imag()[0] * q.imag()[2];
@@ -663,7 +663,7 @@ requires Algebraic<T> auto rotate( const quaternion<T>& q ) -> matrix<T, 4, 4> {
  * rotate(angle, axis) * scale(scaling), but potentially faster.
  */
 template <typename T>
-requires Algebraic<T> auto translateRotateScale( const vector<T, 3>& translation, T angle, const vector<T, 3>& axis,
+requires Numerical<T> auto translateRotateScale( const vector<T, 3>& translation, T angle, const vector<T, 3>& axis,
                                                  const vector<T, 3>& scaling ) -> matrix<T, 4, 4> {
     return translateRotateScale( translation, quaternionRotate( angle, axis ), scaling );
 }
@@ -673,7 +673,7 @@ requires Algebraic<T> auto translateRotateScale( const vector<T, 3>& translation
  * rotate(rotation) * scale(scaling), but potentially faster.
  */
 template <typename T>
-requires Algebraic<T> auto translateRotateScale( const vector<T, 3>& translation, const quaternion<T>& rotation,
+requires Numerical<T> auto translateRotateScale( const vector<T, 3>& translation, const quaternion<T>& rotation,
                                                  const vector<T, 3>& scaling ) -> matrix<T, 4, 4> {
     matrix<T, 4, 4> m = rotate( rotation );
 
@@ -693,7 +693,7 @@ requires Algebraic<T> auto translateRotateScale( const vector<T, 3>& translation
  * The input matrix is assumed to be a valid rotation matrix.
  */
 template <typename T>
-requires Algebraic<T> auto decomposeRotationQuaternion( const matrix<T, 4, 4>& m ) -> quaternion<T> {
+requires Numerical<T> auto decomposeRotationQuaternion( const matrix<T, 4, 4>& m ) -> quaternion<T> {
     using std::sqrt;
 
     const T one = static_cast<T>( 1 );
@@ -733,7 +733,7 @@ requires Algebraic<T> auto decomposeRotationQuaternion( const matrix<T, 4, 4>& m
  * The input matrix is assumed to be a valid rotation matrix.
  */
 template <typename T>
-requires Algebraic<T> auto decomposeRotate( const matrix<T, 4, 4>& m ) -> std::tuple<T, vector<T, 3>> {
+requires Numerical<T> auto decomposeRotate( const matrix<T, 4, 4>& m ) -> std::tuple<T, vector<T, 3>> {
     return decomposeRotate( decomposeRotationQuaternion( m ) );
 }
 
@@ -741,7 +741,7 @@ requires Algebraic<T> auto decomposeRotate( const matrix<T, 4, 4>& m ) -> std::t
  * Decomposes translate, rotate, scale -matrix to translation, angle, axis and scale.
  */
 template <typename T>
-requires Algebraic<T> auto decomposeTrs( const matrix<T, 4, 4>& m )
+requires Numerical<T> auto decomposeTrs( const matrix<T, 4, 4>& m )
     -> std::tuple<vector<T, 3>, T, vector<T, 3>, vector<T, 3>> {
     std::tuple<vector<T, 3>, T, vector<T, 3>, vector<T, 3>> temp{};
 
@@ -757,7 +757,7 @@ requires Algebraic<T> auto decomposeTrs( const matrix<T, 4, 4>& m )
  * Decomposes translate, rotate, scale -matrix to translation, rotation quaternion and scale.
  */
 template <typename T>
-requires Algebraic<T> auto decomposeTrsQuaternion( const matrix<T, 4, 4>& m )
+requires Numerical<T> auto decomposeTrsQuaternion( const matrix<T, 4, 4>& m )
     -> std::tuple<vector<T, 3>, quaternion<T>, vector<T, 3>> {
     matrix<T, 4, 4> temp = m;
 
@@ -780,7 +780,7 @@ requires Algebraic<T> auto decomposeTrsQuaternion( const matrix<T, 4, 4>& m )
  * This is the same matrix that glFrustum would generate.
  */
 template <typename T>
-requires Algebraic<T> auto frustum( const T& left, const T& right, const T& bottom, const T& top, const T& zNear,
+requires Numerical<T> auto frustum( const T& left, const T& right, const T& bottom, const T& top, const T& zNear,
                                     const T& zFar ) -> matrix<T, 4, 4> {
     const T dX = right - left;
     const T dY = top - bottom;
@@ -809,7 +809,7 @@ requires Algebraic<T> auto frustum( const T& left, const T& right, const T& bott
  * This is the same matrix that gluPerspective would generate.
  */
 template <typename T>
-requires Algebraic<T> auto perspectiveRadians( const T& fovy, const T& aspect, const T& zNear, const T& zFar )
+requires Numerical<T> auto perspectiveRadians( const T& fovy, const T& aspect, const T& zNear, const T& zFar )
     -> matrix<T, 4, 4> {
     using std::tan;
     const T ymax = zNear * tan( fovy / T{ 2 } );
@@ -824,7 +824,7 @@ requires Algebraic<T> auto perspectiveRadians( const T& fovy, const T& aspect, c
  * This is the same matrix that glOrtho would generate.
  */
 template <typename T>
-requires Algebraic<T> auto ortho( const T& left, const T& right, const T& bottom, const T& top, const T& zNear,
+requires Numerical<T> auto ortho( const T& left, const T& right, const T& bottom, const T& top, const T& zNear,
                                   const T& zFar ) -> matrix<T, 4, 4> {
     const T dX = right - left;
     const T dY = top - bottom;
@@ -839,7 +839,7 @@ requires Algebraic<T> auto ortho( const T& left, const T& right, const T& bottom
  * Returns an orthographic projection matrix
  */
 template <typename T>
-requires Algebraic<T> auto ortho2D( const T& left, const T& right, const T& bottom, const T& top ) -> matrix<T, 4, 4> {
+requires Numerical<T> auto ortho2D( const T& left, const T& right, const T& bottom, const T& top ) -> matrix<T, 4, 4> {
     return ortho( left, right, bottom, top, T{ -1 }, T{ 1 } );
 }
 
@@ -847,7 +847,7 @@ requires Algebraic<T> auto ortho2D( const T& left, const T& right, const T& bott
  * Returns same matrix as gluLookAt would generate
  */
 template <typename T>
-requires Algebraic<T> auto lookAt( const vector<T, 3>& eye, const vector<T, 3>& center, const vector<T, 3>& up )
+requires Numerical<T> auto lookAt( const vector<T, 3>& eye, const vector<T, 3>& center, const vector<T, 3>& up )
     -> matrix<T, 4, 4> {
     const vector<T, 3> z = normalize( center - eye );
     const vector<T, 3> x = normalize( cross( z, up ) );
@@ -867,7 +867,7 @@ requires Algebraic<T> auto lookAt( const vector<T, 3>& eye, const vector<T, 3>& 
  * @param viewportSize Size of the viewport
  */
 template <typename T, typename TI, typename TS>
-requires Algebraic<T>&& Algebraic<TI>&& Algebraic<TS> auto project( const vector<T, 3>& v,
+requires Numerical<T>&& Numerical<TI>&& Numerical<TS> auto project( const vector<T, 3>& v,
                                                                     const matrix<T, 4, 4>& modelView,
                                                                     const matrix<T, 4, 4>& proj,
                                                                     const vector<TI, 2>& viewportOrigin,
@@ -884,7 +884,7 @@ requires Algebraic<T>&& Algebraic<TI>&& Algebraic<TS> auto project( const vector
  * @param viewportSize Size of the viewport
  */
 template <typename T, typename TI, typename TS>
-requires Algebraic<T>&& Algebraic<TI>&& Algebraic<TS> auto project( const vector<T, 3>& v,
+requires Numerical<T>&& Numerical<TI>&& Numerical<TS> auto project( const vector<T, 3>& v,
                                                                     const matrix<T, 4, 4>& modelViewProj,
                                                                     const vector<TI, 2>& viewportOrigin,
                                                                     const vector<TS, 2>& viewportSize )
@@ -916,7 +916,7 @@ requires Algebraic<T>&& Algebraic<TI>&& Algebraic<TS> auto project( const vector
  * @param viewportSize Size of the viewport
  */
 template <typename T, typename TI, typename TS>
-requires Algebraic<T>&& Algebraic<TI>&& Algebraic<TS> auto unproject( const vector<T, 3>& v,
+requires Numerical<T>&& Numerical<TI>&& Numerical<TS> auto unproject( const vector<T, 3>& v,
                                                                       const matrix<T, 4, 4>& modelView,
                                                                       const matrix<T, 4, 4>& proj,
                                                                       const vector<TI, 2>& viewportOrigin,
@@ -933,7 +933,7 @@ requires Algebraic<T>&& Algebraic<TI>&& Algebraic<TS> auto unproject( const vect
  * @param viewportSize Size of the viewport
  */
 template <typename T, typename TI, typename TS>
-requires Algebraic<T>&& Algebraic<TI>&& Algebraic<TS> auto unproject( const vector<T, 3>& v,
+requires Numerical<T>&& Numerical<TI>&& Numerical<TS> auto unproject( const vector<T, 3>& v,
                                                                       const matrix<T, 4, 4>& invModelViewProj,
                                                                       const vector<TI, 2>& viewportOrigin,
                                                                       const vector<TS, 2>& viewportSize )
@@ -963,7 +963,7 @@ requires Algebraic<T>&& Algebraic<TI>&& Algebraic<TS> auto unproject( const vect
  * Multiply 4x4 matrix by 3-vector by adding 1 as last component to the vector.
  */
 template <typename T, int N>
-    requires Algebraic<T> &&
+    requires Numerical<T> &&
     ( N > 1 ) auto transform( const matrix<T, N, N>& m, const vector<T, N - 1>& v ) -> vector<T, N - 1> {
     vector<T, N - 1> temp{ m[N - 1] };
     for ( int c = 0; c < N - 1; ++c ) {
@@ -978,7 +978,7 @@ template <typename T, int N>
  * Static cast each component from T2 to T1.
  */
 template <typename T1, typename T2, int C, int R>
-requires Algebraic<T1>&& Algebraic<T2>&& Positive<C>&& Positive<R> auto staticMatrixCast( const matrix<T2, C, R>& m )
+requires Numerical<T1>&& Numerical<T2>&& Positive<C>&& Positive<R> auto staticMatrixCast( const matrix<T2, C, R>& m )
     -> matrix<T1, C, R> {
     matrix<T1, C, R> temp;
     for ( int i = 0; i < C; ++i ) {
@@ -991,7 +991,7 @@ requires Algebraic<T1>&& Algebraic<T2>&& Positive<C>&& Positive<R> auto staticMa
  * Returns the trace of a matrix (sum of the diagonal elements).
  */
 template <typename T, int N>
-requires Algebraic<T>&& Positive<N> auto trace( const matrix<T, N, N>& m ) -> T {
+requires Numerical<T>&& Positive<N> auto trace( const matrix<T, N, N>& m ) -> T {
     T temp = m[0][0];
     for ( int i = 1; i < N; ++i ) {
         temp += m[i][i];
@@ -1003,7 +1003,7 @@ requires Algebraic<T>&& Positive<N> auto trace( const matrix<T, N, N>& m ) -> T 
  * Returns the transpose of the inverse of the upper leftmost 3x3 of the matrix
  */
 template <typename T>
-requires Algebraic<T> auto normalMatrix( const matrix<T, 4, 4>& m ) -> matrix<T, 3, 3> {
+requires Numerical<T> auto normalMatrix( const matrix<T, 4, 4>& m ) -> matrix<T, 3, 3> {
     return transpose( inverse( matrix<T, 3, 3>{ m } ) );
 }
 
@@ -1012,7 +1012,7 @@ requires Algebraic<T> auto normalMatrix( const matrix<T, 4, 4>& m ) -> matrix<T,
 // ============================================================================
 
 template <typename T, size_t row, size_t column>
-    requires Algebraic<T>&& Positive<row>&& Positive<column> &&
+    requires Numerical<T>&& Positive<row>&& Positive<column> &&
     ( row <= static_cast<size_t>( std::numeric_limits<int>::max() ) ) &&
     ( column <= static_cast<size_t>( std::numeric_limits<int>::max() ) ) struct matrix_base {
     using self = matrix_base<T, row, column>;
@@ -1045,7 +1045,7 @@ protected:
 // ============================================================================
 
 template <typename T, size_t rng>
-    requires Algebraic<T>&& Positive<rng> &&
+    requires Numerical<T>&& Positive<rng> &&
     ( rng <= static_cast<size_t>( std::numeric_limits<int>::max() ) ) struct matrix_sqr_base
     : matrix_base<T, rng, rng> {
     using base_type = matrix_base<T, rng, rng>;
