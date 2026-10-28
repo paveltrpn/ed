@@ -1202,7 +1202,7 @@ auto matrix_sqr_transpose( const matrix_sqr_base<T, pSize_>& m ) -> matrix_sqr_b
 }
 
 template <typename T, size_t pSize_>
-auto matrix_sqr_multVec( const matrix_sqr_base<T, pSize_>& m, const vector_base<T, pSize_>& v )
+auto matrix_sqr_multVec( const matrix_sqr_base<T, pSize_>& m, const vector<T, static_cast<int>(pSize_)>& v )
     -> matrix_sqr_base<T, pSize_> {
     std::decay_t<decltype( m )> rt;
 
@@ -1263,7 +1263,7 @@ template <typename T, size_t pSize_>
 auto matrix_sqr_ldlt( const matrix_sqr_base<T, pSize_>& m )
     -> std::pair<matrix_sqr_base<T, pSize_>, matrix_sqr_base<T, pSize_>> {
     std::decay_t<decltype( m )> lm;
-    vector_base<T, pSize_> dv;
+    vector<T, static_cast<int>(pSize_)> dv;
     size_t i, j, k;
     T sum;
 
@@ -1276,7 +1276,7 @@ auto matrix_sqr_ldlt( const matrix_sqr_base<T, pSize_>& m )
                     if ( sum <= 0 ) {
                         std::cout << "matrix_sqr_ldlt(): matrix is not "
                                      "positive deﬁnite";
-                        return { matrix_sqr_base<T, pSize_>{}, vector_base<T, pSize_>{} };
+                        return { matrix_sqr_base<T, pSize_>{}, vector<T, static_cast<int>(pSize_)>{} };
                     }
                     dv[i] = sum;
                     lm[i * pSize_ + i] = 1.0;
@@ -1291,12 +1291,12 @@ auto matrix_sqr_ldlt( const matrix_sqr_base<T, pSize_>& m )
 }
 
 template <typename T, size_t pSize_>
-auto matrix_sqr_solve_gauss( const matrix_sqr_base<T, pSize_>& m, const vector_base<T, pSize_>& v )
-    -> vector_base<T, pSize_> {
+auto matrix_sqr_solve_gauss( const matrix_sqr_base<T, pSize_>& m, const vector<T, static_cast<int>(pSize_)>& v )
+    -> vector<T, static_cast<int>(pSize_)> {
     size_t i, j, k;
     T t;
     std::array<T, pSize_*( pSize_ + 1 )> a;
-    vector_base<T, pSize_> rt;
+    vector<T, static_cast<int>(pSize_)> rt;
 
     for ( i = 0; i < pSize_; i++ ) {
         for ( j = 0; j < pSize_; j++ ) {
@@ -1354,17 +1354,17 @@ auto matrix_sqr_insert_cmn( matrix_sqr_base<T, pSize_>& m, const matrix_sqr_base
 }
 
 template <typename T, size_t pSize_>
-auto matrix_sqr_solve_kramer( const matrix_sqr_base<T, pSize_>& m, const vector_base<T, pSize_>& v )
-    -> vector_base<T, pSize_> {
+auto matrix_sqr_solve_kramer( const matrix_sqr_base<T, pSize_>& m, const vector<T, static_cast<int>(pSize_)>& v )
+    -> vector<T, static_cast<int>(pSize_)> {
     T det;
     std::decay_t<decltype( m )> kr_mtrx;
-    vector_base<T, pSize_> rt;
+    vector<T, static_cast<int>(pSize_)> rt;
 
     det = matrix_sqr_det_lu( m );
 
     if ( fabs( det ) < std::numeric_limits<float>::epsilon() ) {
         std::cout << "matrix_sqr_solve_kramer(): system has no solve\n";
-        return vector_base<T, pSize_>{};
+        return vector<T, static_cast<int>(pSize_)>{};
     }
 
     for ( size_t i = 0; i < pSize_; i++ ) {
