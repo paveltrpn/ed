@@ -27,7 +27,9 @@ Bvh::Bvh( Mesh& mesh )
     Aabb bounds;
     bounds.reset();
 
-    for ( unsigned i = 0; i < (unsigned)triangles.size(); ++i ) bounds.include( triangles[i] );
+    for ( unsigned i = 0; i < (unsigned)triangles.size(); ++i ) {
+        bounds.include( triangles[i] );
+    }
 
     build( bounds, 0, 0, (unsigned)triangles.size(), &triangles[0], 0 );
 }
@@ -82,10 +84,11 @@ void Bvh::build( const Aabb& bounds, unsigned node, unsigned first, unsigned las
 
     unsigned pivot;
 
-    if ( depth > 8 )
+    if ( depth > 8 ) {
         pivot = medianPartition( bounds, first, last, triangles, depth, nodes[node].kind );
-    else
+    } else {
         pivot = sahPartition( bounds, first, last, triangles, depth, nodes[node].kind );
+    }
 
     if ( pivot == 0xffffffff ) {
         nodes[node].first = first;
@@ -100,9 +103,13 @@ void Bvh::build( const Aabb& bounds, unsigned node, unsigned first, unsigned las
     leftBounds.reset();
     rightBounds.reset();
 
-    for ( unsigned i = first; i < pivot; ++i ) leftBounds.include( triangles[i] );
+    for ( unsigned i = first; i < pivot; ++i ) {
+        leftBounds.include( triangles[i] );
+    }
 
-    for ( unsigned i = pivot; i < last; ++i ) rightBounds.include( triangles[i] );
+    for ( unsigned i = pivot; i < last; ++i ) {
+        rightBounds.include( triangles[i] );
+    }
 
     Node child = { 0, node };
     nodes.push_back( child );
