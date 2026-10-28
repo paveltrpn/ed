@@ -13,14 +13,14 @@
 
 class Camera {
 private:
-    float3 origin;
-    float3 view;
-    float3 right;
-    float3 up;
+    tire::algebra::vector<float, 3> origin;
+    tire::algebra::vector<float, 3> view;
+    tire::algebra::vector<float, 3> right;
+    tire::algebra::vector<float, 3> up;
 
 public:
-    void lookAt( const float3& origin, const float3& target, const float3& up, float fov, float near, float far,
-                 int width, int height );
+    void lookAt( const tire::algebra::vector<float, 3>& origin, const tire::algebra::vector<float, 3>& target,
+                 const tire::algebra::vector<float, 3>& up, float fov, float near, float far, int width, int height );
 
     Ray generateRay( float px, float py ) const;
 };

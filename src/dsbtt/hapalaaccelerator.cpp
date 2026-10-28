@@ -9,7 +9,7 @@
 #include "hapalaaccelerator.h"
 
 inline unsigned nearChild( const Bvh::Node& node, const Ray& ray ) {
-    if ( ray.dir[node.kind - 1] > 0.0f )
+    if ( ray.dir.data()[node.kind - 1] > 0.0f )
         return node.first;
     else
         return node.last;

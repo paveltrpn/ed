@@ -8,15 +8,15 @@
 
 #include "camera.h"
 
-void Camera::lookAt( const float3& origin, const float3& target, const float3& up, float fov, float near, float far,
-                     int width, int height ) {
-    float3 forward = normalize( target - origin );
-    float3 right = normalize( cross( forward, up ) );
-    float3 cameraUp = cross( right, forward );
+void Camera::lookAt( const tire::algebra::vector<float, 3>& origin, const tire::algebra::vector<float, 3>& target,
+                     const tire::algebra::vector<float, 3>& up, float fov, float near, float far, int width, int height ) {
+    tire::algebra::vector<float, 3> forward = tire::algebra::normalize( target - origin );
+    tire::algebra::vector<float, 3> right = tire::algebra::normalize( tire::algebra::cross( forward, up ) );
+    tire::algebra::vector<float, 3> cameraUp = tire::algebra::cross( right, forward );
 
     float aspect = (float)height / (float)width;
-    float imageExtentX = std::tan( 0.5f * fov * ( M_PI / 180.0f ) );
-    float imageExtentY = std::tan( 0.5f * fov * aspect * ( M_PI / 180.0f ) );
+    float imageExtentX = std::tan( tire::algebra::degToRad( 0.5f * fov ) );
+    float imageExtentY = std::tan( tire::algebra::degToRad( 0.5f * fov * aspect ) );
 
     this->origin = origin;
     this->right = right * ( 2.0f / (float)width * imageExtentX );
@@ -25,13 +25,10 @@ void Camera::lookAt( const float3& origin, const float3& target, const float3& u
 }
 
 Ray Camera::generateRay( float px, float py ) const {
-    float3 d = normalize( view + right * px + up * py );
+    tire::algebra::vector<float, 3> d =
+        dsbtt::normalize( dsbtt::add( dsbtt::add( view, dsbtt::scale( right, px ) ), dsbtt::scale( up, py ) ) );
+    const float* data = d.data();
 
-    Ray r;
-    r.origin = origin;
-    r.dir = d;
-    r.invDir = float3( 1.0f / d.x, 1.0f / d.y, 1.0f / d.z );
-    r.minT = 1e-3f;
-    r.maxT = 1e+6;
-    return r;
+    return { origin, d, tire::algebra::vector<float, 3>( 1.0f / data[0], 1.0f / data[1], 1.0f / data[2] ), 1e-3f,
+             1e+6 };
 }

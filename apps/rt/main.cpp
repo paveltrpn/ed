@@ -89,8 +89,9 @@ int main( int argc, const char* argv[] ) {
     RayAccelerator* accelerator = createAccelerator( bvh, argc > 1 ? argv[1] : "" );
     Tracer tracer( camera, *accelerator );
 
-    camera.lookAt( float3( 300.0f, 100.0f, 300.0f ), float3( 0.0f, 10.0f, 0.0f ), float3( 0.0f, 1.0f, 0.0f ), 50.0f,
-                   1.0f, 1000.0f, width, height );
+    camera.lookAt( tire::algebra::vector<float, 3>( 300.0f, 100.0f, 300.0f ),
+                   tire::algebra::vector<float, 3>( 0.0f, 10.0f, 0.0f ),
+                   tire::algebra::vector<float, 3>( 0.0f, 1.0f, 0.0f ), 50.0f, 1.0f, 1000.0f, width, height );
 
     std::vector<Tracer::HitPoint, AlignedAllocator<Tracer::HitPoint, 32>> hitPoints( width * height * samplesRoot *
                                                                                      samplesRoot );

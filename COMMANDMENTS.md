@@ -29,3 +29,5 @@ Follow it and all will be ok.
 - Always use trailing return type syntax for functions and class methods only except for Q_INVOKABLE marked methods.
 
 - Do not use comment style with three slashes like "///", use two slashes or classic C lang comments "/* ... */"
+- Use curly brace (unicorn) initialization style.
+- If a class method placed in header file and it body occupy only one string - place a double slash "//" symbol at first line and next line must be a function body (for appropriate formatting with existing formatting rules))

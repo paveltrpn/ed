@@ -19,8 +19,8 @@ public:
 
     struct HitPoint {
         bool hit;
-        float3 p;
-        float3 n;
+        tire::algebra::vector<float, 3> p;
+        tire::algebra::vector<float, 3> n;
         float padding;
     };
 
