@@ -10,30 +10,31 @@
 
 namespace {
 
-auto resumeDrain( const std::shared_ptr<tire::BridgeState> &state ) -> void {
+auto resumeDrain( const std::shared_ptr<tire::TcpBridgeState> &state ) -> void {
     if ( !state->_drainWaiting ) {
         return;
     }
 
     state->_drainWaiting = false;
     const auto coroutine = std::exchange( state->_drainCoroutine, nullptr );
+
     if ( coroutine ) {
         coroutine.resume();
     }
 }
 
-auto reportError( const std::shared_ptr<tire::BridgeState> &state, int status, std::string context ) -> void {
+auto reportError( const std::shared_ptr<tire::TcpBridgeState> &state, int status, std::string context ) -> void {
     if ( state->_errorReported ) {
         return;
     }
 
     state->_errorReported = true;
     if ( state->_callbacks._error ) {
-        state->_callbacks._error( tire::TcpBridge::Error{ status, std::move( context ) } );
+        state->_callbacks._error( tire::TcpBridgeError{ status, std::move( context ) } );
     }
 }
 
-auto shutdown( const std::shared_ptr<tire::BridgeState> &state ) -> void {
+auto shutdown( const std::shared_ptr<tire::TcpBridgeState> &state ) -> void {
     if ( !state->_closing ) {
         state->_closing = true;
         if ( state->_retryTimer.has_value() ) {
@@ -54,10 +55,11 @@ auto shutdown( const std::shared_ptr<tire::BridgeState> &state ) -> void {
         std::scoped_lock lock{ state->_outboundMutex };
         state->_outbound.clear();
     }
+
     resumeDrain( state );
 }
 
-auto finishSession( const std::shared_ptr<tire::BridgeState> &state ) -> void {
+auto finishSession( const std::shared_ptr<tire::TcpBridgeState> &state ) -> void {
     const auto wasConnected = std::exchange( state->_connected, false );
     shutdown( state );
     if ( wasConnected && state->_callbacks._disconnected ) {
@@ -65,7 +67,7 @@ auto finishSession( const std::shared_ptr<tire::BridgeState> &state ) -> void {
     }
 }
 
-auto decodeChunk( const std::shared_ptr<tire::BridgeState> &state, tire::FrameCodec &codec,
+auto decodeChunk( const std::shared_ptr<tire::TcpBridgeState> &state, tire::FrameCodec &codec,
                   const tire::TcpConnection::Bytes &bytes ) -> bool {
     auto decoded = codec.push( bytes );
 
@@ -84,17 +86,17 @@ auto decodeChunk( const std::shared_ptr<tire::BridgeState> &state, tire::FrameCo
     return true;
 }
 
-auto handleEof( const std::shared_ptr<tire::BridgeState> &state, tire::FrameCodec &codec ) -> void {
+auto handleEof( const std::shared_ptr<tire::TcpBridgeState> &state, tire::FrameCodec &codec ) -> void {
     if ( codec.endOfStream() == tire::FrameStatus::PartialEof ) {
         reportError( state, UV_EPROTO, "Connection ended with a partial frame" );
     }
 }
 
-auto runDrain( std::shared_ptr<tire::BridgeState> state ) -> tire::Task<void> {
+auto runDrain( std::shared_ptr<tire::TcpBridgeState> state ) -> tire::Task<void> {
     const auto completion = tire::WorkerCompletion{ state };
 
     while ( !state->_closing ) {
-        auto message = tire::TcpBridge::Message{};
+        auto message = std::vector<std::byte>{};
         auto hasMessage = false;
         std::shared_ptr<tire::TcpConnection> connection{};
         {
@@ -125,7 +127,7 @@ auto runDrain( std::shared_ptr<tire::BridgeState> state ) -> tire::Task<void> {
     }
 }
 
-auto runServer( std::shared_ptr<tire::BridgeState> state, std::string host, uint16_t port ) -> tire::Task<void> {
+auto runServer( std::shared_ptr<tire::TcpBridgeState> state, std::string host, uint16_t port ) -> tire::Task<void> {
     const auto completion = tire::WorkerCompletion{ state };
     if ( state->_closing ) {
         co_return;
@@ -135,6 +137,7 @@ auto runServer( std::shared_ptr<tire::BridgeState> state, std::string host, uint
     state->_server = server;
 
     const auto listenResult = co_await server->listen( host, port );
+
     if ( listenResult._status != 0 ) {
         if ( !state->_closeRequested.load() ) {
             reportError( state, listenResult._status, std::format( "Failed to listen on {}:{}", host, port ) );
@@ -142,12 +145,14 @@ auto runServer( std::shared_ptr<tire::BridgeState> state, std::string host, uint
         shutdown( state );
         co_return;
     }
+
     if ( state->_closing ) {
         co_return;
     }
 
     auto acceptResult = co_await server->accept();
     server->close();
+
     if ( acceptResult._status != 0 ) {
         if ( !state->_closing ) {
             reportError( state, acceptResult._status, "Failed to accept TCP client" );
@@ -158,12 +163,15 @@ auto runServer( std::shared_ptr<tire::BridgeState> state, std::string host, uint
 
     state->_connection = acceptResult._connection;
     state->_connected = true;
+
     if ( state->_callbacks._connected ) {
         state->_callbacks._connected();
     }
+
     resumeDrain( state );
 
     auto codec = tire::FrameCodec{ state->_maximumPayload };
+
     while ( !state->_closing ) {
         const auto readResult = co_await state->_connection->read();
         if ( readResult._status == 0 ) {
@@ -183,9 +191,10 @@ auto runServer( std::shared_ptr<tire::BridgeState> state, std::string host, uint
     finishSession( state );
 }
 
-auto runClient( std::shared_ptr<tire::BridgeState> state, std::string host, uint16_t port,
-                tire::TcpBridge::RetryOptions retry ) -> tire::Task<void> {
+auto runClient( std::shared_ptr<tire::TcpBridgeState> state, std::string host, uint16_t port,
+                tire::TcpBridge::TcpBridgeRetryOptions retry ) -> tire::Task<void> {
     const auto completion = tire::WorkerCompletion{ state };
+
     if ( state->_closing ) {
         co_return;
     }
@@ -278,7 +287,7 @@ namespace tire {
 
 TcpBridge::TcpBridge( size_t maximumPayload )
     : _scheduler{ std::make_unique<Scheduler>() }
-    , _state{ std::make_shared<State>( _scheduler.get(), maximumPayload ) } {
+    , _state{ std::make_shared<TcpBridgeState>( _scheduler.get(), maximumPayload ) } {
 }
 
 TcpBridge::~TcpBridge() {
@@ -290,7 +299,7 @@ TcpBridge::~TcpBridge() {
     _state.reset();
 }
 
-auto TcpBridge::setCallbacks( Callbacks callbacks ) -> void {
+auto TcpBridge::setCallbacks( TcpBridgeCallbacks callbacks ) -> void {
     _state->_callbacks = std::move( callbacks );
 }
 
@@ -313,7 +322,7 @@ auto TcpBridge::listen( std::string host, uint16_t port ) -> void {
     } );
 }
 
-auto TcpBridge::connect( std::string host, uint16_t port, RetryOptions retry ) -> void {
+auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions retry ) -> void {
     if ( _state->_started.exchange( true ) ) {
         _scheduler->post( [state = _state]( uv_loop_t * ) -> void {
             reportError( state, UV_EALREADY, "TCP bridge session was already started" );
@@ -332,7 +341,7 @@ auto TcpBridge::connect( std::string host, uint16_t port, RetryOptions retry ) -
     } );
 }
 
-auto TcpBridge::send( Message message ) -> void {
+auto TcpBridge::send( std::vector<std::byte> message ) -> void {
     if ( _state->_closeRequested.load() ) {
         return;
     }

@@ -137,7 +137,7 @@ static auto runServe( uint16_t port ) -> int {
         }
         condition.notify_one();
     };
-    callbacks._error = [&mutex, &condition, &finished, &exitCode]( tire::TcpBridge::Error error ) -> void {
+    callbacks._error = [&mutex, &condition, &finished, &exitCode]( tire::TcpBridge::TcpBridgeError error ) -> void {
         std::cerr << error._context;
         if ( error._status != 0 ) {
             std::cerr << ": " << uv_strerror( error._status );

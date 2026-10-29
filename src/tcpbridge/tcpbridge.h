@@ -22,94 +22,97 @@ namespace tire {
 
 struct Scheduler;
 
+struct TcpBridgeRetryOptions {
+    size_t _maximumAttempts{ 16 };
+    uint64_t _delayMilliseconds{ 100 };
+};
+
+struct TcpBridgeError {
+    int _status{ 0 };
+    std::string _context{};
+};
+
+struct TcpBridgeCallbacks {
+    std::function<void()> _connected{};
+    std::function<void( std::vector<std::byte> )> _message{};
+    std::function<void()> _disconnected{};
+    std::function<void( TcpBridgeError )> _error{};
+};
+
+struct TcpBridgeState {
+    explicit TcpBridgeState( Scheduler* scheduler, size_t maximumPayload )
+        : _scheduler{ scheduler }
+        , _maximumPayload{ maximumPayload } {}
+
+    Scheduler* _scheduler{ nullptr };
+    TcpBridgeCallbacks _callbacks{};
+    size_t _maximumPayload{ FrameCodec::_defaultMaximumPayload };
+
+    std::atomic<bool> _started{ false };
+    std::atomic<bool> _closeRequested{ false };
+    std::atomic<bool> _closing{ false };
+
+    bool _connected{ false };
+    bool _errorReported{ false };
+
+    std::shared_ptr<TcpClient> _client{};
+    std::shared_ptr<TcpServer> _server{};
+    std::shared_ptr<TcpConnection> _connection{};
+
+    std::optional<TimeoutAwaitable<Task<void>>> _retryTimer{};
+
+    // Message queue.
+    std::deque<std::vector<std::byte>> _outbound{};
+
+    std::mutex _outboundMutex{};
+
+    std::coroutine_handle<> _drainCoroutine{};
+
+    bool _drainWaiting{ false };
+
+    Task<void> _clientTask{};
+    Task<void> _serverTask{};
+    Task<void> _drainTask{};
+
+    std::mutex _workerMutex{};
+    std::condition_variable _workerCondition{};
+
+    size_t _workerCount{ 0 };
+};
+
 // ======================================================================================
 // ==================== TcpBridge =======================================================
 // ======================================================================================
 
 struct TcpBridge final {
-    using Message = std::vector<std::byte>;
-
-    struct RetryOptions {
-        size_t _maximumAttempts{ 40 };
-        uint64_t _delayMilliseconds{ 50 };
-    };
-
-    struct Error {
-        int _status{ 0 };
-        std::string _context{};
-    };
-
-    struct Callbacks {
-        std::function<void()> _connected{};
-        std::function<void( Message )> _message{};
-        std::function<void()> _disconnected{};
-        std::function<void( Error )> _error{};
-    };
-
     explicit TcpBridge( size_t maximumPayload = FrameCodec::_defaultMaximumPayload );
     ~TcpBridge();
 
-    TcpBridge( const TcpBridge & ) = delete;
-    TcpBridge( TcpBridge && ) = delete;
-    auto operator=( const TcpBridge & ) -> TcpBridge & = delete;
-    auto operator=( TcpBridge && ) -> TcpBridge & = delete;
+    TcpBridge( const TcpBridge& ) = delete;
+    TcpBridge( TcpBridge&& ) = delete;
+    auto operator=( const TcpBridge& ) -> TcpBridge& = delete;
+    auto operator=( TcpBridge&& ) -> TcpBridge& = delete;
 
-    auto setCallbacks( Callbacks callbacks ) -> void;
+    auto setCallbacks( TcpBridgeCallbacks callbacks ) -> void;
     auto listen( std::string host, uint16_t port ) -> void;
-    auto connect( std::string host, uint16_t port, RetryOptions retry ) -> void;
-    auto send( Message message ) -> void;
+    auto connect( std::string host, uint16_t port, TcpBridgeRetryOptions retry ) -> void;
+    auto send( std::vector<std::byte> message ) -> void;
     auto close() -> void;
-
-    struct State {
-        explicit State( Scheduler *scheduler, size_t maximumPayload )
-            : _scheduler{ scheduler }
-            , _maximumPayload{ maximumPayload } {}
-
-        Scheduler *_scheduler{ nullptr };
-        Callbacks _callbacks{};
-        size_t _maximumPayload{ FrameCodec::_defaultMaximumPayload };
-
-        std::atomic<bool> _started{ false };
-        std::atomic<bool> _closeRequested{ false };
-        std::atomic<bool> _closing{ false };
-
-        bool _connected{ false };
-        bool _errorReported{ false };
-
-        std::shared_ptr<TcpClient> _client{};
-        std::shared_ptr<TcpServer> _server{};
-        std::shared_ptr<TcpConnection> _connection{};
-
-        std::optional<TimeoutAwaitable<Task<void>>> _retryTimer{};
-        std::deque<Message> _outbound{};
-        std::mutex _outboundMutex{};
-
-        std::coroutine_handle<> _drainCoroutine{};
-
-        bool _drainWaiting{ false };
-
-        Task<void> _clientTask{};
-        Task<void> _serverTask{};
-        Task<void> _drainTask{};
-
-        std::mutex _workerMutex{};
-        std::condition_variable _workerCondition{};
-
-        size_t _workerCount{ 0 };
-    };
 
 private:
     std::unique_ptr<Scheduler> _scheduler{};
-    std::shared_ptr<State> _state{};
+    std::shared_ptr<TcpBridgeState> _state{};
 };
 
-using BridgeState = TcpBridge::State;
+// ======================================================================================
+// ==================== WorkerCompletion ================================================
+// ======================================================================================
 
 struct WorkerCompletion {
-    std::shared_ptr<BridgeState> _state{};
+    std::shared_ptr<TcpBridgeState> _state{};
 
     ~WorkerCompletion() {
-        _state->_scheduler->post( [state = _state]( uv_loop_t * ) -> void {
+        _state->_scheduler->post( [state = _state]( uv_loop_t* ) -> void {
             std::scoped_lock lock{ state->_workerMutex };
             if ( state->_workerCount > 0 ) {
                 --state->_workerCount;
@@ -121,8 +124,12 @@ struct WorkerCompletion {
     }
 };
 
+// ======================================================================================
+// ==================== DrainAwaitable ==================================================
+// ======================================================================================
+
 struct DrainAwaitable {
-    std::shared_ptr<BridgeState> _state{};
+    std::shared_ptr<TcpBridgeState> _state{};
 
     auto await_ready() const noexcept -> bool { return false; }
 
