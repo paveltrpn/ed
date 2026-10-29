@@ -12,6 +12,7 @@
 // ============================================================================
 // ================================ Predicate =================================
 // ============================================================================
+
 struct Predicate {
     unsigned _axis;
 
@@ -203,9 +204,9 @@ auto Bvh::sahPartition( const Aabb& parentBounds, unsigned first, unsigned last,
             const auto lsa{ accumulatedArea[i - first - 1] };
             const auto rsa{ bounds.surfaceArea() };
 
-            const auto sah{ traversalCost + intersectionCost * divPsa *  // Constant cost.
-                                ( lsa * static_cast<float>( i - first ) +  // Left child.
-                                  rsa * static_cast<float>( last - i ) ) };  // Right child.
+            const auto sah{ traversalCost + intersectionCost * divPsa *                      // Constant cost.
+                                                ( lsa * static_cast<float>( i - first ) +    // Left child.
+                                                  rsa * static_cast<float>( last - i ) ) };  // Right child.
 
             if ( sah < bestSah ) {
                 bestSah = sah;
