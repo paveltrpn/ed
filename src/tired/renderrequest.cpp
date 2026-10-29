@@ -45,7 +45,7 @@ void RenderRequest::start() {
     try {
         _bridge = std::make_unique<TcpBridge>();
 
-        auto callbacks = TcpBridge::Callbacks{};
+        auto callbacks = TcpBridgeCallbacks{};
 
         callbacks._connected = [this]() -> void {
             QMetaObject::invokeMethod(
@@ -57,7 +57,7 @@ void RenderRequest::start() {
                 Qt::QueuedConnection );
         };
 
-        callbacks._message = [this]( TcpBridge::Message message ) -> void {
+        callbacks._message = [this]( std::vector<std::byte> message ) -> void {
             const auto payload = QByteArray{ reinterpret_cast<const char *>( message.data() ),
                                              static_cast<qsizetype>( message.size() ) };
             QMetaObject::invokeMethod(
@@ -79,7 +79,7 @@ void RenderRequest::start() {
                 Qt::QueuedConnection );
         };
 
-        callbacks._error = [this]( TcpBridge::Error error ) -> void {
+        callbacks._error = [this]( TcpBridgeError error ) -> void {
             QMetaObject::invokeMethod(
                 this,
                 [this, error = std::move( error )]() -> void {
@@ -100,7 +100,7 @@ void RenderRequest::start() {
             }
 
             _state = RenderRequestState::Connecting;
-            _bridge->connect( "127.0.0.1", 45454, TcpBridge::RetryOptions{} );
+            _bridge->connect( "127.0.0.1", 45454, TcpBridgeRetryOptions{} );
         } );
 
         QObject::connect( _process.get(), &QProcess::errorOccurred, this, [this]( QProcess::ProcessError ) -> void {
@@ -193,7 +193,7 @@ auto RenderRequest::handleConnected() -> void {
     _state = RenderRequestState::WaitingForEcho;
 
     const auto expected = QByteArray{ "hello from ed" };
-    auto message = TcpBridge::Message( static_cast<size_t>( expected.size() ) );
+    auto message = std::vector<std::byte>( static_cast<size_t>( expected.size() ) );
 
     std::memcpy( message.data(), expected.constData(), static_cast<size_t>( expected.size() ) );
 

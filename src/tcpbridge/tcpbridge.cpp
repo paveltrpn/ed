@@ -192,7 +192,7 @@ auto runServer( std::shared_ptr<tire::TcpBridgeState> state, std::string host, u
 }
 
 auto runClient( std::shared_ptr<tire::TcpBridgeState> state, std::string host, uint16_t port,
-                tire::TcpBridge::TcpBridgeRetryOptions retry ) -> tire::Task<void> {
+                tire::TcpBridgeRetryOptions retry ) -> tire::Task<void> {
     const auto completion = tire::WorkerCompletion{ state };
 
     if ( state->_closing ) {
