@@ -229,6 +229,7 @@ auto RenderRequest::handleBridgeError( int status, const std::string &context ) 
     }
 
     auto message = QStringLiteral( "TCP bridge error: %1" ).arg( QString::fromStdString( context ) );
+
     if ( status != 0 ) {
         message += QStringLiteral( " (%1)" ).arg( uv_strerror( status ) );
     }

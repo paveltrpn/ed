@@ -5,13 +5,16 @@
 
 namespace tire {
 
-using Bytes = std::vector<std::byte>;
-
-enum class FrameStatus { Ok, Oversized, PartialEof };
+enum class FrameStatus {
+    //
+    Ok,
+    Oversized,
+    PartialEof
+};
 
 struct FrameDecodeResult {
     FrameStatus _status{ FrameStatus::Ok };
-    std::vector<Bytes> _messages{};
+    std::vector<std::vector<std::byte>> _messages{};
 };
 
 // ======================================================================================
@@ -24,17 +27,17 @@ struct FrameCodec {
     explicit FrameCodec( size_t maximumPayload = _defaultMaximumPayload );
 
     auto push( const std::byte *data, size_t size ) -> FrameDecodeResult;
-    auto push( const Bytes &data ) -> FrameDecodeResult;
+    auto push( const std::vector<std::byte> &data ) -> FrameDecodeResult;
     auto endOfStream() const noexcept -> FrameStatus;
     auto reset() -> void;
 
-    static auto encode( const Bytes &payload ) -> Bytes;
+    static auto encode( const std::vector<std::byte> &payload ) -> std::vector<std::byte>;
 
 private:
     static constexpr size_t _prefixSize{ 4 };
 
     size_t _maximumPayload;
-    Bytes _buffer{};
+    std::vector<std::byte> _buffer{};
 };
 
-}
+}  // namespace tire

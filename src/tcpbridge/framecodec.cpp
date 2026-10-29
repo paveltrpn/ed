@@ -7,7 +7,8 @@
 namespace tire {
 
 FrameCodec::FrameCodec( size_t maximumPayload )
-    : _maximumPayload{ maximumPayload } {}
+    : _maximumPayload{ maximumPayload } {
+}
 
 auto FrameCodec::push( const std::byte *data, size_t size ) -> FrameDecodeResult {
     FrameDecodeResult result{};
@@ -46,7 +47,7 @@ auto FrameCodec::push( const std::byte *data, size_t size ) -> FrameDecodeResult
     return result;
 }
 
-auto FrameCodec::push( const Bytes &data ) -> FrameDecodeResult {
+auto FrameCodec::push( const std::vector<std::byte> &data ) -> FrameDecodeResult {
     return push( data.data(), data.size() );
 }
 
@@ -62,19 +63,21 @@ auto FrameCodec::reset() -> void {
     _buffer.clear();
 }
 
-auto FrameCodec::encode( const Bytes &payload ) -> Bytes {
+auto FrameCodec::encode( const std::vector<std::byte> &payload ) -> std::vector<std::byte> {
     if ( payload.size() > std::numeric_limits<uint32_t>::max() ) {
         throw std::length_error{ "Frame payload exceeds 32-bit length prefix" };
     }
 
     const auto payloadSize{ static_cast<uint32_t>( payload.size() ) };
-    Bytes encoded{ static_cast<std::byte>( ( payloadSize >> 24U ) & 0xffU ),
-                   static_cast<std::byte>( ( payloadSize >> 16U ) & 0xffU ),
-                   static_cast<std::byte>( ( payloadSize >> 8U ) & 0xffU ),
-                   static_cast<std::byte>( payloadSize & 0xffU ) };
+
+    std::vector<std::byte> encoded{ static_cast<std::byte>( ( payloadSize >> 24U ) & 0xffU ),
+                                    static_cast<std::byte>( ( payloadSize >> 16U ) & 0xffU ),
+                                    static_cast<std::byte>( ( payloadSize >> 8U ) & 0xffU ),
+                                    static_cast<std::byte>( payloadSize & 0xffU ) };
+
     encoded.insert( encoded.cend(), payload.cbegin(), payload.cend() );
 
     return encoded;
 }
 
-}
+}  // namespace tire

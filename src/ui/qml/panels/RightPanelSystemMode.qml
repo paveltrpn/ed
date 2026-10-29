@@ -33,7 +33,7 @@ Rectangle {
             id: tcpBridgeTestStartButton
 
             anchors {
-                bottom: tcpBridgeTestStopButton.top
+                bottom: parent.bottom
                 bottomMargin: _units.quarter
                 left: parent.left
                 right: parent.right
@@ -44,24 +44,6 @@ Rectangle {
 
             onClicked: {
                 Tired.renderRequest.start()
-            }
-        }
-
-        SIButtonMain {
-            id: tcpBridgeTestStopButton
-
-            anchors {
-                bottom: parent.bottom
-                bottomMargin: _units.quarter
-                left: parent.left
-                right: parent.right
-            }
-
-            modeRelatedBgColor: _color.si_mode_system
-            buttonLabel: "TCP test stop"
-
-            onClicked: {
-                Tired.renderRequest.stop()
             }
         }
     }
