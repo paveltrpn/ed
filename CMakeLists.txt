@@ -239,6 +239,13 @@ target_include_directories(io PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_compile_options(io PRIVATE "${CXX_STANDART}")
 target_link_libraries(io log uv rt_std)
 
+file(GLOB MOD_TCP_BRIDGE_SRC "src/tcpbridge/*.cpp" "src/tcpbridge/*.h")
+add_library(tcp_bridge ${MOD_TCP_BRIDGE_SRC})
+target_include_directories(tcp_bridge PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_compile_options(tcp_bridge PRIVATE "${CXX_STANDART}")
+target_link_libraries(tcp_bridge io log)
+target_link_libraries(tired tcp_bridge)
+
 # ================================
 # Module dsbtt
 # ================================
@@ -260,5 +267,6 @@ target_link_libraries(${TIRE_RAYTRACER_EXE}
     log
     rt_std
     io
+    tcp_bridge
     dsbtt
 )

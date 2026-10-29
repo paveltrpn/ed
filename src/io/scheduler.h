@@ -32,6 +32,10 @@ public:
     friend struct FilesystemWatchAwaitable;
 
 public:
+    using SchedulerBase::isLoopThread;
+
+    auto post( std::function<void( uv_loop_t * )> task ) -> void;
+
     // Fire once by timeout.
     auto timeout( uint64_t timeout ) -> TimeoutAwaitable<Task<void>>;
 

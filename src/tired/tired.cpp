@@ -8,6 +8,7 @@
 #endif
 
 #include "tired.h"
+#include "tired/renderrequest.h"
 #include "log/log.h"
 #include "algebra/common.h"
 
@@ -54,6 +55,7 @@ auto Tired::pointer() -> Tired* {
 Tired::Tired( QObject* parent )
     : QObject{ parent }
     , _render{ std::make_shared<tire::VsgRender>() } {
+    _renderRequest = new RenderRequest{ this };
     _render->viewer();
 
     // Setup scenegraph.
@@ -350,6 +352,10 @@ auto Tired::inputHandler() const -> QObject* {
 
 auto Tired::scenegraph() const -> QObject* {
     return _scenegraph;
+}
+
+auto Tired::renderRequest() const -> QObject* {
+    return _renderRequest;
 }
 
 auto Tired::setControlMode( int value ) -> void {

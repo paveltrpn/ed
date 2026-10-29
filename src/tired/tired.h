@@ -13,6 +13,8 @@
 
 namespace tire {
 
+struct RenderRequest;
+
 enum class ControlModes {
     //
     SCENE,
@@ -29,6 +31,7 @@ struct Tired final : QObject {
     Q_PROPERTY( QObject* manipulator READ manipulator NOTIFY manipulatorChanged FINAL )
     Q_PROPERTY( QObject* inputHandler READ inputHandler NOTIFY inputHandlerChanged FINAL )
     Q_PROPERTY( QObject* scenegraph READ scenegraph NOTIFY scenegraphChanged FINAL )
+    Q_PROPERTY( QObject* renderRequest READ renderRequest NOTIFY renderRequestChanged FINAL )
 
     Q_PROPERTY( int controlMode READ controlMode WRITE setControlMode NOTIFY controlModeChanged FINAL )
 
@@ -47,6 +50,7 @@ public:
     [[nodiscard]] auto manipulator() const -> QObject*;
     [[nodiscard]] auto inputHandler() const -> QObject*;
     [[nodiscard]] auto scenegraph() const -> QObject*;
+    [[nodiscard]] auto renderRequest() const -> QObject*;
 
     auto setControlMode( int value ) -> void;
     [[nodiscard]] auto controlMode() const -> int;
@@ -55,6 +59,7 @@ signals:
     void manipulatorChanged();
     void inputHandlerChanged();
     void scenegraphChanged();
+    void renderRequestChanged();
     void controlModeChanged( int );
 
     void restorePanelsSize();
@@ -74,6 +79,7 @@ private:
     Manipulator* _manipulator{};
     InputHandler* _inputHandler{};
     Scenegraph* _scenegraph{};
+    RenderRequest* _renderRequest{};
 
     ControlModes _controlMode{ ControlModes::SCENE };
 };

@@ -8,9 +8,19 @@
 
 #include <iostream>
 #include <cassert>
+#include <charconv>
+#include <condition_variable>
+#include <cstdint>
 #include <fstream>
+#include <mutex>
 #include <stdio.h>
 #include <cstring>
+#include <string_view>
+#include <utility>
+
+#include <uv.h>
+
+#include "tcpbridge/tcpbridge.h"
 
 #include "dsbtt/bvh.h"
 #include "dsbtt/tracer.h"
@@ -68,7 +78,98 @@ static RayAccelerator* createAccelerator( Bvh& bvh, const char* name ) {
     return 0;
 }
 
-int main( int argc, const char* argv[] ) {
+struct ServeOptions {
+    bool _serve{ false };
+    bool _valid{ true };
+    uint16_t _port{ 45454 };
+};
+
+static auto parseServeOptions( int argc, const char* argv[] ) -> ServeOptions {
+    auto options = ServeOptions{};
+    for ( int index = 1; index < argc; ++index ) {
+        if ( std::string_view{ argv[index] } == "--serve" ) {
+            options._serve = true;
+            break;
+        }
+    }
+    if ( !options._serve ) {
+        return options;
+    }
+
+    for ( int index = 1; index < argc; ++index ) {
+        const auto argument = std::string_view{ argv[index] };
+        if ( argument == "--serve" ) {
+            continue;
+        }
+        if ( argument != "--port" || index + 1 >= argc ) {
+            options._valid = false;
+            return options;
+        }
+
+        const auto value = std::string_view{ argv[++index] };
+        auto port = 0;
+        const auto conversion = std::from_chars( value.data(), value.data() + value.size(), port );
+        if ( conversion.ec != std::errc{} || conversion.ptr != value.data() + value.size() || port < 1 || port > 65535 ) {
+            options._valid = false;
+            return options;
+        }
+        options._port = static_cast<uint16_t>( port );
+    }
+    return options;
+}
+
+static auto runServe( uint16_t port ) -> int {
+    auto bridge = tire::TcpBridge{};
+    auto mutex = std::mutex{};
+    auto condition = std::condition_variable{};
+    auto finished = false;
+    auto exitCode = 1;
+
+    auto callbacks = tire::TcpBridge::Callbacks{};
+    callbacks._message = [&bridge]( tire::TcpBridge::Message message ) -> void { bridge.send( std::move( message ) ); };
+    callbacks._disconnected = [&mutex, &condition, &finished, &exitCode]() -> void {
+        {
+            std::scoped_lock lock{ mutex };
+            if ( !finished ) {
+                exitCode = 0;
+            }
+            finished = true;
+        }
+        condition.notify_one();
+    };
+    callbacks._error = [&mutex, &condition, &finished, &exitCode]( tire::TcpBridge::Error error ) -> void {
+        std::cerr << error._context;
+        if ( error._status != 0 ) {
+            std::cerr << ": " << uv_strerror( error._status );
+        }
+        std::cerr << std::endl;
+        {
+            std::scoped_lock lock{ mutex };
+            finished = true;
+            exitCode = 1;
+        }
+        condition.notify_one();
+    };
+    bridge.setCallbacks( std::move( callbacks ) );
+    bridge.listen( "127.0.0.1", port );
+
+    std::unique_lock lock{ mutex };
+    condition.wait( lock, [&finished]() -> bool { return finished; } );
+    lock.unlock();
+    bridge.close();
+    return exitCode;
+}
+
+auto main( int argc, const char* argv[] ) -> int {
+    const auto serveOptions = parseServeOptions( argc, argv );
+    if ( serveOptions._serve ) {
+        if ( !serveOptions._valid ) {
+            std::cerr << "Usage: rt --serve [--port N], where N is between 1 and 65535." << std::endl;
+            return 2;
+        }
+        return runServe( serveOptions._port );
+    }
+
     assert( sizeof( Triangle ) == 64 );
     assert( sizeof( Bvh::Node ) == 64 );
     assert( sizeof( Tracer::HitPoint ) == 32 );

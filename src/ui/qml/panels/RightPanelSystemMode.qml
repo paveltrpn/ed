@@ -22,10 +22,47 @@ Rectangle {
 
     Item {
         id: rightPanelSystemModeWrapper
+
         anchors {
             fill: parent
             leftMargin: rightPanelSystemComponent._units.scaled_2
             rightMargin: rightPanelSystemComponent._units.scaled_2
+        }
+
+        SIButtonMain {
+            id: tcpBridgeTestStartButton
+
+            anchors {
+                bottom: tcpBridgeTestStopButton.top
+                bottomMargin: _units.quarter
+                left: parent.left
+                right: parent.right
+            }
+
+            modeRelatedBgColor: _color.si_mode_system
+            buttonLabel: "TCP test start"
+
+            onClicked: {
+                Tired.renderRequest.start()
+            }
+        }
+
+        SIButtonMain {
+            id: tcpBridgeTestStopButton
+
+            anchors {
+                bottom: parent.bottom
+                bottomMargin: _units.quarter
+                left: parent.left
+                right: parent.right
+            }
+
+            modeRelatedBgColor: _color.si_mode_system
+            buttonLabel: "TCP test stop"
+
+            onClicked: {
+                Tired.renderRequest.stop()
+            }
         }
     }
 }

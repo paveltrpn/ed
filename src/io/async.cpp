@@ -9,14 +9,12 @@ auto Task<void>::promise_type::get_return_object() -> Task {
     return Task<void>{ handle_type::from_promise( *this ) };
 }
 
-auto Task<void>::promise_type::initial_suspend() noexcept {
-    //
+auto Task<void>::promise_type::initial_suspend() noexcept -> std::suspend_never {
     return std::suspend_never{};
 }
 
-auto Task<void>::promise_type::final_suspend() noexcept {
-    //
-    return std::suspend_never{};
+auto Task<void>::promise_type::final_suspend() noexcept -> std::suspend_always {
+    return std::suspend_always{};
 }
 
 auto Task<void>::promise_type::return_void() -> void {
@@ -51,14 +49,9 @@ auto Task<void>::operator=( Task &&other ) noexcept -> Task & {
     return *this;
 }
 
-auto Task<void>::detach() noexcept -> void {
-    if ( empty() ) {
-        return;
-    }
-
+Task<void>::~Task() {
     if ( handle_ ) {
         handle_.destroy();
-        handle_ = nullptr;
     }
 }
 
@@ -70,11 +63,6 @@ constexpr auto Task<void>::empty() const noexcept -> bool {
 constexpr Task<void>::operator bool() const noexcept {
     //
     return !empty();
-}
-
-auto Task<void>::scheduleDestroy() -> void {
-    //
-    handle_.promise().scheduleDestroy_ = true;
 }
 
 }  // namespace tire

@@ -20,16 +20,15 @@ struct Task<void> {
     struct promise_type {
         auto get_return_object() -> Task;
 
-        auto initial_suspend() noexcept;
+        auto initial_suspend() noexcept -> std::suspend_never;
 
-        auto final_suspend() noexcept;
+        auto final_suspend() noexcept -> std::suspend_always;
 
         auto return_void() -> void;
 
         auto unhandled_exception() -> void;
 
         std::exception_ptr exception_{ nullptr };
-        bool scheduleDestroy_{ false };
     };
 
     explicit Task( handle_type h );
@@ -43,15 +42,11 @@ struct Task<void> {
     Task( const Task & ) = delete;
     auto operator=( const Task & ) -> Task & = delete;
 
-    ~Task() = default;
-
-    auto detach() noexcept -> void;
+    ~Task();
 
     [[nodiscard]] constexpr auto empty() const noexcept -> bool;
 
     constexpr explicit operator bool() const noexcept;
-
-    auto scheduleDestroy() -> void;
 
 private:
     handle_type handle_{ nullptr };
