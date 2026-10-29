@@ -36,6 +36,7 @@ struct FrameCodec {
 private:
     static constexpr size_t _prefixSize{ 4 };
 
+private:
     size_t _maximumPayload;
     std::vector<std::byte> _buffer{};
 };

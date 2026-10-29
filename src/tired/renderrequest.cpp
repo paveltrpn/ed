@@ -48,6 +48,10 @@ void RenderRequest::start() {
         auto callbacks = TcpBridgeCallbacks{};
 
         callbacks._connected = [this]() -> void {
+            // QMetaObject::invokeMethod for TcpBridge callbacks. They run on the libuv thread, while RenderRequest and QProcess
+            // belong to the GUI thread.
+            // Qt::QueuedConnection safely transfers handling to the GUI thread; direct calls would race session
+            // state and Qt objects. QProcess signals already arrive on the GUI thread and need no such dispatch.
             QMetaObject::invokeMethod(
                 this,
                 [this]() -> void {
@@ -211,7 +215,9 @@ auto RenderRequest::handleMessage( const QByteArray &payload ) -> void {
     }
 
     log::info()( "TCP echo verified: {}", payload.toStdString() );
+
     stop();
+
     emit echoCompleted();
 }
 
