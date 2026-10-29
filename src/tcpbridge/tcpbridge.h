@@ -103,4 +103,35 @@ private:
     std::shared_ptr<State> _state{};
 };
 
+using BridgeState = TcpBridge::State;
+
+struct WorkerCompletion {
+    std::shared_ptr<BridgeState> _state{};
+
+    ~WorkerCompletion() {
+        _state->_scheduler->post( [state = _state]( uv_loop_t * ) -> void {
+            std::scoped_lock lock{ state->_workerMutex };
+            if ( state->_workerCount > 0 ) {
+                --state->_workerCount;
+            }
+            if ( state->_workerCount == 0 ) {
+                state->_workerCondition.notify_all();
+            }
+        } );
+    }
+};
+
+struct DrainAwaitable {
+    std::shared_ptr<BridgeState> _state{};
+
+    auto await_ready() const noexcept -> bool { return false; }
+
+    auto await_suspend( std::coroutine_handle<> coroutine ) noexcept -> void {
+        _state->_drainCoroutine = coroutine;
+        _state->_drainWaiting = true;
+    }
+
+    auto await_resume() const noexcept -> void {}
+};
+
 }  // namespace tire
