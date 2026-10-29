@@ -6,8 +6,10 @@ namespace tire {
 
 auto Scheduler::post( std::function<void( uv_loop_t * )> task ) -> void {
     auto scheduledTask = [task = std::move( task )]( uv_loop_t *loop, AsyncJobPayload * ) mutable -> void {
+        //
         task( loop );
     };
+
     schedule( std::move( scheduledTask ), nullptr );
 }
 

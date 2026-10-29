@@ -316,6 +316,7 @@ auto TcpBridge::listen( std::string host, uint16_t port ) -> void {
         _scheduler->post( [state = _state]( uv_loop_t * ) -> void {
             reportError( state, UV_EALREADY, "TCP bridge session was already started" );
         } );
+
         return;
     }
 
@@ -335,6 +336,7 @@ auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions 
         _scheduler->post( [state = _state]( uv_loop_t * ) -> void {
             reportError( state, UV_EALREADY, "TCP bridge session was already started" );
         } );
+
         return;
     }
 
@@ -344,6 +346,7 @@ auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions 
     }
 
     _scheduler->post( [state = _state, host = std::move( host ), port, retry]( uv_loop_t * ) mutable -> void {
+        //
         state->_clientTask = runClient( state, std::move( host ), port, retry );
         state->_drainTask = runDrain( state );
     } );
