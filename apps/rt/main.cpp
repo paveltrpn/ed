@@ -6,6 +6,7 @@
 //  Copyright (c) 2012 Lund University. All rights reserved.
 //
 
+#include <array>
 #include <iostream>
 #include <cassert>
 #include <charconv>
@@ -15,7 +16,11 @@
 #include <stdio.h>
 #include <cstring>
 #include <string_view>
+#include <thread>
 #include <utility>
+#include <print>
+
+#include <shared_mutex>
 
 #include <uv.h>
 
@@ -217,12 +222,13 @@ auto main( int argc, const char* argv[] ) -> int {
     std::cout << "done." << std::endl;
 
     const int width = 800;
-    const int height = 300;
+    const int height = 400;
     const int samplesRoot = 4;
+    const auto tilesRoot{ 4 };
+    const auto threadCount{ tilesRoot * tilesRoot };
 
     Camera camera;
     RayAccelerator* accelerator = createAccelerator( bvh, argc > 1 ? argv[1] : "" );
-    Tracer tracer( camera, *accelerator );
 
     camera.lookAt( tire::algebra::vector<float, 3>( 300.0f, 100.0f, 300.0f ),
                    tire::algebra::vector<float, 3>( 0.0f, 10.0f, 0.0f ),
@@ -232,64 +238,107 @@ auto main( int argc, const char* argv[] ) -> int {
                                                                                      samplesRoot );
     std::vector<float> image( width * height );
 
-    Random rnd( 31251 );
-
-    std::cout << "Primary rays: " << std::flush;
+    std::print( "Primary rays: " );
 
     double primStart = seconds();
-    int currentHitPoint = 0;
+    std::array<std::thread, threadCount> primaryThreads{};
 
-    for ( int i = 0; i < height; ++i ) {
-        for ( int j = 0; j < width; ++j ) {
-            for ( int sy = 0; sy < samplesRoot; ++sy ) {
-                for ( int sx = 0; sx < samplesRoot; ++sx ) {
-                    float px = j + ( sx + rnd.nextFloat() ) * ( 1.0f / samplesRoot );
-                    float py = i + ( sy + rnd.nextFloat() ) * ( 1.0f / samplesRoot );
+    for ( int tileIndex{ 0 }; tileIndex < threadCount; ++tileIndex ) {
+        primaryThreads[tileIndex] = std::thread{
+            [&camera, accelerator, &hitPoints, width, height, samplesRoot, tilesRoot, tileIndex]() -> void {
+                const auto tileX{ tileIndex % tilesRoot };
+                const auto tileY{ tileIndex / tilesRoot };
+                const auto xBegin{ tileX * width / tilesRoot };
+                const auto xEnd{ ( tileX + 1 ) * width / tilesRoot };
+                const auto yBegin{ tileY * height / tilesRoot };
+                const auto yEnd{ ( tileY + 1 ) * height / tilesRoot };
+                Random rnd{ 31251 + tileIndex };
+                Tracer tracer{ camera, *accelerator };
 
-                    hitPoints[currentHitPoint++] = tracer.samplePrimary( px, py );
+                for ( int sy = 0; sy < samplesRoot; ++sy ) {
+                    for ( int sx = 0; sx < samplesRoot; ++sx ) {
+                        for ( int i = yBegin; i < yEnd; ++i ) {
+                            for ( int j = xBegin; j < xEnd; ++j ) {
+                                float px = j + ( sx + rnd.nextFloat() ) * ( 1.0f / samplesRoot );
+                                float py = i + ( sy + rnd.nextFloat() ) * ( 1.0f / samplesRoot );
+                                const auto hitPointIndex{ ( sy * samplesRoot + sx ) * height * width + i * width + j };
+
+                                hitPoints[hitPointIndex] = tracer.samplePrimary( px, py );
+                            }
+                        }
+                    }
                 }
-            }
-        }
+            } };
+    }
+
+    for ( auto& thread : primaryThreads ) {
+        thread.join();
     }
 
     double primEnd = seconds();
-    std::cout << ( ( width * height * samplesRoot * samplesRoot ) / ( primEnd - primStart ) ) << " rays/sec."
-              << std::endl;
+    std::println( "{} rays/sec.",
+                  std::trunc( ( width * height * samplesRoot * samplesRoot ) / ( primEnd - primStart ) ) );
+    std::print( "AO rays: " );
 
-    std::cout << "AO rays: " << std::flush;
     double aoStart = seconds();
 
-    int aoRays = 0;
-    currentHitPoint = 0;
+    std::array<int, threadCount> aoRayCounts{};
+    std::array<std::thread, threadCount> aoThreads{};
 
-    for ( int i = 0; i < height; ++i ) {
-        for ( int j = 0; j < width; ++j ) {
-            float c = 0.0f;
+    auto sm = std::shared_mutex{};
+
+    for ( int tileIndex{ 0 }; tileIndex < threadCount; ++tileIndex ) {
+        aoThreads[tileIndex] = std::thread{ [&sm, &camera, accelerator, &hitPoints, &image, &aoRayCounts, width, height,
+                                             samplesRoot, tilesRoot, tileIndex]() -> void {
+            const auto tileX{ tileIndex % tilesRoot };
+            const auto tileY{ tileIndex / tilesRoot };
+            const auto xBegin{ tileX * width / tilesRoot };
+            const auto xEnd{ ( tileX + 1 ) * width / tilesRoot };
+            const auto yBegin{ tileY * height / tilesRoot };
+            const auto yEnd{ ( tileY + 1 ) * height / tilesRoot };
+            Tracer tracer{ camera, *accelerator };
+            auto tileAoRays{ 0 };
 
             for ( int sy = 0; sy < samplesRoot; ++sy ) {
                 for ( int sx = 0; sx < samplesRoot; ++sx ) {
-                    Tracer::HitPoint h = hitPoints[currentHitPoint++];
+                    for ( int i = yBegin; i < yEnd; ++i ) {
+                        for ( int j = xBegin; j < xEnd; ++j ) {
+                            const auto hitPointIndex{ ( sy * samplesRoot + sx ) * height * width + i * width + j };
+                            Tracer::HitPoint h = hitPoints[hitPointIndex];
+                            float c = 1.0f;
 
-                    if ( !h._hit ) {
-                        c += 1.0f;
-                        continue;
+                            if ( h._hit ) {
+                                tileAoRays += Tracer::_aoSamplesRoot * Tracer::_aoSamplesRoot;
+                                c = tracer.sampleAO( h );
+                            }
+                            {
+                                std::shared_lock _{ sm };
+                                image[i * width + j] += c * ( 1.0f / ( samplesRoot * samplesRoot ) );
+                            }
+                        }
                     }
-
-                    aoRays += Tracer::_aoSamplesRoot * Tracer::_aoSamplesRoot;
-                    c += tracer.sampleAO( h );
                 }
             }
 
-            image[i * width + j] = c * ( 1.0f / ( samplesRoot * samplesRoot ) );
-        }
+            aoRayCounts[tileIndex] = tileAoRays;
+        } };
+    }
+
+    for ( auto& thread : aoThreads ) {
+        thread.join();
+    }
+
+    auto aoRays{ 0 };
+    for ( const auto tileAoRays : aoRayCounts ) {
+        aoRays += tileAoRays;
     }
 
     double aoEnd = seconds();
-    std::cout << ( aoRays / ( aoEnd - aoStart ) ) << " rays/sec." << std::endl;
 
-    std::cout << "Total time: " << ( ( primEnd - primStart ) + ( aoEnd - aoStart ) ) << " sec." << std::endl;
+    std::println( "{} rays/sec.", std::trunc( aoRays / ( aoEnd - aoStart ) ) );
+    std::println( "Total time: {}", ( primEnd - primStart ) + ( aoEnd - aoStart ) );
 
-    std::cout << "Saving image.ppm..." << std::flush;
+    std::println( "Saving image.ppm..." );
 
     FILE* f = fopen( "image.ppm", "w" );
     fprintf( f, "P3\n%d %d\n%d\n", width, height, 255 );
