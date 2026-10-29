@@ -1,60 +1,14 @@
-#include "tcpbridge/tcpbridge.h"
-
-#include <atomic>
-#include <condition_variable>
 #include <coroutine>
 #include <deque>
 #include <format>
 #include <limits>
 #include <mutex>
-#include <optional>
+
 #include <utility>
 
-#include "io/async.h"
-#include "io/scheduler.h"
-#include "io/tcpclient.h"
-#include "io/tcpserver.h"
-#include "io/timer.h"
+#include "tcpbridge/tcpbridge.h"
 
 namespace tire {
-
-struct TcpBridge::State {
-    explicit State( Scheduler *scheduler, size_t maximumPayload )
-        : _scheduler{ scheduler }
-        , _maximumPayload{ maximumPayload } {}
-
-    Scheduler *_scheduler{ nullptr };
-    Callbacks _callbacks{};
-    size_t _maximumPayload{ FrameCodec::_defaultMaximumPayload };
-
-    std::atomic<bool> _started{ false };
-    std::atomic<bool> _closeRequested{ false };
-    std::atomic<bool> _closing{ false };
-
-    bool _connected{ false };
-    bool _errorReported{ false };
-
-    std::shared_ptr<TcpClient> _client{};
-    std::shared_ptr<TcpServer> _server{};
-    std::shared_ptr<TcpConnection> _connection{};
-
-    std::optional<TimeoutAwaitable<Task<void>>> _retryTimer{};
-    std::deque<Message> _outbound{};
-    std::mutex _outboundMutex{};
-
-    std::coroutine_handle<> _drainCoroutine{};
-
-    bool _drainWaiting{ false };
-
-    Task<void> _clientTask{};
-    Task<void> _serverTask{};
-    Task<void> _drainTask{};
-
-    std::mutex _workerMutex{};
-    std::condition_variable _workerCondition{};
-
-    size_t _workerCount{ 0 };
-};
 
 namespace {
 
