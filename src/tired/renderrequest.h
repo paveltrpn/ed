@@ -13,6 +13,15 @@ namespace tire {
 
 struct TcpBridge;
 
+enum class RenderRequestState {
+    //
+    Idle,
+    Starting,
+    Connecting,
+    WaitingForEcho,
+    Failed
+};
+
 // ======================================================================================
 // ==================== RenderRequest ===================================================
 // ======================================================================================
@@ -40,11 +49,11 @@ private:
     auto handleBridgeError( int status, const std::string &context ) -> void;
 
 private:
-    enum class State { Idle, Starting, Connecting, WaitingForEcho, Failed };
+    RenderRequestState _state{ RenderRequestState::Idle };
 
-    State _state{ State::Idle };
     std::unique_ptr<TcpBridge> _bridge{};
     std::unique_ptr<QProcess> _process{};
+
     bool _quitHandlerConnected{ false };
 };
 

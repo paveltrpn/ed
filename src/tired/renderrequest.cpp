@@ -25,11 +25,11 @@ RenderRequest::~RenderRequest() {
 }
 
 void RenderRequest::start() {
-    if ( _state != State::Idle && _state != State::Failed ) {
+    if ( _state != RenderRequestState::Idle && _state != RenderRequestState::Failed ) {
         return;
     }
 
-    _state = State::Starting;
+    _state = RenderRequestState::Starting;
 
     auto *application = QCoreApplication::instance();
     if ( application == nullptr ) {
@@ -95,11 +95,11 @@ void RenderRequest::start() {
 
         QObject::connect( _process.get(), &QProcess::started, this, [this]() -> void {
             //
-            if ( _state != State::Starting || _bridge == nullptr ) {
+            if ( _state != RenderRequestState::Starting || _bridge == nullptr ) {
                 return;
             }
 
-            _state = State::Connecting;
+            _state = RenderRequestState::Connecting;
             _bridge->connect( "127.0.0.1", 45454, TcpBridge::RetryOptions{} );
         } );
 
@@ -115,7 +115,7 @@ void RenderRequest::start() {
         QObject::connect( _process.get(), &QProcess::finished, this,
                           [this]( int exitCode, QProcess::ExitStatus ) -> void {
                               //
-                              if ( _state == State::Idle || _state == State::Failed ) {
+                              if ( _state == RenderRequestState::Idle || _state == RenderRequestState::Failed ) {
                                   return;
                               }
                               fail( QStringLiteral( "rt process exited unexpectedly with code %1" ).arg( exitCode ) );
@@ -138,16 +138,16 @@ void RenderRequest::start() {
 }
 
 void RenderRequest::stop() {
-    _state = State::Idle;
+    _state = RenderRequestState::Idle;
     cleanupSession();
 }
 
 auto RenderRequest::fail( const QString &message ) -> void {
-    if ( _state == State::Idle || _state == State::Failed ) {
+    if ( _state == RenderRequestState::Idle || _state == RenderRequestState::Failed ) {
         return;
     }
 
-    _state = State::Failed;
+    _state = RenderRequestState::Failed;
 
     cleanupSession();
 
@@ -186,11 +186,11 @@ auto RenderRequest::cleanupSession() -> void {
 }
 
 auto RenderRequest::handleConnected() -> void {
-    if ( _state != State::Connecting || _bridge == nullptr ) {
+    if ( _state != RenderRequestState::Connecting || _bridge == nullptr ) {
         return;
     }
 
-    _state = State::WaitingForEcho;
+    _state = RenderRequestState::WaitingForEcho;
 
     const auto expected = QByteArray{ "hello from ed" };
     auto message = TcpBridge::Message( static_cast<size_t>( expected.size() ) );
@@ -201,7 +201,7 @@ auto RenderRequest::handleConnected() -> void {
 }
 
 auto RenderRequest::handleMessage( const QByteArray &payload ) -> void {
-    if ( _state != State::WaitingForEcho ) {
+    if ( _state != RenderRequestState::WaitingForEcho ) {
         return;
     }
 
@@ -216,7 +216,7 @@ auto RenderRequest::handleMessage( const QByteArray &payload ) -> void {
 }
 
 auto RenderRequest::handleDisconnected() -> void {
-    if ( _state == State::Idle || _state == State::Failed ) {
+    if ( _state == RenderRequestState::Idle || _state == RenderRequestState::Failed ) {
         return;
     }
 
@@ -224,7 +224,7 @@ auto RenderRequest::handleDisconnected() -> void {
 }
 
 auto RenderRequest::handleBridgeError( int status, const std::string &context ) -> void {
-    if ( _state == State::Idle || _state == State::Failed ) {
+    if ( _state == RenderRequestState::Idle || _state == RenderRequestState::Failed ) {
         return;
     }
 
