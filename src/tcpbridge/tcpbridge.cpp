@@ -26,24 +26,33 @@ struct TcpBridge::State {
     Scheduler *_scheduler{ nullptr };
     Callbacks _callbacks{};
     size_t _maximumPayload{ FrameCodec::_defaultMaximumPayload };
+
     std::atomic<bool> _started{ false };
     std::atomic<bool> _closeRequested{ false };
     std::atomic<bool> _closing{ false };
+
     bool _connected{ false };
     bool _errorReported{ false };
+
     std::shared_ptr<TcpClient> _client{};
     std::shared_ptr<TcpServer> _server{};
     std::shared_ptr<TcpConnection> _connection{};
+
     std::optional<TimeoutAwaitable<Task<void>>> _retryTimer{};
     std::deque<Message> _outbound{};
     std::mutex _outboundMutex{};
+
     std::coroutine_handle<> _drainCoroutine{};
+
     bool _drainWaiting{ false };
+
     Task<void> _clientTask{};
     Task<void> _serverTask{};
     Task<void> _drainTask{};
+
     std::mutex _workerMutex{};
     std::condition_variable _workerCondition{};
+
     size_t _workerCount{ 0 };
 };
 
@@ -138,6 +147,7 @@ auto finishSession( const std::shared_ptr<BridgeState> &state ) -> void {
 auto decodeChunk( const std::shared_ptr<BridgeState> &state, FrameCodec &codec, const TcpConnection::Bytes &bytes )
     -> bool {
     auto decoded = codec.push( bytes );
+
     for ( auto &message : decoded._messages ) {
         if ( state->_callbacks._message ) {
             state->_callbacks._message( std::move( message ) );
@@ -149,6 +159,7 @@ auto decodeChunk( const std::shared_ptr<BridgeState> &state, FrameCodec &codec, 
         shutdown( state );
         return false;
     }
+
     return true;
 }
 
@@ -182,6 +193,7 @@ auto runDrain( std::shared_ptr<BridgeState> state ) -> Task<void> {
 
         auto framed = FrameCodec::encode( message );
         const auto result = co_await connection->write( std::move( framed ) );
+
         if ( result._status != 0 ) {
             if ( !state->_closing ) {
                 reportError( state, result._status, "TCP write failed" );
@@ -418,12 +430,18 @@ auto TcpBridge::send( Message message ) -> void {
         _state->_outbound.push_back( std::move( message ) );
     }
 
-    _scheduler->post( [state = _state]( uv_loop_t * ) -> void { resumeDrain( state ); } );
+    _scheduler->post( [state = _state]( uv_loop_t * ) -> void {
+        //
+        resumeDrain( state );
+    } );
 }
 
 auto TcpBridge::close() -> void {
     if ( !_state->_closeRequested.exchange( true ) ) {
-        _scheduler->post( [state = _state]( uv_loop_t * ) -> void { shutdown( state ); } );
+        _scheduler->post( [state = _state]( uv_loop_t * ) -> void {
+            //
+            shutdown( state );
+        } );
     }
 
     if ( _scheduler->isLoopThread() ) {
@@ -432,7 +450,10 @@ auto TcpBridge::close() -> void {
 
     std::unique_lock lock{ _state->_workerMutex };
 
-    _state->_workerCondition.wait( lock, [state = _state]() -> bool { return state->_workerCount == 0; } );
+    _state->_workerCondition.wait( lock, [state = _state]() -> bool {
+        //
+        return state->_workerCount == 0;
+    } );
 }
 
 }  // namespace tire
