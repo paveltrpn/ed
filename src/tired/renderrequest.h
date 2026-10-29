@@ -18,7 +18,7 @@ enum class RenderRequestState {
     Idle,
     Starting,
     Connecting,
-    WaitingForEcho,
+    WaitingForReply,
     Failed
 };
 

@@ -11,7 +11,6 @@
 #include <charconv>
 #include <condition_variable>
 #include <cstdint>
-#include <fstream>
 #include <mutex>
 #include <stdio.h>
 #include <cstring>
@@ -129,9 +128,32 @@ static auto runServe( uint16_t port ) -> int {
 
     auto callbacks = tire::TcpBridgeCallbacks{};
 
-    callbacks._message = [&bridge]( std::vector<std::byte> message ) -> void {
+    const auto fillMessageBufferFromString = []( std::vector<std::byte>& message, std::string_view str ) -> void {
+        message.resize( static_cast<size_t>( str.size() ) );
+        std::memcpy( message.data(), str.data(), static_cast<size_t>( str.size() ) );
+    };
+
+    callbacks._message = [&bridge, fillMessageBufferFromString]( std::vector<std::byte> message ) -> void {
         //
-        bridge.send( std::move( message ) );
+        std::string messageString( message.size(), '\0' );
+        std::transform( message.begin(), message.end(), messageString.begin(), []( std::byte b ) -> char {
+            //
+            return static_cast<char>( b );
+        } );
+
+        if ( messageString == "handshake_from_ed" ) {
+            auto message = std::vector<std::byte>{};
+            fillMessageBufferFromString( message, "hello from rt" );
+            bridge.send( std::move( message ) );
+        }
+
+        if ( messageString == "dummy data to rt" ) {
+            auto message = std::vector<std::byte>{};
+            fillMessageBufferFromString( message, "return data to ed" );
+            bridge.send( std::move( message ) );
+        }
+
+        // bridge.send( std::move( message ) );
     };
 
     callbacks._disconnected = [&mutex, &condition, &finished, &exitCode]() -> void {

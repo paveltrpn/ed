@@ -194,10 +194,11 @@ auto RenderRequest::handleConnected() -> void {
         return;
     }
 
-    _state = RenderRequestState::WaitingForEcho;
+    _state = RenderRequestState::WaitingForReply;
 
-    const auto expected = QByteArray{ "hello from ed" };
-    auto message = std::vector<std::byte>( static_cast<size_t>( expected.size() ) );
+    const auto expected = QByteArray{ "handshake_from_ed" };
+    auto message = std::vector<std::byte>{};
+    message.resize( static_cast<size_t>( expected.size() ) );
 
     std::memcpy( message.data(), expected.constData(), static_cast<size_t>( expected.size() ) );
 
@@ -205,20 +206,33 @@ auto RenderRequest::handleConnected() -> void {
 }
 
 auto RenderRequest::handleMessage( const QByteArray &payload ) -> void {
-    if ( _state != RenderRequestState::WaitingForEcho ) {
+    if ( _state != RenderRequestState::WaitingForReply ) {
         return;
     }
 
-    if ( payload != QByteArray{ "hello from ed" } ) {
-        fail( QStringLiteral( "Received malformed TCP echo" ) );
-        return;
+    // if ( payload != QByteArray{ "hello from ed" } ) {
+    //     fail( QStringLiteral( "Received malformed TCP echo" ) );
+    //     return;
+    // }
+
+    if ( payload == QByteArray{ "hello from rt" } ) {
+        log::info()( "handshake done!" );
+
+        const auto expected = QByteArray{ "dummy data to rt" };
+        auto message = std::vector<std::byte>{};
+        message.resize( static_cast<size_t>( expected.size() ) );
+
+        std::memcpy( message.data(), expected.constData(), static_cast<size_t>( expected.size() ) );
+
+        _bridge->send( std::move( message ) );
     }
 
-    log::info()( "TCP echo verified: {}", payload.toStdString() );
-
-    stop();
-
-    emit echoCompleted();
+    if ( payload == QByteArray{ "return data to ed" } ) {
+        log::info()( "TCP data transfer success!", payload.toStdString() );
+        stop();
+        emit echoCompleted();
+        return;
+    }
 }
 
 auto RenderRequest::handleDisconnected() -> void {
