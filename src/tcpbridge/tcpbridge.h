@@ -94,6 +94,7 @@ struct TcpBridge final {
     auto operator=( TcpBridge&& ) -> TcpBridge& = delete;
 
     auto setCallbacks( TcpBridgeCallbacks callbacks ) -> void;
+
     auto listen( std::string host, uint16_t port ) -> void;
     auto connect( std::string host, uint16_t port, TcpBridgeRetryOptions retry ) -> void;
     auto send( std::vector<std::byte> message ) -> void;

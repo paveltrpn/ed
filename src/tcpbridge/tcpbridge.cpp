@@ -61,7 +61,9 @@ auto shutdown( const std::shared_ptr<tire::TcpBridgeState> &state ) -> void {
 
 auto finishSession( const std::shared_ptr<tire::TcpBridgeState> &state ) -> void {
     const auto wasConnected = std::exchange( state->_connected, false );
+
     shutdown( state );
+
     if ( wasConnected && state->_callbacks._disconnected ) {
         state->_callbacks._disconnected();
     }
@@ -80,6 +82,7 @@ auto decodeChunk( const std::shared_ptr<tire::TcpBridgeState> &state, tire::Fram
     if ( decoded._status == tire::FrameStatus::Oversized ) {
         reportError( state, UV_EPROTO, "Received frame exceeds the configured payload limit" );
         shutdown( state );
+
         return false;
     }
 
@@ -129,6 +132,7 @@ auto runDrain( std::shared_ptr<tire::TcpBridgeState> state ) -> tire::Task<void>
 
 auto runServer( std::shared_ptr<tire::TcpBridgeState> state, std::string host, uint16_t port ) -> tire::Task<void> {
     const auto completion = tire::WorkerCompletion{ state };
+
     if ( state->_closing ) {
         co_return;
     }
@@ -151,6 +155,7 @@ auto runServer( std::shared_ptr<tire::TcpBridgeState> state, std::string host, u
     }
 
     auto acceptResult = co_await server->accept();
+
     server->close();
 
     if ( acceptResult._status != 0 ) {
@@ -174,17 +179,20 @@ auto runServer( std::shared_ptr<tire::TcpBridgeState> state, std::string host, u
 
     while ( !state->_closing ) {
         const auto readResult = co_await state->_connection->read();
+
         if ( readResult._status == 0 ) {
             if ( !decodeChunk( state, codec, readResult._bytes ) ) {
                 break;
             }
             continue;
         }
+
         if ( readResult._status == UV_EOF ) {
             handleEof( state, codec );
         } else if ( !state->_closing ) {
             reportError( state, readResult._status, "TCP read failed" );
         }
+
         break;
     }
 

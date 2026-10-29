@@ -75,6 +75,7 @@ static RayAccelerator* createAccelerator( Bvh& bvh, const char* name ) {
     std::cout << "Pick one of: stack, implicita, implicitb, sparse, hapala, laine0,1,2,4,8." << std::endl;
 
     exit( 1 );
+
     return 0;
 }
 
@@ -127,9 +128,15 @@ static auto runServe( uint16_t port ) -> int {
     auto exitCode = 1;
 
     auto callbacks = tire::TcpBridgeCallbacks{};
-    callbacks._message = [&bridge]( std::vector<std::byte> message ) -> void { bridge.send( std::move( message ) ); };
+
+    callbacks._message = [&bridge]( std::vector<std::byte> message ) -> void {
+        //
+        bridge.send( std::move( message ) );
+    };
+
     callbacks._disconnected = [&mutex, &condition, &finished, &exitCode]() -> void {
         {
+            //
             std::scoped_lock lock{ mutex };
             if ( !finished ) {
                 exitCode = 0;
@@ -138,7 +145,9 @@ static auto runServe( uint16_t port ) -> int {
         }
         condition.notify_one();
     };
+
     callbacks._error = [&mutex, &condition, &finished, &exitCode]( tire::TcpBridgeError error ) -> void {
+        //
         std::cerr << error._context;
         if ( error._status != 0 ) {
             std::cerr << ": " << uv_strerror( error._status );
@@ -151,6 +160,7 @@ static auto runServe( uint16_t port ) -> int {
         }
         condition.notify_one();
     };
+
     bridge.setCallbacks( std::move( callbacks ) );
     bridge.listen( "127.0.0.1", port );
 
@@ -158,6 +168,7 @@ static auto runServe( uint16_t port ) -> int {
     condition.wait( lock, [&finished]() -> bool { return finished; } );
     lock.unlock();
     bridge.close();
+
     return exitCode;
 }
 
