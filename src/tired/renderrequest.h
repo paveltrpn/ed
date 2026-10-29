@@ -42,7 +42,9 @@ signals:
 
 private:
     auto fail( const QString &message ) -> void;
+
     auto cleanupSession() -> void;
+
     auto handleConnected() -> void;
     auto handleMessage( const QByteArray &payload ) -> void;
     auto handleDisconnected() -> void;
