@@ -277,7 +277,7 @@ Rectangle {
                     when: Tired.controlMode == 2
                     PropertyChanges {
                         target: hatArea
-                        color: "green"//_color.si_mode_system
+                        color: _color.si_mode_render
                     }
                 }
             ]

@@ -20,6 +20,8 @@ Rectangle {
 
     color: _color.si_button_shadow
 
+    property string modeColor: _color.si_mode_render
+
     Item {
         id: leftPanelMainComponentWrapper
         anchors {
@@ -48,7 +50,7 @@ Rectangle {
                 right: parent.right
             }
 
-            modeRelatedBgColor: _color.si_mode_system
+            modeRelatedBgColor: leftPanelRenderComponent.modeColor
             buttonLabel: "TCP test start"
 
             onClicked: {

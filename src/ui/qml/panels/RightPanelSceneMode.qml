@@ -20,9 +20,7 @@ Rectangle {
 
     color: _color.si_button_shadow
 
-    property string activeBtn: ""
-
-    focus: true
+    property string modeColor: _color.si_mode_scene
 
     Item {
         id: rightPanelScenemodeWrapper
@@ -124,7 +122,7 @@ Rectangle {
                     right: parent.right
                 }
 
-                modeRelatedBgColor: _color.si_mode_scene
+                modeRelatedBgColor: rightPanelSceneComponent.modeColor
 
                 buttonLabel: "ScaleX"
 
@@ -151,7 +149,7 @@ Rectangle {
                     right: parent.right
                 }
 
-                modeRelatedBgColor: _color.si_mode_scene
+                modeRelatedBgColor: rightPanelSceneComponent.modeColor
                 buttonLabel: "ScaleY"
 
                 text: "1.000"
@@ -177,7 +175,7 @@ Rectangle {
                     right: parent.right
                 }
 
-                modeRelatedBgColor: _color.si_mode_scene
+                modeRelatedBgColor: rightPanelSceneComponent.modeColor
                 buttonLabel: "ScaleZ"
 
                 text: "1.000"
@@ -217,7 +215,7 @@ Rectangle {
                     right: parent.right
                 }
 
-                modeRelatedBgColor: _color.si_mode_scene
+                modeRelatedBgColor: rightPanelSceneComponent.modeColor
                 buttonLabel: "RotX"
 
                 text: "0.000"
@@ -243,7 +241,7 @@ Rectangle {
                     right: parent.right
                 }
 
-                modeRelatedBgColor: _color.si_mode_scene
+                modeRelatedBgColor: rightPanelSceneComponent.modeColor
                 buttonLabel: "RotY"
 
                 text: "0.000"
@@ -269,7 +267,7 @@ Rectangle {
                     right: parent.right
                 }
 
-                modeRelatedBgColor: _color.si_mode_scene
+                modeRelatedBgColor: rightPanelSceneComponent.modeColor
                 buttonLabel: "RotZ"
 
                 text: "0.000"
@@ -309,7 +307,7 @@ Rectangle {
                     right: parent.right
                 }
 
-                modeRelatedBgColor: _color.si_mode_scene
+                modeRelatedBgColor: rightPanelSceneComponent.modeColor
                 buttonLabel: "TransX"
 
                 text: "0.000"
@@ -335,7 +333,7 @@ Rectangle {
                     right: parent.right
                 }
 
-                modeRelatedBgColor: _color.si_mode_scene
+                modeRelatedBgColor: rightPanelSceneComponent.modeColor
                 buttonLabel: "TransY"
 
                 text: "0.000"
@@ -361,7 +359,7 @@ Rectangle {
                     right: parent.right
                 }
 
-                modeRelatedBgColor: _color.si_mode_scene
+                modeRelatedBgColor: rightPanelSceneComponent.modeColor
                 buttonLabel: "TransZ"
 
                 text: "0.000"
@@ -387,7 +385,7 @@ Rectangle {
                 right: parent.right
             }
 
-            modeRelatedBgColor: _color.si_mode_scene
+            modeRelatedBgColor: rightPanelSceneComponent.modeColor
             buttonLabel: "Deselect"
 
             enabled: Tired.scenegraph.scene.isAnyObjectSelected
@@ -408,7 +406,7 @@ Rectangle {
                 right: parent.right
             }
 
-            modeRelatedBgColor: _color.si_mode_scene
+            modeRelatedBgColor: rightPanelSceneComponent.modeColor
             buttonLabel: "Scene"
 
             checked: mainWindow.panelsActiveBtn === "infoButton"

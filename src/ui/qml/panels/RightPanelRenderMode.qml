@@ -20,6 +20,8 @@ Rectangle {
 
     color: _color.si_button_shadow
 
+    property string modeColor: _color.si_mode_render
+
     Item {
         id: rightPanelSystemModeWrapper
 

@@ -20,6 +20,8 @@ Rectangle {
 
     color: _color.si_button_shadow
 
+    property string modeColor: _color.si_mode_system
+
     Item {
         id: rightPanelSystemModeWrapper
 
@@ -39,7 +41,7 @@ Rectangle {
         //         right: parent.right
         //     }
 
-        //     modeRelatedBgColor: _color.si_mode_system
+        //     modeRelatedBgColor: rightPanelSystemComponent.modeColor
         //     buttonLabel: "TCP test start"
 
         //     onClicked: {

@@ -20,6 +20,8 @@ Rectangle {
 
     color: _color.si_button_shadow
 
+    property string modeColor: _color.si_mode_scene
+
     Item {
         id: leftPanelMainComponentWrapper
         anchors {
@@ -38,7 +40,7 @@ Rectangle {
                 right: parent.right
             }
 
-            modeRelatedBgColor: _color.si_mode_scene
+            modeRelatedBgColor: leftPanelSceneComponent.modeColor
             buttonLabel: "Object"
 
             checked: mainWindow.panelsActiveBtn === "objectAddButton"
@@ -76,7 +78,7 @@ Rectangle {
                 right: parent.right
             }
 
-            modeRelatedBgColor: _color.si_mode_scene
+            modeRelatedBgColor: leftPanelSceneComponent.modeColor
             buttonLabel: "Mesh"
 
             checked: mainWindow.panelsActiveBtn === "meshAddButton"
@@ -114,7 +116,7 @@ Rectangle {
                 right: parent.right
             }
 
-            modeRelatedBgColor: _color.si_mode_scene
+            modeRelatedBgColor: leftPanelSceneComponent.modeColor
             buttonLabel: "Bezier"
 
             checked: mainWindow.panelsActiveBtn === "bezierAddButton"
@@ -152,7 +154,7 @@ Rectangle {
                 right: parent.right
             }
 
-            modeRelatedBgColor: _color.si_mode_scene
+            modeRelatedBgColor: leftPanelSceneComponent.modeColor
             buttonLabel: "Implicit"
 
             checked: mainWindow.panelsActiveBtn === "implicitAddButton"
@@ -190,7 +192,7 @@ Rectangle {
                 right: parent.right
             }
 
-            modeRelatedBgColor: _color.si_mode_scene
+            modeRelatedBgColor: leftPanelSceneComponent.modeColor
             buttonLabel: "Landscape"
 
             checked: mainWindow.panelsActiveBtn === "landscapeAddButton"
@@ -228,7 +230,7 @@ Rectangle {
                 right: parent.right
             }
 
-            modeRelatedBgColor: _color.si_mode_scene
+            modeRelatedBgColor: leftPanelSceneComponent.modeColor
             buttonLabel: "Polytope"
 
             checked: mainWindow.panelsActiveBtn === "polytopeAddButton"
@@ -266,7 +268,7 @@ Rectangle {
                 right: parent.right
             }
 
-            modeRelatedBgColor: _color.si_mode_system
+            modeRelatedBgColor: leftPanelSceneComponent.modeColor
             buttonLabel: "Load"
 
             enabled: !saveSceneDialogItem.visible
@@ -317,7 +319,7 @@ Rectangle {
                 right: parent.right
             }
 
-            modeRelatedBgColor: _color.si_mode_system
+            modeRelatedBgColor: leftPanelSceneComponent.modeColor
             buttonLabel: "Save"
 
             enabled: !loadSceneDialogItem.visible

@@ -20,6 +20,8 @@ Rectangle {
 
     color: _color.si_button_shadow
 
+    property string modeColor: _color.si_mode_system
+
     Item {
         id: leftPanelMainComponentWrapper
         anchors {
@@ -48,7 +50,7 @@ Rectangle {
                 right: parent.right
             }
 
-            modeRelatedBgColor: _color.si_mode_system
+            modeRelatedBgColor: leftPanelSystemComponent.modeColor
             buttonLabel: "About"
 
             checked: mainWindow.panelsActiveBtn === "aboutButton"
@@ -90,7 +92,7 @@ Rectangle {
                 right: parent.right
             }
 
-            modeRelatedBgColor: _color.si_mode_system
+            modeRelatedBgColor: leftPanelSystemComponent.modeColor
             buttonLabel: "Ui"
 
             checked: mainWindow.panelsActiveBtn === "uiSettingsButton"
@@ -132,7 +134,7 @@ Rectangle {
                 right: parent.right
             }
 
-            modeRelatedBgColor: _color.si_mode_scene
+            modeRelatedBgColor: leftPanelSystemComponent.modeColor
             buttonLabel: "Settings"
 
             checked: mainWindow.panelsActiveBtn === "settingsButton"
@@ -169,7 +171,7 @@ Rectangle {
                 right: parent.right
             }
 
-            modeRelatedBgColor: _color.si_mode_system
+            modeRelatedBgColor: leftPanelSystemComponent.modeColor
             buttonLabel: "Exit"
 
             checked: mainWindow.panelsActiveBtn === "exitButton"
