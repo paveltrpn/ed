@@ -29,22 +29,22 @@ Rectangle {
             rightMargin: rightPanelSystemComponent._units.scaled_2
         }
 
-        SIButtonMain {
-            id: tcpBridgeTestStartButton
+        // SIButtonMain {
+        //     id: tcpBridgeTestStartButton
 
-            anchors {
-                bottom: parent.bottom
-                bottomMargin: _units.quarter
-                left: parent.left
-                right: parent.right
-            }
+        //     anchors {
+        //         bottom: parent.bottom
+        //         bottomMargin: _units.quarter
+        //         left: parent.left
+        //         right: parent.right
+        //     }
 
-            modeRelatedBgColor: _color.si_mode_system
-            buttonLabel: "TCP test start"
+        //     modeRelatedBgColor: _color.si_mode_system
+        //     buttonLabel: "TCP test start"
 
-            onClicked: {
-                Tired.renderRequest.start()
-            }
-        }
+        //     onClicked: {
+        //         Tired.renderRequest.start()
+        //     }
+        // }
     }
 }

@@ -18,7 +18,8 @@ struct RenderRequest;
 enum class ControlModes {
     //
     SCENE,
-    SYSTEM
+    SYSTEM,
+    RENDER
 };
 
 // ======================================================================================
@@ -40,8 +41,7 @@ public:
     [[nodiscard]] static auto instance() -> Tired&;
     [[nodiscard]] static auto pointer() -> Tired*;
 
-    [[nodiscard]]
-    auto vsgRender() const -> std::shared_ptr<VsgRender>;
+    [[nodiscard]] auto vsgRender() const -> std::shared_ptr<VsgRender>;
 
     auto viewer() -> vsg::ref_ptr<Viewer>;
     auto rootNode() -> vsg::ref_ptr<vsg::Node>;

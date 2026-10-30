@@ -271,24 +271,44 @@ Rectangle {
                         target: hatArea
                         color: _color.si_mode_system
                     }
+                },
+                State {
+                    name: "render_mode"
+                    when: Tired.controlMode == 2
+                    PropertyChanges {
+                        target: hatArea
+                        color: "green"//_color.si_mode_system
+                    }
                 }
             ]
 
-            property var buttonsList: []
+            ModeSelectButton {
+                id: renderModeButton
 
-            function deselectOthers(exceptItem) {
-                for (let i in hatArea.buttonsList) {
-                    const btn = hatArea.buttonsList[i];
-                    if (btn !== exceptItem) {
-                        btn.checked = false;
-                    }
+                // ControlModes::RENDER
+                checked: Tired.controlMode === 2
+
+                anchors {
+                    right: sceneModeButton.left
+                    rightMargin: _units.full
+                    top: parent.top
+                    bottom: parent.bottom
+                }
+
+                buttonLabel: "Render"
+
+                width: implicitWidth
+
+                onClicked: {
+                    Tired.controlMode = 2;
                 }
             }
 
             ModeSelectButton {
                 id: sceneModeButton
 
-                checked: true
+                // ControlModes::SCENE
+                checked: Tired.controlMode === 0
 
                 anchors {
                     right: systemModeButton.left
@@ -299,24 +319,19 @@ Rectangle {
 
                 buttonLabel: "Scene"
 
+                width: implicitWidth
+
                 onClicked: {
-                    sceneModeButton.checked = !sceneModeButton.checked;
-
-                    if (sceneModeButton.checked) {
-                        hatArea.deselectOthers(sceneModeButton);
-                    }
-
-                    // ControlModes::SCENE
                     Tired.controlMode = 0;
-                }
-
-                Component.onCompleted: {
-                    hatArea.buttonsList.push(sceneModeButton);
                 }
             }
 
             ModeSelectButton {
                 id: systemModeButton
+
+                // ControlModes::SYSTEM
+                checked: Tired.controlMode === 1
+
                 anchors {
                     right: parent.right
                     rightMargin: _units.scaled_8
@@ -329,18 +344,7 @@ Rectangle {
                 width: implicitWidth
 
                 onClicked: {
-                    systemModeButton.checked = !systemModeButton.checked;
-
-                    if (systemModeButton.checked) {
-                        hatArea.deselectOthers(systemModeButton);
-                    }
-
-                    // ControlModes::SYSTEM
                     Tired.controlMode = 1;
-                }
-
-                Component.onCompleted: {
-                    hatArea.buttonsList.push(systemModeButton);
                 }
             }
         }

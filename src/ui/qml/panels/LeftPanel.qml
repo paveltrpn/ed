@@ -32,6 +32,10 @@ Rectangle {
                 target: leftPanelSystemModeItem
                 visible: false
             }
+            PropertyChanges {
+                target: leftPanelRenderModeItem
+                visible: false
+            }
         },
         State {
             name: "system_mode"
@@ -44,6 +48,26 @@ Rectangle {
                 target: leftPanelSystemModeItem
                 visible: true
             }
+            PropertyChanges {
+                target: leftPanelRenderModeItem
+                visible: false
+            }
+        },
+        State {
+            name: "render_mode"
+            when: Tired.controlMode == 2
+            PropertyChanges {
+                target: leftPanelSceneModeItem
+                visible: false
+            }
+            PropertyChanges {
+                target: leftPanelSystemModeItem
+                visible: false
+            }
+            PropertyChanges {
+                target: leftPanelRenderModeItem
+                visible: true
+            }
         }
     ]
 
@@ -54,6 +78,11 @@ Rectangle {
 
     LeftPanelSystemMode {
         id: leftPanelSystemModeItem
+        anchors.fill: parent
+    }
+
+    LeftPanelRenderMode {
+        id: leftPanelRenderModeItem
         anchors.fill: parent
     }
 }
