@@ -70,7 +70,7 @@ auto finishSession( const std::shared_ptr<tire::TcpBridgeState> &state ) -> void
 }
 
 auto decodeChunk( const std::shared_ptr<tire::TcpBridgeState> &state, tire::FrameCodec &codec,
-                  const tire::TcpConnection::Bytes &bytes ) -> bool {
+                  const std::vector<std::byte> &bytes ) -> bool {
     auto decoded = codec.push( bytes );
 
     for ( auto &message : decoded._messages ) {

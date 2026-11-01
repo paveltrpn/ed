@@ -16,11 +16,9 @@ struct Scheduler;
 // ======================================================================================
 
 struct TcpConnection final {
-    using Bytes = std::vector<std::byte>;
-
     struct ReadResult {
         int _status{ 0 };
-        Bytes _bytes{};
+        std::vector<std::byte> _bytes{};
     };
 
     struct WriteResult {
@@ -40,7 +38,7 @@ struct TcpConnection final {
 
     struct WriteAwaitable {
         std::shared_ptr<State> _state{};
-        Bytes _bytes{};
+        std::vector<std::byte> _bytes{};
         std::shared_ptr<WriteResult> _result{ std::make_shared<WriteResult>() };
 
         auto await_ready() noexcept -> bool;
@@ -53,7 +51,7 @@ struct TcpConnection final {
     static auto create( Scheduler &scheduler, uv_loop_t *loop, int &status ) -> std::shared_ptr<TcpConnection>;
 
     auto read() -> ReadAwaitable;
-    auto write( Bytes bytes ) -> WriteAwaitable;
+    auto write( std::vector<std::byte> bytes ) -> WriteAwaitable;
     auto close() -> void;
 
     [[nodiscard]] auto nativeHandle() const -> uv_tcp_t *;
