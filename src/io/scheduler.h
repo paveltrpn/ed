@@ -1,16 +1,21 @@
 #pragma once
 
+#include <condition_variable>
 #include <cstddef>
 #include <cstdint>
+#include <deque>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <string>
+#include <thread>
+#include <utility>
 #include <vector>
 
 #include <uv.h>
 
 #include "io/async.h"
-#include "io/schedulerbase.h"
+#include "io/payload.h"
 
 namespace tire {
 
@@ -31,8 +36,14 @@ struct TcpAcceptAwaitable;
 struct TcpReadAwaitable;
 struct TcpWriteAwaitable;
 
-struct Scheduler final : SchedulerBase {
+// ======================================================================================
+// ==================== Scheduler =======================================================
+// ======================================================================================
+
+struct Scheduler final {
 public:
+    using AsyncJob = std::pair<std::function<void( uv_loop_t *, AsyncJobPayload * )>, AsyncJobPayload *>;
+
     template <typename T>
     friend struct TimeoutAwaitable;
 
@@ -48,8 +59,17 @@ public:
     friend struct TcpReadAwaitable;
     friend struct TcpWriteAwaitable;
 
-public:
-    using SchedulerBase::isLoopThread;
+    Scheduler( const Scheduler &other ) = delete;
+    Scheduler( Scheduler &&other ) = delete;
+
+    auto operator=( const Scheduler &other ) -> Scheduler & = delete;
+    auto operator=( Scheduler &&other ) -> Scheduler & = delete;
+
+    Scheduler();
+
+    ~Scheduler();
+
+    [[nodiscard]] auto isLoopThread() const noexcept -> bool;
 
     // Fire once by timeout.
     auto timeout( uint64_t timeout ) -> TimeoutAwaitable<Task<void>>;
@@ -86,11 +106,28 @@ public:
     auto close( const std::shared_ptr<TcpListener> &listener ) -> void;
 
 private:
+    static auto asyncCallback( uv_async_t *handle ) -> void;
+
+    auto enqueue( AsyncJob job ) -> void;
+    auto dequeue( AsyncJob &job ) -> bool;
+    auto stop() -> void;
+
     // Submit callback to event loop.
     auto post( std::function<void( uv_loop_t * )> task ) -> void;
 
     // Submit callback to event loop.
-    void schedule( std::function<void( uv_loop_t *, AsyncJobPayload * )> task, AsyncJobPayload *p );
+    auto schedule( std::function<void( uv_loop_t *, AsyncJobPayload * )> task, AsyncJobPayload *p )
+        -> void;
+
+    uv_async_t _asyncWakeup{};
+    uv_loop_t *_loop{};
+    std::unique_ptr<std::thread> _thread{};
+    std::mutex _startupMutex{};
+    std::condition_variable _startupCondition{};
+    bool _startupComplete{ false };
+    int _startupStatus{ 0 };
+    std::mutex _jobMutex{};
+    std::deque<AsyncJob> _jobs{};
 };
 
 }  // namespace tire
