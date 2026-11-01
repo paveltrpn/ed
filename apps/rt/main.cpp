@@ -12,7 +12,6 @@
 #include <algorithm>
 #include <charconv>
 #include <condition_variable>
-#include <coroutine>
 #include <cstdint>
 #include <mutex>
 #include <stdio.h>
@@ -136,23 +135,16 @@ struct ServeCompletion {
     std::mutex _mutex{};
     std::condition_variable _condition{};
     bool _finished{ false };
-    int _exitCode{ 1 };
 };
 
 // ======================================================================================
-// ==================== SessionEndAwaitable =============================================
+// ==================== SessionEndGuard =================================================
 // ======================================================================================
 
-struct SessionEndAwaitable {
+struct SessionEndGuard {
     ServeCompletion *_completion{ nullptr };
 
-    [[nodiscard]] auto await_ready() const noexcept -> bool {
-        //
-        return false;
-    }
-
-    auto await_suspend( std::coroutine_handle<> ) noexcept -> void {
-        // Never resumed: the session frame is quiesced here and destroyed by runServe().
+    ~SessionEndGuard() {
         {
             const std::scoped_lock lock{ _completion->_mutex };
             _completion->_finished = true;
@@ -160,13 +152,10 @@ struct SessionEndAwaitable {
 
         _completion->_condition.notify_all();
     }
-
-    auto await_resume() const noexcept -> void {
-        //
-    }
 };
 
 auto runServeSession( tire::TcpBridge &bridge, ServeCompletion &completion, uint16_t port ) -> tire::Task<int> {
+    const auto endGuard{ SessionEndGuard{ &completion } };
     auto exitCode = 1;
 
     const auto fillMessageBufferFromString = []( std::vector<std::byte> &message, std::string_view str ) -> void {
@@ -229,10 +218,6 @@ auto runServeSession( tire::TcpBridge &bridge, ServeCompletion &completion, uint
         }
     }
 
-    completion._exitCode = exitCode;
-
-    co_await SessionEndAwaitable{ &completion };
-
     co_return exitCode;
 }
 
@@ -254,11 +239,16 @@ static auto runServe( uint16_t port ) -> int {
 
     bridge->close();
 
-    // Destroy the bridge, joining the event loop thread, before the session frame is
-    // freed: the loop may still be unwinding through the frame when it signals finish.
+    // Join the event loop thread before the completed session frame is destroyed by
+    // ~Task: the coroutine now runs to completion on that thread.
     bridge.reset();
 
-    return completion._exitCode;
+    if ( session.exception() ) {
+        std::cerr << "Session terminated by exception" << std::endl;
+        return 1;
+    }
+
+    return session.get();
 }
 
 auto main( int argc, const char* argv[] ) -> int {

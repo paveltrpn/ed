@@ -133,7 +133,21 @@ struct Task {
     }
 
     auto await_resume() -> T {
+        //
+        return get();
+    }
+
+    [[nodiscard]] auto get() -> T {
+        //
         return std::move( handle_.promise()._value );
+    }
+
+    [[nodiscard]] auto exception() const -> std::exception_ptr {
+        if ( !handle_ ) {
+            return std::exception_ptr{ nullptr };
+        }
+
+        return handle_.promise().exception_;
     }
 
 private:
