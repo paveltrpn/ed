@@ -42,10 +42,14 @@ public:
     template <typename T>
     friend struct FilesystemWatchAwaitable;
 
+    friend struct TcpConnectAwaitable;
+    friend struct TcpListenAwaitable;
+    friend struct TcpAcceptAwaitable;
+    friend struct TcpReadAwaitable;
+    friend struct TcpWriteAwaitable;
+
 public:
     using SchedulerBase::isLoopThread;
-
-    auto post( std::function<void( uv_loop_t * )> task ) -> void;
 
     // Fire once by timeout.
     auto timeout( uint64_t timeout ) -> TimeoutAwaitable<Task<void>>;
@@ -82,6 +86,9 @@ public:
     auto close( const std::shared_ptr<TcpListener> &listener ) -> void;
 
 private:
+    // Submit callback to event loop.
+    auto post( std::function<void( uv_loop_t * )> task ) -> void;
+
     // Submit callback to event loop.
     void schedule( std::function<void( uv_loop_t *, AsyncJobPayload * )> task, AsyncJobPayload *p );
 };

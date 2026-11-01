@@ -1,14 +1,13 @@
 #pragma once
 
+#include <atomic>
 #include <cstddef>
 #include <cstdint>
-#include <functional>
+#include <deque>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
-#include <atomic>
-#include <condition_variable>
-#include <optional>
 
 #include "tcpbridge/framecodec.h"
 
@@ -23,62 +22,22 @@ namespace tire {
 
 struct Scheduler;
 
+// ======================================================================================
+// ==================== TcpBridgeRetryOptions ===========================================
+// ======================================================================================
+
 struct TcpBridgeRetryOptions {
     size_t _maximumAttempts{ 16 };
     uint64_t _delayMilliseconds{ 100 };
 };
 
-struct TcpBridgeError {
+// ======================================================================================
+// ==================== TcpBridgeMessage ================================================
+// ======================================================================================
+
+struct TcpBridgeMessage {
     int _status{ 0 };
-    std::string _context{};
-};
-
-struct TcpBridgeCallbacks {
-    std::function<void()> _connected{};
-    std::function<void( std::vector<std::byte> )> _message{};
-    std::function<void()> _disconnected{};
-    std::function<void( TcpBridgeError )> _error{};
-};
-
-struct TcpBridgeState {
-    explicit TcpBridgeState( Scheduler* scheduler, size_t maximumPayload )
-        : _scheduler{ scheduler }
-        , _maximumPayload{ maximumPayload } {}
-
-    Scheduler* _scheduler{ nullptr };
-    TcpBridgeCallbacks _callbacks{};
-    size_t _maximumPayload{ FrameCodec::_defaultMaximumPayload };
-
-    std::atomic<bool> _started{ false };
-    std::atomic<bool> _closeRequested{ false };
-    std::atomic<bool> _closing{ false };
-
-    bool _connected{ false };
-    bool _errorReported{ false };
-
-    std::optional<TcpConnectAwaitable> _connect{};
-    std::shared_ptr<TcpListener> _listener{};
-    std::shared_ptr<TcpConnection> _connection{};
-
-    std::optional<TimeoutAwaitable<Task<void>>> _retryTimer{};
-
-    // Message queue.
-    std::deque<std::vector<std::byte>> _outbound{};
-
-    std::mutex _outboundMutex{};
-
-    std::coroutine_handle<> _drainCoroutine{};
-
-    bool _drainWaiting{ false };
-
-    Task<void> _clientTask{};
-    Task<void> _serverTask{};
-    Task<void> _drainTask{};
-
-    std::mutex _workerMutex{};
-    std::condition_variable _workerCondition{};
-
-    size_t _workerCount{ 0 };
+    std::vector<std::byte> _payload{};
 };
 
 // ======================================================================================
@@ -94,61 +53,36 @@ struct TcpBridge final {
     auto operator=( const TcpBridge& ) -> TcpBridge& = delete;
     auto operator=( TcpBridge&& ) -> TcpBridge& = delete;
 
-    auto setCallbacks( TcpBridgeCallbacks callbacks ) -> void;
+    // Listen on the endpoint and accept one incoming TCP connection.
+    auto accept( std::string host, uint16_t port ) -> Task<int>;
 
-    auto listen( std::string host, uint16_t port ) -> void;
-    auto connect( std::string host, uint16_t port, TcpBridgeRetryOptions retry ) -> void;
-    auto send( std::vector<std::byte> message ) -> void;
+    // Connect to a TCP endpoint, retrying until the attempt limit is exhausted.
+    auto connect( std::string host, uint16_t port, TcpBridgeRetryOptions retry ) -> Task<int>;
+
+    // Read one framed message.
+    auto read() -> Task<TcpBridgeMessage>;
+
+    // Send one framed message.
+    auto send( std::vector<std::byte> message ) -> Task<int>;
+
+    // Cancel all pending operations and close the session. Safe to call from any thread.
     auto close() -> void;
 
 private:
     std::unique_ptr<Scheduler> _scheduler{};
-    std::shared_ptr<TcpBridgeState> _state{};
-};
+    std::atomic<bool> _closing{ false };
+    size_t _maximumPayload{ FrameCodec::_defaultMaximumPayload };
+    FrameCodec _codec{ _maximumPayload };
 
-// ======================================================================================
-// ==================== WorkerCompletion ================================================
-// ======================================================================================
+    std::mutex _sessionMutex{};
 
-struct WorkerCompletion {
-    std::shared_ptr<TcpBridgeState> _state{};
+    std::shared_ptr<TcpListener> _listener{};
+    std::shared_ptr<TcpConnection> _connection{};
+    std::shared_ptr<TcpConnectAwaitable> _connect{};
+    std::shared_ptr<TimeoutAwaitable<Task<void>>> _retryTimer{};
 
-    ~WorkerCompletion() {
-        _state->_scheduler->post( [state = _state]( uv_loop_t* ) -> void {
-            //
-            std::scoped_lock lock{ state->_workerMutex };
-
-            if ( state->_workerCount > 0 ) {
-                --state->_workerCount;
-            }
-
-            if ( state->_workerCount == 0 ) {
-                state->_workerCondition.notify_all();
-            }
-        } );
-    }
-};
-
-// ======================================================================================
-// ==================== DrainAwaitable ==================================================
-// ======================================================================================
-
-struct DrainAwaitable {
-    std::shared_ptr<TcpBridgeState> _state{};
-
-    auto await_ready() const noexcept -> bool {
-        //
-        return false;
-    }
-
-    auto await_suspend( std::coroutine_handle<> coroutine ) noexcept -> void {
-        _state->_drainCoroutine = coroutine;
-        _state->_drainWaiting = true;
-    }
-
-    auto await_resume() const noexcept -> void {
-        //
-    }
+    // Messages decoded ahead of the last co_awaited read.
+    std::deque<std::vector<std::byte>> _pendingMessages{};
 };
 
 }  // namespace tire

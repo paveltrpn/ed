@@ -9,8 +9,10 @@
 #include <array>
 #include <iostream>
 #include <cassert>
+#include <algorithm>
 #include <charconv>
 #include <condition_variable>
+#include <coroutine>
 #include <cstdint>
 #include <mutex>
 #include <stdio.h>
@@ -124,79 +126,139 @@ static auto parseServeOptions( int argc, const char* argv[] ) -> ServeOptions {
     return options;
 }
 
-static auto runServe( uint16_t port ) -> int {
-    auto bridge = tire::TcpBridge{};
-    auto mutex = std::mutex{};
-    auto condition = std::condition_variable{};
-    auto finished = false;
+namespace {
+
+// ======================================================================================
+// ==================== ServeCompletion =================================================
+// ======================================================================================
+
+struct ServeCompletion {
+    std::mutex _mutex{};
+    std::condition_variable _condition{};
+    bool _finished{ false };
+    int _exitCode{ 1 };
+};
+
+// ======================================================================================
+// ==================== SessionEndAwaitable =============================================
+// ======================================================================================
+
+struct SessionEndAwaitable {
+    ServeCompletion *_completion{ nullptr };
+
+    [[nodiscard]] auto await_ready() const noexcept -> bool {
+        //
+        return false;
+    }
+
+    auto await_suspend( std::coroutine_handle<> ) noexcept -> void {
+        // Never resumed: the session frame is quiesced here and destroyed by runServe().
+        {
+            const std::scoped_lock lock{ _completion->_mutex };
+            _completion->_finished = true;
+        }
+
+        _completion->_condition.notify_all();
+    }
+
+    auto await_resume() const noexcept -> void {
+        //
+    }
+};
+
+auto runServeSession( tire::TcpBridge &bridge, ServeCompletion &completion, uint16_t port ) -> tire::Task<int> {
     auto exitCode = 1;
 
-    auto callbacks = tire::TcpBridgeCallbacks{};
-
-    const auto fillMessageBufferFromString = []( std::vector<std::byte>& message, std::string_view str ) -> void {
+    const auto fillMessageBufferFromString = []( std::vector<std::byte> &message, std::string_view str ) -> void {
         message.resize( static_cast<size_t>( str.size() ) );
         std::memcpy( message.data(), str.data(), static_cast<size_t>( str.size() ) );
     };
 
-    callbacks._message = [&bridge, fillMessageBufferFromString]( std::vector<std::byte> message ) -> void {
-        //
-        std::string messageString( message.size(), '\0' );
-        std::transform( message.begin(), message.end(), messageString.begin(), []( std::byte b ) -> char {
-            //
-            return static_cast<char>( b );
-        } );
+    const auto acceptStatus = co_await bridge.accept( "127.0.0.1", port );
+
+    if ( acceptStatus != 0 ) {
+        std::cerr << "Failed to accept TCP connection";
+        if ( acceptStatus != UV_ECANCELED ) {
+            std::cerr << ": " << uv_strerror( acceptStatus );
+        }
+        std::cerr << std::endl;
+    }
+
+    while ( acceptStatus == 0 ) {
+        const auto message = co_await bridge.read();
+
+        if ( message._status == UV_EOF ) {
+            exitCode = 0;
+            break;
+        }
+
+        if ( message._status != 0 ) {
+            if ( message._status != UV_ECANCELED ) {
+                std::cerr << "TCP read failed: " << uv_strerror( message._status ) << std::endl;
+            }
+            break;
+        }
+
+        std::string messageString( message._payload.size(), '\0' );
+        std::transform( message._payload.begin(), message._payload.end(), messageString.begin(),
+                        []( std::byte b ) -> char {
+                            //
+                            return static_cast<char>( b );
+                        } );
 
         if ( messageString == "handshake_from_ed" ) {
-            auto message = std::vector<std::byte>{};
-            fillMessageBufferFromString( message, "hello from rt" );
-            bridge.send( std::move( message ) );
+            auto reply = std::vector<std::byte>{};
+            fillMessageBufferFromString( reply, "hello from rt" );
+
+            const auto sendStatus = co_await bridge.send( std::move( reply ) );
+            if ( sendStatus != 0 ) {
+                std::cerr << "TCP send failed: " << uv_strerror( sendStatus ) << std::endl;
+                break;
+            }
         }
 
         if ( messageString == "dummy data to rt" ) {
-            auto message = std::vector<std::byte>{};
-            fillMessageBufferFromString( message, "return data to ed" );
-            bridge.send( std::move( message ) );
-        }
+            auto reply = std::vector<std::byte>{};
+            fillMessageBufferFromString( reply, "return data to ed" );
 
-        // bridge.send( std::move( message ) );
-    };
-
-    callbacks._disconnected = [&mutex, &condition, &finished, &exitCode]() -> void {
-        {
-            //
-            std::scoped_lock lock{ mutex };
-            if ( !finished ) {
-                exitCode = 0;
+            const auto sendStatus = co_await bridge.send( std::move( reply ) );
+            if ( sendStatus != 0 ) {
+                std::cerr << "TCP send failed: " << uv_strerror( sendStatus ) << std::endl;
+                break;
             }
-            finished = true;
         }
-        condition.notify_one();
-    };
+    }
 
-    callbacks._error = [&mutex, &condition, &finished, &exitCode]( tire::TcpBridgeError error ) -> void {
+    completion._exitCode = exitCode;
+
+    co_await SessionEndAwaitable{ &completion };
+
+    co_return exitCode;
+}
+
+}  // namespace
+
+static auto runServe( uint16_t port ) -> int {
+    auto completion = ServeCompletion{};
+    auto bridge = std::make_unique<tire::TcpBridge>();
+
+    auto session = runServeSession( *bridge, completion, port );
+    session.start();
+
+    std::unique_lock lock{ completion._mutex };
+    completion._condition.wait( lock, [&completion]() -> bool {
         //
-        std::cerr << error._context;
-        if ( error._status != 0 ) {
-            std::cerr << ": " << uv_strerror( error._status );
-        }
-        std::cerr << std::endl;
-        {
-            std::scoped_lock lock{ mutex };
-            finished = true;
-            exitCode = 1;
-        }
-        condition.notify_one();
-    };
-
-    bridge.setCallbacks( std::move( callbacks ) );
-    bridge.listen( "127.0.0.1", port );
-
-    std::unique_lock lock{ mutex };
-    condition.wait( lock, [&finished]() -> bool { return finished; } );
+        return completion._finished;
+    } );
     lock.unlock();
-    bridge.close();
 
-    return exitCode;
+    bridge->close();
+
+    // Destroy the bridge, joining the event loop thread, before the session frame is
+    // freed: the loop may still be unwinding through the frame when it signals finish.
+    bridge.reset();
+
+    return completion._exitCode;
 }
 
 auto main( int argc, const char* argv[] ) -> int {

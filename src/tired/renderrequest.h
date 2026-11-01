@@ -1,11 +1,15 @@
 #pragma once
 
+#include <atomic>
+#include <condition_variable>
+#include <coroutine>
 #include <memory>
-#include <string>
+#include <mutex>
 
-#include <QByteArray>
 #include <QObject>
 #include <QString>
+
+#include "io/async.h"
 
 class QProcess;
 
@@ -41,22 +45,44 @@ signals:
     auto echoCompleted() -> void;
 
 private:
+    struct SessionEndAwaitable final {
+        RenderRequest *_owner{ nullptr };
+
+        [[nodiscard]] auto await_ready() const noexcept -> bool {
+            //
+            return false;
+        }
+
+        auto await_suspend( std::coroutine_handle<> coroutine ) noexcept -> void;
+
+        auto await_resume() const noexcept -> void {
+            //
+        }
+    };
+
+    auto runSession() -> Task<void>;
+
     auto fail( const QString &message ) -> void;
 
     auto cleanupSession() -> void;
+    auto endSession() -> void;
 
-    auto handleConnected() -> void;
-    auto handleMessage( const QByteArray &payload ) -> void;
-    auto handleDisconnected() -> void;
-    auto handleBridgeError( int status, const std::string &context ) -> void;
+    auto handleHandshakeDone() -> void;
+    auto handleSuccess() -> void;
+    auto handleFailure( int status ) -> void;
 
 private:
     RenderRequestState _state{ RenderRequestState::Idle };
 
     std::unique_ptr<TcpBridge> _bridge{};
+    Task<void> _sessionTask{};
     std::unique_ptr<QProcess> _process{};
 
     bool _quitHandlerConnected{ false };
+
+    std::atomic<bool> _sessionDone{ false };
+    std::mutex _doneMutex{};
+    std::condition_variable _doneCondition{};
 };
 
 }  // namespace tire

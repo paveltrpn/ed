@@ -1,413 +1,318 @@
-#include <coroutine>
-#include <deque>
-#include <format>
+#include <cstddef>
+#include <cstdint>
 #include <limits>
-#include <mutex>
-
 #include <utility>
 
+#include <uv.h>
+
 #include "tcpbridge/tcpbridge.h"
-
-namespace {
-
-auto resumeDrain( const std::shared_ptr<tire::TcpBridgeState> &state ) -> void {
-    if ( !state->_drainWaiting ) {
-        return;
-    }
-
-    state->_drainWaiting = false;
-    const auto coroutine = std::exchange( state->_drainCoroutine, nullptr );
-
-    if ( coroutine ) {
-        coroutine.resume();
-    }
-}
-
-auto reportError( const std::shared_ptr<tire::TcpBridgeState> &state, int status, std::string context ) -> void {
-    if ( state->_errorReported ) {
-        return;
-    }
-
-    state->_errorReported = true;
-    if ( state->_callbacks._error ) {
-        state->_callbacks._error( tire::TcpBridgeError{ status, std::move( context ) } );
-    }
-}
-
-auto shutdown( const std::shared_ptr<tire::TcpBridgeState> &state ) -> void {
-    if ( !state->_closing ) {
-        state->_closing = true;
-
-        if ( state->_retryTimer.has_value() ) {
-            state->_retryTimer->cancel();
-        }
-
-        if ( state->_connect.has_value() ) {
-            state->_connect->cancel();
-        }
-
-        if ( state->_listener != nullptr ) {
-            state->_scheduler->close( state->_listener );
-        }
-
-        if ( state->_connection != nullptr ) {
-            state->_scheduler->close( state->_connection );
-        }
-    }
-
-    {
-        std::scoped_lock lock{ state->_outboundMutex };
-        state->_outbound.clear();
-    }
-
-    resumeDrain( state );
-}
-
-auto finishSession( const std::shared_ptr<tire::TcpBridgeState> &state ) -> void {
-    const auto wasConnected = std::exchange( state->_connected, false );
-
-    shutdown( state );
-
-    if ( wasConnected && state->_callbacks._disconnected ) {
-        state->_callbacks._disconnected();
-    }
-}
-
-auto decodeChunk( const std::shared_ptr<tire::TcpBridgeState> &state, tire::FrameCodec &codec,
-                  const std::vector<std::byte> &bytes ) -> bool {
-    auto decoded = codec.push( bytes );
-
-    for ( auto &message : decoded._messages ) {
-        if ( state->_callbacks._message ) {
-            state->_callbacks._message( std::move( message ) );
-        }
-    }
-
-    if ( decoded._status == tire::FrameStatus::Oversized ) {
-        reportError( state, UV_EPROTO, "Received frame exceeds the configured payload limit" );
-        shutdown( state );
-
-        return false;
-    }
-
-    return true;
-}
-
-auto handleEof( const std::shared_ptr<tire::TcpBridgeState> &state, tire::FrameCodec &codec ) -> void {
-    if ( codec.endOfStream() == tire::FrameStatus::PartialEof ) {
-        reportError( state, UV_EPROTO, "Connection ended with a partial frame" );
-    }
-}
-
-auto runDrain( std::shared_ptr<tire::TcpBridgeState> state ) -> tire::Task<void> {
-    const auto completion = tire::WorkerCompletion{ state };
-
-    while ( !state->_closing ) {
-        auto message = std::vector<std::byte>{};
-        auto hasMessage = false;
-
-        std::shared_ptr<tire::TcpConnection> connection{};
-
-        {
-            std::scoped_lock lock{ state->_outboundMutex };
-            if ( state->_connection != nullptr && !state->_outbound.empty() ) {
-                message = std::move( state->_outbound.front() );
-                state->_outbound.pop_front();
-                connection = state->_connection;
-                hasMessage = true;
-            }
-        }
-
-        if ( !hasMessage ) {
-            co_await tire::DrainAwaitable{ state };
-            continue;
-        }
-
-        auto framed = tire::FrameCodec::encode( message );
-        const auto result = co_await state->_scheduler->write( connection, std::move( framed ) );
-
-        if ( result._status != 0 ) {
-            if ( !state->_closing ) {
-                reportError( state, result._status, "TCP write failed" );
-                shutdown( state );
-            }
-
-            co_return;
-        }
-    }
-}
-
-auto runServer( std::shared_ptr<tire::TcpBridgeState> state, std::string host, uint16_t port ) -> tire::Task<void> {
-    const auto completion = tire::WorkerCompletion{ state };
-
-    if ( state->_closing ) {
-        co_return;
-    }
-
-    auto listenAwaitable = state->_scheduler->listen( host, port );
-    state->_listener = listenAwaitable.listener();
-
-    const auto listenResult = co_await listenAwaitable;
-
-    if ( listenResult._status != 0 ) {
-        if ( !state->_closeRequested.load() ) {
-            reportError( state, listenResult._status, std::format( "Failed to listen on {}:{}", host, port ) );
-        }
-        shutdown( state );
-        co_return;
-    }
-
-    if ( state->_closing ) {
-        co_return;
-    }
-
-    auto acceptResult = co_await state->_scheduler->accept( state->_listener );
-
-    state->_scheduler->close( state->_listener );
-
-    if ( acceptResult._status != 0 ) {
-        if ( !state->_closing ) {
-            reportError( state, acceptResult._status, "Failed to accept TCP client" );
-        }
-        shutdown( state );
-        co_return;
-    }
-
-    state->_connection = acceptResult._connection;
-    state->_connected = true;
-
-    if ( state->_callbacks._connected ) {
-        state->_callbacks._connected();
-    }
-
-    resumeDrain( state );
-
-    auto codec = tire::FrameCodec{ state->_maximumPayload };
-
-    while ( !state->_closing ) {
-        const auto readResult = co_await state->_scheduler->read( state->_connection );
-
-        if ( readResult._status == 0 ) {
-            if ( !decodeChunk( state, codec, readResult._bytes ) ) {
-                break;
-            }
-            continue;
-        }
-
-        if ( readResult._status == UV_EOF ) {
-            handleEof( state, codec );
-        } else if ( !state->_closing ) {
-            reportError( state, readResult._status, "TCP read failed" );
-        }
-
-        break;
-    }
-
-    finishSession( state );
-}
-
-auto runClient( std::shared_ptr<tire::TcpBridgeState> state, std::string host, uint16_t port,
-                tire::TcpBridgeRetryOptions retry ) -> tire::Task<void> {
-    const auto completion = tire::WorkerCompletion{ state };
-
-    if ( state->_closing ) {
-        co_return;
-    }
-
-    if ( retry._maximumAttempts == 0 ) {
-        reportError( state, UV_EINVAL, "TCP connect requires at least one attempt" );
-        shutdown( state );
-        co_return;
-    }
-
-    auto connectResult = tire::TcpConnectResult{};
-    connectResult._status = UV_ECANCELED;
-
-    for ( size_t attempt = 0; attempt < retry._maximumAttempts; ++attempt ) {
-        state->_connect.emplace( *state->_scheduler, host, port );
-        connectResult = co_await state->_connect.value();
-        state->_connect.reset();
-        if ( connectResult._status == 0 ) {
-            break;
-        }
-
-        if ( state->_closing || state->_closeRequested.load() ) {
-            co_return;
-        }
-
-        if ( attempt + 1 < retry._maximumAttempts ) {
-            state->_retryTimer.emplace( *state->_scheduler, retry._delayMilliseconds );
-
-            const auto timerStatus = co_await state->_retryTimer.value();
-
-            state->_retryTimer.reset();
-
-            if ( timerStatus != 0 ) {
-                if ( !state->_closing ) {
-                    reportError( state, timerStatus, "TCP connect retry timer failed" );
-                    shutdown( state );
-                }
-                co_return;
-            }
-        }
-    }
-
-    if ( connectResult._status != 0 ) {
-        if ( !state->_closing && !state->_closeRequested.load() ) {
-            reportError(
-                state, connectResult._status,
-                std::format( "Failed to connect to {}:{} after {} attempts", host, port, retry._maximumAttempts ) );
-        }
-
-        shutdown( state );
-
-        co_return;
-    }
-
-    state->_connection = connectResult._connection;
-    state->_connected = true;
-    if ( state->_callbacks._connected ) {
-        state->_callbacks._connected();
-    }
-
-    resumeDrain( state );
-
-    auto codec = tire::FrameCodec{ state->_maximumPayload };
-
-    while ( !state->_closing ) {
-        const auto readResult = co_await state->_scheduler->read( state->_connection );
-
-        if ( readResult._status == 0 ) {
-            if ( !decodeChunk( state, codec, readResult._bytes ) ) {
-                break;
-            }
-            continue;
-        }
-
-        if ( readResult._status == UV_EOF ) {
-            handleEof( state, codec );
-        } else if ( !state->_closing ) {
-            reportError( state, readResult._status, "TCP read failed" );
-        }
-
-        break;
-    }
-
-    finishSession( state );
-}
-
-}  // namespace
 
 namespace tire {
 
 TcpBridge::TcpBridge( size_t maximumPayload )
     : _scheduler{ std::make_unique<Scheduler>() }
-    , _state{ std::make_shared<TcpBridgeState>( _scheduler.get(), maximumPayload ) } {
+    , _maximumPayload{ maximumPayload } {
 }
 
 TcpBridge::~TcpBridge() {
+    //
     close();
-
-    _state->_clientTask = Task<void>{};
-    _state->_serverTask = Task<void>{};
-    _state->_drainTask = Task<void>{};
-
-    _scheduler.reset();
-    _state.reset();
 }
 
-auto TcpBridge::setCallbacks( TcpBridgeCallbacks callbacks ) -> void {
-    _state->_callbacks = std::move( callbacks );
-}
+auto TcpBridge::accept( std::string host, uint16_t port ) -> Task<int> {
+    auto listenAwaitable = std::make_shared<TcpListenAwaitable>( *_scheduler, std::move( host ), port );
 
-auto TcpBridge::listen( std::string host, uint16_t port ) -> void {
-    if ( _state->_started.exchange( true ) ) {
-        _scheduler->post( [state = _state]( uv_loop_t * ) -> void {
-            reportError( state, UV_EALREADY, "TCP bridge session was already started" );
-        } );
-
-        return;
-    }
-
+    auto status = 0;
     {
-        std::scoped_lock lock{ _state->_workerMutex };
-        _state->_workerCount = 2;
-    }
+        std::scoped_lock lock{ _sessionMutex };
 
-    _scheduler->post( [state = _state, host = std::move( host ), port]( uv_loop_t * ) mutable -> void {
-        state->_serverTask = runServer( state, std::move( host ), port );
-        state->_drainTask = runDrain( state );
-    } );
-}
-
-auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions retry ) -> void {
-    if ( _state->_started.exchange( true ) ) {
-        _scheduler->post( [state = _state]( uv_loop_t * ) -> void {
-            //
-            reportError( state, UV_EALREADY, "TCP bridge session was already started" );
-        } );
-
-        return;
-    }
-
-    {
-        std::scoped_lock lock{ _state->_workerMutex };
-        _state->_workerCount = 2;
-    }
-
-    _scheduler->post( [state = _state, host = std::move( host ), port, retry]( uv_loop_t * ) mutable -> void {
-        //
-        state->_clientTask = runClient( state, std::move( host ), port, retry );
-        state->_drainTask = runDrain( state );
-    } );
-}
-
-auto TcpBridge::send( std::vector<std::byte> message ) -> void {
-    if ( _state->_closeRequested.load() ) {
-        return;
-    }
-
-    if ( message.size() > _state->_maximumPayload || message.size() > std::numeric_limits<uint32_t>::max() ) {
-        _scheduler->post( [state = _state]( uv_loop_t * ) -> void {
-            //
-            reportError( state, UV_EMSGSIZE, "Outbound message exceeds the configured payload limit" );
-            shutdown( state );
-        } );
-        return;
-    }
-
-    {
-        std::scoped_lock lock{ _state->_outboundMutex };
-        if ( _state->_closing ) {
-            return;
+        if ( _closing ) {
+            status = UV_ECANCELED;
+        } else {
+            _listener = listenAwaitable->listener();
         }
-        _state->_outbound.push_back( std::move( message ) );
     }
 
-    _scheduler->post( [state = _state]( uv_loop_t * ) -> void {
-        //
-        resumeDrain( state );
-    } );
+    if ( status != 0 ) {
+        co_return status;
+    }
+
+    const auto listenResult = co_await *listenAwaitable;
+
+    if ( listenResult._status != 0 ) {
+        co_return listenResult._status;
+    }
+
+    auto listener = std::shared_ptr<TcpListener>{};
+    {
+        std::scoped_lock lock{ _sessionMutex };
+
+        if ( !_closing ) {
+            listener = _listener;
+        }
+    }
+
+    if ( listener == nullptr ) {
+        co_return UV_ECANCELED;
+    }
+
+    const auto acceptResult = co_await _scheduler->accept( listener );
+
+    if ( acceptResult._status != 0 ) {
+        co_return acceptResult._status;
+    }
+
+    {
+        std::scoped_lock lock{ _sessionMutex };
+
+        if ( _closing ) {
+            status = UV_ECANCELED;
+        } else {
+            _connection = acceptResult._connection;
+        }
+    }
+
+    if ( status != 0 ) {
+        _scheduler->close( acceptResult._connection );
+        co_return status;
+    }
+
+    co_return 0;
+}
+
+auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions retry ) -> Task<int> {
+    if ( retry._maximumAttempts == 0 ) {
+        co_return UV_EINVAL;
+    }
+
+    auto lastStatus = static_cast<int>( UV_ECANCELED );
+
+    for ( size_t attempt = 0; attempt < retry._maximumAttempts; ++attempt ) {
+        auto connect = std::make_shared<TcpConnectAwaitable>( *_scheduler, host, port );
+        {
+            std::scoped_lock lock{ _sessionMutex };
+
+            if ( _closing ) {
+                lastStatus = UV_ECANCELED;
+                break;
+            }
+
+            _connect = connect;
+        }
+
+        const auto connectResult = co_await *connect;
+
+        {
+            std::scoped_lock lock{ _sessionMutex };
+
+            if ( _connect == connect ) {
+                _connect.reset();
+            }
+        }
+
+        lastStatus = connectResult._status;
+
+        if ( lastStatus == 0 ) {
+            {
+                std::scoped_lock lock{ _sessionMutex };
+
+                if ( _closing ) {
+                    lastStatus = UV_ECANCELED;
+                } else {
+                    _connection = connectResult._connection;
+                }
+            }
+
+            if ( lastStatus != 0 ) {
+                _scheduler->close( connectResult._connection );
+            }
+
+            co_return lastStatus;
+        }
+
+        if ( lastStatus == UV_ECANCELED || _closing ) {
+            break;
+        }
+
+        if ( attempt + 1 < retry._maximumAttempts ) {
+            auto timer = std::make_shared<TimeoutAwaitable<Task<void>>>( *_scheduler, retry._delayMilliseconds );
+            {
+                std::scoped_lock lock{ _sessionMutex };
+
+                if ( _closing ) {
+                    lastStatus = UV_ECANCELED;
+                    break;
+                }
+
+                _retryTimer = timer;
+            }
+
+            const auto timerStatus = co_await *timer;
+
+            {
+                std::scoped_lock lock{ _sessionMutex };
+
+                if ( _retryTimer == timer ) {
+                    _retryTimer.reset();
+                }
+            }
+
+            if ( timerStatus != 0 ) {
+                lastStatus = timerStatus;
+                break;
+            }
+        }
+    }
+
+    co_return lastStatus;
+}
+
+auto TcpBridge::read() -> Task<TcpBridgeMessage> {
+    while ( true ) {
+        auto connection = std::shared_ptr<TcpConnection>{};
+        auto message = std::vector<std::byte>{};
+        auto hasMessage = false;
+        auto status = 0;
+
+        {
+            std::scoped_lock lock{ _sessionMutex };
+
+            if ( !_pendingMessages.empty() ) {
+                message = std::move( _pendingMessages.front() );
+                _pendingMessages.pop_front();
+                hasMessage = true;
+            } else if ( _closing ) {
+                status = UV_ECANCELED;
+            } else {
+                connection = _connection;
+            }
+        }
+
+        if ( hasMessage ) {
+            co_return TcpBridgeMessage{ 0, std::move( message ) };
+        }
+
+        if ( status != 0 ) {
+            co_return TcpBridgeMessage{ status, std::vector<std::byte>{} };
+        }
+
+        if ( connection == nullptr ) {
+            co_return TcpBridgeMessage{ UV_ENOTCONN, std::vector<std::byte>{} };
+        }
+
+        const auto readResult = co_await _scheduler->read( connection );
+
+        if ( readResult._status != 0 ) {
+            if ( readResult._status != UV_EOF ) {
+                co_return TcpBridgeMessage{ readResult._status, std::vector<std::byte>{} };
+            }
+
+            auto endStatus = UV_EOF;
+            {
+                std::scoped_lock lock{ _sessionMutex };
+
+                if ( _codec.endOfStream() == FrameStatus::PartialEof ) {
+                    endStatus = UV_EPROTO;
+                }
+            }
+
+            co_return TcpBridgeMessage{ endStatus, std::vector<std::byte>{} };
+        }
+
+        {
+            std::scoped_lock lock{ _sessionMutex };
+
+            const auto decoded = _codec.push( readResult._bytes );
+
+            if ( decoded._status == FrameStatus::Oversized ) {
+                status = UV_EPROTO;
+            } else {
+                for ( auto &decodedMessage : decoded._messages ) {
+                    _pendingMessages.push_back( std::move( decodedMessage ) );
+                }
+
+                if ( !_pendingMessages.empty() ) {
+                    message = std::move( _pendingMessages.front() );
+                    _pendingMessages.pop_front();
+                    hasMessage = true;
+                }
+            }
+        }
+
+        if ( status != 0 ) {
+            co_return TcpBridgeMessage{ status, std::vector<std::byte>{} };
+        }
+
+        if ( hasMessage ) {
+            co_return TcpBridgeMessage{ 0, std::move( message ) };
+        }
+    }
+}
+
+auto TcpBridge::send( std::vector<std::byte> message ) -> Task<int> {
+    auto connection = std::shared_ptr<TcpConnection>{};
+    auto status = 0;
+
+    {
+        std::scoped_lock lock{ _sessionMutex };
+
+        if ( _closing ) {
+            status = UV_ECANCELED;
+        } else {
+            connection = _connection;
+        }
+    }
+
+    if ( status != 0 ) {
+        co_return status;
+    }
+
+    if ( connection == nullptr ) {
+        co_return UV_ENOTCONN;
+    }
+
+    if ( message.size() > _maximumPayload || message.size() > std::numeric_limits<uint32_t>::max() ) {
+        co_return UV_EMSGSIZE;
+    }
+
+    auto framed = FrameCodec::encode( message );
+    const auto writeResult = co_await _scheduler->write( connection, std::move( framed ) );
+
+    co_return writeResult._status;
 }
 
 auto TcpBridge::close() -> void {
-    if ( !_state->_closeRequested.exchange( true ) ) {
-        _scheduler->post( [state = _state]( uv_loop_t * ) -> void {
-            //
-            shutdown( state );
-        } );
+    _closing = true;
+
+    auto listener = std::shared_ptr<TcpListener>{};
+    auto connection = std::shared_ptr<TcpConnection>{};
+    auto connect = std::shared_ptr<TcpConnectAwaitable>{};
+    auto retryTimer = std::shared_ptr<TimeoutAwaitable<Task<void>>>{};
+
+    {
+        std::scoped_lock lock{ _sessionMutex };
+
+        listener = _listener;
+        connection = _connection;
+        connect = _connect;
+        retryTimer = _retryTimer;
     }
 
-    if ( _scheduler->isLoopThread() ) {
-        return;
+    if ( retryTimer != nullptr ) {
+        retryTimer->cancel();
     }
 
-    std::unique_lock lock{ _state->_workerMutex };
+    if ( connect != nullptr ) {
+        connect->cancel();
+    }
 
-    _state->_workerCondition.wait( lock, [state = _state]() -> bool {
-        //
-        return state->_workerCount == 0;
-    } );
+    if ( listener != nullptr ) {
+        _scheduler->close( listener );
+    }
+
+    if ( connection != nullptr ) {
+        _scheduler->close( connection );
+    }
 }
 
 }  // namespace tire

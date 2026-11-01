@@ -55,14 +55,4 @@ Task<void>::~Task() {
     }
 }
 
-constexpr auto Task<void>::empty() const noexcept -> bool {
-    //
-    return handle_ == nullptr;
-}
-
-constexpr Task<void>::operator bool() const noexcept {
-    //
-    return !empty();
-}
-
 }  // namespace tire
