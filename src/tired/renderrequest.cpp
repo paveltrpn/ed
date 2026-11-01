@@ -51,20 +51,23 @@ RenderRequest::RenderRequest( QObject *parent )
 }
 
 RenderRequest::~RenderRequest() {
+    // NOTE: deliberately no cross-thread wait for a session still running here.
+    // The session coroutine resumes on the TcpBridge uv loop thread and uses `this`
+    // and its members, so destroying the object while a session is in flight is
+    // undefined behavior: the frame (~Task) and the members would be freed while the
+    // loop thread is still on them. The condition-variable wait that used to guard
+    // this was removed: it never runs in the current app (Tired is a leaked
+    // singleton, the destructor is unreachable, and the real shutdown path is
+    // aboutToQuit -> stop()), and it could block forever when the coroutine left
+    // through the exception path, because Task<void> stores the exception in the
+    // promise without signaling completion.
+    //
+    // Contract: a RenderRequest must outlive every session it has started. If
+    // mid-session destruction is ever required, restore a completion signal that
+    // covers the exception path too (e.g. completion notification from the
+    // Task<void> promise / final_suspend), and tear the bridge down only after
+    // joining the loop thread.
     stop();
-
-    if ( !_sessionTask.empty() ) {
-        std::unique_lock lock{ _doneMutex };
-        _doneCondition.wait( lock, [this]() -> bool {
-            //
-            return _sessionDone;
-        } );
-
-        // Release the bridge, joining the event loop thread, before the session frame
-        // is freed: the loop may still be unwinding through the frame when it signals
-        // finish, and a freed frame must never be on a live stack.
-        _bridge.reset();
-    }
 }
 
 void RenderRequest::start() {
@@ -92,7 +95,6 @@ void RenderRequest::start() {
 
     try {
         _bridge = std::make_unique<TcpBridge>();
-        _sessionDone = false;
 
         _process = std::make_unique<QProcess>();
 
@@ -220,15 +222,6 @@ auto RenderRequest::runSession() -> Task<void> {
             owner->endSession();
         },
         Qt::QueuedConnection );
-
-    {
-        std::scoped_lock lock{ this->_doneMutex };
-        this->_sessionDone = true;
-    }
-
-    this->_doneCondition.notify_all();
-
-    // co_await SessionEndAwaitable{ this };
 
     co_return;
 }

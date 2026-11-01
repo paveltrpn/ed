@@ -1,10 +1,7 @@
 #pragma once
 
-#include <atomic>
-#include <condition_variable>
 #include <coroutine>
 #include <memory>
-#include <mutex>
 
 #include <QObject>
 #include <QString>
@@ -64,10 +61,6 @@ private:
     std::unique_ptr<QProcess> _process{};
 
     bool _quitHandlerConnected{ false };
-
-    std::atomic<bool> _sessionDone{ false };
-    std::mutex _doneMutex{};
-    std::condition_variable _doneCondition{};
 };
 
 }  // namespace tire
