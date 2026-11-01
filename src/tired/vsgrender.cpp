@@ -12,6 +12,7 @@
 
 namespace tire {
 
+namespace {
 vsg::ref_ptr<vsg::ImageView> createColorImageView( vsg::ref_ptr<vsg::Device> device, const VkExtent2D& extent,
                                                    VkFormat imageFormat, VkSampleCountFlagBits samples ) {
     auto colorImage = vsg::MutableFormatImage::create();
@@ -413,6 +414,7 @@ vsg::ref_ptr<vsg::Commands> dynamicRenderingTransitionCommands( vsg::ref_ptr<vsg
     //                       VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, 0,
     //                       0, nullptr, 0, nullptr, 2, barriers.data() );
 }
+}  // namespace
 
 // ======================================================================================
 // ==================== VsgRender =======================================================
