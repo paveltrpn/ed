@@ -54,8 +54,9 @@ auto Tired::pointer() -> Tired* {
 
 Tired::Tired( QObject* parent )
     : QObject{ parent }
-    , _render{ std::make_shared<tire::VsgRender>() } {
-    _renderRequest = new RenderRequest{ this };
+    , _render{ std::make_shared<tire::VsgRender>() }
+    , _renderRequest{ new RenderRequest{ this } } {
+    //
     _render->viewer();
 
     // Setup scenegraph.

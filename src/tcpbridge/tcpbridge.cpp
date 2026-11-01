@@ -37,7 +37,7 @@ auto TcpBridge::accept( std::string host, uint16_t port ) -> Task<int> {
         co_return status;
     }
 
-    const auto listenResult = co_await *listenAwaitable;
+    const auto listenResult = co_await * listenAwaitable;
 
     if ( listenResult._status != 0 ) {
         co_return listenResult._status;
@@ -89,6 +89,7 @@ auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions 
 
     for ( size_t attempt = 0; attempt < retry._maximumAttempts; ++attempt ) {
         auto connect = std::make_shared<TcpConnectAwaitable>( *_scheduler, host, port );
+
         {
             std::scoped_lock lock{ _sessionMutex };
 
@@ -100,7 +101,7 @@ auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions 
             _connect = connect;
         }
 
-        const auto connectResult = co_await *connect;
+        const auto connectResult = co_await * connect;
 
         {
             std::scoped_lock lock{ _sessionMutex };
@@ -147,7 +148,7 @@ auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions 
                 _retryTimer = timer;
             }
 
-            const auto timerStatus = co_await *timer;
+            const auto timerStatus = co_await * timer;
 
             {
                 std::scoped_lock lock{ _sessionMutex };

@@ -65,8 +65,6 @@ RenderRequest::~RenderRequest() {
         // finish, and a freed frame must never be on a live stack.
         _bridge.reset();
     }
-
-    _sessionTask = Task<void>{};
 }
 
 void RenderRequest::start() {

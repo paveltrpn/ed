@@ -228,6 +228,7 @@ auto Scheduler::createTcpConnection( uv_loop_t *loop, int &status ) -> std::shar
     auto state = std::make_shared<TcpConnection::State>();
     state->_scheduler = this;
     status = uv_tcp_init( loop, &state->_handle );
+
     if ( status != 0 ) {
         return {};
     }
@@ -235,6 +236,7 @@ auto Scheduler::createTcpConnection( uv_loop_t *loop, int &status ) -> std::shar
     state->_initialized = true;
     state->_lifetime = new std::shared_ptr<TcpConnection::State>{ state };
     state->_handle.data = state->_lifetime;
+
     return std::make_shared<TcpConnection>( std::move( state ) );
 }
 
