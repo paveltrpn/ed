@@ -194,9 +194,11 @@ TiredUI::TiredUI( std::shared_ptr<VsgRender> render, bool resetPanelsSize, QObje
     _engine->addImageProvider( "TiredImageProvider", new TiredImageProvider{} );
 
     _context->setContextProperty( "appStateSettings", _settings );
+    _context->setContextProperty( "tiredUI", this );
 
     // Register UI style provider object.
     tire::Appearance::init();
+
     qmlRegisterSingletonInstance( "Tire", 1, 0, "Appearence", tire::Appearance::pointer() );
 
     qmlRegisterSingletonInstance( "Tire", 1, 0, "Tired", tire::Tired::pointer() );

@@ -230,11 +230,15 @@ auto TcpServer::AcceptAwaitable::await_ready() noexcept -> bool {
 
 auto TcpServer::AcceptAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
     auto operation = std::make_shared<TcpAcceptOperation>();
+
     operation->_state = _state;
     operation->_result = _result;
     operation->_coroutine = coroutine;
-    _state->_scheduler->post(
-        [operation = std::move( operation )]( uv_loop_t * ) mutable -> void { startAccept( operation ); } );
+
+    _state->_scheduler->post( [operation = std::move( operation )]( uv_loop_t * ) mutable -> void {
+        //
+        startAccept( operation );
+    } );
 }
 
 auto TcpServer::AcceptAwaitable::await_resume() noexcept -> AcceptResult {
@@ -250,7 +254,10 @@ auto TcpServer::accept() -> AcceptAwaitable {
 }
 
 auto TcpServer::close() -> void {
-    _state->_scheduler->post( [state = _state]( uv_loop_t * ) -> void { closeServer( state ); } );
+    _state->_scheduler->post( [state = _state]( uv_loop_t * ) -> void {
+        //
+        closeServer( state );
+    } );
 }
 
 }  // namespace tire

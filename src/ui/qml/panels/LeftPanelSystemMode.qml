@@ -198,7 +198,7 @@ Rectangle {
             visible: exitButton.checked
 
             onAccept: {
-                mainWindow.quitApplication();
+                tiredUI.quitApplication();
             }
 
             onDecline: {
