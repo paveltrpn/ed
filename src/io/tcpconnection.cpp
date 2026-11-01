@@ -12,7 +12,7 @@ namespace tire {
 struct TcpReadOperation {
     std::shared_ptr<TcpConnection::State> _state{};
     std::coroutine_handle<> _coroutine{};
-    std::shared_ptr<TcpConnection::ReadResult> _result{};
+    std::shared_ptr<TcpReadResult> _result{};
     void *_allocation{ nullptr };
     bool _completed{ false };
 };
@@ -21,7 +21,7 @@ struct TcpWriteOperation {
     std::shared_ptr<TcpConnection::State> _state{};
     std::coroutine_handle<> _coroutine{};
     std::vector<std::byte> _bytes{};
-    std::shared_ptr<TcpConnection::WriteResult> _result{};
+    std::shared_ptr<TcpWriteResult> _result{};
     uv_write_t _request{};
     bool _completed{ false };
 };
@@ -224,25 +224,25 @@ TcpConnection::TcpConnection( std::shared_ptr<State> state )
     : _state{ std::move( state ) } {
 }
 
-auto TcpConnection::create( Scheduler &scheduler, uv_loop_t *loop, int &status ) -> std::shared_ptr<TcpConnection> {
-    auto state = std::make_shared<State>();
-    state->_scheduler = &scheduler;
+auto Scheduler::createTcpConnection( uv_loop_t *loop, int &status ) -> std::shared_ptr<TcpConnection> {
+    auto state = std::make_shared<TcpConnection::State>();
+    state->_scheduler = this;
     status = uv_tcp_init( loop, &state->_handle );
     if ( status != 0 ) {
         return {};
     }
 
     state->_initialized = true;
-    state->_lifetime = new std::shared_ptr<State>{ state };
+    state->_lifetime = new std::shared_ptr<TcpConnection::State>{ state };
     state->_handle.data = state->_lifetime;
     return std::make_shared<TcpConnection>( std::move( state ) );
 }
 
-auto TcpConnection::ReadAwaitable::await_ready() noexcept -> bool {
+auto TcpReadAwaitable::await_ready() noexcept -> bool {
     return false;
 }
 
-auto TcpConnection::ReadAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
+auto TcpReadAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
     auto operation = std::make_shared<TcpReadOperation>();
 
     operation->_state = _state;
@@ -255,15 +255,15 @@ auto TcpConnection::ReadAwaitable::await_suspend( std::coroutine_handle<> corout
     } );
 }
 
-auto TcpConnection::ReadAwaitable::await_resume() noexcept -> ReadResult {
+auto TcpReadAwaitable::await_resume() noexcept -> TcpReadResult {
     return std::move( *_result );
 }
 
-auto TcpConnection::WriteAwaitable::await_ready() noexcept -> bool {
+auto TcpWriteAwaitable::await_ready() noexcept -> bool {
     return false;
 }
 
-auto TcpConnection::WriteAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
+auto TcpWriteAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
     auto operation = std::make_shared<TcpWriteOperation>();
     operation->_state = _state;
     operation->_coroutine = coroutine;
@@ -274,20 +274,26 @@ auto TcpConnection::WriteAwaitable::await_suspend( std::coroutine_handle<> corou
     } );
 }
 
-auto TcpConnection::WriteAwaitable::await_resume() noexcept -> WriteResult {
+auto TcpWriteAwaitable::await_resume() noexcept -> TcpWriteResult {
     return *_result;
 }
 
-auto TcpConnection::read() -> ReadAwaitable {
-    return ReadAwaitable{ _state };
+auto Scheduler::read( const std::shared_ptr<TcpConnection> &connection ) -> TcpReadAwaitable {
+    //
+    return TcpReadAwaitable{ connection->_state };
 }
 
-auto TcpConnection::write( std::vector<std::byte> bytes ) -> WriteAwaitable {
-    return WriteAwaitable{ _state, std::move( bytes ) };
+auto Scheduler::write( const std::shared_ptr<TcpConnection> &connection, std::vector<std::byte> bytes )
+    -> TcpWriteAwaitable {
+    //
+    return TcpWriteAwaitable{ connection->_state, std::move( bytes ) };
 }
 
-auto TcpConnection::close() -> void {
-    _state->_scheduler->post( [state = _state]( uv_loop_t * ) -> void { closeConnection( state ); } );
+auto Scheduler::close( const std::shared_ptr<TcpConnection> &connection ) -> void {
+    connection->_state->_scheduler->post( [state = connection->_state]( uv_loop_t * ) -> void {
+        //
+        closeConnection( state );
+    } );
 }
 
 auto TcpConnection::nativeHandle() const -> uv_tcp_t * {

@@ -15,6 +15,7 @@
 #include "io/async.h"
 #include "io/scheduler.h"
 #include "io/tcpclient.h"
+#include "io/tcpconnection.h"
 #include "io/tcpserver.h"
 #include "io/timer.h"
 
@@ -55,8 +56,8 @@ struct TcpBridgeState {
     bool _connected{ false };
     bool _errorReported{ false };
 
-    std::shared_ptr<TcpClient> _client{};
-    std::shared_ptr<TcpServer> _server{};
+    std::optional<TcpConnectAwaitable> _connect{};
+    std::shared_ptr<TcpListener> _listener{};
     std::shared_ptr<TcpConnection> _connection{};
 
     std::optional<TimeoutAwaitable<Task<void>>> _retryTimer{};

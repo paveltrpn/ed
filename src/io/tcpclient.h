@@ -1,9 +1,10 @@
 #pragma once
 
-#include <coroutine>
 #include <cstdint>
+#include <coroutine>
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "io/tcpconnection.h"
 
@@ -11,36 +12,27 @@ namespace tire {
 
 struct Scheduler;
 
+struct TcpConnectResult {
+    int _status{ 0 };
+    std::shared_ptr<TcpConnection> _connection{};
+};
+
 // ======================================================================================
-// ==================== TcpClient =======================================================
+// ==================== TcpConnectAwaitable =============================================
 // ======================================================================================
 
-struct TcpClient final {
-    struct ConnectResult {
-        int _status{ 0 };
-        std::shared_ptr<TcpConnection> _connection{};
-    };
-
+struct TcpConnectAwaitable final {
     struct State;
 
-    struct ConnectAwaitable {
-        std::shared_ptr<State> _state{};
-        std::string _host{};
-        uint16_t _port{ 0 };
-        std::shared_ptr<ConnectResult> _result{ std::make_shared<ConnectResult>() };
+    TcpConnectAwaitable( Scheduler &scheduler, std::string host, uint16_t port );
 
-        auto await_ready() noexcept -> bool;
-        auto await_suspend( std::coroutine_handle<> coroutine ) -> void;
-        auto await_resume() noexcept -> ConnectResult;
-    };
+    auto await_ready() noexcept -> bool;
+    auto await_suspend( std::coroutine_handle<> coroutine ) -> void;
+    auto await_resume() noexcept -> TcpConnectResult;
 
-    explicit TcpClient( Scheduler &scheduler );
+    auto cancel() -> void;
 
-    auto connect( std::string host, uint16_t port ) -> ConnectAwaitable;
-    auto close() -> void;
-
-private:
     std::shared_ptr<State> _state{};
 };
 
-}
+}  // namespace tire

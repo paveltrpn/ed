@@ -16,48 +16,69 @@ struct Scheduler;
 // ======================================================================================
 
 struct TcpConnection final {
-    struct ReadResult {
-        int _status{ 0 };
-        std::vector<std::byte> _bytes{};
-    };
-
-    struct WriteResult {
-        int _status{ 0 };
-    };
+    friend struct Scheduler;
 
     struct State;
 
-    struct ReadAwaitable {
-        std::shared_ptr<State> _state{};
-        std::shared_ptr<ReadResult> _result{ std::make_shared<ReadResult>() };
-
-        auto await_ready() noexcept -> bool;
-        auto await_suspend( std::coroutine_handle<> coroutine ) -> void;
-        auto await_resume() noexcept -> ReadResult;
-    };
-
-    struct WriteAwaitable {
-        std::shared_ptr<State> _state{};
-        std::vector<std::byte> _bytes{};
-        std::shared_ptr<WriteResult> _result{ std::make_shared<WriteResult>() };
-
-        auto await_ready() noexcept -> bool;
-        auto await_suspend( std::coroutine_handle<> coroutine ) -> void;
-        auto await_resume() noexcept -> WriteResult;
-    };
-
     explicit TcpConnection( std::shared_ptr<State> state );
-
-    static auto create( Scheduler &scheduler, uv_loop_t *loop, int &status ) -> std::shared_ptr<TcpConnection>;
-
-    auto read() -> ReadAwaitable;
-    auto write( std::vector<std::byte> bytes ) -> WriteAwaitable;
-    auto close() -> void;
 
     [[nodiscard]] auto nativeHandle() const -> uv_tcp_t *;
 
 private:
     std::shared_ptr<State> _state{};
+};
+
+// ======================================================================================
+// ==================== TcpListener =====================================================
+// ======================================================================================
+
+struct TcpListener final {
+    friend struct Scheduler;
+
+    struct State;
+
+    explicit TcpListener( std::shared_ptr<State> state );
+
+    [[nodiscard]] auto nativeHandle() const -> uv_tcp_t *;
+
+private:
+    std::shared_ptr<State> _state{};
+};
+
+struct TcpReadResult {
+    int _status{ 0 };
+    std::vector<std::byte> _bytes{};
+};
+
+struct TcpWriteResult {
+    int _status{ 0 };
+};
+
+// ======================================================================================
+// ==================== TcpReadAwaitable ================================================
+// ======================================================================================
+
+struct TcpReadAwaitable final {
+    std::shared_ptr<TcpConnection::State> _state{};
+    std::shared_ptr<TcpReadResult> _result{ std::make_shared<TcpReadResult>() };
+
+    auto await_ready() noexcept -> bool;
+    auto await_suspend( std::coroutine_handle<> coroutine ) -> void;
+    auto await_resume() noexcept -> TcpReadResult;
+};
+
+// ======================================================================================
+// ==================== TcpWriteAwaitable ===============================================
+// ======================================================================================
+
+struct TcpWriteAwaitable final {
+    std::shared_ptr<TcpConnection::State> _state{};
+    std::vector<std::byte> _bytes{};
+    std::shared_ptr<TcpWriteResult> _result{ std::make_shared<TcpWriteResult>() };
+
+    auto await_ready() noexcept -> bool;
+    auto await_suspend( std::coroutine_handle<> coroutine ) -> void;
+    auto await_resume() noexcept -> TcpWriteResult;
 };
 
 }

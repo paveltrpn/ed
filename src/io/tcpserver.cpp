@@ -6,37 +6,41 @@
 
 namespace tire {
 
-struct TcpListenOperation {
-    std::shared_ptr<TcpServer::State> _state{};
-    std::shared_ptr<TcpServer::ListenResult> _result{};
+struct TcpAcceptAwaitable::State {
+    std::shared_ptr<TcpListener::State> _server{};
+    std::shared_ptr<TcpAcceptResult> _result{ std::make_shared<TcpAcceptResult>() };
+    std::coroutine_handle<> _coroutine{};
+    bool _completed{ false };
+};
+
+struct TcpListener::State {
+    Scheduler *_scheduler{ nullptr };
+    uv_tcp_t _handle{};
+    std::shared_ptr<State> *_lifetime{ nullptr };
+    std::shared_ptr<TcpListenAwaitable::State> _listenOperation{};
+    std::shared_ptr<TcpAcceptAwaitable::State> _acceptOperation{};
+    bool _initialized{ false };
+    bool _closed{ false };
+};
+
+struct TcpListenAwaitable::State {
+    Scheduler *_scheduler{ nullptr };
+    std::shared_ptr<TcpListener::State> _server{};
+    std::shared_ptr<TcpListener> _listener{};
+    std::shared_ptr<TcpListenResult> _result{ std::make_shared<TcpListenResult>() };
     std::coroutine_handle<> _coroutine{};
     std::string _host{};
     uint16_t _port{ 0 };
     bool _completed{ false };
 };
 
-struct TcpAcceptOperation {
-    std::shared_ptr<TcpServer::State> _state{};
-    std::shared_ptr<TcpServer::AcceptResult> _result{};
-    std::coroutine_handle<> _coroutine{};
-    bool _completed{ false };
-};
-
-struct TcpServer::State : std::enable_shared_from_this<TcpServer::State> {
-    Scheduler *_scheduler{ nullptr };
-    uv_tcp_t _handle{};
-    std::shared_ptr<State> *_lifetime{ nullptr };
-    std::shared_ptr<TcpListenOperation> _listenOperation{};
-    std::shared_ptr<TcpAcceptOperation> _acceptOperation{};
-    bool _initialized{ false };
-    bool _closed{ false };
-};
-
 namespace {
 
-using ServerState = TcpServer::State;
+using ListenerState = TcpListener::State;
+using ListenState = TcpListenAwaitable::State;
+using AcceptState = TcpAcceptAwaitable::State;
 
-auto completeListen( const std::shared_ptr<TcpListenOperation> &operation, int status ) -> void {
+auto completeListen( const std::shared_ptr<ListenState> &operation, int status ) -> void {
     if ( operation == nullptr || operation->_completed ) {
         return;
     }
@@ -49,7 +53,7 @@ auto completeListen( const std::shared_ptr<TcpListenOperation> &operation, int s
     }
 }
 
-auto completeAccept( const std::shared_ptr<TcpAcceptOperation> &operation, int status ) -> void {
+auto completeAccept( const std::shared_ptr<AcceptState> &operation, int status ) -> void {
     if ( operation == nullptr || operation->_completed ) {
         return;
     }
@@ -62,13 +66,13 @@ auto completeAccept( const std::shared_ptr<TcpAcceptOperation> &operation, int s
     }
 }
 
-auto closeServerHandle( const std::shared_ptr<ServerState> &state ) -> void {
+auto closeServerHandle( const std::shared_ptr<ListenerState> &state ) -> void {
     if ( !state->_initialized || uv_is_closing( reinterpret_cast<uv_handle_t *>( &state->_handle ) ) ) {
         return;
     }
 
     uv_close( reinterpret_cast<uv_handle_t *>( &state->_handle ), []( uv_handle_t *handle ) -> void {
-        auto *lifetime = static_cast<std::shared_ptr<ServerState> *>( handle->data );
+        auto *lifetime = static_cast<std::shared_ptr<ListenerState> *>( handle->data );
         auto state = *lifetime;
         delete lifetime;
         handle->data = nullptr;
@@ -76,7 +80,7 @@ auto closeServerHandle( const std::shared_ptr<ServerState> &state ) -> void {
     } );
 }
 
-auto closeServer( const std::shared_ptr<ServerState> &state ) -> void {
+auto closeServer( const std::shared_ptr<ListenerState> &state ) -> void {
     if ( state->_closed ) {
         return;
     }
@@ -90,7 +94,7 @@ auto closeServer( const std::shared_ptr<ServerState> &state ) -> void {
 }
 
 auto connectionCallback( uv_stream_t *stream, int status ) -> void {
-    auto *lifetime = static_cast<std::shared_ptr<ServerState> *>( stream->data );
+    auto *lifetime = static_cast<std::shared_ptr<ListenerState> *>( stream->data );
     auto state = *lifetime;
     auto operation = state->_acceptOperation;
 
@@ -103,7 +107,7 @@ auto connectionCallback( uv_stream_t *stream, int status ) -> void {
     }
 
     auto createStatus = 0;
-    auto connection = TcpConnection::create( *state->_scheduler, stream->loop, createStatus );
+    auto connection = state->_scheduler->createTcpConnection( stream->loop, createStatus );
     if ( createStatus != 0 ) {
         if ( operation != nullptr ) {
             state->_acceptOperation.reset();
@@ -114,7 +118,7 @@ auto connectionCallback( uv_stream_t *stream, int status ) -> void {
 
     const auto acceptStatus = uv_accept( stream, reinterpret_cast<uv_stream_t *>( connection->nativeHandle() ) );
     if ( operation == nullptr || operation->_completed || acceptStatus != 0 ) {
-        connection->close();
+        state->_scheduler->close( connection );
     }
 
     if ( operation == nullptr || operation->_completed ) {
@@ -131,8 +135,8 @@ auto connectionCallback( uv_stream_t *stream, int status ) -> void {
     completeAccept( operation, 0 );
 }
 
-auto startListen( const std::shared_ptr<TcpListenOperation> &operation, uv_loop_t *loop ) -> void {
-    auto state = operation->_state;
+auto startListen( const std::shared_ptr<ListenState> &operation, uv_loop_t *loop ) -> void {
+    auto state = operation->_server;
     if ( state->_closed ) {
         completeListen( operation, UV_ECANCELED );
         return;
@@ -151,7 +155,7 @@ auto startListen( const std::shared_ptr<TcpListenOperation> &operation, uv_loop_
     }
 
     state->_initialized = true;
-    state->_lifetime = new std::shared_ptr<ServerState>{ state };
+    state->_lifetime = new std::shared_ptr<ListenerState>{ state };
     state->_handle.data = state->_lifetime;
 
     sockaddr_in address{};
@@ -179,8 +183,8 @@ auto startListen( const std::shared_ptr<TcpListenOperation> &operation, uv_loop_
     completeListen( operation, 0 );
 }
 
-auto startAccept( const std::shared_ptr<TcpAcceptOperation> &operation ) -> void {
-    auto state = operation->_state;
+auto startAccept( const std::shared_ptr<AcceptState> &operation ) -> void {
+    auto state = operation->_server;
     if ( state->_closed || !state->_initialized ) {
         completeAccept( operation, UV_ECANCELED );
         return;
@@ -196,65 +200,79 @@ auto startAccept( const std::shared_ptr<TcpAcceptOperation> &operation ) -> void
 
 }  // namespace
 
-TcpServer::TcpServer( Scheduler &scheduler )
-    : _state{ std::make_shared<State>() } {
-    _state->_scheduler = &scheduler;
+TcpListener::TcpListener( std::shared_ptr<State> state )
+    : _state{ std::move( state ) } {
 }
 
-auto TcpServer::ListenAwaitable::await_ready() noexcept -> bool {
+auto TcpListener::nativeHandle() const -> uv_tcp_t * {
+    return &_state->_handle;
+}
+
+TcpListenAwaitable::TcpListenAwaitable( Scheduler &scheduler, std::string host, uint16_t port )
+    : _state{ std::make_shared<State>() } {
+    _state->_scheduler = &scheduler;
+    _state->_server = std::make_shared<ListenerState>();
+    _state->_server->_scheduler = &scheduler;
+    _state->_listener = std::make_shared<TcpListener>( _state->_server );
+    _state->_host = std::move( host );
+    _state->_port = port;
+}
+
+auto TcpListenAwaitable::await_ready() noexcept -> bool {
     return false;
 }
 
-auto TcpServer::ListenAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
-    auto operation = std::make_shared<TcpListenOperation>();
+auto TcpListenAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
+    _state->_coroutine = coroutine;
 
-    operation->_state = _state;
-    operation->_result = _result;
-    operation->_coroutine = coroutine;
-    operation->_host = std::move( _host );
-    operation->_port = _port;
-
-    _state->_scheduler->post( [operation = std::move( operation )]( uv_loop_t *loop ) mutable -> void {
+    _state->_scheduler->post( [operation = _state]( uv_loop_t *loop ) -> void {
         //
         startListen( operation, loop );
     } );
 }
 
-auto TcpServer::ListenAwaitable::await_resume() noexcept -> ListenResult {
-    return *_result;
+auto TcpListenAwaitable::await_resume() noexcept -> TcpListenResult {
+    return *_state->_result;
 }
 
-auto TcpServer::AcceptAwaitable::await_ready() noexcept -> bool {
+auto TcpListenAwaitable::listener() const -> std::shared_ptr<TcpListener> {
+    return _state->_listener;
+}
+
+TcpAcceptAwaitable::TcpAcceptAwaitable( const std::shared_ptr<TcpListener::State> &state )
+    : _state{ std::make_shared<State>() } {
+    _state->_server = state;
+}
+
+auto TcpAcceptAwaitable::await_ready() noexcept -> bool {
     return false;
 }
 
-auto TcpServer::AcceptAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
-    auto operation = std::make_shared<TcpAcceptOperation>();
+auto TcpAcceptAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
+    _state->_coroutine = coroutine;
 
-    operation->_state = _state;
-    operation->_result = _result;
-    operation->_coroutine = coroutine;
-
-    _state->_scheduler->post( [operation = std::move( operation )]( uv_loop_t * ) mutable -> void {
+    _state->_server->_scheduler->post( [operation = _state]( uv_loop_t * ) -> void {
         //
         startAccept( operation );
     } );
 }
 
-auto TcpServer::AcceptAwaitable::await_resume() noexcept -> AcceptResult {
-    return std::move( *_result );
+auto TcpAcceptAwaitable::await_resume() noexcept -> TcpAcceptResult {
+    return std::move( *_state->_result );
 }
 
-auto TcpServer::listen( std::string host, uint16_t port ) -> ListenAwaitable {
-    return ListenAwaitable{ _state, std::move( host ), port };
+auto Scheduler::listen( std::string host, uint16_t port ) -> TcpListenAwaitable {
+    //
+    return TcpListenAwaitable{ *this, std::move( host ), port };
 }
 
-auto TcpServer::accept() -> AcceptAwaitable {
-    return AcceptAwaitable{ _state };
+auto Scheduler::accept( const std::shared_ptr<TcpListener> &listener ) -> TcpAcceptAwaitable {
+    //
+    return TcpAcceptAwaitable{ listener->_state };
 }
 
-auto TcpServer::close() -> void {
-    _state->_scheduler->post( [state = _state]( uv_loop_t * ) -> void {
+auto Scheduler::close( const std::shared_ptr<TcpListener> &listener ) -> void {
+    listener->_state->_scheduler->post( [state = listener->_state]( uv_loop_t * ) -> void {
         //
         closeServer( state );
     } );

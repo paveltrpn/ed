@@ -37,17 +37,21 @@ auto reportError( const std::shared_ptr<tire::TcpBridgeState> &state, int status
 auto shutdown( const std::shared_ptr<tire::TcpBridgeState> &state ) -> void {
     if ( !state->_closing ) {
         state->_closing = true;
+
         if ( state->_retryTimer.has_value() ) {
             state->_retryTimer->cancel();
         }
-        if ( state->_client != nullptr ) {
-            state->_client->close();
+
+        if ( state->_connect.has_value() ) {
+            state->_connect->cancel();
         }
-        if ( state->_server != nullptr ) {
-            state->_server->close();
+
+        if ( state->_listener != nullptr ) {
+            state->_scheduler->close( state->_listener );
         }
+
         if ( state->_connection != nullptr ) {
-            state->_connection->close();
+            state->_scheduler->close( state->_connection );
         }
     }
 
@@ -120,7 +124,7 @@ auto runDrain( std::shared_ptr<tire::TcpBridgeState> state ) -> tire::Task<void>
         }
 
         auto framed = tire::FrameCodec::encode( message );
-        const auto result = co_await connection->write( std::move( framed ) );
+        const auto result = co_await state->_scheduler->write( connection, std::move( framed ) );
 
         if ( result._status != 0 ) {
             if ( !state->_closing ) {
@@ -140,10 +144,10 @@ auto runServer( std::shared_ptr<tire::TcpBridgeState> state, std::string host, u
         co_return;
     }
 
-    auto server = std::make_shared<tire::TcpServer>( *state->_scheduler );
-    state->_server = server;
+    auto listenAwaitable = state->_scheduler->listen( host, port );
+    state->_listener = listenAwaitable.listener();
 
-    const auto listenResult = co_await server->listen( host, port );
+    const auto listenResult = co_await listenAwaitable;
 
     if ( listenResult._status != 0 ) {
         if ( !state->_closeRequested.load() ) {
@@ -157,9 +161,9 @@ auto runServer( std::shared_ptr<tire::TcpBridgeState> state, std::string host, u
         co_return;
     }
 
-    auto acceptResult = co_await server->accept();
+    auto acceptResult = co_await state->_scheduler->accept( state->_listener );
 
-    server->close();
+    state->_scheduler->close( state->_listener );
 
     if ( acceptResult._status != 0 ) {
         if ( !state->_closing ) {
@@ -181,7 +185,7 @@ auto runServer( std::shared_ptr<tire::TcpBridgeState> state, std::string host, u
     auto codec = tire::FrameCodec{ state->_maximumPayload };
 
     while ( !state->_closing ) {
-        const auto readResult = co_await state->_connection->read();
+        const auto readResult = co_await state->_scheduler->read( state->_connection );
 
         if ( readResult._status == 0 ) {
             if ( !decodeChunk( state, codec, readResult._bytes ) ) {
@@ -216,13 +220,13 @@ auto runClient( std::shared_ptr<tire::TcpBridgeState> state, std::string host, u
         co_return;
     }
 
-    auto client = std::make_shared<tire::TcpClient>( *state->_scheduler );
-    state->_client = client;
-    auto connectResult = tire::TcpClient::ConnectResult{};
+    auto connectResult = tire::TcpConnectResult{};
     connectResult._status = UV_ECANCELED;
 
     for ( size_t attempt = 0; attempt < retry._maximumAttempts; ++attempt ) {
-        connectResult = co_await client->connect( host, port );
+        state->_connect.emplace( *state->_scheduler, host, port );
+        connectResult = co_await state->_connect.value();
+        state->_connect.reset();
         if ( connectResult._status == 0 ) {
             break;
         }
@@ -271,7 +275,7 @@ auto runClient( std::shared_ptr<tire::TcpBridgeState> state, std::string host, u
     auto codec = tire::FrameCodec{ state->_maximumPayload };
 
     while ( !state->_closing ) {
-        const auto readResult = co_await state->_connection->read();
+        const auto readResult = co_await state->_scheduler->read( state->_connection );
 
         if ( readResult._status == 0 ) {
             if ( !decodeChunk( state, codec, readResult._bytes ) ) {
