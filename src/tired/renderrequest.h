@@ -45,21 +45,6 @@ signals:
     auto echoCompleted() -> void;
 
 private:
-    struct SessionEndAwaitable final {
-        RenderRequest *_owner{ nullptr };
-
-        [[nodiscard]] auto await_ready() const noexcept -> bool {
-            //
-            return false;
-        }
-
-        auto await_suspend( std::coroutine_handle<> coroutine ) noexcept -> void;
-
-        auto await_resume() const noexcept -> void {
-            //
-        }
-    };
-
     auto runSession() -> Task<void>;
 
     auto fail( const QString &message ) -> void;

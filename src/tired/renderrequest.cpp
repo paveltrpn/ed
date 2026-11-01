@@ -211,28 +211,26 @@ auto RenderRequest::runSession() -> Task<void> {
             Qt::QueuedConnection );
     }
 
-    co_await SessionEndAwaitable{ this };
-
-    co_return;
-}
-
-auto RenderRequest::SessionEndAwaitable::await_suspend( std::coroutine_handle<> ) noexcept -> void {
-    // Never resumed. The GUI thread destroys the quiesced frame via endSession(),
-    // while the destructor waits on the condition variable instead.
+    // NOTE: LLM suggest do it trough SessionEndAwaitable in await_suspend(),
+    // not understand for what, just remove it.
     QMetaObject::invokeMethod(
-        _owner,
-        [owner = _owner]() -> void {
+        this,
+        [owner = this]() -> void {
             //
             owner->endSession();
         },
         Qt::QueuedConnection );
 
     {
-        std::scoped_lock lock{ _owner->_doneMutex };
-        _owner->_sessionDone = true;
+        std::scoped_lock lock{ this->_doneMutex };
+        this->_sessionDone = true;
     }
 
-    _owner->_doneCondition.notify_all();
+    this->_doneCondition.notify_all();
+
+    // co_await SessionEndAwaitable{ this };
+
+    co_return;
 }
 
 auto RenderRequest::handleHandshakeDone() -> void {
