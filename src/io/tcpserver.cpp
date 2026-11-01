@@ -156,17 +156,22 @@ auto startListen( const std::shared_ptr<TcpListenOperation> &operation, uv_loop_
 
     sockaddr_in address{};
     status = uv_ip4_addr( operation->_host.c_str(), static_cast<int>( operation->_port ), &address );
+
     if ( status == 0 ) {
         status = uv_tcp_bind( &state->_handle, reinterpret_cast<const sockaddr *>( &address ), 0 );
     }
+
     if ( status == 0 ) {
         status = uv_listen( reinterpret_cast<uv_stream_t *>( &state->_handle ), 1, connectionCallback );
     }
+
     if ( status != 0 ) {
         state->_closed = true;
         closeServerHandle( state );
+
         state->_listenOperation.reset();
         completeListen( operation, status );
+
         return;
     }
 
@@ -180,6 +185,7 @@ auto startAccept( const std::shared_ptr<TcpAcceptOperation> &operation ) -> void
         completeAccept( operation, UV_ECANCELED );
         return;
     }
+
     if ( state->_acceptOperation != nullptr ) {
         completeAccept( operation, UV_EALREADY );
         return;
@@ -188,7 +194,7 @@ auto startAccept( const std::shared_ptr<TcpAcceptOperation> &operation ) -> void
     state->_acceptOperation = operation;
 }
 
-}
+}  // namespace
 
 TcpServer::TcpServer( Scheduler &scheduler )
     : _state{ std::make_shared<State>() } {
@@ -206,9 +212,8 @@ auto TcpServer::ListenAwaitable::await_suspend( std::coroutine_handle<> coroutin
     operation->_coroutine = coroutine;
     operation->_host = std::move( _host );
     operation->_port = _port;
-    _state->_scheduler->post( [operation = std::move( operation )]( uv_loop_t *loop ) mutable -> void {
-        startListen( operation, loop );
-    } );
+    _state->_scheduler->post(
+        [operation = std::move( operation )]( uv_loop_t *loop ) mutable -> void { startListen( operation, loop ); } );
 }
 
 auto TcpServer::ListenAwaitable::await_resume() noexcept -> ListenResult {
@@ -224,9 +229,8 @@ auto TcpServer::AcceptAwaitable::await_suspend( std::coroutine_handle<> coroutin
     operation->_state = _state;
     operation->_result = _result;
     operation->_coroutine = coroutine;
-    _state->_scheduler->post( [operation = std::move( operation )]( uv_loop_t * ) mutable -> void {
-        startAccept( operation );
-    } );
+    _state->_scheduler->post(
+        [operation = std::move( operation )]( uv_loop_t * ) mutable -> void { startAccept( operation ); } );
 }
 
 auto TcpServer::AcceptAwaitable::await_resume() noexcept -> AcceptResult {
@@ -245,4 +249,4 @@ auto TcpServer::close() -> void {
     _state->_scheduler->post( [state = _state]( uv_loop_t * ) -> void { closeServer( state ); } );
 }
 
-}
+}  // namespace tire

@@ -101,7 +101,9 @@ auto runDrain( std::shared_ptr<tire::TcpBridgeState> state ) -> tire::Task<void>
     while ( !state->_closing ) {
         auto message = std::vector<std::byte>{};
         auto hasMessage = false;
+
         std::shared_ptr<tire::TcpConnection> connection{};
+
         {
             std::scoped_lock lock{ state->_outboundMutex };
             if ( state->_connection != nullptr && !state->_outbound.empty() ) {
@@ -125,6 +127,7 @@ auto runDrain( std::shared_ptr<tire::TcpBridgeState> state ) -> tire::Task<void>
                 reportError( state, result._status, "TCP write failed" );
                 shutdown( state );
             }
+
             co_return;
         }
     }
