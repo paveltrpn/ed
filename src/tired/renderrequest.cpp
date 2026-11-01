@@ -148,16 +148,14 @@ void RenderRequest::stop() {
 }
 
 auto RenderRequest::runSession() -> Task<void> {
-    auto *bridge = _bridge.get();
-
-    auto status = co_await bridge->connect( "127.0.0.1", kRenderServerPort, TcpBridgeRetryOptions{} );
+    auto status = co_await _bridge->connect( "127.0.0.1", kRenderServerPort, TcpBridgeRetryOptions{} );
 
     if ( status == 0 ) {
-        status = co_await bridge->send( messageFromString( "handshake_from_ed" ) );
+        status = co_await _bridge->send( messageFromString( "handshake_from_ed" ) );
     }
 
     while ( status == 0 ) {
-        const auto reply = co_await bridge->read();
+        const auto reply = co_await _bridge->read();
         status = reply._status;
 
         if ( status != 0 ) {
@@ -178,11 +176,11 @@ auto RenderRequest::runSession() -> Task<void> {
             },
             Qt::QueuedConnection );
 
-        status = co_await bridge->send( messageFromString( "dummy data to rt" ) );
+        status = co_await _bridge->send( messageFromString( "dummy data to rt" ) );
     }
 
     while ( status == 0 ) {
-        const auto reply = co_await bridge->read();
+        const auto reply = co_await _bridge->read();
         status = reply._status;
 
         if ( status != 0 ) {
