@@ -207,13 +207,17 @@ auto TcpServer::ListenAwaitable::await_ready() noexcept -> bool {
 
 auto TcpServer::ListenAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
     auto operation = std::make_shared<TcpListenOperation>();
+
     operation->_state = _state;
     operation->_result = _result;
     operation->_coroutine = coroutine;
     operation->_host = std::move( _host );
     operation->_port = _port;
-    _state->_scheduler->post(
-        [operation = std::move( operation )]( uv_loop_t *loop ) mutable -> void { startListen( operation, loop ); } );
+
+    _state->_scheduler->post( [operation = std::move( operation )]( uv_loop_t *loop ) mutable -> void {
+        //
+        startListen( operation, loop );
+    } );
 }
 
 auto TcpServer::ListenAwaitable::await_resume() noexcept -> ListenResult {

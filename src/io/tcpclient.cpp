@@ -76,10 +76,12 @@ auto connectCallback( uv_connect_t *request, int status ) -> void {
 
 auto startConnect( const std::shared_ptr<TcpConnectOperation> &operation, uv_loop_t *loop ) -> void {
     auto state = operation->_state;
+
     if ( state->_closed ) {
         completeConnect( operation, UV_ECANCELED );
         return;
     }
+
     if ( state->_operation != nullptr || state->_connection != nullptr ) {
         completeConnect( operation, UV_EALREADY );
         return;
@@ -99,6 +101,7 @@ auto startConnect( const std::shared_ptr<TcpConnectOperation> &operation, uv_loo
 
     sockaddr_in address{};
     status = uv_ip4_addr( operation->_host.c_str(), static_cast<int>( operation->_port ), &address );
+
     if ( status != 0 ) {
         failConnect( operation, status );
         return;
@@ -115,7 +118,7 @@ auto startConnect( const std::shared_ptr<TcpConnectOperation> &operation, uv_loo
     }
 }
 
-}
+}  // namespace
 
 TcpClient::TcpClient( Scheduler &scheduler )
     : _state{ std::make_shared<State>() } {
@@ -128,12 +131,15 @@ auto TcpClient::ConnectAwaitable::await_ready() noexcept -> bool {
 
 auto TcpClient::ConnectAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
     auto operation = std::make_shared<TcpConnectOperation>();
+
     operation->_state = _state;
     operation->_result = _result;
     operation->_coroutine = coroutine;
     operation->_host = std::move( _host );
     operation->_port = _port;
+
     _state->_scheduler->post( [operation = std::move( operation )]( uv_loop_t *loop ) mutable -> void {
+        //
         startConnect( operation, loop );
     } );
 }
@@ -162,4 +168,4 @@ auto TcpClient::close() -> void {
     } );
 }
 
-}
+}  // namespace tire
