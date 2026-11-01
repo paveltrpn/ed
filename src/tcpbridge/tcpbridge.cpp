@@ -307,9 +307,11 @@ TcpBridge::TcpBridge( size_t maximumPayload )
 
 TcpBridge::~TcpBridge() {
     close();
+
     _state->_clientTask = Task<void>{};
     _state->_serverTask = Task<void>{};
     _state->_drainTask = Task<void>{};
+
     _scheduler.reset();
     _state.reset();
 }
@@ -341,6 +343,7 @@ auto TcpBridge::listen( std::string host, uint16_t port ) -> void {
 auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions retry ) -> void {
     if ( _state->_started.exchange( true ) ) {
         _scheduler->post( [state = _state]( uv_loop_t * ) -> void {
+            //
             reportError( state, UV_EALREADY, "TCP bridge session was already started" );
         } );
 
@@ -366,6 +369,7 @@ auto TcpBridge::send( std::vector<std::byte> message ) -> void {
 
     if ( message.size() > _state->_maximumPayload || message.size() > std::numeric_limits<uint32_t>::max() ) {
         _scheduler->post( [state = _state]( uv_loop_t * ) -> void {
+            //
             reportError( state, UV_EMSGSIZE, "Outbound message exceeds the configured payload limit" );
             shutdown( state );
         } );
