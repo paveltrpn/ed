@@ -137,28 +137,10 @@ struct ServeCompletion {
     bool _finished{ false };
 };
 
-// ======================================================================================
-// ==================== SessionEndGuard =================================================
-// ======================================================================================
-
-struct SessionEndGuard {
-    ServeCompletion *_completion{ nullptr };
-
-    ~SessionEndGuard() {
-        {
-            const std::scoped_lock lock{ _completion->_mutex };
-            _completion->_finished = true;
-        }
-
-        _completion->_condition.notify_all();
-    }
-};
-
-auto runServeSession( tire::TcpBridge &bridge, ServeCompletion &completion, uint16_t port ) -> tire::Task<int> {
-    const auto endGuard{ SessionEndGuard{ &completion } };
+auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint16_t port ) -> tire::Task<int> {
     auto exitCode = 1;
 
-    const auto fillMessageBufferFromString = []( std::vector<std::byte> &message, std::string_view str ) -> void {
+    const auto fillMessageBufferFromString = []( std::vector<std::byte>& message, std::string_view str ) -> void {
         message.resize( static_cast<size_t>( str.size() ) );
         std::memcpy( message.data(), str.data(), static_cast<size_t>( str.size() ) );
     };
@@ -217,6 +199,13 @@ auto runServeSession( tire::TcpBridge &bridge, ServeCompletion &completion, uint
             }
         }
     }
+
+    {
+        const std::scoped_lock lock{ completion._mutex };
+        completion._finished = true;
+    }
+
+    completion._condition.notify_all();
 
     co_return exitCode;
 }
