@@ -56,7 +56,7 @@ signals:
     auto renderedImageChanged() -> void;
 
     auto errorOccurred( const QString &message ) -> void;
-    auto echoCompleted() -> void;
+    auto renderCompleted() -> void;
 
 private:
     auto runSession() -> Task<void>;
@@ -67,7 +67,8 @@ private:
     auto endSession() -> void;
 
     auto handleHandshakeDone() -> void;
-    auto handleSuccess() -> void;
+    auto handleImage( const QImage &image ) -> void;
+    auto handleRenderComplete() -> void;
     auto handleFailure( int status ) -> void;
 
 private:

@@ -41,3 +41,5 @@ Follow it and all will be ok.
 - Never use multiple inheritance, except inharitance only from multiple pure virtual bases (interfaces).
 
 - Prefer `#pragma once` guard over ifdefs.
+
+- Do not touch `NOTE` and `TODO` that the one leaves across codebase.

@@ -282,6 +282,38 @@ auto TcpBridge::send( std::vector<std::byte> message ) -> Task<int> {
     co_return writeResult._status;
 }
 
+auto TcpBridge::delay( uint64_t timeoutMilliseconds ) -> Task<int> {
+    auto timer = std::make_shared<TimeoutAwaitable<Task<void>>>( *_scheduler, timeoutMilliseconds );
+    auto status = 0;
+    {
+        std::scoped_lock lock{ _sessionMutex };
+
+        if ( _closing ) {
+            status = UV_ECANCELED;
+        } else if ( _delayTimer != nullptr ) {
+            status = UV_EBUSY;
+        } else {
+            _delayTimer = timer;
+        }
+    }
+
+    if ( status != 0 ) {
+        co_return status;
+    }
+
+    status = co_await *timer;
+
+    {
+        std::scoped_lock lock{ _sessionMutex };
+
+        if ( _delayTimer == timer ) {
+            _delayTimer.reset();
+        }
+    }
+
+    co_return status;
+}
+
 auto TcpBridge::close() -> void {
     _closing = true;
 
@@ -289,6 +321,7 @@ auto TcpBridge::close() -> void {
     auto connection = std::shared_ptr<TcpConnection>{};
     auto connect = std::shared_ptr<TcpConnectAwaitable>{};
     auto retryTimer = std::shared_ptr<TimeoutAwaitable<Task<void>>>{};
+    auto delayTimer = std::shared_ptr<TimeoutAwaitable<Task<void>>>{};
 
     {
         std::scoped_lock lock{ _sessionMutex };
@@ -297,10 +330,15 @@ auto TcpBridge::close() -> void {
         connection = _connection;
         connect = _connect;
         retryTimer = _retryTimer;
+        delayTimer = _delayTimer;
     }
 
     if ( retryTimer != nullptr ) {
         retryTimer->cancel();
+    }
+
+    if ( delayTimer != nullptr ) {
+        delayTimer->cancel();
     }
 
     if ( connect != nullptr ) {

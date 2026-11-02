@@ -4,7 +4,9 @@
 #include <cstdint>
 #include <cstring>
 #include <exception>
+#include <stdexcept>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include <QCoreApplication>
@@ -17,11 +19,13 @@
 #include <uv.h>
 
 #include "log/log.h"
+#include "tcpbridge/renderprotocol.h"
 #include "tcpbridge/tcpbridge.h"
 
 namespace {
 
 constexpr uint16_t kRenderServerPort{ 45454 };
+constexpr uint64_t kRenderPollDelayMilliseconds{ 200 };
 
 auto messageFromString( std::string_view text ) -> std::vector<std::byte> {
     auto message = std::vector<std::byte>{};
@@ -104,9 +108,10 @@ void RenderRequest::start() {
     }
 
     try {
-        _bridge = std::make_unique<TcpBridge>();
+        _bridge = std::make_unique<TcpBridge>( kRenderProtocolMaximumPayload );
 
         _process = std::make_unique<QProcess>();
+        _process->setWorkingDirectory( QCoreApplication::applicationDirPath() );
 
         QObject::connect( _process.get(), &QProcess::started, this, [this]() -> void {
             //
@@ -174,6 +179,10 @@ auto RenderRequest::setWidth( int value ) -> void {
         return;
     }
 
+    if ( !renderImageSizeIsValid( static_cast<uint32_t>( value ), static_cast<uint32_t>( _height ) ) ) {
+        return;
+    }
+
     if ( _width == value ) {
         return;
     }
@@ -184,6 +193,10 @@ auto RenderRequest::setWidth( int value ) -> void {
 
 auto RenderRequest::setHeight( int value ) -> void {
     if ( value < 1 ) {
+        return;
+    }
+
+    if ( !renderImageSizeIsValid( static_cast<uint32_t>( _width ), static_cast<uint32_t>( value ) ) ) {
         return;
     }
 
@@ -205,6 +218,9 @@ auto RenderRequest::setRenderedImage( const QImage &image ) -> void {
 }
 
 auto RenderRequest::runSession() -> Task<void> {
+    const auto renderWidth = static_cast<uint32_t>( _width );
+    const auto renderHeight = static_cast<uint32_t>( _height );
+
     auto status = co_await _bridge->connect( "127.0.0.1", kRenderServerPort, TcpBridgeRetryOptions{} );
 
     if ( status == 0 ) {
@@ -224,6 +240,19 @@ auto RenderRequest::runSession() -> Task<void> {
         }
     }
 
+    auto failureMessage = QString{};
+    auto finalReceived = false;
+    auto requestMessage = std::vector<std::byte>{};
+    auto pollMessage = std::vector<std::byte>{};
+    try {
+        requestMessage = encodeRenderRequest( renderWidth, renderHeight );
+        pollMessage = encodeRenderPollRequest();
+    } catch ( const std::exception &exception ) {
+        failureMessage = QStringLiteral( "Cannot encode render request: %1" ).arg( exception.what() );
+    } catch ( ... ) {
+        failureMessage = QStringLiteral( "Cannot encode render request with an unknown error" );
+    }
+
     if ( status == 0 ) {
         QMetaObject::invokeMethod(
             this,
@@ -232,24 +261,79 @@ auto RenderRequest::runSession() -> Task<void> {
                 handleHandshakeDone();
             },
             Qt::QueuedConnection );
-
-        status = co_await _bridge->send( messageFromString( "dummy data to rt" ) );
     }
 
-    while ( status == 0 ) {
-        const auto reply = co_await _bridge->read();
-        status = reply._status;
+    if ( status == 0 && failureMessage.isEmpty() ) {
+        status = co_await _bridge->send( std::move( requestMessage ) );
+    }
 
+    while ( status == 0 && failureMessage.isEmpty() && !finalReceived ) {
+        status = co_await _bridge->send( pollMessage );
         if ( status != 0 ) {
             break;
         }
 
-        if ( payloadIs( reply._payload, "return data to ed" ) ) {
+        const auto reply = co_await _bridge->read();
+        status = reply._status;
+        if ( status != 0 ) {
             break;
+        }
+
+        try {
+            const auto type = renderMessageType( reply._payload );
+            if ( type == RenderMessageType::Error ) {
+                const auto error = decodeRenderError( reply._payload );
+                failureMessage = QStringLiteral( "RT render error: %1" )
+                                     .arg( QString::fromUtf8( error.data(), static_cast<qsizetype>( error.size() ) ) );
+            } else if ( type == RenderMessageType::Image ) {
+                const auto imageMessage = decodeRenderImage( reply._payload );
+                if ( imageMessage._width != renderWidth || imageMessage._height != renderHeight ) {
+                    throw std::runtime_error{ "Render response dimensions do not match the request" };
+                }
+
+                auto image = QImage{ static_cast<int>( imageMessage._width ), static_cast<int>( imageMessage._height ),
+                                     QImage::Format_Grayscale8 };
+                if ( image.isNull() ) {
+                    throw std::runtime_error{ "Cannot allocate the received render image" };
+                }
+
+                const auto rowSize = static_cast<size_t>( imageMessage._width );
+                for ( size_t row = 0; row < imageMessage._height; ++row ) {
+                    std::memcpy( image.scanLine( static_cast<int>( row ) ), imageMessage._pixels.data() + row * rowSize,
+                                 rowSize );
+                }
+
+                finalReceived = imageMessage._final;
+                QMetaObject::invokeMethod(
+                    this,
+                    [this, image = std::move( image )]() -> void {
+                        //
+                        handleImage( image );
+                    },
+                    Qt::QueuedConnection );
+            } else {
+                failureMessage = QStringLiteral( "Unexpected message received from the RT render server" );
+            }
+        } catch ( const std::exception &exception ) {
+            failureMessage = QStringLiteral( "Invalid RT render response: %1" ).arg( exception.what() );
+        } catch ( ... ) {
+            failureMessage = QStringLiteral( "Invalid RT render response with an unknown error" );
+        }
+
+        if ( status == 0 && failureMessage.isEmpty() && !finalReceived ) {
+            status = co_await _bridge->delay( kRenderPollDelayMilliseconds );
         }
     }
 
-    if ( status != 0 ) {
+    if ( !failureMessage.isEmpty() ) {
+        QMetaObject::invokeMethod(
+            this,
+            [this, failureMessage]() -> void {
+                //
+                fail( failureMessage );
+            },
+            Qt::QueuedConnection );
+    } else if ( status != 0 ) {
         const auto failure = status;
         QMetaObject::invokeMethod(
             this,
@@ -263,7 +347,7 @@ auto RenderRequest::runSession() -> Task<void> {
             this,
             [this]() -> void {
                 //
-                handleSuccess();
+                handleRenderComplete();
             },
             Qt::QueuedConnection );
     }
@@ -291,16 +375,24 @@ auto RenderRequest::handleHandshakeDone() -> void {
     log::info()( "handshake done!" );
 }
 
-auto RenderRequest::handleSuccess() -> void {
+auto RenderRequest::handleImage( const QImage &image ) -> void {
     if ( _state == RenderRequestState::Idle || _state == RenderRequestState::Failed ) {
         return;
     }
 
-    log::info()( "TCP data transfer success!" );
+    setRenderedImage( image );
+}
+
+auto RenderRequest::handleRenderComplete() -> void {
+    if ( _state == RenderRequestState::Idle || _state == RenderRequestState::Failed ) {
+        return;
+    }
+
+    log::info()( "RT render completed" );
 
     stop();
 
-    emit echoCompleted();
+    emit renderCompleted();
 }
 
 auto RenderRequest::handleFailure( int status ) -> void {

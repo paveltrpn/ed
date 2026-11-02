@@ -11,6 +11,7 @@
 #include <cassert>
 #include <algorithm>
 #include <charconv>
+#include <cmath>
 #include <condition_variable>
 #include <cstdint>
 #include <mutex>
@@ -22,10 +23,14 @@
 #include <print>
 
 #include <shared_mutex>
+#include <stdexcept>
 
 #include <uv.h>
 
+#include "tcpbridge/renderprotocol.h"
 #include "tcpbridge/tcpbridge.h"
+
+#include "renderjob.h"
 
 #include "dsbtt/bvh.h"
 #include "dsbtt/tracer.h"
@@ -137,13 +142,56 @@ struct ServeCompletion {
     bool _finished{ false };
 };
 
+auto messageFromString( std::string_view text ) -> std::vector<std::byte> {
+    auto message = std::vector<std::byte>( text.size() );
+    if ( !text.empty() ) {
+        std::memcpy( message.data(), text.data(), text.size() );
+    }
+    return message;
+}
+
+auto payloadIs( const std::vector<std::byte> &payload, std::string_view text ) -> bool {
+    if ( payload.size() != text.size() ) {
+        return false;
+    }
+
+    for ( size_t index = 0; index < payload.size(); ++index ) {
+        if ( payload[index] != static_cast<std::byte>( text[index] ) ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+auto makeRenderImageResponse( const tire::RenderJob &job ) -> std::vector<std::byte> {
+    const auto snapshot = job.snapshot();
+    if ( snapshot._state == tire::RenderJobState::Failed ) {
+        if ( snapshot._error.empty() ) {
+            throw std::runtime_error{ "Render job failed without an error message" };
+        }
+        throw std::runtime_error{ snapshot._error };
+    }
+
+    auto image = tire::RenderImagePayload{};
+    image._width = job.width();
+    image._height = job.height();
+    image._final = snapshot._state == tire::RenderJobState::Complete;
+    image._pixels.resize( snapshot._pixels.size() );
+    for ( size_t index = 0; index < snapshot._pixels.size(); ++index ) {
+        auto value = std::clamp( snapshot._pixels[index], 0.0f, 1.0f );
+        if ( !std::isfinite( value ) ) {
+            value = 0.0f;
+        }
+        const auto gray = static_cast<uint8_t>( value * 255.0f + 0.5f );
+        image._pixels[index] = static_cast<std::byte>( gray );
+    }
+    return tire::encodeRenderImage( image );
+}
+
 auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint16_t port ) -> tire::Task<int> {
     auto exitCode = 1;
-
-    const auto fillMessageBufferFromString = []( std::vector<std::byte>& message, std::string_view str ) -> void {
-        message.resize( static_cast<size_t>( str.size() ) );
-        std::memcpy( message.data(), str.data(), static_cast<size_t>( str.size() ) );
-    };
+    auto handshakeComplete = false;
+    auto job = std::unique_ptr<tire::RenderJob>{};
 
     const auto acceptStatus = co_await bridge.accept( "127.0.0.1", port );
 
@@ -170,34 +218,56 @@ auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint
             break;
         }
 
-        std::string messageString( message._payload.size(), '\0' );
-        std::transform( message._payload.begin(), message._payload.end(), messageString.begin(),
-                        []( std::byte b ) -> char {
-                            //
-                            return static_cast<char>( b );
-                        } );
+        auto response = std::vector<std::byte>{};
+        try {
+            if ( !handshakeComplete ) {
+                if ( !payloadIs( message._payload, "handshake_from_ed" ) ) {
+                    throw std::runtime_error{ "Expected the ED handshake" };
+                }
 
-        if ( messageString == "handshake_from_ed" ) {
-            auto reply = std::vector<std::byte>{};
-            fillMessageBufferFromString( reply, "hello from rt" );
+                handshakeComplete = true;
+                response = messageFromString( "hello from rt" );
+            } else {
+                const auto type = tire::renderMessageType( message._payload );
+                if ( type == tire::RenderMessageType::Request ) {
+                    if ( job != nullptr ) {
+                        throw std::runtime_error{ "A render request is already active" };
+                    }
 
-            const auto sendStatus = co_await bridge.send( std::move( reply ) );
+                    const auto request = tire::decodeRenderRequest( message._payload );
+                    auto newJob = std::make_unique<tire::RenderJob>( request._width, request._height );
+                    newJob->start();
+                    job = std::move( newJob );
+                } else if ( type == tire::RenderMessageType::Poll ) {
+                    tire::decodeRenderPollRequest( message._payload );
+                    if ( job == nullptr ) {
+                        throw std::runtime_error{ "Cannot poll before starting a render" };
+                    }
+                    response = makeRenderImageResponse( *job );
+                } else {
+                    throw std::runtime_error{ "Unexpected message sent to the RT render server" };
+                }
+            }
+        } catch ( const std::exception &exception ) {
+            response = tire::encodeRenderError( exception.what() );
+        } catch ( ... ) {
+            response = tire::encodeRenderError( "Unknown RT render server failure" );
+        }
+
+        if ( !response.empty() ) {
+            const auto sendStatus = co_await bridge.send( std::move( response ) );
             if ( sendStatus != 0 ) {
-                std::cerr << "TCP send failed: " << uv_strerror( sendStatus ) << std::endl;
+                if ( sendStatus != UV_ECANCELED ) {
+                    std::cerr << "TCP send failed: " << uv_strerror( sendStatus ) << std::endl;
+                }
                 break;
             }
         }
+    }
 
-        if ( messageString == "dummy data to rt" ) {
-            auto reply = std::vector<std::byte>{};
-            fillMessageBufferFromString( reply, "return data to ed" );
-
-            const auto sendStatus = co_await bridge.send( std::move( reply ) );
-            if ( sendStatus != 0 ) {
-                std::cerr << "TCP send failed: " << uv_strerror( sendStatus ) << std::endl;
-                break;
-            }
-        }
+    if ( job != nullptr ) {
+        job->cancel();
+        job.reset();
     }
 
     {
@@ -214,7 +284,7 @@ auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint
 
 static auto runServe( uint16_t port ) -> int {
     auto completion = ServeCompletion{};
-    auto bridge = std::make_unique<tire::TcpBridge>();
+    auto bridge = std::make_unique<tire::TcpBridge>( tire::kRenderProtocolMaximumPayload );
 
     auto session = runServeSession( *bridge, completion, port );
     session.start();

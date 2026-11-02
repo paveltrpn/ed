@@ -65,6 +65,8 @@ struct TcpBridge final {
     // Send one framed message.
     auto send( std::vector<std::byte> message ) -> Task<int>;
 
+    auto delay( uint64_t timeoutMilliseconds ) -> Task<int>;
+
     // Cancel all pending operations and close the session. Safe to call from any thread.
     auto close() -> void;
 
@@ -80,6 +82,7 @@ private:
     std::shared_ptr<TcpConnection> _connection{};
     std::shared_ptr<TcpConnectAwaitable> _connect{};
     std::shared_ptr<TimeoutAwaitable<Task<void>>> _retryTimer{};
+    std::shared_ptr<TimeoutAwaitable<Task<void>>> _delayTimer{};
 
     // Messages decoded ahead of the last co_awaited read.
     std::deque<std::vector<std::byte>> _pendingMessages{};
