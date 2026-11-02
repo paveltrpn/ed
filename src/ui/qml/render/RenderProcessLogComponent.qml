@@ -15,8 +15,13 @@ Rectangle {
     readonly property var _units: Appearence.units.data
 
     // color: _color.si_background_light
-    color: "green"
+    color: "transparent"
 
     signal close
+
+    border {
+        width: _units.scaled_1
+        color: _color.si_background_dark
+    }
 }
 

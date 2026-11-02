@@ -26,9 +26,6 @@ Rectangle {
             left: parent.left
             top: parent.top
         }
-
-        width: 640
-        height: 480
     }
 
     RenderSettingsComponent {
@@ -37,8 +34,10 @@ Rectangle {
         anchors {
             right: parent.right
             left: imageArea.right
+            leftMargin: _units.scaled_4
             top: parent.top
             bottom: processLogArea.top
+            bottomMargin: _units.scaled_4
         }
     }
 
@@ -47,6 +46,7 @@ Rectangle {
 
         anchors {
             top: imageArea.bottom
+            topMargin: _units.scaled_4
             bottom: parent.bottom
             left: parent.left
             right: parent.right

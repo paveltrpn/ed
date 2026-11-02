@@ -7,15 +7,25 @@ import QtQuick.Layouts
 import Tire 1.0
 import "../components"
 
-Rectangle {
+Item {
     id: renderImageAreaItem
 
     readonly property var _color: Appearence.colors.data
     readonly property var _fonts: Appearence.fonts.data
     readonly property var _units: Appearence.units.data
 
-    // color: _color.si_background_light
-    color: "blue"
+    width: renderedImageArea.width
+    height: renderedImageArea.height
 
     signal close
+
+    Rectangle {
+        id: renderedImageArea
+
+        width: 800
+        height: 600
+
+        color: "red"
+
+    }
 }

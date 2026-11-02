@@ -52,11 +52,7 @@ Rectangle {
             }
 
             modeRelatedBgColor: leftPanelRenderComponent.modeColor
-            buttonLabel: "TCP test start"
-
-            // onClicked: {
-            //     Tired.renderRequest.start()
-            // }
+            buttonLabel: "Render"
 
             onClicked: {
                 if (!renderWindow.visible) {
@@ -67,8 +63,8 @@ Rectangle {
             SIWindow {
                 id: renderWindow
 
-                width: 800
-                height: 600
+                width: 1024
+                height: 768
 
                 title: "Render"
 

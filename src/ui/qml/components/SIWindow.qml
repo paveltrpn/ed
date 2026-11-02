@@ -19,6 +19,7 @@ Window {
     color: "transparent"
 
     property alias contentSource: windowContentLoader.source
+    property alias contentItem: windowContentLoader.item
 
     onVisibleChanged: {
         if (siWindowComponent.visible) {
