@@ -10,6 +10,7 @@ import "../components"
 import "../sceneinfo"
 import "../addforms"
 import "../settings"
+import "../render"
 
 Rectangle {
     id: leftPanelRenderComponent
@@ -53,8 +54,25 @@ Rectangle {
             modeRelatedBgColor: leftPanelRenderComponent.modeColor
             buttonLabel: "TCP test start"
 
+            // onClicked: {
+            //     Tired.renderRequest.start()
+            // }
+
             onClicked: {
-                Tired.renderRequest.start()
+                if (!renderWindow.visible) {
+                    renderWindow.show();
+                }
+            }
+
+            SIWindow {
+                id: renderWindow
+
+                width: 800
+                height: 600
+
+                title: "Render"
+
+                contentSource: "../render/RenderDialogComponent.qml"
             }
         }
     }
