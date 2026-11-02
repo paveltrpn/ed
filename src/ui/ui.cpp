@@ -8,6 +8,7 @@
 #include "ui.h"
 #include "appearance.h"
 #include "log/log.h"
+#include "tired/renderimageitem.h"
 #include "tired/tired.h"
 #include "filesystemitem.h"
 
@@ -177,6 +178,7 @@ TiredUI::TiredUI( std::shared_ptr<VsgRender> render, bool resetPanelsSize, QObje
     // Register RenderItem qml type. We instatiate item of
     // of this type only once in main.qml
     qmlRegisterType<tire::RenderItem>( "Tire", 1, 0, "Render" );
+    qmlRegisterType<tire::RenderImageItem>( "Tire", 1, 0, "RenderImageItem" );
 
     //
     qmlRegisterType<tire::FilesystemItem>( "Tire", 1, 0, "FilesystemItem" );

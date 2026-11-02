@@ -63,8 +63,8 @@ Rectangle {
             SIWindow {
                 id: renderWindow
 
-                width: 1024
-                height: 768
+                width: Tired.renderRequest.width + 128
+                height: Tired.renderRequest.height + 256
 
                 title: "Render"
 

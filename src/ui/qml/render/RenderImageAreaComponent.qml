@@ -22,10 +22,14 @@ Item {
     Rectangle {
         id: renderedImageArea
 
-        width: 800
-        height: 600
+        width: Tired.renderRequest.width
+        height: Tired.renderRequest.height
 
-        color: "red"
+        color: "transparent"
 
+        RenderImageItem {
+            anchors.fill: parent
+            image: Tired.renderRequest.renderedImage
+        }
     }
 }

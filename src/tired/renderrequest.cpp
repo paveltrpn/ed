@@ -9,7 +9,9 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QLinearGradient>
 #include <QMetaObject>
+#include <QPainter>
 #include <QProcess>
 
 #include <uv.h>
@@ -48,6 +50,14 @@ namespace tire {
 
 RenderRequest::RenderRequest( QObject *parent )
     : QObject{ parent } {
+    _renderedImage = QImage{ _width, _height, QImage::Format_RGB32 };
+
+    auto gradient = QLinearGradient{ QPointF{ 0.0, 0.0 }, QPointF{ static_cast<qreal>( _width ), 0.0 } };
+    gradient.setColorAt( 0.0, Qt::blue );
+    gradient.setColorAt( 1.0, Qt::gray );
+
+    auto painter = QPainter{ &_renderedImage };
+    painter.fillRect( _renderedImage.rect(), gradient );
 }
 
 RenderRequest::~RenderRequest() {
@@ -145,6 +155,53 @@ void RenderRequest::start() {
 void RenderRequest::stop() {
     _state = RenderRequestState::Idle;
     cleanupSession();
+}
+
+auto RenderRequest::width() const -> int {
+    return _width;
+}
+
+auto RenderRequest::height() const -> int {
+    return _height;
+}
+
+auto RenderRequest::renderedImage() const -> QImage {
+    return _renderedImage;
+}
+
+auto RenderRequest::setWidth( int value ) -> void {
+    if ( value < 1 ) {
+        return;
+    }
+
+    if ( _width == value ) {
+        return;
+    }
+
+    _width = value;
+    emit widthChanged();
+}
+
+auto RenderRequest::setHeight( int value ) -> void {
+    if ( value < 1 ) {
+        return;
+    }
+
+    if ( _height == value ) {
+        return;
+    }
+
+    _height = value;
+    emit heightChanged();
+}
+
+auto RenderRequest::setRenderedImage( const QImage &image ) -> void {
+    if ( _renderedImage == image ) {
+        return;
+    }
+
+    _renderedImage = image;
+    emit renderedImageChanged();
 }
 
 auto RenderRequest::runSession() -> Task<void> {

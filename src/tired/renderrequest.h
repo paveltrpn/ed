@@ -3,6 +3,7 @@
 #include <coroutine>
 #include <memory>
 
+#include <QImage>
 #include <QObject>
 #include <QString>
 
@@ -30,6 +31,10 @@ enum class RenderRequestState {
 struct RenderRequest final : QObject {
     Q_OBJECT
 
+    Q_PROPERTY( int width READ width WRITE setWidth NOTIFY widthChanged FINAL )
+    Q_PROPERTY( int height READ height WRITE setHeight NOTIFY heightChanged FINAL )
+    Q_PROPERTY( QImage renderedImage READ renderedImage WRITE setRenderedImage NOTIFY renderedImageChanged FINAL )
+
 public:
     explicit RenderRequest( QObject *parent = nullptr );
     ~RenderRequest() override;
@@ -37,7 +42,19 @@ public:
     Q_INVOKABLE void start();
     Q_INVOKABLE void stop();
 
+    auto width() const -> int;
+    auto height() const -> int;
+    auto renderedImage() const -> QImage;
+
+    auto setWidth( int value ) -> void;
+    auto setHeight( int value ) -> void;
+    auto setRenderedImage( const QImage &image ) -> void;
+
 signals:
+    auto widthChanged() -> void;
+    auto heightChanged() -> void;
+    auto renderedImageChanged() -> void;
+
     auto errorOccurred( const QString &message ) -> void;
     auto echoCompleted() -> void;
 
@@ -55,6 +72,10 @@ private:
 
 private:
     RenderRequestState _state{ RenderRequestState::Idle };
+
+    int _width{ 1024 };
+    int _height{ 768 };
+    QImage _renderedImage{};
 
     std::unique_ptr<TcpBridge> _bridge{};
     Task<void> _sessionTask{};
