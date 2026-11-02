@@ -25,6 +25,8 @@
 #include <shared_mutex>
 #include <stdexcept>
 
+#include <nlohmann/json.hpp>
+
 #include <uv.h>
 
 #include "tcpbridge/renderprotocol.h"
@@ -150,7 +152,7 @@ auto messageFromString( std::string_view text ) -> std::vector<std::byte> {
     return message;
 }
 
-auto payloadIs( const std::vector<std::byte> &payload, std::string_view text ) -> bool {
+auto payloadIs( const std::vector<std::byte>& payload, std::string_view text ) -> bool {
     if ( payload.size() != text.size() ) {
         return false;
     }
@@ -163,7 +165,7 @@ auto payloadIs( const std::vector<std::byte> &payload, std::string_view text ) -
     return true;
 }
 
-auto makeRenderImageResponse( const tire::RenderJob &job ) -> std::vector<std::byte> {
+auto makeRenderImageResponse( const tire::RenderJob& job ) -> std::vector<std::byte> {
     const auto snapshot = job.snapshot();
     if ( snapshot._state == tire::RenderJobState::Failed ) {
         if ( snapshot._error.empty() ) {
@@ -248,7 +250,7 @@ auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint
                     throw std::runtime_error{ "Unexpected message sent to the RT render server" };
                 }
             }
-        } catch ( const std::exception &exception ) {
+        } catch ( const std::exception& exception ) {
             response = tire::encodeRenderError( exception.what() );
         } catch ( ... ) {
             response = tire::encodeRenderError( "Unknown RT render server failure" );

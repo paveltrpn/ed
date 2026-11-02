@@ -270,3 +270,6 @@ target_link_libraries(${TIRE_RAYTRACER_EXE}
     tcp_bridge
     dsbtt
 )
+target_include_directories(rt PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/json
+)
