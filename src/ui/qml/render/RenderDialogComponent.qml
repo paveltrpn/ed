@@ -16,11 +16,40 @@ Rectangle {
 
     color: _color.si_background_light
     radius: _units.radiusEight
-    height: visible ? settingsPanelButtonsLayout.implicitHeight : 0
 
     signal close
 
     RenderImageAreaComponent {
-        id:
+        id: imageArea
+
+        anchors {
+            left: parent.left
+            top: parent.top
+        }
+
+        width: 640
+        height: 480
+    }
+
+    RenderSettingsComponent {
+        id: settingsArea
+
+        anchors {
+            right: parent.right
+            left: imageArea.right
+            top: parent.top
+            bottom: processLogArea.top
+        }
+    }
+
+    RenderProcessLogComponent {
+        id: processLogArea
+
+        anchors {
+            top: imageArea.bottom
+            bottom: parent.bottom
+            left: parent.left
+            right: parent.right
+        }
     }
 }

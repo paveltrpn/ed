@@ -14,9 +14,8 @@ Rectangle {
     readonly property var _fonts: Appearence.fonts.data
     readonly property var _units: Appearence.units.data
 
-    color: _color.si_background_light
-    radius: _units.radiusEight
-    height: visible ? settingsPanelButtonsLayout.implicitHeight : 0
+    // color: _color.si_background_light
+    color: "blue"
 
     signal close
 }
