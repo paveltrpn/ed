@@ -158,7 +158,9 @@ Window {
                     verticalCenter: parent.verticalCenter
                 }
 
-                icon.source: "image://TiredImageProvider/filled-triangle-down.svg"
+                icon.source: "image://TiredImageProvider/xmark-large.svg"
+                textColor: _color.si_background_light_faded
+
                 width: _units.scaled_24
                 height: _units.scaled_24
                 onClicked: siWindowComponent.close()

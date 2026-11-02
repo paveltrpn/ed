@@ -83,6 +83,8 @@ Rectangle {
 
             checked: mainWindow.panelsActiveBtn === "meshAddButton"
 
+            enabled: false
+
             onClicked: {
                 if (meshAddButton.checked) {
                     mainWindow.panelsActiveBtn = "";
