@@ -1,5 +1,3 @@
-#include "tired/renderrequest.h"
-
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -17,6 +15,8 @@
 #include <QProcess>
 
 #include <uv.h>
+
+#include "tired/renderrequest.h"
 
 #include "log/log.h"
 #include "tcpbridge/renderprotocol.h"

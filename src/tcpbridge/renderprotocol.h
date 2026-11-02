@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstring>
 #include <cstddef>
 #include <cstdint>
 #include <string>
@@ -9,6 +10,8 @@
 namespace tire {
 
 constexpr size_t kRenderProtocolMaximumPayload{ 64 * 1024 * 1024 };
+
+constexpr uint32_t kRenderMessagePreambule{ 0xffaabbcc };
 
 enum class RenderMessageType : uint8_t {
     //
@@ -22,11 +25,34 @@ enum class RenderMessageType : uint8_t {
 // ==================== RenderMessage ===================================================
 // ======================================================================================
 
-struct RenderMessage final {
-    RenderMessage( const std::string &jsonString );
+struct RenderMessage {
+    virtual auto toEncodedJsonString() const -> std::vector<std::byte> = 0;
+    virtual auto parse( std::string jsonString ) -> void;
+
+protected:
+    auto messageFromString( std::string_view text ) -> std::vector<std::byte> {
+        auto message = std::vector<std::byte>{};
+        message.resize( static_cast<size_t>( text.size() ) );
+        std::memcpy( message.data(), text.data(), static_cast<size_t>( text.size() ) );
+        return message;
+    }
+};
+
+struct RequestRenderMessage : RenderMessage {
+    RequestRenderMessage( uint32_t width, uint32_t height, std::string accelerator, uint32_t threadCount );
+
+    auto toEncodedJsonString() const -> std::vector<std::byte> override;
+    auto parse( std::string jsonString ) -> void override;
 
 private:
+    uint32_t _width{ 0 };
+    uint32_t _height{ 0 };
+    std::string _accelerator;
+    uint32_t _threadCount;
 };
+
+auto encodeRenderMessage( const std::vector<std::byte> &payload ) -> std::vector<std::byte>;
+auto decodeRenderMessage( const std::vector<std::byte> &payload ) -> std::vector<std::byte>;
 
 // ======================================================================================
 // ==================== RenderRequestPayload ============================================

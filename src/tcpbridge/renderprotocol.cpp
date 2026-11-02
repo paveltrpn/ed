@@ -42,11 +42,11 @@ auto renderMessageType( const std::vector<std::byte> &payload ) -> RenderMessage
 
     const auto type = static_cast<RenderMessageType>( std::to_integer<uint8_t>( payload.front() ) );
     switch ( type ) {
-    case RenderMessageType::Request:
-    case RenderMessageType::Poll:
-    case RenderMessageType::Image:
-    case RenderMessageType::Error:
-        return type;
+        case RenderMessageType::Request:
+        case RenderMessageType::Poll:
+        case RenderMessageType::Image:
+        case RenderMessageType::Error:
+            return type;
     }
 
     throw std::invalid_argument{ "Unknown render protocol message type" };
@@ -162,8 +162,8 @@ auto decodeRenderImage( const std::vector<std::byte> &payload ) -> RenderImagePa
         throw std::invalid_argument{ "Render image response has an invalid length" };
     }
 
-    auto pixels = std::vector<std::byte>{ payload.cbegin() + static_cast<std::ptrdiff_t>( kImageHeaderSize ),
-                                          payload.cend() };
+    auto pixels =
+        std::vector<std::byte>{ payload.cbegin() + static_cast<std::ptrdiff_t>( kImageHeaderSize ), payload.cend() };
     return RenderImagePayload{ width, height, finalValue == 1, std::move( pixels ) };
 }
 
@@ -192,5 +192,9 @@ auto decodeRenderError( const std::vector<std::byte> &payload ) -> std::string {
     }
     return text;
 }
+
+// ======================================================================================
+// ==================== RenderMessage ===================================================
+// ======================================================================================
 
 }  // namespace tire
