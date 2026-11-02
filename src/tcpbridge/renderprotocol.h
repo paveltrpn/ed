@@ -11,10 +11,21 @@ namespace tire {
 constexpr size_t kRenderProtocolMaximumPayload{ 64 * 1024 * 1024 };
 
 enum class RenderMessageType : uint8_t {
+    //
     Request = 1,
     Poll = 2,
     Image = 3,
     Error = 4
+};
+
+// ======================================================================================
+// ==================== RenderMessage ===================================================
+// ======================================================================================
+
+struct RenderMessage final {
+    RenderMessage( const std::string &jsonString );
+
+private:
 };
 
 // ======================================================================================

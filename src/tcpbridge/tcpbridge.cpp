@@ -285,6 +285,7 @@ auto TcpBridge::send( std::vector<std::byte> message ) -> Task<int> {
 auto TcpBridge::delay( uint64_t timeoutMilliseconds ) -> Task<int> {
     auto timer = std::make_shared<TimeoutAwaitable<Task<void>>>( *_scheduler, timeoutMilliseconds );
     auto status = 0;
+
     {
         std::scoped_lock lock{ _sessionMutex };
 
@@ -301,7 +302,7 @@ auto TcpBridge::delay( uint64_t timeoutMilliseconds ) -> Task<int> {
         co_return status;
     }
 
-    status = co_await *timer;
+    status = co_await * timer;
 
     {
         std::scoped_lock lock{ _sessionMutex };
