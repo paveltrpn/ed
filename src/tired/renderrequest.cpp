@@ -244,6 +244,7 @@ auto RenderRequest::runSession() -> Task<void> {
     auto finalReceived = false;
     auto requestMessage = std::vector<std::byte>{};
     auto pollMessage = std::vector<std::byte>{};
+
     try {
         requestMessage = encodeRenderRequest( renderWidth, renderHeight );
         pollMessage = encodeRenderPollRequest();
@@ -269,12 +270,14 @@ auto RenderRequest::runSession() -> Task<void> {
 
     while ( status == 0 && failureMessage.isEmpty() && !finalReceived ) {
         status = co_await _bridge->send( pollMessage );
+
         if ( status != 0 ) {
             break;
         }
 
         const auto reply = co_await _bridge->read();
         status = reply._status;
+
         if ( status != 0 ) {
             break;
         }
