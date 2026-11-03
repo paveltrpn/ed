@@ -25,8 +25,6 @@
 #include <shared_mutex>
 #include <stdexcept>
 
-#include <nlohmann/json.hpp>
-
 #include <uv.h>
 
 #include "tcpbridge/renderprotocol.h"
@@ -174,20 +172,19 @@ auto makeRenderImageResponse( const tire::RenderJob& job ) -> std::vector<std::b
         throw std::runtime_error{ snapshot._error };
     }
 
-    auto image = tire::RenderImagePayload{};
-    image._width = job.width();
-    image._height = job.height();
-    image._final = snapshot._state == tire::RenderJobState::Complete;
-    image._pixels.resize( snapshot._pixels.size() );
+    auto pixels = std::vector<std::byte>( snapshot._pixels.size() );
     for ( size_t index = 0; index < snapshot._pixels.size(); ++index ) {
         auto value = std::clamp( snapshot._pixels[index], 0.0f, 1.0f );
         if ( !std::isfinite( value ) ) {
             value = 0.0f;
         }
         const auto gray = static_cast<uint8_t>( value * 255.0f + 0.5f );
-        image._pixels[index] = static_cast<std::byte>( gray );
+        pixels[index] = static_cast<std::byte>( gray );
     }
-    return tire::encodeRenderImage( image );
+
+    const auto isFinal{ snapshot._state == tire::RenderJobState::Complete };
+
+    return tire::ImageMessage{ job.width(), job.height(), isFinal, pixels }.encode();
 }
 
 auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint16_t port ) -> tire::Task<int> {
@@ -230,30 +227,36 @@ auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint
                 handshakeComplete = true;
                 response = messageFromString( "hello from rt" );
             } else {
-                const auto type = tire::renderMessageType( message._payload );
-                if ( type == tire::RenderMessageType::REQUEST ) {
-                    if ( job != nullptr ) {
-                        throw std::runtime_error{ "A render request is already active" };
-                    }
+                const auto renderMessage{ tire::createRenderMessage( message._payload ) };
 
-                    const auto request = tire::decodeRenderRequest( message._payload );
-                    auto newJob = std::make_unique<tire::RenderJob>( request._width, request._height );
-                    newJob->start();
-                    job = std::move( newJob );
-                } else if ( type == tire::RenderMessageType::POLL ) {
-                    tire::decodeRenderPollRequest( message._payload );
-                    if ( job == nullptr ) {
-                        throw std::runtime_error{ "Cannot poll before starting a render" };
+                switch ( renderMessage->type() ) {
+                    case tire::RenderMessageType::REQUEST: {
+                        if ( job != nullptr ) {
+                            throw std::runtime_error{ "A render request is already active" };
+                        }
+
+                        const auto *request = static_cast<tire::RequestRenderMessage *>( renderMessage.get() );
+                        auto newJob = std::make_unique<tire::RenderJob>( request->width(), request->height() );
+                        newJob->start();
+                        job = std::move( newJob );
+                        break;
                     }
-                    response = makeRenderImageResponse( *job );
-                } else {
-                    throw std::runtime_error{ "Unexpected message sent to the RT render server" };
+                    case tire::RenderMessageType::POLL: {
+                        if ( job == nullptr ) {
+                            throw std::runtime_error{ "Cannot poll before starting a render" };
+                        }
+                        response = makeRenderImageResponse( *job );
+                        break;
+                    }
+                    default: {
+                        throw std::runtime_error{ "Unexpected message sent to the RT render server" };
+                    }
                 }
             }
         } catch ( const std::exception& exception ) {
-            response = tire::encodeRenderError( exception.what() );
+            response = tire::ChatMessage{ tire::RenderMessageType::ERROR, exception.what() }.encode();
         } catch ( ... ) {
-            response = tire::encodeRenderError( "Unknown RT render server failure" );
+            response = tire::ChatMessage{ tire::RenderMessageType::ERROR, "Unknown RT render server failure" }.encode();
         }
 
         if ( !response.empty() ) {

@@ -44,7 +44,6 @@ struct RenderMessage {
     virtual auto parse( std::string jsonString ) -> void;
 
     auto type() const -> RenderMessageType;
-    auto setType( RenderMessageType value ) -> void;
 
 protected:
     auto writeHeader( nlohmann::json &root ) const -> void;
@@ -78,10 +77,13 @@ protected:
 
 struct ChatMessage final : RenderMessage {
     ChatMessage() = default;
+    ChatMessage( RenderMessageType type, const std::string &msg );
     explicit ChatMessage( const std::string &msg );
 
     auto toJson() const -> std::string override;
     auto parse( std::string jsonString ) -> void override;
+
+    auto message() const -> std::string;
 
 private:
     std::string _msg{};
@@ -99,11 +101,16 @@ struct RequestRenderMessage final : RenderMessage {
     auto toJson() const -> std::string override;
     auto parse( std::string jsonString ) -> void override;
 
+    auto width() const -> uint32_t;
+    auto height() const -> uint32_t;
+    auto accelerator() const -> std::string;
+    auto threadCount() const -> uint32_t;
+
 private:
     uint32_t _width{ 0 };
     uint32_t _height{ 0 };
     std::string _accelerator{};
-    uint32_t _threadCount;
+    uint32_t _threadCount{ 0 };
 };
 
 // ======================================================================================
@@ -112,10 +119,14 @@ private:
 
 struct ImageMessage final : RenderMessage {
     ImageMessage() = default;
-    ImageMessage( uint32_t width, uint32_t height );
+    ImageMessage( uint32_t width, uint32_t height, bool isFinal, const std::vector<std::byte> &pixels );
 
     auto toJson() const -> std::string override;
     auto parse( std::string jsonString ) -> void override;
+
+    auto width() const -> uint32_t;
+    auto height() const -> uint32_t;
+    auto final() const -> bool;
 
     // Decode base64 encoded string to raw bytes.
     auto pixels() const -> std::vector<std::byte>;
@@ -130,41 +141,8 @@ private:
     std::string _pixels{};
 };
 
-// ======================================================================================
-// ==================== RenderRequestPayload ============================================
-// ======================================================================================
-
-struct RenderRequestPayload {
-    uint32_t _width{ 0 };
-    uint32_t _height{ 0 };
-};
-
-// ======================================================================================
-// ==================== RenderImagePayload ==============================================
-// ======================================================================================
-
-struct RenderImagePayload {
-    uint32_t _width{ 0 };
-    uint32_t _height{ 0 };
-    bool _final{ false };
-    std::vector<std::byte> _pixels{};
-};
-
-auto renderMessageType( const std::vector<std::byte> &payload ) -> RenderMessageType;
 auto renderPixelCount( uint32_t width, uint32_t height ) -> uint32_t;
 auto renderImageSizeIsValid( uint32_t width, uint32_t height ) noexcept -> bool;
-
-auto encodeRenderRequest( uint32_t width, uint32_t height ) -> std::vector<std::byte>;
-auto decodeRenderRequest( const std::vector<std::byte> &payload ) -> RenderRequestPayload;
-
-auto encodeRenderPollRequest() -> std::vector<std::byte>;
-auto decodeRenderPollRequest( const std::vector<std::byte> &payload ) -> void;
-
-auto encodeRenderImage( const RenderImagePayload &image ) -> std::vector<std::byte>;
-auto decodeRenderImage( const std::vector<std::byte> &payload ) -> RenderImagePayload;
-
-auto encodeRenderError( std::string_view text ) -> std::vector<std::byte>;
-auto decodeRenderError( const std::vector<std::byte> &payload ) -> std::string;
 
 auto createRenderMessage( const std::vector<std::byte> &payload ) -> std::unique_ptr<RenderMessage>;
 

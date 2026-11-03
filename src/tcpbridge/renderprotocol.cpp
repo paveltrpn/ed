@@ -11,50 +11,7 @@
 
 namespace tire {
 
-namespace {
-
-constexpr size_t kTypeSize{ 1 };
-constexpr size_t kRequestPayloadSize{ 9 };
-constexpr size_t kImageHeaderSize{ 14 };
-
-auto appendU32( std::vector<std::byte> &payload, uint32_t value ) -> void {
-    payload.push_back( static_cast<std::byte>( ( value >> 24U ) & 0xffU ) );
-    payload.push_back( static_cast<std::byte>( ( value >> 16U ) & 0xffU ) );
-    payload.push_back( static_cast<std::byte>( ( value >> 8U ) & 0xffU ) );
-    payload.push_back( static_cast<std::byte>( value & 0xffU ) );
-}
-
-auto readU32( const std::vector<std::byte> &payload, size_t offset ) -> uint32_t {
-    return ( std::to_integer<uint32_t>( payload[offset] ) << 24U ) |
-           ( std::to_integer<uint32_t>( payload[offset + 1] ) << 16U ) |
-           ( std::to_integer<uint32_t>( payload[offset + 2] ) << 8U ) |
-           std::to_integer<uint32_t>( payload[offset + 3] );
-}
-
-auto requireType( const std::vector<std::byte> &payload, RenderMessageType expected ) -> void {
-    if ( renderMessageType( payload ) != expected ) {
-        throw std::invalid_argument{ "Unexpected render protocol message type" };
-    }
-}
-
-}  // namespace
-
-auto renderMessageType( const std::vector<std::byte> &payload ) -> RenderMessageType {
-    if ( payload.empty() ) {
-        throw std::invalid_argument{ "Empty render protocol message" };
-    }
-
-    const auto type = static_cast<RenderMessageType>( std::to_integer<uint8_t>( payload.front() ) );
-    switch ( type ) {
-        case RenderMessageType::REQUEST:
-        case RenderMessageType::POLL:
-        case RenderMessageType::IMAGE:
-        case RenderMessageType::ERROR:
-            return type;
-    }
-
-    throw std::invalid_argument{ "Unknown render protocol message type" };
-}
+constexpr size_t kRenderImageJsonReserve{ 4096 };
 
 auto renderPixelCount( uint32_t width, uint32_t height ) -> uint32_t {
     if ( width == 0 || height == 0 ) {
@@ -72,7 +29,7 @@ auto renderPixelCount( uint32_t width, uint32_t height ) -> uint32_t {
         throw std::overflow_error{ "Render dimensions exceed the 32-bit pixel count" };
     }
 
-    if ( pixelCount > kRenderProtocolMaximumPayload - kImageHeaderSize ) {
+    if ( pixelCount + pixelCount / 3 + kRenderImageJsonReserve > kRenderProtocolMaximumPayload ) {
         throw std::length_error{ "Render image exceeds the protocol frame limit" };
     }
 
@@ -87,119 +44,6 @@ auto renderImageSizeIsValid( uint32_t width, uint32_t height ) noexcept -> bool 
         return false;
     }
 }
-
-auto encodeRenderRequest( uint32_t width, uint32_t height ) -> std::vector<std::byte> {
-    renderPixelCount( width, height );
-
-    auto payload = std::vector<std::byte>{};
-    payload.reserve( kRequestPayloadSize );
-    payload.push_back( static_cast<std::byte>( RenderMessageType::REQUEST ) );
-    appendU32( payload, width );
-    appendU32( payload, height );
-    return payload;
-}
-
-auto decodeRenderRequest( const std::vector<std::byte> &payload ) -> RenderRequestPayload {
-    requireType( payload, RenderMessageType::REQUEST );
-    if ( payload.size() != kRequestPayloadSize ) {
-        throw std::invalid_argument{ "Render request has an invalid length" };
-    }
-
-    const auto width = readU32( payload, kTypeSize );
-    const auto height = readU32( payload, kTypeSize + sizeof( uint32_t ) );
-    renderPixelCount( width, height );
-    return RenderRequestPayload{ width, height };
-}
-
-auto encodeRenderPollRequest() -> std::vector<std::byte> {
-    return std::vector<std::byte>{ static_cast<std::byte>( RenderMessageType::POLL ) };
-}
-
-auto decodeRenderPollRequest( const std::vector<std::byte> &payload ) -> void {
-    requireType( payload, RenderMessageType::POLL );
-    if ( payload.size() != kTypeSize ) {
-        throw std::invalid_argument{ "Render poll has an invalid length" };
-    }
-}
-
-auto encodeRenderImage( const RenderImagePayload &image ) -> std::vector<std::byte> {
-    const auto pixelCount = renderPixelCount( image._width, image._height );
-    if ( image._pixels.size() != pixelCount ) {
-        throw std::invalid_argument{ "Render image pixel count does not match its dimensions" };
-    }
-
-    auto payload = std::vector<std::byte>{};
-    payload.reserve( kImageHeaderSize + image._pixels.size() );
-    payload.push_back( static_cast<std::byte>( RenderMessageType::IMAGE ) );
-    appendU32( payload, image._width );
-    appendU32( payload, image._height );
-    auto finalValue = uint8_t{ 0 };
-    if ( image._final ) {
-        finalValue = 1;
-    }
-    payload.push_back( static_cast<std::byte>( finalValue ) );
-    appendU32( payload, pixelCount );
-    payload.insert( payload.cend(), image._pixels.cbegin(), image._pixels.cend() );
-    return payload;
-}
-
-auto decodeRenderImage( const std::vector<std::byte> &payload ) -> RenderImagePayload {
-    requireType( payload, RenderMessageType::IMAGE );
-    if ( payload.size() < kImageHeaderSize ) {
-        throw std::invalid_argument{ "Render image response is truncated" };
-    }
-
-    const auto width = readU32( payload, kTypeSize );
-    const auto height = readU32( payload, kTypeSize + sizeof( uint32_t ) );
-    const auto finalValue = std::to_integer<uint8_t>( payload[9] );
-    if ( finalValue > 1 ) {
-        throw std::invalid_argument{ "Render image response has an invalid final flag" };
-    }
-
-    const auto expectedPixelCount = renderPixelCount( width, height );
-    const auto pixelCount = readU32( payload, 10 );
-    if ( pixelCount != expectedPixelCount ) {
-        throw std::invalid_argument{ "Render image response has an inconsistent pixel count" };
-    }
-
-    if ( payload.size() != kImageHeaderSize + static_cast<size_t>( pixelCount ) ) {
-        throw std::invalid_argument{ "Render image response has an invalid length" };
-    }
-
-    auto pixels =
-        std::vector<std::byte>{ payload.cbegin() + static_cast<std::ptrdiff_t>( kImageHeaderSize ), payload.cend() };
-    return RenderImagePayload{ width, height, finalValue == 1, std::move( pixels ) };
-}
-
-auto encodeRenderError( std::string_view text ) -> std::vector<std::byte> {
-    if ( text.size() > kRenderProtocolMaximumPayload - kTypeSize ) {
-        throw std::length_error{ "Render error exceeds the protocol frame limit" };
-    }
-
-    auto payload = std::vector<std::byte>( kTypeSize + text.size() );
-    payload.front() = static_cast<std::byte>( RenderMessageType::ERROR );
-    if ( !text.empty() ) {
-        std::memcpy( payload.data() + kTypeSize, text.data(), text.size() );
-    }
-    return payload;
-}
-
-auto decodeRenderError( const std::vector<std::byte> &payload ) -> std::string {
-    requireType( payload, RenderMessageType::ERROR );
-    if ( payload.size() > kRenderProtocolMaximumPayload ) {
-        throw std::length_error{ "Render error exceeds the protocol frame limit" };
-    }
-
-    auto text = std::string( payload.size() - kTypeSize, '\0' );
-    if ( !text.empty() ) {
-        std::memcpy( text.data(), payload.data() + kTypeSize, text.size() );
-    }
-    return text;
-}
-
-// ======================================================================================
-// ==================== RenderMessage ===================================================
-// ======================================================================================
 
 namespace {
 
@@ -225,22 +69,22 @@ auto fieldError( std::string_view prefix, std::string_view name, std::string_vie
 
 }  // namespace
 
+// ======================================================================================
+// ==================== RenderMessage ===================================================
+// ======================================================================================
+
 auto RenderMessage::encode() const -> std::vector<std::byte> {
     const auto thisJsonString = this->toJson();
     return messageFromString( thisJsonString );
 }
 
 auto RenderMessage::parse( std::string jsonString ) -> void {
-    const auto root{ parseJsonString( jsonString ) };
+    const auto root = parseJsonString( jsonString );
     readHeader( root );
 }
 
 auto RenderMessage::type() const -> RenderMessageType {
     return _type;
-}
-
-auto RenderMessage::setType( RenderMessageType value ) -> void {
-    _type = value;
 }
 
 auto RenderMessage::writeHeader( nlohmann::json &root ) const -> void {
@@ -349,10 +193,22 @@ auto RenderMessage::readString( const nlohmann::json &object, std::string_view n
 // ==================== ChatMessage =====================================================
 // ======================================================================================
 
-ChatMessage::ChatMessage( const std::string &msg ) {
-    _type = RenderMessageType::CHAT;
+ChatMessage::ChatMessage( RenderMessageType type, const std::string &msg ) {
+    if ( type != RenderMessageType::CHAT && type != RenderMessageType::POLL && type != RenderMessageType::ERROR ) {
+        throw std::runtime_error{ "ChatMessage supports only CHAT, POLL and ERROR message types" };
+    }
+
+    _type = type;
     _timestamp = std::chrono::system_clock::now();
     _msg = msg;
+}
+
+ChatMessage::ChatMessage( const std::string &msg )
+    : ChatMessage{ RenderMessageType::CHAT, msg } {
+}
+
+auto ChatMessage::message() const -> std::string {
+    return _msg;
 }
 
 auto ChatMessage::toJson() const -> std::string {
@@ -367,14 +223,15 @@ auto ChatMessage::toJson() const -> std::string {
 }
 
 auto ChatMessage::parse( std::string jsonString ) -> void {
-    const auto root{ parseJsonString( jsonString ) };
+    const auto root = parseJsonString( jsonString );
     readHeader( root );
 
-    if ( _type != RenderMessageType::CHAT ) {
+    if ( _type != RenderMessageType::CHAT && _type != RenderMessageType::POLL &&
+         _type != RenderMessageType::ERROR ) {
         throw std::runtime_error{ "Render protocol message type does not match ChatMessage" };
     }
 
-    const auto &payload{ requirePayload( root ) };
+    const auto &payload = requirePayload( root );
     _msg = readString( payload, "message" );
 }
 
@@ -384,12 +241,30 @@ auto ChatMessage::parse( std::string jsonString ) -> void {
 
 RequestRenderMessage::RequestRenderMessage( uint32_t width, uint32_t height, std::string accelerator,
                                             uint32_t threadCount ) {
+    renderPixelCount( width, height );
+
     _type = RenderMessageType::REQUEST;
     _timestamp = std::chrono::system_clock::now();
     _width = width;
     _height = height;
     _accelerator = std::move( accelerator );
     _threadCount = threadCount;
+}
+
+auto RequestRenderMessage::width() const -> uint32_t {
+    return _width;
+}
+
+auto RequestRenderMessage::height() const -> uint32_t {
+    return _height;
+}
+
+auto RequestRenderMessage::accelerator() const -> std::string {
+    return _accelerator;
+}
+
+auto RequestRenderMessage::threadCount() const -> uint32_t {
+    return _threadCount;
 }
 
 auto RequestRenderMessage::toJson() const -> std::string {
@@ -407,14 +282,14 @@ auto RequestRenderMessage::toJson() const -> std::string {
 }
 
 auto RequestRenderMessage::parse( std::string jsonString ) -> void {
-    const auto root{ parseJsonString( jsonString ) };
+    const auto root = parseJsonString( jsonString );
     readHeader( root );
 
     if ( _type != RenderMessageType::REQUEST ) {
         throw std::runtime_error{ "Render protocol message type does not match RequestRenderMessage" };
     }
 
-    const auto &payload{ requirePayload( root ) };
+    const auto &payload = requirePayload( root );
     _width = readUint32( payload, "width" );
     _height = readUint32( payload, "height" );
     _accelerator = readString( payload, "accelerator" );
@@ -425,11 +300,37 @@ auto RequestRenderMessage::parse( std::string jsonString ) -> void {
 // ==================== ImageMessage ====================================================
 // ======================================================================================
 
-ImageMessage::ImageMessage( uint32_t width, uint32_t height ) {
+ImageMessage::ImageMessage( uint32_t width, uint32_t height, bool isFinal, const std::vector<std::byte> &pixels ) {
+    const auto pixelCount = renderPixelCount( width, height );
+    if ( pixels.size() != static_cast<size_t>( pixelCount ) ) {
+        throw std::runtime_error{ "Render image pixel count does not match its dimensions" };
+    }
+
     _type = RenderMessageType::IMAGE;
     _timestamp = std::chrono::system_clock::now();
     _width = width;
     _height = height;
+    _final = isFinal;
+
+    // NOTE: Encoded from an unsigned char buffer: the base64 library fill-initializes its
+    // output buffer from a char literal, which does not implicitly convert to std::byte.
+    auto rawPixels = std::vector<unsigned char>( pixels.size() );
+    std::transform( pixels.cbegin(), pixels.cend(), rawPixels.begin(),
+                    []( std::byte value ) -> unsigned char { return std::to_integer<unsigned char>( value ); } );
+
+    _pixels = base64::encode_into<std::string>( rawPixels.cbegin(), rawPixels.cend() );
+}
+
+auto ImageMessage::width() const -> uint32_t {
+    return _width;
+}
+
+auto ImageMessage::height() const -> uint32_t {
+    return _height;
+}
+
+auto ImageMessage::final() const -> bool {
+    return _final;
 }
 
 auto ImageMessage::toJson() const -> std::string {
@@ -447,14 +348,14 @@ auto ImageMessage::toJson() const -> std::string {
 }
 
 auto ImageMessage::parse( std::string jsonString ) -> void {
-    const auto root{ parseJsonString( jsonString ) };
+    const auto root = parseJsonString( jsonString );
     readHeader( root );
 
     if ( _type != RenderMessageType::IMAGE ) {
         throw std::runtime_error{ "Render protocol message type does not match ImageMessage" };
     }
 
-    const auto &payload{ requirePayload( root ) };
+    const auto &payload = requirePayload( root );
     _width = readUint32( payload, "width" );
     _height = readUint32( payload, "height" );
     _final = readBool( payload, "final" );
@@ -486,7 +387,7 @@ auto ImageMessage::pixels() const -> std::vector<std::byte> {
 
 auto createRenderMessage( const std::vector<std::byte> &payload ) -> std::unique_ptr<RenderMessage> {
     const auto jsonString{ stringFromMessage( payload ) };
-    const auto root{ parseJsonString( jsonString ) };
+    const auto root = parseJsonString( jsonString );
 
     if ( !root.is_object() ) {
         throw std::runtime_error{ "Render protocol message is not a JSON object" };
@@ -514,7 +415,9 @@ auto createRenderMessage( const std::vector<std::byte> &payload ) -> std::unique
             message = std::make_unique<ImageMessage>();
             break;
         }
-        case static_cast<int64_t>( RenderMessageType::CHAT ): {
+        case static_cast<int64_t>( RenderMessageType::CHAT ):
+        case static_cast<int64_t>( RenderMessageType::POLL ):
+        case static_cast<int64_t>( RenderMessageType::ERROR ): {
             message = std::make_unique<ChatMessage>();
             break;
         }

@@ -3,6 +3,7 @@
 #include <cstring>
 #include <exception>
 #include <stdexcept>
+#include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -26,6 +27,28 @@ namespace {
 
 constexpr uint16_t kRenderServerPort{ 45454 };
 constexpr uint64_t kRenderPollDelayMilliseconds{ 200 };
+constexpr size_t kPayloadPreviewMaximumSize{ 512 };
+
+auto payloadPreview( const std::vector<std::byte> &payload ) -> std::string {
+    auto size = payload.size();
+    if ( size > kPayloadPreviewMaximumSize ) {
+        size = kPayloadPreviewMaximumSize;
+    }
+
+    auto preview = std::string{};
+    preview.reserve( size );
+
+    for ( size_t index = 0; index < size; ++index ) {
+        const auto value = std::to_integer<unsigned char>( payload[index] );
+        if ( value >= 0x20U && value < 0x7fU ) {
+            preview += static_cast<char>( value );
+        } else {
+            preview += '.';
+        }
+    }
+
+    return preview;
+}
 
 auto messageFromString( std::string_view text ) -> std::vector<std::byte> {
     auto message = std::vector<std::byte>{};
@@ -246,8 +269,8 @@ auto RenderRequest::runSession() -> Task<void> {
     auto pollMessage = std::vector<std::byte>{};
 
     try {
-        requestMessage = encodeRenderRequest( renderWidth, renderHeight );
-        pollMessage = encodeRenderPollRequest();
+        requestMessage = RequestRenderMessage{ renderWidth, renderHeight }.encode();
+        pollMessage = ChatMessage{ RenderMessageType::POLL, std::string{} }.encode();
     } catch ( const std::exception &exception ) {
         failureMessage = QStringLiteral( "Cannot encode render request: %1" ).arg( exception.what() );
     } catch ( ... ) {
@@ -283,30 +306,37 @@ auto RenderRequest::runSession() -> Task<void> {
         }
 
         try {
-            const auto type = renderMessageType( reply._payload );
-            if ( type == RenderMessageType::ERROR ) {
-                const auto error = decodeRenderError( reply._payload );
+            const auto message{ createRenderMessage( reply._payload ) };
+
+            if ( message->type() == RenderMessageType::ERROR ) {
+                const auto *errorMessage = static_cast<ChatMessage *>( message.get() );
+                const auto error = errorMessage->message();
                 failureMessage = QStringLiteral( "RT render error: %1" )
                                      .arg( QString::fromUtf8( error.data(), static_cast<qsizetype>( error.size() ) ) );
-            } else if ( type == RenderMessageType::IMAGE ) {
-                const auto imageMessage = decodeRenderImage( reply._payload );
-                if ( imageMessage._width != renderWidth || imageMessage._height != renderHeight ) {
+            } else if ( message->type() == RenderMessageType::IMAGE ) {
+                const auto *imageMessage = static_cast<ImageMessage *>( message.get() );
+
+                if ( imageMessage->width() != renderWidth || imageMessage->height() != renderHeight ) {
                     throw std::runtime_error{ "Render response dimensions do not match the request" };
                 }
 
-                auto image = QImage{ static_cast<int>( imageMessage._width ), static_cast<int>( imageMessage._height ),
-                                     QImage::Format_Grayscale8 };
+                const auto pixels{ imageMessage->pixels() };
+
+                auto image = QImage{ static_cast<int>( imageMessage->width() ),
+                                     static_cast<int>( imageMessage->height() ), QImage::Format_Grayscale8 };
+
                 if ( image.isNull() ) {
                     throw std::runtime_error{ "Cannot allocate the received render image" };
                 }
 
-                const auto rowSize = static_cast<size_t>( imageMessage._width );
-                for ( size_t row = 0; row < imageMessage._height; ++row ) {
-                    std::memcpy( image.scanLine( static_cast<int>( row ) ), imageMessage._pixels.data() + row * rowSize,
-                                 rowSize );
+                const auto rowSize = static_cast<size_t>( imageMessage->width() );
+
+                for ( size_t row = 0; row < imageMessage->height(); ++row ) {
+                    std::memcpy( image.scanLine( static_cast<int>( row ) ), pixels.data() + row * rowSize, rowSize );
                 }
 
-                finalReceived = imageMessage._final;
+                finalReceived = imageMessage->final();
+
                 QMetaObject::invokeMethod(
                     this,
                     [this, image = std::move( image )]() -> void {
@@ -318,6 +348,7 @@ auto RenderRequest::runSession() -> Task<void> {
                 failureMessage = QStringLiteral( "Unexpected message received from the RT render server" );
             }
         } catch ( const std::exception &exception ) {
+            log::error()( "RT response payload preview: {}", payloadPreview( reply._payload ) );
             failureMessage = QStringLiteral( "Invalid RT render response: %1" ).arg( exception.what() );
         } catch ( ... ) {
             failureMessage = QStringLiteral( "Invalid RT render response with an unknown error" );
