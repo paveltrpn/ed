@@ -7,18 +7,19 @@
 #include <string_view>
 #include <vector>
 
+#include <nlohmann/json.hpp>
+
 namespace tire {
 
 constexpr size_t kRenderProtocolMaximumPayload{ 64 * 1024 * 1024 };
 
-constexpr uint32_t kRenderMessagePreambule{ 0xffaabbcc };
-
 enum class RenderMessageType : uint8_t {
     //
-    Request = 1,
-    Poll = 2,
-    Image = 3,
-    Error = 4
+    UNDEFINED = 0,
+    REQUEST = 1,
+    POLL = 2,
+    IMAGE = 3,
+    ERROR = 4
 };
 
 // ======================================================================================
@@ -26,8 +27,11 @@ enum class RenderMessageType : uint8_t {
 // ======================================================================================
 
 struct RenderMessage {
-    virtual auto toEncodedJsonString() const -> std::vector<std::byte> = 0;
+    virtual auto encode() const -> std::vector<std::byte> = 0;
     virtual auto parse( std::string jsonString ) -> void;
+
+    auto type() const -> RenderMessageType;
+    auto setType( RenderMessageType value ) const -> void;
 
 protected:
     auto messageFromString( std::string_view text ) -> std::vector<std::byte> {
@@ -36,12 +40,20 @@ protected:
         std::memcpy( message.data(), text.data(), static_cast<size_t>( text.size() ) );
         return message;
     }
+
+protected:
+    const uint32_t _magic{ 0xffaabbcc };
+    RenderMessageType _type{ RenderMessageType::UNDEFINED };
 };
+
+// ======================================================================================
+// ==================== RequestRenderMessage ============================================
+// ======================================================================================
 
 struct RequestRenderMessage : RenderMessage {
     RequestRenderMessage( uint32_t width, uint32_t height, std::string accelerator, uint32_t threadCount );
 
-    auto toEncodedJsonString() const -> std::vector<std::byte> override;
+    auto encode() const -> std::vector<std::byte> override;
     auto parse( std::string jsonString ) -> void override;
 
 private:

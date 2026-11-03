@@ -161,6 +161,7 @@ target_link_libraries(tired
     mesh
     program
     generator
+    tcp_bridge
     OpenMeshCore
     OpenMeshTools
 )
@@ -244,7 +245,9 @@ add_library(tcp_bridge ${MOD_TCP_BRIDGE_SRC})
 target_include_directories(tcp_bridge PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_compile_options(tcp_bridge PRIVATE "${CXX_STANDART}")
 target_link_libraries(tcp_bridge io log)
-target_link_libraries(tired tcp_bridge)
+target_include_directories(tcp_bridge PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/json
+)
 
 # ================================
 # Module dsbtt

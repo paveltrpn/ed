@@ -284,11 +284,11 @@ auto RenderRequest::runSession() -> Task<void> {
 
         try {
             const auto type = renderMessageType( reply._payload );
-            if ( type == RenderMessageType::Error ) {
+            if ( type == RenderMessageType::ERROR ) {
                 const auto error = decodeRenderError( reply._payload );
                 failureMessage = QStringLiteral( "RT render error: %1" )
                                      .arg( QString::fromUtf8( error.data(), static_cast<qsizetype>( error.size() ) ) );
-            } else if ( type == RenderMessageType::Image ) {
+            } else if ( type == RenderMessageType::IMAGE ) {
                 const auto imageMessage = decodeRenderImage( reply._payload );
                 if ( imageMessage._width != renderWidth || imageMessage._height != renderHeight ) {
                     throw std::runtime_error{ "Render response dimensions do not match the request" };

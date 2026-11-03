@@ -42,10 +42,10 @@ auto renderMessageType( const std::vector<std::byte> &payload ) -> RenderMessage
 
     const auto type = static_cast<RenderMessageType>( std::to_integer<uint8_t>( payload.front() ) );
     switch ( type ) {
-        case RenderMessageType::Request:
-        case RenderMessageType::Poll:
-        case RenderMessageType::Image:
-        case RenderMessageType::Error:
+        case RenderMessageType::REQUEST:
+        case RenderMessageType::POLL:
+        case RenderMessageType::IMAGE:
+        case RenderMessageType::ERROR:
             return type;
     }
 
@@ -89,14 +89,14 @@ auto encodeRenderRequest( uint32_t width, uint32_t height ) -> std::vector<std::
 
     auto payload = std::vector<std::byte>{};
     payload.reserve( kRequestPayloadSize );
-    payload.push_back( static_cast<std::byte>( RenderMessageType::Request ) );
+    payload.push_back( static_cast<std::byte>( RenderMessageType::REQUEST ) );
     appendU32( payload, width );
     appendU32( payload, height );
     return payload;
 }
 
 auto decodeRenderRequest( const std::vector<std::byte> &payload ) -> RenderRequestPayload {
-    requireType( payload, RenderMessageType::Request );
+    requireType( payload, RenderMessageType::REQUEST );
     if ( payload.size() != kRequestPayloadSize ) {
         throw std::invalid_argument{ "Render request has an invalid length" };
     }
@@ -108,11 +108,11 @@ auto decodeRenderRequest( const std::vector<std::byte> &payload ) -> RenderReque
 }
 
 auto encodeRenderPollRequest() -> std::vector<std::byte> {
-    return std::vector<std::byte>{ static_cast<std::byte>( RenderMessageType::Poll ) };
+    return std::vector<std::byte>{ static_cast<std::byte>( RenderMessageType::POLL ) };
 }
 
 auto decodeRenderPollRequest( const std::vector<std::byte> &payload ) -> void {
-    requireType( payload, RenderMessageType::Poll );
+    requireType( payload, RenderMessageType::POLL );
     if ( payload.size() != kTypeSize ) {
         throw std::invalid_argument{ "Render poll has an invalid length" };
     }
@@ -126,7 +126,7 @@ auto encodeRenderImage( const RenderImagePayload &image ) -> std::vector<std::by
 
     auto payload = std::vector<std::byte>{};
     payload.reserve( kImageHeaderSize + image._pixels.size() );
-    payload.push_back( static_cast<std::byte>( RenderMessageType::Image ) );
+    payload.push_back( static_cast<std::byte>( RenderMessageType::IMAGE ) );
     appendU32( payload, image._width );
     appendU32( payload, image._height );
     auto finalValue = uint8_t{ 0 };
@@ -140,7 +140,7 @@ auto encodeRenderImage( const RenderImagePayload &image ) -> std::vector<std::by
 }
 
 auto decodeRenderImage( const std::vector<std::byte> &payload ) -> RenderImagePayload {
-    requireType( payload, RenderMessageType::Image );
+    requireType( payload, RenderMessageType::IMAGE );
     if ( payload.size() < kImageHeaderSize ) {
         throw std::invalid_argument{ "Render image response is truncated" };
     }
@@ -173,7 +173,7 @@ auto encodeRenderError( std::string_view text ) -> std::vector<std::byte> {
     }
 
     auto payload = std::vector<std::byte>( kTypeSize + text.size() );
-    payload.front() = static_cast<std::byte>( RenderMessageType::Error );
+    payload.front() = static_cast<std::byte>( RenderMessageType::ERROR );
     if ( !text.empty() ) {
         std::memcpy( payload.data() + kTypeSize, text.data(), text.size() );
     }
@@ -181,7 +181,7 @@ auto encodeRenderError( std::string_view text ) -> std::vector<std::byte> {
 }
 
 auto decodeRenderError( const std::vector<std::byte> &payload ) -> std::string {
-    requireType( payload, RenderMessageType::Error );
+    requireType( payload, RenderMessageType::ERROR );
     if ( payload.size() > kRenderProtocolMaximumPayload ) {
         throw std::length_error{ "Render error exceeds the protocol frame limit" };
     }

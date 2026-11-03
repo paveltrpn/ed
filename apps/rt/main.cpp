@@ -231,7 +231,7 @@ auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint
                 response = messageFromString( "hello from rt" );
             } else {
                 const auto type = tire::renderMessageType( message._payload );
-                if ( type == tire::RenderMessageType::Request ) {
+                if ( type == tire::RenderMessageType::REQUEST ) {
                     if ( job != nullptr ) {
                         throw std::runtime_error{ "A render request is already active" };
                     }
@@ -240,7 +240,7 @@ auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint
                     auto newJob = std::make_unique<tire::RenderJob>( request._width, request._height );
                     newJob->start();
                     job = std::move( newJob );
-                } else if ( type == tire::RenderMessageType::Poll ) {
+                } else if ( type == tire::RenderMessageType::POLL ) {
                     tire::decodeRenderPollRequest( message._payload );
                     if ( job == nullptr ) {
                         throw std::runtime_error{ "Cannot poll before starting a render" };
