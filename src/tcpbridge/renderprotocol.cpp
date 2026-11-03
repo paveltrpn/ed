@@ -197,4 +197,9 @@ auto decodeRenderError( const std::vector<std::byte> &payload ) -> std::string {
 // ==================== RenderMessage ===================================================
 // ======================================================================================
 
+auto RenderMessage::encode() const -> std::vector<std::byte> {
+    const auto thisJsonString = this->toJson();
+    return messageFromString( thisJsonString );
+}
+
 }  // namespace tire

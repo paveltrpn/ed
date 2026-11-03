@@ -6,6 +6,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <chrono>
 
 #include <nlohmann/json.hpp>
 
@@ -19,7 +20,8 @@ enum class RenderMessageType : uint8_t {
     REQUEST = 1,
     POLL = 2,
     IMAGE = 3,
-    ERROR = 4
+    ERROR = 4,
+    CHAT = 5
 };
 
 // ======================================================================================
@@ -27,23 +29,42 @@ enum class RenderMessageType : uint8_t {
 // ======================================================================================
 
 struct RenderMessage {
-    virtual auto encode() const -> std::vector<std::byte> = 0;
+    auto encode() const -> std::vector<std::byte>;
+
+    virtual auto toJson() const -> std::string = 0;
     virtual auto parse( std::string jsonString ) -> void;
 
     auto type() const -> RenderMessageType;
     auto setType( RenderMessageType value ) const -> void;
 
-protected:
-    auto messageFromString( std::string_view text ) -> std::vector<std::byte> {
+private:
+    auto messageFromString( const std::string &str ) const -> std::vector<std::byte> {
         auto message = std::vector<std::byte>{};
-        message.resize( static_cast<size_t>( text.size() ) );
-        std::memcpy( message.data(), text.data(), static_cast<size_t>( text.size() ) );
+
+        message.resize( static_cast<size_t>( str.size() ) );
+        std::memcpy( message.data(), str.data(), static_cast<size_t>( str.size() ) );
+
         return message;
     }
 
 protected:
     const uint32_t _magic{ 0xffaabbcc };
     RenderMessageType _type{ RenderMessageType::UNDEFINED };
+    std::chrono::time_point<std::chrono::system_clock> _timestamp{};
+};
+
+// ======================================================================================
+// ==================== ChatMessage =====================================================
+// ======================================================================================
+
+struct ChatMessage : RenderMessage {
+    ChatMessage( const std::string &msg );
+
+    auto toJson() const -> std::string override;
+    auto parse( std::string jsonString ) -> void override;
+
+private:
+    std::string _msg{};
 };
 
 // ======================================================================================
@@ -53,7 +74,7 @@ protected:
 struct RequestRenderMessage : RenderMessage {
     RequestRenderMessage( uint32_t width, uint32_t height, std::string accelerator, uint32_t threadCount );
 
-    auto encode() const -> std::vector<std::byte> override;
+    auto toJson() const -> std::string override;
     auto parse( std::string jsonString ) -> void override;
 
 private:
@@ -62,9 +83,6 @@ private:
     std::string _accelerator;
     uint32_t _threadCount;
 };
-
-auto encodeRenderMessage( const std::vector<std::byte> &payload ) -> std::vector<std::byte>;
-auto decodeRenderMessage( const std::vector<std::byte> &payload ) -> std::vector<std::byte>;
 
 // ======================================================================================
 // ==================== RenderRequestPayload ============================================

@@ -247,6 +247,7 @@ target_compile_options(tcp_bridge PRIVATE "${CXX_STANDART}")
 target_link_libraries(tcp_bridge io log)
 target_include_directories(tcp_bridge PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/libs/json
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/base64/include
 )
 
 # ================================
@@ -275,4 +276,5 @@ target_link_libraries(${TIRE_RAYTRACER_EXE}
 )
 target_include_directories(rt PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/libs/json
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/base64/include
 )
