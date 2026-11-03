@@ -1,7 +1,9 @@
 #include "renderjob.h"
 
+#include <cmath>
 #include <exception>
 #include <limits>
+#include <sstream>
 #include <stdexcept>
 #include <utility>
 
@@ -21,9 +23,11 @@ constexpr size_t kThreadCount{ kTilesRoot * kTilesRoot };
 
 }  // namespace
 
-RenderJob::RenderJob( uint32_t width, uint32_t height )
+RenderJob::RenderJob( uint32_t width, uint32_t height, std::string sceneObj, RenderCamera camera )
     : _width{ width }
     , _height{ height }
+    , _sceneObj{ std::move( sceneObj ) }
+    , _camera{ camera }
     , _image( tire::ImageMessage::pixelCount( width, height ), 0.0f ) {
 }
 
@@ -61,13 +65,27 @@ auto RenderJob::snapshot() const -> RenderJobSnapshot {
 
 auto RenderJob::run() -> void {
     try {
-        Mesh mesh{ "battlefield.obj", false };
+        auto sceneStream = std::istringstream{ _sceneObj };
+        Mesh mesh{ sceneStream, false };
         Bvh bvh{ mesh };
         SparseAccelerator accelerator{ bvh };
         Camera camera{};
-        camera.lookAt( tire::algebra::vector<float, 3>{ 300.0f, 100.0f, 300.0f },
-                       tire::algebra::vector<float, 3>{ 0.0f, 10.0f, 0.0f },
-                       tire::algebra::vector<float, 3>{ 0.0f, 1.0f, 0.0f }, 50.0f, 1.0f, 1000.0f,
+
+        const auto eye = tire::algebra::vector<float, 3>{ static_cast<float>( _camera._eye[0] ),
+                                                          static_cast<float>( _camera._eye[1] ),
+                                                          static_cast<float>( _camera._eye[2] ) };
+        const auto target = tire::algebra::vector<float, 3>{ static_cast<float>( _camera._target[0] ),
+                                                             static_cast<float>( _camera._target[1] ),
+                                                             static_cast<float>( _camera._target[2] ) };
+        const auto up = tire::algebra::vector<float, 3>{ static_cast<float>( _camera._up[0] ),
+                                                         static_cast<float>( _camera._up[1] ),
+                                                         static_cast<float>( _camera._up[2] ) };
+        const auto aspect = static_cast<double>( _width ) / static_cast<double>( _height );
+        const auto verticalFov = tire::algebra::degToRad( _camera._fieldOfViewY );
+        const auto horizontalFov = tire::algebra::radToDeg( 2.0 * std::atan( aspect * std::tan( verticalFov / 2.0 ) ) );
+
+        camera.lookAt( eye, target, up, static_cast<float>( horizontalFov ),
+                       static_cast<float>( _camera._nearDistance ), static_cast<float>( _camera._farDistance ),
                        static_cast<int>( _width ), static_cast<int>( _height ) );
 
         if ( _cancellation ) {

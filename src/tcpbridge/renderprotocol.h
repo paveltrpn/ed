@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstring>
 #include <cstddef>
 #include <cstdint>
@@ -127,25 +128,48 @@ private:
 };
 
 // ======================================================================================
+// ==================== RenderCamera ====================================================
+// ======================================================================================
+
+struct RenderCamera {
+    std::array<double, 3> _eye{};
+    std::array<double, 3> _target{};
+    std::array<double, 3> _up{};
+    double _fieldOfViewY{ 0.0 };
+    double _nearDistance{ 0.0 };
+    double _farDistance{ 0.0 };
+};
+
+// ======================================================================================
 // ==================== RequestRenderMessage ============================================
 // ======================================================================================
 
 struct RequestRenderMessage final : RenderMessage {
     RequestRenderMessage() = default;
-    RequestRenderMessage( uint32_t width, uint32_t height, std::string accelerator = "sparse",
-                          uint32_t threadCount = 4 );
+    RequestRenderMessage( uint32_t width, uint32_t height, std::string sceneObj, RenderCamera camera,
+                          std::string accelerator = "sparse", uint32_t threadCount = 4 );
 
     auto toJson() const -> std::string override;
     auto parse( std::string jsonString ) -> void override;
 
     auto width() const -> uint32_t;
     auto height() const -> uint32_t;
+    auto sceneObj() const -> std::string;
+    auto camera() const -> RenderCamera;
     auto accelerator() const -> std::string;
     auto threadCount() const -> uint32_t;
 
 private:
+    static auto readDouble( const nlohmann::json &object, std::string_view name ) -> double;
+    static auto readVector( const nlohmann::json &object, std::string_view name ) -> std::array<double, 3>;
+    static auto readCamera( const nlohmann::json &payload ) -> RenderCamera;
+    static auto validateSceneAndCamera( const std::string &sceneObj, const RenderCamera &camera ) -> void;
+
+private:
     uint32_t _width{ 0 };
     uint32_t _height{ 0 };
+    std::string _sceneObj{};
+    RenderCamera _camera{};
     std::string _accelerator{};
     uint32_t _threadCount{ 0 };
 };

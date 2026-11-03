@@ -8,6 +8,8 @@
 #include <thread>
 #include <vector>
 
+#include "tcpbridge/renderprotocol.h"
+
 namespace tire {
 
 enum class RenderJobState {
@@ -32,7 +34,7 @@ struct RenderJobSnapshot {
 // ======================================================================================
 
 struct RenderJob final {
-    RenderJob( uint32_t width, uint32_t height );
+    RenderJob( uint32_t width, uint32_t height, std::string sceneObj, RenderCamera camera );
     ~RenderJob();
 
     RenderJob( const RenderJob & ) = delete;
@@ -59,6 +61,8 @@ private:
 private:
     uint32_t _width{ 0 };
     uint32_t _height{ 0 };
+    std::string _sceneObj{};
+    RenderCamera _camera{};
     std::vector<float> _image{};
     mutable std::mutex _snapshotMutex{};
     RenderJobState _state{ RenderJobState::Starting };

@@ -17,9 +17,11 @@ auto Camera::lookAt( const tire::algebra::vector<float, 3>& origin, const tire::
 
     const auto aspect{ static_cast<float>( height ) / static_cast<float>( width ) };
     const auto imageExtentX{ std::tan( tire::algebra::degToRad( 0.5f * fov ) ) };
-    const auto imageExtentY{ std::tan( tire::algebra::degToRad( 0.5f * fov * aspect ) ) };
+    const auto imageExtentY{ imageExtentX * aspect };
 
     _origin = origin;
+    _nearDistance = near;
+    _farDistance = far;
     _right = right * ( 2.0f / static_cast<float>( width ) * imageExtentX );
     _up = cameraUp * ( -2.0f / static_cast<float>( height ) * imageExtentY );
     _view = forward - right * imageExtentX + cameraUp * imageExtentY;
@@ -31,6 +33,6 @@ auto Camera::generateRay( float px, float py ) const -> Ray {
     };
     const auto* data{ d.data() };
 
-    return { _origin, d, tire::algebra::vector<float, 3>{ 1.0f / data[0], 1.0f / data[1], 1.0f / data[2] }, 1e-3f,
-             1e+6 };
+    return { _origin, d, tire::algebra::vector<float, 3>{ 1.0f / data[0], 1.0f / data[1], 1.0f / data[2] },
+             _nearDistance, _farDistance };
 }

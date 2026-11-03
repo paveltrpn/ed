@@ -20,6 +20,8 @@ private:
     tire::algebra::vector<float, 3> _view;
     tire::algebra::vector<float, 3> _right;
     tire::algebra::vector<float, 3> _up;
+    float _nearDistance{ 1e-3f };
+    float _farDistance{ 1e+6f };
 
 public:
     auto lookAt( const tire::algebra::vector<float, 3>& origin, const tire::algebra::vector<float, 3>& target,

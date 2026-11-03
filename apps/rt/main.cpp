@@ -236,7 +236,8 @@ auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint
                         }
 
                         const auto *request = static_cast<tire::RequestRenderMessage *>( renderMessage.get() );
-                        auto newJob = std::make_unique<tire::RenderJob>( request->width(), request->height() );
+                        auto newJob = std::make_unique<tire::RenderJob>( request->width(), request->height(),
+                                                                        request->sceneObj(), request->camera() );
                         newJob->start();
                         job = std::move( newJob );
                         break;

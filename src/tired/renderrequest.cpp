@@ -22,6 +22,7 @@
 #include "log/log.h"
 #include "tcpbridge/renderprotocol.h"
 #include "tcpbridge/tcpbridge.h"
+#include "tired/subgraph/scene.h"
 
 namespace {
 
@@ -75,8 +76,10 @@ auto payloadIs( const std::vector<std::byte> &payload, std::string_view text ) -
 
 namespace tire {
 
-RenderRequest::RenderRequest( QObject *parent )
-    : QObject{ parent } {
+RenderRequest::RenderRequest( vsg::ref_ptr<vsg::Camera> camera, SceneUIProxy *scene, QObject *parent )
+    : QObject{ parent }
+    , _camera{ std::move( camera ) }
+    , _scene{ scene } {
     _renderedImage = QImage{ _width, _height, QImage::Format_RGB32 };
 
     auto gradient = QLinearGradient{ QPointF{ 0.0, 0.0 }, QPointF{ static_cast<qreal>( _width ), 0.0 } };
@@ -127,6 +130,37 @@ void RenderRequest::start() {
     }
 
     try {
+        if ( !_camera || _scene == nullptr ) {
+            throw std::runtime_error{ "Render scene and camera are not available" };
+        }
+
+        if ( !_camera->viewMatrix || !_camera->projectionMatrix ) {
+            throw std::runtime_error{ "Render camera view and projection matrices are required" };
+        }
+
+        const auto lookAt = _camera->viewMatrix.cast<vsg::LookAt>();
+        if ( !lookAt ) {
+            throw std::runtime_error{ "Render camera view matrix must be a LookAt" };
+        }
+
+        const auto perspective = _camera->projectionMatrix.cast<vsg::Perspective>();
+        if ( !perspective ) {
+            throw std::runtime_error{ "Render camera projection matrix must be a Perspective" };
+        }
+
+        auto sceneObj = _scene->serializeObjectsToObj();
+        const auto cameraSnapshot = RenderCamera{
+            { lookAt->eye.x, lookAt->eye.y, lookAt->eye.z },
+            { lookAt->center.x, lookAt->center.y, lookAt->center.z },
+            { lookAt->up.x, lookAt->up.y, lookAt->up.z },
+            perspective->fieldOfViewY,
+            perspective->nearDistance,
+            perspective->farDistance
+        };
+
+        _pendingSceneObj = std::move( sceneObj );
+        _pendingCamera = cameraSnapshot;
+
         _bridge = std::make_unique<TcpBridge>( kRenderProtocolMaximumPayload );
 
         _process = std::make_unique<QProcess>();
@@ -139,7 +173,7 @@ void RenderRequest::start() {
             }
 
             _state = RenderRequestState::Connecting;
-            _sessionTask = runSession();
+            _sessionTask = runSession( std::move( _pendingSceneObj ), _pendingCamera );
         } );
 
         QObject::connect( _process.get(), &QProcess::errorOccurred, this, [this]( QProcess::ProcessError ) -> void {
@@ -234,7 +268,7 @@ auto RenderRequest::setRenderedImage( const QImage &image ) -> void {
     emit renderedImageChanged();
 }
 
-auto RenderRequest::runSession() -> Task<void> {
+auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> Task<void> {
     const auto renderWidth = static_cast<uint32_t>( _width );
     const auto renderHeight = static_cast<uint32_t>( _height );
 
@@ -263,7 +297,7 @@ auto RenderRequest::runSession() -> Task<void> {
     auto pollMessage = std::vector<std::byte>{};
 
     try {
-        requestMessage = RequestRenderMessage{ renderWidth, renderHeight }.encode();
+        requestMessage = RequestRenderMessage{ renderWidth, renderHeight, std::move( sceneObj ), camera }.encode();
         pollMessage = ChatMessage{ RenderMessageType::POLL, std::string{} }.encode();
     } catch ( const std::exception &exception ) {
         failureMessage = QStringLiteral( "Cannot encode render request: %1" ).arg( exception.what() );

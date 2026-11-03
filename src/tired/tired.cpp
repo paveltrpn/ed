@@ -54,8 +54,7 @@ auto Tired::pointer() -> Tired* {
 
 Tired::Tired( QObject* parent )
     : QObject{ parent }
-    , _render{ std::make_shared<tire::VsgRender>() }
-    , _renderRequest{ new RenderRequest{ this } } {
+    , _render{ std::make_shared<tire::VsgRender>() } {
     //
     _render->viewer();
 
@@ -65,6 +64,8 @@ Tired::Tired( QObject* parent )
         _scenegraph = new Scenegraph{ vsg::observer_ptr<vsg::Viewer>{ _render->viewer() },
                                       vsg::observer_ptr<vsg::DynamicRenderGraph>{ _render->renderGraph() }, this };
     }
+
+    _renderRequest = new RenderRequest{ _render->camera(), _scenegraph->scene(), this };
 
     _render->sceneTransform()->addChild( _scenegraph->root() );
 

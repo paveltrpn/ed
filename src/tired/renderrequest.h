@@ -2,17 +2,22 @@
 
 #include <coroutine>
 #include <memory>
+#include <string>
+
+#include <vsg/all.h>
 
 #include <QImage>
 #include <QObject>
 #include <QString>
 
 #include "io/async.h"
+#include "tcpbridge/renderprotocol.h"
 
 class QProcess;
 
 namespace tire {
 
+struct SceneUIProxy;
 struct TcpBridge;
 
 enum class RenderRequestState {
@@ -36,7 +41,7 @@ struct RenderRequest final : QObject {
     Q_PROPERTY( QImage renderedImage READ renderedImage WRITE setRenderedImage NOTIFY renderedImageChanged FINAL )
 
 public:
-    explicit RenderRequest( QObject *parent = nullptr );
+    RenderRequest( vsg::ref_ptr<vsg::Camera> camera, SceneUIProxy *scene, QObject *parent = nullptr );
     ~RenderRequest() override;
 
     Q_INVOKABLE void start();
@@ -59,7 +64,7 @@ signals:
     auto renderCompleted() -> void;
 
 private:
-    auto runSession() -> Task<void>;
+    auto runSession( std::string sceneObj, RenderCamera camera ) -> Task<void>;
 
     auto fail( const QString &message ) -> void;
 
@@ -77,6 +82,11 @@ private:
     int _width{ 1024 };
     int _height{ 768 };
     QImage _renderedImage{};
+
+    vsg::ref_ptr<vsg::Camera> _camera{};
+    SceneUIProxy *_scene{};
+    std::string _pendingSceneObj{};
+    RenderCamera _pendingCamera{};
 
     std::unique_ptr<TcpBridge> _bridge{};
     Task<void> _sessionTask{};

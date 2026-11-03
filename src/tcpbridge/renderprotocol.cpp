@@ -1,6 +1,7 @@
 #include "tcpbridge/renderprotocol.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <limits>
 #include <memory>
@@ -210,14 +211,17 @@ auto ChatMessage::parse( std::string jsonString ) -> void {
 // ==================== RequestRenderMessage ============================================
 // ======================================================================================
 
-RequestRenderMessage::RequestRenderMessage( uint32_t width, uint32_t height, std::string accelerator,
-                                            uint32_t threadCount ) {
+RequestRenderMessage::RequestRenderMessage( uint32_t width, uint32_t height, std::string sceneObj, RenderCamera camera,
+                                            std::string accelerator, uint32_t threadCount ) {
     ImageMessage::pixelCount( width, height );
+    validateSceneAndCamera( sceneObj, camera );
 
     _type = RenderMessageType::REQUEST;
     _timestamp = std::chrono::system_clock::now();
     _width = width;
     _height = height;
+    _sceneObj = std::move( sceneObj );
+    _camera = camera;
     _accelerator = std::move( accelerator );
     _threadCount = threadCount;
 }
@@ -230,6 +234,14 @@ auto RequestRenderMessage::height() const -> uint32_t {
     return _height;
 }
 
+auto RequestRenderMessage::sceneObj() const -> std::string {
+    return _sceneObj;
+}
+
+auto RequestRenderMessage::camera() const -> RenderCamera {
+    return _camera;
+}
+
 auto RequestRenderMessage::accelerator() const -> std::string {
     return _accelerator;
 }
@@ -238,7 +250,136 @@ auto RequestRenderMessage::threadCount() const -> uint32_t {
     return _threadCount;
 }
 
+auto RequestRenderMessage::readDouble( const nlohmann::json &object, std::string_view name ) -> double {
+    if ( !object.contains( name ) ) {
+        throw std::runtime_error{ std::string{ "Render protocol camera is missing the " } + std::string{ name } +
+                                  " field" };
+    }
+
+    const auto &value = object[name];
+    if ( !value.is_number() ) {
+        throw std::runtime_error{ std::string{ "Render protocol camera field " } + std::string{ name } +
+                                  " is not a number" };
+    }
+
+    const auto result = value.get<double>();
+    if ( !std::isfinite( result ) ) {
+        throw std::runtime_error{ std::string{ "Render protocol camera field " } + std::string{ name } +
+                                  " is not finite" };
+    }
+
+    return result;
+}
+
+auto RequestRenderMessage::readVector( const nlohmann::json &object, std::string_view name )
+    -> std::array<double, 3> {
+    if ( !object.contains( name ) ) {
+        throw std::runtime_error{ std::string{ "Render protocol camera is missing the " } + std::string{ name } +
+                                  " field" };
+    }
+
+    const auto &value = object[name];
+    if ( !value.is_array() || value.size() != 3 ) {
+        throw std::runtime_error{ std::string{ "Render protocol camera field " } + std::string{ name } +
+                                  " is not an array of three numbers" };
+    }
+
+    auto result = std::array<double, 3>{};
+    for ( size_t index = 0; index < result.size(); ++index ) {
+        const auto &component = value[index];
+        if ( !component.is_number() ) {
+            throw std::runtime_error{ std::string{ "Render protocol camera field " } + std::string{ name } +
+                                      " contains a non-numeric component" };
+        }
+
+        result[index] = component.get<double>();
+        if ( !std::isfinite( result[index] ) ) {
+            throw std::runtime_error{ std::string{ "Render protocol camera field " } + std::string{ name } +
+                                      " contains a non-finite component" };
+        }
+    }
+
+    return result;
+}
+
+auto RequestRenderMessage::readCamera( const nlohmann::json &payload ) -> RenderCamera {
+    if ( !payload.contains( "camera" ) ) {
+        throw std::runtime_error{ "Render protocol payload is missing the camera field" };
+    }
+
+    const auto &camera = payload["camera"];
+    if ( !camera.is_object() ) {
+        throw std::runtime_error{ "Render protocol payload field camera is not an object" };
+    }
+
+    return RenderCamera{ readVector( camera, "eye" ),         readVector( camera, "target" ),
+                         readVector( camera, "up" ),          readDouble( camera, "fieldOfViewY" ),
+                         readDouble( camera, "nearDistance" ), readDouble( camera, "farDistance" ) };
+}
+
+auto RequestRenderMessage::validateSceneAndCamera( const std::string &sceneObj, const RenderCamera &camera ) -> void {
+    if ( sceneObj.empty() ) {
+        throw std::runtime_error{ "Render scene OBJ must not be empty" };
+    }
+
+    for ( const auto &vector : { camera._eye, camera._target, camera._up } ) {
+        for ( const auto component : vector ) {
+            if ( !std::isfinite( component ) ) {
+                throw std::runtime_error{ "Render camera vectors must contain only finite values" };
+            }
+        }
+    }
+
+    if ( camera._eye == camera._target ) {
+        throw std::runtime_error{ "Render camera eye and target must be distinct" };
+    }
+
+    const auto upIsZero = camera._up[0] == 0.0 && camera._up[1] == 0.0 && camera._up[2] == 0.0;
+    if ( upIsZero ) {
+        throw std::runtime_error{ "Render camera up vector must be nonzero and non-collinear with the view direction" };
+    }
+
+    const auto forward = std::array<double, 3>{ camera._target[0] - camera._eye[0],
+                                                camera._target[1] - camera._eye[1],
+                                                camera._target[2] - camera._eye[2] };
+    const auto cross = std::array<double, 3>{ forward[1] * camera._up[2] - forward[2] * camera._up[1],
+                                              forward[2] * camera._up[0] - forward[0] * camera._up[2],
+                                              forward[0] * camera._up[1] - forward[1] * camera._up[0] };
+
+    for ( const auto &vector : { forward, cross } ) {
+        for ( const auto component : vector ) {
+            if ( !std::isfinite( component ) ) {
+                throw std::runtime_error{ "Render camera pose exceeds the finite numeric range" };
+            }
+        }
+    }
+
+    const auto upIsCollinear = cross[0] == 0.0 && cross[1] == 0.0 && cross[2] == 0.0;
+    if ( upIsCollinear ) {
+        throw std::runtime_error{ "Render camera up vector must be nonzero and non-collinear with the view direction" };
+    }
+
+    if ( !std::isfinite( camera._fieldOfViewY ) || !std::isfinite( camera._nearDistance ) ||
+         !std::isfinite( camera._farDistance ) ) {
+        throw std::runtime_error{ "Render camera projection values must be finite" };
+    }
+
+    if ( !( camera._fieldOfViewY > 0.0 && camera._fieldOfViewY < 180.0 ) ) {
+        throw std::runtime_error{ "Render camera vertical field of view must be between 0 and 180 degrees" };
+    }
+
+    if ( !( camera._nearDistance > 0.0 ) ) {
+        throw std::runtime_error{ "Render camera near distance must be positive" };
+    }
+
+    if ( !( camera._farDistance > camera._nearDistance ) ) {
+        throw std::runtime_error{ "Render camera far distance must exceed its near distance" };
+    }
+}
+
 auto RequestRenderMessage::toJson() const -> std::string {
+    validateSceneAndCamera( _sceneObj, _camera );
+
     auto root = nlohmann::json::object();
     writeHeader( root );
 
@@ -247,13 +388,32 @@ auto RequestRenderMessage::toJson() const -> std::string {
     payload["height"] = _height;
     payload["accelerator"] = _accelerator;
     payload["threadCount"] = _threadCount;
+    payload["sceneObj"] = _sceneObj;
+
+    auto camera = nlohmann::json::object();
+    camera["eye"] = _camera._eye;
+    camera["target"] = _camera._target;
+    camera["up"] = _camera._up;
+    camera["fieldOfViewY"] = _camera._fieldOfViewY;
+    camera["nearDistance"] = _camera._nearDistance;
+    camera["farDistance"] = _camera._farDistance;
+    payload["camera"] = std::move( camera );
 
     root["payload"] = std::move( payload );
 
-    return root.dump();
+    const auto encoded = root.dump();
+    if ( encoded.size() > kRenderProtocolMaximumPayload ) {
+        throw std::runtime_error{ "Render request exceeds the protocol frame limit" };
+    }
+
+    return encoded;
 }
 
 auto RequestRenderMessage::parse( std::string jsonString ) -> void {
+    if ( jsonString.size() > kRenderProtocolMaximumPayload ) {
+        throw std::runtime_error{ "Render request exceeds the protocol frame limit" };
+    }
+
     const auto root = parseJson( jsonString );
     readHeader( root );
 
@@ -262,10 +422,22 @@ auto RequestRenderMessage::parse( std::string jsonString ) -> void {
     }
 
     const auto &payload = requirePayload( root );
-    _width = readUint32( payload, "width" );
-    _height = readUint32( payload, "height" );
-    _accelerator = readString( payload, "accelerator" );
-    _threadCount = readUint32( payload, "threadCount" );
+    const auto width = readUint32( payload, "width" );
+    const auto height = readUint32( payload, "height" );
+    const auto sceneObj = readString( payload, "sceneObj" );
+    const auto camera = readCamera( payload );
+    const auto accelerator = readString( payload, "accelerator" );
+    const auto threadCount = readUint32( payload, "threadCount" );
+
+    ImageMessage::pixelCount( width, height );
+    validateSceneAndCamera( sceneObj, camera );
+
+    _width = width;
+    _height = height;
+    _sceneObj = sceneObj;
+    _camera = camera;
+    _accelerator = accelerator;
+    _threadCount = threadCount;
 }
 
 // ======================================================================================

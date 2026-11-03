@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <string>
+
 #include <QJsonArray>
 #include <QVariantMap>
 
@@ -80,6 +82,7 @@ public:
 
     Q_INVOKABLE SceneObjectBase* findObject( const QString& uid ) const;
     Q_INVOKABLE [[nodiscard]] QJsonArray serializeObjects() const;
+    [[nodiscard]] auto serializeObjectsToObj() const -> std::string;
 
 signals:
     void objectsChanged();

@@ -173,8 +173,7 @@ auto ObjSerializationVisitor::serializeMesh( SceneObjectNode *object ) -> void {
 
     const auto &buffers = bindVertexBuffers->arrays;
 
-    if ( !buffers[0] || !buffers[2] || !buffers[3] || !bindIndexBuffer->indices ||
-         !bindIndexBuffer->indices->data ) {
+    if ( !buffers[0] || !buffers[2] || !buffers[3] || !bindIndexBuffer->indices || !bindIndexBuffer->indices->data ) {
         log::warning()( "OBJ serialization: node {} skipped: missing vertex or index buffers.", className );
         return;
     }
@@ -224,8 +223,7 @@ auto ObjSerializationVisitor::serializeMesh( SceneObjectNode *object ) -> void {
         const auto &source = ( *positions )[index];
         const auto transformed = matrix * vsg::dvec4{ source.x, source.y, source.z, 1.0 };
 
-        if ( !std::isfinite( transformed.x ) || !std::isfinite( transformed.y ) ||
-             !std::isfinite( transformed.z ) ) {
+        if ( !std::isfinite( transformed.x ) || !std::isfinite( transformed.y ) || !std::isfinite( transformed.z ) ) {
             log::warning()( "OBJ serialization: node {} skipped: non-finite transformed position.", className );
             return;
         }
@@ -251,7 +249,7 @@ auto ObjSerializationVisitor::serializeMesh( SceneObjectNode *object ) -> void {
         const auto length = vsg::length( direction );
 
         if ( !( std::isfinite( direction.x ) && std::isfinite( direction.y ) && std::isfinite( direction.z ) &&
-               ( length > 0.0 ) ) ) {
+                ( length > 0.0 ) ) ) {
             log::warning()( "OBJ serialization: node {} skipped: invalid transformed normal.", className );
             return;
         }
@@ -292,12 +290,13 @@ auto ObjSerializationVisitor::serializeMesh( SceneObjectNode *object ) -> void {
         const auto secondNormal = _normalOffset + corners[1] + 1;
         const auto thirdNormal = _normalOffset + corners[2] + 1;
 
-        stream << "f " << firstPosition << "/" << firstTexcoord << "/" << firstNormal << " "
-               << secondPosition << "/" << secondTexcoord << "/" << secondNormal << " "
-               << thirdPosition << "/" << thirdTexcoord << "/" << thirdNormal << "\n";
+        stream << "f " << firstPosition << "/" << firstTexcoord << "/" << firstNormal << " " << secondPosition << "/"
+               << secondTexcoord << "/" << secondNormal << " " << thirdPosition << "/" << thirdTexcoord << "/"
+               << thirdNormal << "\n";
     }
 
     _output += stream.str();
+
     _positionOffset += vertexCount;
     _uvOffset += vertexCount;
     _normalOffset += vertexCount;

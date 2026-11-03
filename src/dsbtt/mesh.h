@@ -11,19 +11,24 @@
 
 #include "triangle.h"
 #include "alignedallocator.h"
+#include <iosfwd>
 #include <vector>
 
 // ============================================================================
 // =================================== Mesh ===================================
 // ============================================================================
 class Mesh {
-private:
-    std::vector<Triangle, AlignedAllocator<Triangle, 64>> _triangles;
-
 public:
     Mesh( const char* filename, bool flipFaces );
+    Mesh( std::istream& input, bool flipFaces );
 
     auto triangles() -> std::vector<Triangle, AlignedAllocator<Triangle, 64>>&;
+
+private:
+    auto load( std::istream& input, bool flipFaces ) -> void;
+
+private:
+    std::vector<Triangle, AlignedAllocator<Triangle, 64>> _triangles;
 };
 
 #endif
