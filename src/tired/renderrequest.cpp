@@ -2,17 +2,18 @@
 #include <cstdint>
 #include <cstring>
 #include <exception>
+#include <format>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include <QCoreApplication>
-#include <QDir>
 #include <QLinearGradient>
 #include <QMetaObject>
 #include <QPainter>
 #include <QProcess>
+#include <QDir>
 
 #include <uv.h>
 
@@ -148,7 +149,7 @@ void RenderRequest::start() {
                 return;
             }
 
-            fail( QStringLiteral( "rt process error: %1" ).arg( _process->errorString() ) );
+            fail( std::format( "rt process error: {}", _process->errorString().toStdString() ) );
         } );
 
         QObject::connect( _process.get(), &QProcess::finished, this,
@@ -157,7 +158,7 @@ void RenderRequest::start() {
                               if ( _state == RenderRequestState::Idle || _state == RenderRequestState::Failed ) {
                                   return;
                               }
-                              fail( QStringLiteral( "rt process exited unexpectedly with code %1" ).arg( exitCode ) );
+                              fail( std::format( "rt process exited unexpectedly with code {}", exitCode ) );
                           } );
 
         auto executable = QDir{ QCoreApplication::applicationDirPath() }.filePath( QStringLiteral( "rt" ) );
@@ -168,9 +169,9 @@ void RenderRequest::start() {
         _process->start();
 
     } catch ( const std::exception &exception ) {
-        fail( QStringLiteral( "Failed to initialize render request: %1" ).arg( exception.what() ) );
+        fail( std::format( "Failed to initialize render request: {}", exception.what() ) );
     } catch ( ... ) {
-        fail( QStringLiteral( "Failed to initialize render request with an unknown error" ) );
+        fail( "Failed to initialize render request with an unknown error" );
     }
 }
 
@@ -238,33 +239,21 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
     const auto renderWidth = static_cast<uint32_t>( _width );
     const auto renderHeight = static_cast<uint32_t>( _height );
 
-    auto failureMessage = QString{};
-
-    auto handshakeMessage = std::vector<std::byte>{};
-    auto requestMessage = std::vector<std::byte>{};
-    auto pollMessage = std::vector<std::byte>{};
-
-    try {
-        handshakeMessage = ChatMessage{ "handshake_from_ed" }.encode();
-        requestMessage = RequestRenderMessage{ renderWidth, renderHeight, std::move( sceneObj ), camera }.encode();
-        pollMessage = ChatMessage{ RenderMessageType::POLL, std::string{} }.encode();
-    } catch ( const std::exception &exception ) {
-        failureMessage = QStringLiteral( "Cannot encode render request: %1" ).arg( exception.what() );
-    } catch ( ... ) {
-        failureMessage = QStringLiteral( "Cannot encode render request with an unknown error" );
-    }
-
+    auto failureMessage = std::string{};
     auto status{ 0 };
-    if ( failureMessage.isEmpty() ) {
+
+    {
+        //
         status = co_await _bridge->connect( "127.0.0.1", kRenderServerPort, TcpBridgeRetryOptions{} );
     }
 
-    if ( status == 0 && failureMessage.isEmpty() ) {
+    if ( status == 0 && failureMessage.empty() ) {
+        auto handshakeMessage = ChatMessage{ "handshake_from_ed" }.encode();
         status = co_await _bridge->send( std::move( handshakeMessage ) );
     }
 
     auto handshakeComplete = false;
-    if ( status == 0 && failureMessage.isEmpty() ) {
+    if ( status == 0 && failureMessage.empty() ) {
         const auto reply = co_await _bridge->read();
         status = reply._status;
 
@@ -275,9 +264,7 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
                 if ( message->type() == RenderMessageType::ERROR ) {
                     const auto *errorMessage = static_cast<ChatMessage *>( message.get() );
                     const auto error = errorMessage->message();
-                    failureMessage =
-                        QStringLiteral( "RT render error: %1" )
-                            .arg( QString::fromUtf8( error.data(), static_cast<qsizetype>( error.size() ) ) );
+                    failureMessage = std::format( "RT render error: {}", error );
                 } else {
                     if ( message->type() != RenderMessageType::CHAT ) {
                         throw std::runtime_error{ "Unexpected message received during the RT handshake" };
@@ -292,14 +279,12 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
                 }
             } catch ( const std::exception &exception ) {
                 log::error()( "RT handshake payload preview: {}", payloadPreview( reply._payload ) );
-                failureMessage = QStringLiteral( "Invalid RT handshake response: %1" ).arg( exception.what() );
-            } catch ( ... ) {
-                failureMessage = QStringLiteral( "Invalid RT handshake response with an unknown error" );
+                failureMessage = std::format( "Invalid RT handshake response: {}", exception.what() );
             }
         }
     }
 
-    if ( status == 0 && failureMessage.isEmpty() && handshakeComplete ) {
+    if ( status == 0 && failureMessage.empty() && handshakeComplete ) {
         QMetaObject::invokeMethod(
             this,
             [this]() -> void {
@@ -308,11 +293,13 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
             },
             Qt::QueuedConnection );
 
+        auto requestMessage = RequestRenderMessage{ renderWidth, renderHeight, std::move( sceneObj ), camera }.encode();
         status = co_await _bridge->send( std::move( requestMessage ) );
     }
 
     auto finalReceived = false;
-    while ( status == 0 && failureMessage.isEmpty() && handshakeComplete && !finalReceived ) {
+    auto pollMessage = ChatMessage{ RenderMessageType::POLL, std::string{} }.encode();
+    while ( status == 0 && failureMessage.empty() && handshakeComplete && !finalReceived ) {
         status = co_await _bridge->send( pollMessage );
 
         if ( status != 0 ) {
@@ -329,58 +316,67 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
         try {
             const auto message{ RenderMessage::create( reply._payload ) };
 
-            if ( message->type() == RenderMessageType::ERROR ) {
-                const auto *errorMessage = static_cast<ChatMessage *>( message.get() );
-                const auto error = errorMessage->message();
-                failureMessage = QStringLiteral( "RT render error: %1" )
-                                     .arg( QString::fromUtf8( error.data(), static_cast<qsizetype>( error.size() ) ) );
-            } else if ( message->type() == RenderMessageType::IMAGE ) {
-                const auto *imageMessage = static_cast<ImageMessage *>( message.get() );
+            switch ( message->type() ) {
+                case RenderMessageType::ERROR: {
+                    const auto *errorMessage = static_cast<ChatMessage *>( message.get() );
+                    const auto error = errorMessage->message();
+                    failureMessage = std::format( "RT render error: {}", error );
 
-                if ( imageMessage->width() != renderWidth || imageMessage->height() != renderHeight ) {
-                    throw std::runtime_error{ "Render response dimensions do not match the request" };
+                    break;
                 }
 
-                const auto pixels{ imageMessage->pixels() };
+                case RenderMessageType::IMAGE: {
+                    const auto *imageMessage = static_cast<ImageMessage *>( message.get() );
 
-                auto image = QImage{ static_cast<int>( imageMessage->width() ),
-                                     static_cast<int>( imageMessage->height() ), QImage::Format_Grayscale8 };
+                    if ( imageMessage->width() != renderWidth || imageMessage->height() != renderHeight ) {
+                        throw std::runtime_error{ "Render response dimensions do not match the request" };
+                    }
 
-                if ( image.isNull() ) {
-                    throw std::runtime_error{ "Cannot allocate the received render image" };
+                    const auto pixels{ imageMessage->pixels() };
+
+                    auto image = QImage{ static_cast<int>( imageMessage->width() ),
+                                         static_cast<int>( imageMessage->height() ), QImage::Format_Grayscale8 };
+
+                    if ( image.isNull() ) {
+                        throw std::runtime_error{ "Cannot allocate the received render image" };
+                    }
+
+                    const auto rowSize = static_cast<size_t>( imageMessage->width() );
+
+                    for ( size_t row = 0; row < imageMessage->height(); ++row ) {
+                        std::memcpy( image.scanLine( static_cast<int>( row ) ), pixels.data() + row * rowSize,
+                                     rowSize );
+                    }
+
+                    finalReceived = imageMessage->final();
+
+                    QMetaObject::invokeMethod(
+                        this,
+                        [this, image = std::move( image )]() -> void {
+                            //
+                            handleImage( image );
+                        },
+                        Qt::QueuedConnection );
+
+                    break;
                 }
 
-                const auto rowSize = static_cast<size_t>( imageMessage->width() );
-
-                for ( size_t row = 0; row < imageMessage->height(); ++row ) {
-                    std::memcpy( image.scanLine( static_cast<int>( row ) ), pixels.data() + row * rowSize, rowSize );
+                default: {
+                    failureMessage = "Unexpected message received from the RT render server";
+                    break;
                 }
-
-                finalReceived = imageMessage->final();
-
-                QMetaObject::invokeMethod(
-                    this,
-                    [this, image = std::move( image )]() -> void {
-                        //
-                        handleImage( image );
-                    },
-                    Qt::QueuedConnection );
-            } else {
-                failureMessage = QStringLiteral( "Unexpected message received from the RT render server" );
             }
         } catch ( const std::exception &exception ) {
             log::error()( "RT response payload preview: {}", payloadPreview( reply._payload ) );
-            failureMessage = QStringLiteral( "Invalid RT render response: %1" ).arg( exception.what() );
-        } catch ( ... ) {
-            failureMessage = QStringLiteral( "Invalid RT render response with an unknown error" );
+            failureMessage = std::format( "Invalid RT render response: {}", exception.what() );
         }
 
-        if ( status == 0 && failureMessage.isEmpty() && !finalReceived ) {
+        if ( status == 0 && failureMessage.empty() && !finalReceived ) {
             status = co_await _bridge->delay( kRenderPollDelayMilliseconds );
         }
     }
 
-    if ( !failureMessage.isEmpty() ) {
+    if ( !failureMessage.empty() ) {
         QMetaObject::invokeMethod(
             this,
             [this, failureMessage]() -> void {
@@ -456,20 +452,20 @@ auto RenderRequest::handleFailure( int status ) -> void {
     }
 
     if ( status == UV_EOF ) {
-        fail( QStringLiteral( "TCP connection closed unexpectedly" ) );
+        fail( "TCP connection closed unexpectedly" );
         return;
     }
 
-    auto message = QStringLiteral( "TCP bridge error" );
+    auto message = std::string{ "TCP bridge error" };
 
     if ( status != UV_ECANCELED ) {
-        message += QStringLiteral( ": %1" ).arg( QString::fromUtf8( uv_strerror( status ) ) );
+        message += std::format( ": {}", uv_strerror( status ) );
     }
 
     fail( message );
 }
 
-auto RenderRequest::fail( const QString &message ) -> void {
+auto RenderRequest::fail( const std::string &message ) -> void {
     if ( _state == RenderRequestState::Idle || _state == RenderRequestState::Failed ) {
         return;
     }
@@ -478,7 +474,7 @@ auto RenderRequest::fail( const QString &message ) -> void {
 
     cleanupSession();
 
-    log::error()( "Render request failed: {}", message.toStdString() );
+    log::error()( "Render request failed: {}", message );
 
     emit errorOccurred( message );
 }

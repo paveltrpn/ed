@@ -8,7 +8,6 @@
 
 #include <QImage>
 #include <QObject>
-#include <QString>
 
 #include "io/async.h"
 #include "tcpbridge/renderprotocol.h"
@@ -60,13 +59,13 @@ signals:
     auto heightChanged() -> void;
     auto renderedImageChanged() -> void;
 
-    auto errorOccurred( const QString &message ) -> void;
+    auto errorOccurred( const std::string &message ) -> void;
     auto renderCompleted() -> void;
 
 private:
     auto runSession( std::string sceneObj, RenderCamera camera ) -> Task<void>;
 
-    auto fail( const QString &message ) -> void;
+    auto fail( const std::string &message ) -> void;
 
     auto cleanupSession() -> void;
     auto endSession() -> void;

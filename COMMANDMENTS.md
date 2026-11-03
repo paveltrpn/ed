@@ -55,3 +55,4 @@ Follow it and all will be ok.
 - Use std::numeric_limits instead of hardcoded values.
 - Use uppercase enum values.
 - Ignore bad_alloc like it never happens, this is world wide non recoverable failure.
+- Never use `catch(...)`
