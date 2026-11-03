@@ -49,3 +49,5 @@ Follow it and all will be ok.
 - When exceptions is used never throw nothing except simple `runtime_error`, i do not needed in exception types garbage.
 - It is not necessary to return const references to class data memebers in class accesors - always return by value.
 - Place declarations in header and definition in cpp files always!
+
+- Use standart c++ library facilities, do use library specific types only if library strongly requires it!

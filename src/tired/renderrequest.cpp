@@ -120,10 +120,6 @@ void RenderRequest::start() {
     _state = RenderRequestState::Starting;
 
     auto *application = QCoreApplication::instance();
-    if ( application == nullptr ) {
-        fail( QStringLiteral( "Cannot start a render request before QGuiApplication is constructed" ) );
-        return;
-    }
 
     if ( !_quitHandlerConnected ) {
         QObject::connect( application, &QCoreApplication::aboutToQuit, this, &RenderRequest::stop );
@@ -165,9 +161,7 @@ void RenderRequest::start() {
                           } );
 
         auto executable = QDir{ QCoreApplication::applicationDirPath() }.filePath( QStringLiteral( "rt" ) );
-#ifdef Q_OS_WIN
-        executable += QStringLiteral( ".exe" );
-#endif
+
         _process->setProgram( executable );
         _process->setArguments( { QStringLiteral( "--serve" ), QStringLiteral( "--port" ),
                                   QStringLiteral( "%1" ).arg( kRenderServerPort ) } );

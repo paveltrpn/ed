@@ -198,8 +198,7 @@ auto ChatMessage::parse( std::string jsonString ) -> void {
     const auto root = parseJson( jsonString );
     readHeader( root );
 
-    if ( _type != RenderMessageType::CHAT && _type != RenderMessageType::POLL &&
-         _type != RenderMessageType::ERROR ) {
+    if ( _type != RenderMessageType::CHAT && _type != RenderMessageType::POLL && _type != RenderMessageType::ERROR ) {
         throw std::runtime_error{ "Render protocol message type does not match ChatMessage" };
     }
 
@@ -248,6 +247,7 @@ auto RequestRenderMessage::toJson() const -> std::string {
     payload["height"] = _height;
     payload["accelerator"] = _accelerator;
     payload["threadCount"] = _threadCount;
+
     root["payload"] = std::move( payload );
 
     return root.dump();
