@@ -6,39 +6,11 @@
 
 namespace tire {
 
-struct TcpAcceptAwaitable::State {
-    std::shared_ptr<TcpListener::State> _server{};
-    std::shared_ptr<TcpAcceptResult> _result{ std::make_shared<TcpAcceptResult>() };
-    std::coroutine_handle<> _coroutine{};
-    bool _completed{ false };
-};
-
-struct TcpListener::State {
-    Scheduler *_scheduler{ nullptr };
-    uv_tcp_t _handle{};
-    std::shared_ptr<State> *_lifetime{ nullptr };
-    std::shared_ptr<TcpListenAwaitable::State> _listenOperation{};
-    std::shared_ptr<TcpAcceptAwaitable::State> _acceptOperation{};
-    bool _initialized{ false };
-    bool _closed{ false };
-};
-
-struct TcpListenAwaitable::State {
-    Scheduler *_scheduler{ nullptr };
-    std::shared_ptr<TcpListener::State> _server{};
-    std::shared_ptr<TcpListener> _listener{};
-    std::shared_ptr<TcpListenResult> _result{ std::make_shared<TcpListenResult>() };
-    std::coroutine_handle<> _coroutine{};
-    std::string _host{};
-    uint16_t _port{ 0 };
-    bool _completed{ false };
-};
-
 namespace {
 
-using ListenerState = TcpListener::State;
-using ListenState = TcpListenAwaitable::State;
-using AcceptState = TcpAcceptAwaitable::State;
+using ListenerState = TcpListenerState;
+using ListenState = TcpListenAwaitableState;
+using AcceptState = TcpAcceptAwaitableState;
 
 auto completeListen( const std::shared_ptr<ListenState> &operation, int status ) -> void {
     if ( operation == nullptr || operation->_completed ) {
@@ -200,7 +172,7 @@ auto startAccept( const std::shared_ptr<AcceptState> &operation ) -> void {
 
 }  // namespace
 
-TcpListener::TcpListener( std::shared_ptr<State> state )
+TcpListener::TcpListener( std::shared_ptr<TcpListenerState> state )
     : _state{ std::move( state ) } {
 }
 
@@ -209,7 +181,7 @@ auto TcpListener::nativeHandle() const -> uv_tcp_t * {
 }
 
 TcpListenAwaitable::TcpListenAwaitable( Scheduler &scheduler, std::string host, uint16_t port )
-    : _state{ std::make_shared<State>() } {
+    : _state{ std::make_shared<TcpListenAwaitableState>() } {
     _state->_scheduler = &scheduler;
     _state->_server = std::make_shared<ListenerState>();
     _state->_server->_scheduler = &scheduler;
@@ -239,8 +211,8 @@ auto TcpListenAwaitable::listener() const -> std::shared_ptr<TcpListener> {
     return _state->_listener;
 }
 
-TcpAcceptAwaitable::TcpAcceptAwaitable( const std::shared_ptr<TcpListener::State> &state )
-    : _state{ std::make_shared<State>() } {
+TcpAcceptAwaitable::TcpAcceptAwaitable( const std::shared_ptr<TcpListenerState> &state )
+    : _state{ std::make_shared<TcpAcceptAwaitableState>() } {
     _state->_server = state;
 }
 

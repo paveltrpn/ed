@@ -11,6 +11,7 @@ namespace tire {
 
 struct Scheduler;
 struct TcpConnectionState;
+struct TcpListenerState;
 
 struct TcpReadResult {
     int _status{ 0 };
@@ -72,14 +73,12 @@ private:
 struct TcpListener final {
     friend struct Scheduler;
 
-    struct State;
-
-    explicit TcpListener( std::shared_ptr<State> state );
+    explicit TcpListener( std::shared_ptr<TcpListenerState> state );
 
     [[nodiscard]] auto nativeHandle() const -> uv_tcp_t *;
 
 private:
-    std::shared_ptr<State> _state{};
+    std::shared_ptr<TcpListenerState> _state{};
 };
 
 // ======================================================================================
