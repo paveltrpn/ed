@@ -30,6 +30,14 @@ enum class RenderMessageType : uint8_t {
 // ======================================================================================
 
 struct RenderMessage {
+    RenderMessage() = default;
+    virtual ~RenderMessage() = default;
+
+    RenderMessage( const RenderMessage & ) = default;
+    RenderMessage( RenderMessage && ) = default;
+    auto operator=( const RenderMessage & ) -> RenderMessage & = default;
+    auto operator=( RenderMessage && ) -> RenderMessage & = default;
+
     auto encode() const -> std::vector<std::byte>;
 
     virtual auto toJson() const -> std::string = 0;
@@ -48,10 +56,6 @@ protected:
     static auto readBool( const nlohmann::json &object, std::string_view name ) -> bool;
     static auto readString( const nlohmann::json &object, std::string_view name ) -> std::string;
 
-    const uint32_t _magic{ 0xffaabbcc };
-    RenderMessageType _type{ RenderMessageType::UNDEFINED };
-    std::chrono::time_point<std::chrono::system_clock> _timestamp{};
-
 private:
     auto messageFromString( const std::string &str ) const -> std::vector<std::byte> {
         auto message = std::vector<std::byte>{};
@@ -61,15 +65,20 @@ private:
 
         return message;
     }
+
+protected:
+    const uint32_t _magic{ 0xffaabbcc };
+    RenderMessageType _type{ RenderMessageType::UNDEFINED };
+    std::chrono::time_point<std::chrono::system_clock> _timestamp{};
 };
 
 // ======================================================================================
 // ==================== ChatMessage =====================================================
 // ======================================================================================
 
-struct ChatMessage : RenderMessage {
+struct ChatMessage final : RenderMessage {
     ChatMessage() = default;
-    ChatMessage( const std::string &msg );
+    explicit ChatMessage( const std::string &msg );
 
     auto toJson() const -> std::string override;
     auto parse( std::string jsonString ) -> void override;
@@ -82,7 +91,7 @@ private:
 // ==================== RequestRenderMessage ============================================
 // ======================================================================================
 
-struct RequestRenderMessage : RenderMessage {
+struct RequestRenderMessage final : RenderMessage {
     RequestRenderMessage() = default;
     RequestRenderMessage( uint32_t width, uint32_t height, std::string accelerator, uint32_t threadCount );
 
@@ -100,7 +109,7 @@ private:
 // ==================== ImageMessage ====================================================
 // ======================================================================================
 
-struct ImageMessage : RenderMessage {
+struct ImageMessage final : RenderMessage {
     ImageMessage() = default;
     ImageMessage( uint32_t width, uint32_t height );
 
