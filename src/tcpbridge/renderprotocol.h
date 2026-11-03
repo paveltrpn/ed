@@ -3,10 +3,13 @@
 #include <cstring>
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
 #include <chrono>
+
+#include <nlohmann/json.hpp>
 
 namespace tire {
 
@@ -33,7 +36,21 @@ struct RenderMessage {
     virtual auto parse( std::string jsonString ) -> void;
 
     auto type() const -> RenderMessageType;
-    auto setType( RenderMessageType value ) const -> void;
+    auto setType( RenderMessageType value ) -> void;
+
+protected:
+    auto writeHeader( nlohmann::json &root ) const -> void;
+    auto readHeader( const nlohmann::json &root ) -> void;
+
+    static auto requirePayload( const nlohmann::json &root ) -> const nlohmann::json &;
+
+    static auto readUint32( const nlohmann::json &object, std::string_view name ) -> uint32_t;
+    static auto readBool( const nlohmann::json &object, std::string_view name ) -> bool;
+    static auto readString( const nlohmann::json &object, std::string_view name ) -> std::string;
+
+    const uint32_t _magic{ 0xffaabbcc };
+    RenderMessageType _type{ RenderMessageType::UNDEFINED };
+    std::chrono::time_point<std::chrono::system_clock> _timestamp{};
 
 private:
     auto messageFromString( const std::string &str ) const -> std::vector<std::byte> {
@@ -44,11 +61,6 @@ private:
 
         return message;
     }
-
-protected:
-    const uint32_t _magic{ 0xffaabbcc };
-    RenderMessageType _type{ RenderMessageType::UNDEFINED };
-    std::chrono::time_point<std::chrono::system_clock> _timestamp{};
 };
 
 // ======================================================================================
@@ -56,6 +68,7 @@ protected:
 // ======================================================================================
 
 struct ChatMessage : RenderMessage {
+    ChatMessage() = default;
     ChatMessage( const std::string &msg );
 
     auto toJson() const -> std::string override;
@@ -70,6 +83,7 @@ private:
 // ======================================================================================
 
 struct RequestRenderMessage : RenderMessage {
+    RequestRenderMessage() = default;
     RequestRenderMessage( uint32_t width, uint32_t height, std::string accelerator, uint32_t threadCount );
 
     auto toJson() const -> std::string override;
@@ -83,10 +97,11 @@ private:
 };
 
 // ======================================================================================
-// ==================== RequestRenderMessage ============================================
+// ==================== ImageMessage ====================================================
 // ======================================================================================
 
 struct ImageMessage : RenderMessage {
+    ImageMessage() = default;
     ImageMessage( uint32_t width, uint32_t height );
 
     auto toJson() const -> std::string override;
@@ -140,5 +155,7 @@ auto decodeRenderImage( const std::vector<std::byte> &payload ) -> RenderImagePa
 
 auto encodeRenderError( std::string_view text ) -> std::vector<std::byte>;
 auto decodeRenderError( const std::vector<std::byte> &payload ) -> std::string;
+
+auto createRenderMessage( const std::vector<std::byte> &payload ) -> std::unique_ptr<RenderMessage>;
 
 }  // namespace tire

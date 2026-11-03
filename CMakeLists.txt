@@ -245,8 +245,8 @@ add_library(tcp_bridge ${MOD_TCP_BRIDGE_SRC})
 target_include_directories(tcp_bridge PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_compile_options(tcp_bridge PRIVATE "${CXX_STANDART}")
 target_link_libraries(tcp_bridge io log)
-target_include_directories(tcp_bridge PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/libs/json
+target_include_directories(tcp_bridge PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs/json/include
     ${CMAKE_CURRENT_SOURCE_DIR}/libs/base64/include
 )
 
