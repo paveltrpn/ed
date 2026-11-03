@@ -9,6 +9,7 @@
 #include <chrono>
 
 #include <nlohmann/json.hpp>
+#include <base64.hpp>
 
 namespace tire {
 
@@ -82,6 +83,29 @@ private:
     uint32_t _height{ 0 };
     std::string _accelerator;
     uint32_t _threadCount;
+};
+
+// ======================================================================================
+// ==================== RequestRenderMessage ============================================
+// ======================================================================================
+
+struct ImageMessage : RenderMessage {
+    ImageMessage( uint32_t width, uint32_t height );
+
+    auto toJson() const -> std::string override;
+    auto parse( std::string jsonString ) -> void override;
+
+    // Decode base64 encoded string to raw bytes.
+    auto pixels() const -> std::vector<std::byte>;
+
+private:
+    uint32_t _width{ 0 };
+    uint32_t _height{ 0 };
+
+    bool _final{ false };
+
+    // NOTE: Base64 encoded.
+    std::string _pixels{};
 };
 
 // ======================================================================================
