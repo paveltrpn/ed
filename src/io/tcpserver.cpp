@@ -77,7 +77,7 @@ auto connectionCallback( uv_stream_t *stream, int status ) -> void {
     }
 
     auto createStatus = 0;
-    auto connection = state->_scheduler->createTcpConnection( createStatus );
+    auto connection = state->_scheduler->initTcp( createStatus );
     if ( createStatus != 0 ) {
         if ( operation != nullptr ) {
             state->_acceptOperation.reset();

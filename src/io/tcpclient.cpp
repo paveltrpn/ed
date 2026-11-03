@@ -64,7 +64,7 @@ auto startConnect( const std::shared_ptr<ConnectState> &state ) -> void {
     }
 
     auto status = 0;
-    auto connection = state->_scheduler->createTcpConnection( status );
+    auto connection = state->_scheduler->initTcp( status );
     if ( status != 0 ) {
         completeConnect( state, status );
         return;

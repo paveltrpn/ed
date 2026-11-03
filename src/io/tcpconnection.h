@@ -26,7 +26,7 @@ struct TcpReadOperation {
     std::shared_ptr<TcpConnectionState> _state{};
     std::coroutine_handle<> _coroutine{};
     std::shared_ptr<TcpReadResult> _result{};
-    void *_allocation{ nullptr };
+    void* _allocation{ nullptr };
     bool _completed{ false };
 };
 
@@ -40,9 +40,9 @@ struct TcpWriteOperation {
 };
 
 struct TcpConnectionState : std::enable_shared_from_this<TcpConnectionState> {
-    Scheduler *_scheduler{ nullptr };
+    Scheduler* _scheduler{ nullptr };
     uv_tcp_t _handle{};
-    std::shared_ptr<TcpConnectionState> *_lifetime{ nullptr };
+    std::shared_ptr<TcpConnectionState>* _lifetime{ nullptr };
     std::shared_ptr<TcpReadOperation> _readOperation{};
     std::shared_ptr<TcpWriteOperation> _writeOperation{};
     bool _initialized{ false };
@@ -56,11 +56,9 @@ struct TcpConnectionState : std::enable_shared_from_this<TcpConnectionState> {
 struct TcpConnection final {
     friend struct Scheduler;
 
-    struct State;
-
     explicit TcpConnection( std::shared_ptr<TcpConnectionState> state );
 
-    [[nodiscard]] auto nativeHandle() const -> uv_tcp_t *;
+    [[nodiscard]] auto nativeHandle() const -> uv_tcp_t*;
 
 private:
     std::shared_ptr<TcpConnectionState> _state{};
@@ -75,7 +73,7 @@ struct TcpListener final {
 
     explicit TcpListener( std::shared_ptr<TcpListenerState> state );
 
-    [[nodiscard]] auto nativeHandle() const -> uv_tcp_t *;
+    [[nodiscard]] auto nativeHandle() const -> uv_tcp_t*;
 
 private:
     std::shared_ptr<TcpListenerState> _state{};
