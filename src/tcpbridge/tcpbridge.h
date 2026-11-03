@@ -39,16 +39,17 @@ struct FrameDecodeResult {
 // Encodes payloads with a 32-bit big-endian length prefix and decodes complete frames
 // from a TCP byte stream, buffering partial input and rejecting oversized payloads.
 struct TcpFrameCodec {
-    static constexpr size_t _defaultMaximumPayload{ 1024 * 1024 };
-
     explicit TcpFrameCodec( size_t maximumPayload = _defaultMaximumPayload );
 
-    auto push( const std::byte *data, size_t size ) -> FrameDecodeResult;
-    auto push( const std::vector<std::byte> &data ) -> FrameDecodeResult;
+    auto push( const std::byte* data, size_t size ) -> FrameDecodeResult;
+    auto push( const std::vector<std::byte>& data ) -> FrameDecodeResult;
     auto endOfStream() const noexcept -> FrameStatus;
     auto reset() -> void;
 
-    static auto encode( const std::vector<std::byte> &payload ) -> std::vector<std::byte>;
+    static auto encode( const std::vector<std::byte>& payload ) -> std::vector<std::byte>;
+
+public:
+    static constexpr size_t _defaultMaximumPayload{ 1024 * 1024 };
 
 private:
     static constexpr size_t _prefixSize{ 4 };

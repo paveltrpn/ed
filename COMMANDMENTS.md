@@ -56,3 +56,4 @@ Follow it and all will be ok.
 - Use uppercase enum values.
 - Ignore bad_alloc like it never happens, this is world wide non recoverable failure.
 - Never use `catch(...)`
+- Enclose a pointer and dereference operator in braces when it used alongside co_await operator.

@@ -14,7 +14,7 @@ TcpFrameCodec::TcpFrameCodec( size_t maximumPayload )
     : _maximumPayload{ maximumPayload } {
 }
 
-auto TcpFrameCodec::push( const std::byte *data, size_t size ) -> FrameDecodeResult {
+auto TcpFrameCodec::push( const std::byte* data, size_t size ) -> FrameDecodeResult {
     FrameDecodeResult result{};
 
     if ( size != 0 ) {
@@ -39,7 +39,7 @@ auto TcpFrameCodec::push( const std::byte *data, size_t size ) -> FrameDecodeRes
             break;
         }
 
-        const auto *payloadBegin{ _buffer.data() + offset + _prefixSize };
+        const auto* payloadBegin{ _buffer.data() + offset + _prefixSize };
         result._messages.emplace_back( payloadBegin, payloadBegin + payloadSize );
         offset += _prefixSize + payloadSize;
     }
@@ -51,7 +51,7 @@ auto TcpFrameCodec::push( const std::byte *data, size_t size ) -> FrameDecodeRes
     return result;
 }
 
-auto TcpFrameCodec::push( const std::vector<std::byte> &data ) -> FrameDecodeResult {
+auto TcpFrameCodec::push( const std::vector<std::byte>& data ) -> FrameDecodeResult {
     return push( data.data(), data.size() );
 }
 
@@ -67,7 +67,7 @@ auto TcpFrameCodec::reset() -> void {
     _buffer.clear();
 }
 
-auto TcpFrameCodec::encode( const std::vector<std::byte> &payload ) -> std::vector<std::byte> {
+auto TcpFrameCodec::encode( const std::vector<std::byte>& payload ) -> std::vector<std::byte> {
     if ( payload.size() > std::numeric_limits<uint32_t>::max() ) {
         throw std::length_error{ "Frame payload exceeds 32-bit length prefix" };
     }
@@ -176,7 +176,7 @@ auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions 
             _connect = connect;
         }
 
-        const auto connectResult = co_await * connect;
+        const auto connectResult = co_await( *connect );
 
         {
             std::scoped_lock lock{ _sessionMutex };
@@ -223,7 +223,7 @@ auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions 
                 _retryTimer = timer;
             }
 
-            const auto timerStatus = co_await * timer;
+            const auto timerStatus = co_await( *timer );
 
             {
                 std::scoped_lock lock{ _sessionMutex };
@@ -303,7 +303,7 @@ auto TcpBridge::read() -> Task<TcpBridgeMessage> {
             if ( decoded._status == FrameStatus::OVERSIZED ) {
                 status = UV_EPROTO;
             } else {
-                for ( auto &decodedMessage : decoded._messages ) {
+                for ( auto& decodedMessage : decoded._messages ) {
                     _pendingMessages.push_back( std::move( decodedMessage ) );
                 }
 
