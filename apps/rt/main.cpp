@@ -144,19 +144,24 @@ struct ServeCompletion {
 
 auto makeRenderImageResponse( const tire::RenderJob& job ) -> std::vector<std::byte> {
     const auto snapshot = job.snapshot();
+
     if ( snapshot._state == tire::RenderJobState::Failed ) {
         if ( snapshot._error.empty() ) {
             throw std::runtime_error{ "Render job failed without an error message" };
         }
+
         throw std::runtime_error{ snapshot._error };
     }
 
     auto pixels = std::vector<std::byte>( snapshot._pixels.size() );
+
     for ( size_t index = 0; index < snapshot._pixels.size(); ++index ) {
         auto value = std::clamp( snapshot._pixels[index], 0.0f, 1.0f );
+
         if ( !std::isfinite( value ) ) {
             value = 0.0f;
         }
+
         const auto gray = static_cast<uint8_t>( value * 255.0f + 0.5f );
         pixels[index] = static_cast<std::byte>( gray );
     }
@@ -204,7 +209,7 @@ auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint
                     throw std::runtime_error{ "Expected the ED handshake" };
                 }
 
-                const auto *handshake = static_cast<tire::ChatMessage *>( renderMessage.get() );
+                const auto* handshake = static_cast<tire::ChatMessage*>( renderMessage.get() );
                 if ( handshake->message() != "handshake_from_ed" ) {
                     throw std::runtime_error{ "Expected the ED handshake" };
                 }
@@ -220,18 +225,22 @@ auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint
                             throw std::runtime_error{ "A render request is already active" };
                         }
 
-                        const auto *request = static_cast<tire::RequestRenderMessage *>( renderMessage.get() );
+                        const auto* request = static_cast<tire::RequestRenderMessage*>( renderMessage.get() );
                         auto newJob = std::make_unique<tire::RenderJob>( request->width(), request->height(),
-                                                                        request->sceneObj(), request->camera() );
+                                                                         request->sceneObj(), request->camera() );
                         newJob->start();
                         job = std::move( newJob );
+
                         break;
                     }
+
                     case tire::RenderMessageType::POLL: {
                         if ( job == nullptr ) {
                             throw std::runtime_error{ "Cannot poll before starting a render" };
                         }
+
                         response = makeRenderImageResponse( *job );
+
                         break;
                     }
                     default: {

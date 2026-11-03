@@ -9,36 +9,9 @@
 
 namespace tire {
 
-struct TcpReadOperation {
-    std::shared_ptr<TcpConnection::State> _state{};
-    std::coroutine_handle<> _coroutine{};
-    std::shared_ptr<TcpReadResult> _result{};
-    void *_allocation{ nullptr };
-    bool _completed{ false };
-};
-
-struct TcpWriteOperation {
-    std::shared_ptr<TcpConnection::State> _state{};
-    std::coroutine_handle<> _coroutine{};
-    std::vector<std::byte> _bytes{};
-    std::shared_ptr<TcpWriteResult> _result{};
-    uv_write_t _request{};
-    bool _completed{ false };
-};
-
-struct TcpConnection::State : std::enable_shared_from_this<TcpConnection::State> {
-    Scheduler *_scheduler{ nullptr };
-    uv_tcp_t _handle{};
-    std::shared_ptr<State> *_lifetime{ nullptr };
-    std::shared_ptr<TcpReadOperation> _readOperation{};
-    std::shared_ptr<TcpWriteOperation> _writeOperation{};
-    bool _initialized{ false };
-    bool _closing{ false };
-};
-
 namespace {
 
-using ConnectionState = TcpConnection::State;
+using ConnectionState = TcpConnectionState;
 
 auto completeRead( const std::shared_ptr<TcpReadOperation> &operation, int status ) -> void {
     if ( operation == nullptr || operation->_completed ) {
@@ -220,12 +193,12 @@ auto startWrite( const std::shared_ptr<ConnectionState> &state, const std::share
 
 }  // namespace
 
-TcpConnection::TcpConnection( std::shared_ptr<State> state )
+TcpConnection::TcpConnection( std::shared_ptr<TcpConnectionState> state )
     : _state{ std::move( state ) } {
 }
 
 auto Scheduler::createTcpConnection( uv_loop_t *loop, int &status ) -> std::shared_ptr<TcpConnection> {
-    auto state = std::make_shared<TcpConnection::State>();
+    auto state = std::make_shared<TcpConnectionState>();
     state->_scheduler = this;
     status = uv_tcp_init( loop, &state->_handle );
 
@@ -234,7 +207,7 @@ auto Scheduler::createTcpConnection( uv_loop_t *loop, int &status ) -> std::shar
     }
 
     state->_initialized = true;
-    state->_lifetime = new std::shared_ptr<TcpConnection::State>{ state };
+    state->_lifetime = new std::shared_ptr<TcpConnectionState>{ state };
     state->_handle.data = state->_lifetime;
 
     return std::make_shared<TcpConnection>( std::move( state ) );
