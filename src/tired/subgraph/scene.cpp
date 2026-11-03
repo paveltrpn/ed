@@ -30,7 +30,7 @@
 #include "../sceneobject/torusknot.h"
 #include "../sceneobject/spring.h"
 #include "../sceneobject/teapot.h"
-#include "../sceneobject/serialization.h"
+#include "../sceneobject/jsonserialization.h"
 
 #include "../vsgcommands/setpolygonmode.h"
 #include "tired/subgraph/boundingdraw.h"
