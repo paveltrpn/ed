@@ -5,8 +5,8 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <format>
 #include <limits>
-#include <locale>
 #include <sstream>
 #include <string_view>
 #include <utility>
@@ -134,9 +134,7 @@ auto ObjSerializationVisitor::serialize( TeapotNode *object ) -> void {
 [[nodiscard]] auto ObjSerializationVisitor::compile() const -> std::string {
     //
     auto stream = std::ostringstream{};
-    stream.imbue( std::locale::classic() );
-    stream.precision( std::numeric_limits<double>::max_digits10 );
-    stream << "o scene\n";
+    stream << std::format( "o scene\n" );
 
     size_t positionOffset{};
     size_t uvOffset{};
@@ -146,17 +144,18 @@ auto ObjSerializationVisitor::serialize( TeapotNode *object ) -> void {
         const auto vertexCount = chunk._vertices.size() / 3;
 
         for ( size_t index = 0; index < vertexCount; ++index ) {
-            stream << "v " << chunk._vertices[index * 3] << " " << chunk._vertices[( index * 3 ) + 1] << " "
-                   << chunk._vertices[( index * 3 ) + 2] << "\n";
+            stream << std::format( "v {:.17g} {:.17g} {:.17g}\n", chunk._vertices[index * 3],
+                                   chunk._vertices[( index * 3 ) + 1], chunk._vertices[( index * 3 ) + 2] );
         }
 
         for ( size_t index = 0; index < vertexCount; ++index ) {
-            stream << "vt " << chunk._txcoords[index * 2] << " " << chunk._txcoords[( index * 2 ) + 1] << "\n";
+            stream << std::format( "vt {:.17g} {:.17g}\n", chunk._txcoords[index * 2],
+                                   chunk._txcoords[( index * 2 ) + 1] );
         }
 
         for ( size_t index = 0; index < vertexCount; ++index ) {
-            stream << "vn " << chunk._vnormals[index * 3] << " " << chunk._vnormals[( index * 3 ) + 1] << " "
-                   << chunk._vnormals[( index * 3 ) + 2] << "\n";
+            stream << std::format( "vn {:.17g} {:.17g} {:.17g}\n", chunk._vnormals[index * 3],
+                                   chunk._vnormals[( index * 3 ) + 1], chunk._vnormals[( index * 3 ) + 2] );
         }
 
         for ( const auto &triangle : chunk._triangles ) {
@@ -172,9 +171,9 @@ auto ObjSerializationVisitor::serialize( TeapotNode *object ) -> void {
             const auto secondNormal = normalOffset + triangle._normalIndices[1] + 1;
             const auto thirdNormal = normalOffset + triangle._normalIndices[2] + 1;
 
-            stream << "f " << firstPosition << "/" << firstTexcoord << "/" << firstNormal << " " << secondPosition << "/"
-                   << secondTexcoord << "/" << secondNormal << " " << thirdPosition << "/" << thirdTexcoord << "/"
-                   << thirdNormal << "\n";
+            stream << std::format( "f {}/{}/{} {}/{}/{} {}/{}/{}\n", firstPosition, firstTexcoord, firstNormal,
+                                   secondPosition, secondTexcoord, secondNormal, thirdPosition, thirdTexcoord,
+                                   thirdNormal );
         }
 
         positionOffset += vertexCount;
