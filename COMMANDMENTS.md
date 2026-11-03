@@ -43,3 +43,7 @@ Follow it and all will be ok.
 - Prefer `#pragma once` guard over ifdefs.
 
 - Do not touch `NOTE` and `TODO` that the one leaves across codebase.
+- Do not use ancient c++ patterns like private constructors or something, use latest c++ fetures, final classes, defalted and deleted speacial members and other.
+- Place class methods and class members like this - public then protected then private, do not mess a data members and class mthods in same group, keep it under different acces modifiers groups.
+- When exceptions is used never throw nothing except simple `runtime_error`, i do not needed in exception types garbage.
+- It is not necessary to return const references to class data memebers in class accesors - always return by value.

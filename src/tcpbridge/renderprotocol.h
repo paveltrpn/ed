@@ -8,9 +8,6 @@
 #include <vector>
 #include <chrono>
 
-#include <nlohmann/json.hpp>
-#include <base64.hpp>
-
 namespace tire {
 
 constexpr size_t kRenderProtocolMaximumPayload{ 64 * 1024 * 1024 };
