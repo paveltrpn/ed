@@ -30,7 +30,7 @@ auto TcpFrameCodec::push( const std::byte *data, size_t size ) -> FrameDecodeRes
 
         if ( payloadSize > _maximumPayload ) {
             reset();
-            result._status = FrameStatus::Oversized;
+            result._status = FrameStatus::OVERSIZED;
             return result;
         }
 
@@ -57,10 +57,10 @@ auto TcpFrameCodec::push( const std::vector<std::byte> &data ) -> FrameDecodeRes
 
 auto TcpFrameCodec::endOfStream() const noexcept -> FrameStatus {
     if ( _buffer.empty() ) {
-        return FrameStatus::Ok;
+        return FrameStatus::OK;
     }
 
-    return FrameStatus::PartialEof;
+    return FrameStatus::PARTIAL_EOF;
 }
 
 auto TcpFrameCodec::reset() -> void {
@@ -287,7 +287,7 @@ auto TcpBridge::read() -> Task<TcpBridgeMessage> {
             {
                 std::scoped_lock lock{ _sessionMutex };
 
-                if ( _codec.endOfStream() == FrameStatus::PartialEof ) {
+                if ( _codec.endOfStream() == FrameStatus::PARTIAL_EOF ) {
                     endStatus = UV_EPROTO;
                 }
             }
@@ -300,7 +300,7 @@ auto TcpBridge::read() -> Task<TcpBridgeMessage> {
 
             const auto decoded = _codec.push( readResult._bytes );
 
-            if ( decoded._status == FrameStatus::Oversized ) {
+            if ( decoded._status == FrameStatus::OVERSIZED ) {
                 status = UV_EPROTO;
             } else {
                 for ( auto &decodedMessage : decoded._messages ) {

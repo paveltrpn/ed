@@ -22,13 +22,13 @@ struct Scheduler;
 
 enum class FrameStatus {
     //
-    Ok,
-    Oversized,
-    PartialEof
+    OK,
+    OVERSIZED,
+    PARTIAL_EOF
 };
 
 struct FrameDecodeResult {
-    FrameStatus _status{ FrameStatus::Ok };
+    FrameStatus _status{ FrameStatus::OK };
     std::vector<std::vector<std::byte>> _messages{};
 };
 
@@ -112,6 +112,8 @@ private:
     size_t _maximumPayload{ TcpFrameCodec::_defaultMaximumPayload };
     TcpFrameCodec _codec{ _maximumPayload };
 
+    // Protects session state shared by scheduler coroutines and external threads, including
+    // connection handles, pending operations, codec state, and queued messages.
     std::mutex _sessionMutex{};
 
     std::shared_ptr<TcpListener> _listener{};
