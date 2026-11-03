@@ -35,10 +35,12 @@ struct RenderMessage {
     RenderMessage() = default;
     virtual ~RenderMessage() = default;
 
-    RenderMessage( const RenderMessage & ) = default;
-    RenderMessage( RenderMessage && ) = default;
-    auto operator=( const RenderMessage & ) -> RenderMessage & = default;
-    auto operator=( RenderMessage && ) -> RenderMessage & = default;
+    RenderMessage( const RenderMessage& ) = default;
+    RenderMessage( RenderMessage&& ) = default;
+
+    // NOTE: explicitely delete, because pf const field.
+    auto operator=( const RenderMessage& ) -> RenderMessage& = delete;
+    auto operator=( RenderMessage&& ) -> RenderMessage& = delete;
 
     auto encode() const -> std::vector<std::byte>;
 
@@ -47,24 +49,24 @@ struct RenderMessage {
 
     auto type() const -> RenderMessageType;
 
-    static auto create( const std::vector<std::byte> &payload ) -> std::unique_ptr<RenderMessage>;
+    static auto create( const std::vector<std::byte>& payload ) -> std::unique_ptr<RenderMessage>;
 
 protected:
-    auto writeHeader( nlohmann::json &root ) const -> void;
-    auto readHeader( const nlohmann::json &root ) -> void;
+    auto writeHeader( nlohmann::json& root ) const -> void;
+    auto readHeader( const nlohmann::json& root ) -> void;
 
-    static auto requirePayload( const nlohmann::json &root ) -> const nlohmann::json &;
+    static auto requirePayload( const nlohmann::json& root ) -> const nlohmann::json&;
 
-    static auto readUint32( const nlohmann::json &object, std::string_view name ) -> uint32_t;
-    static auto readBool( const nlohmann::json &object, std::string_view name ) -> bool;
-    static auto readString( const nlohmann::json &object, std::string_view name ) -> std::string;
+    static auto readUint32( const nlohmann::json& object, std::string_view name ) -> uint32_t;
+    static auto readBool( const nlohmann::json& object, std::string_view name ) -> bool;
+    static auto readString( const nlohmann::json& object, std::string_view name ) -> std::string;
 
-    static auto parseJson( const std::string &jsonString ) -> nlohmann::json;
+    static auto parseJson( const std::string& jsonString ) -> nlohmann::json;
 
 private:
-    auto messageFromString( const std::string &str ) const -> std::vector<std::byte>;
+    auto messageFromString( const std::string& str ) const -> std::vector<std::byte>;
 
-    static auto stringFromMessage( const std::vector<std::byte> &message ) -> std::string;
+    static auto stringFromMessage( const std::vector<std::byte>& message ) -> std::string;
 
     static auto fieldError( std::string_view prefix, std::string_view name, std::string_view suffix )
         -> std::runtime_error;
@@ -81,8 +83,8 @@ protected:
 
 struct ChatMessage final : RenderMessage {
     ChatMessage() = default;
-    ChatMessage( RenderMessageType type, const std::string &msg );
-    explicit ChatMessage( const std::string &msg );
+    ChatMessage( RenderMessageType type, const std::string& msg );
+    explicit ChatMessage( const std::string& msg );
 
     auto toJson() const -> std::string override;
     auto parse( std::string jsonString ) -> void override;
@@ -99,7 +101,7 @@ private:
 
 struct ImageMessage final : RenderMessage {
     ImageMessage() = default;
-    ImageMessage( uint32_t width, uint32_t height, bool isFinal, const std::vector<std::byte> &pixels );
+    ImageMessage( uint32_t width, uint32_t height, bool isFinal, const std::vector<std::byte>& pixels );
 
     auto toJson() const -> std::string override;
     auto parse( std::string jsonString ) -> void override;
@@ -160,10 +162,10 @@ struct RequestRenderMessage final : RenderMessage {
     auto threadCount() const -> uint32_t;
 
 private:
-    static auto readDouble( const nlohmann::json &object, std::string_view name ) -> double;
-    static auto readVector( const nlohmann::json &object, std::string_view name ) -> std::array<double, 3>;
-    static auto readCamera( const nlohmann::json &payload ) -> RenderCamera;
-    static auto validateSceneAndCamera( const std::string &sceneObj, const RenderCamera &camera ) -> void;
+    static auto readDouble( const nlohmann::json& object, std::string_view name ) -> double;
+    static auto readVector( const nlohmann::json& object, std::string_view name ) -> std::array<double, 3>;
+    static auto readCamera( const nlohmann::json& payload ) -> RenderCamera;
+    static auto validateSceneAndCamera( const std::string& sceneObj, const RenderCamera& camera ) -> void;
 
 private:
     uint32_t _width{ 0 };
