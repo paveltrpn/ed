@@ -1,12 +1,31 @@
 
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <string>
+#include <vector>
 
 #include "serialization.h"
 
 namespace tire {
+
+// ======================================================================================
+// ==================== ObjChunk ========================================================
+// ======================================================================================
+
+struct ObjChunk {
+    struct TriangleIndices {
+        std::array<size_t, 3> _vertexIndices;
+        std::array<size_t, 3> _normalIndices;
+        std::array<size_t, 3> _texCoordIndices;
+    };
+
+    std::vector<double> _vertices;
+    std::vector<double> _vnormals;
+    std::vector<double> _txcoords;
+    std::vector<TriangleIndices> _triangles;
+};
 
 // ======================================================================================
 // ==================== ObjSerializationVisitor =========================================
@@ -40,10 +59,7 @@ private:
     auto serializeMesh( SceneObjectNode *object ) -> void;
 
 private:
-    std::string _output{ "o scene\n" };
-    size_t _positionOffset{};
-    size_t _uvOffset{};
-    size_t _normalOffset{};
+    std::vector<ObjChunk> _chunks;
 };
 
 }  // namespace tire

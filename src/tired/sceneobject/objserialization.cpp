@@ -133,7 +133,56 @@ auto ObjSerializationVisitor::serialize( TeapotNode *object ) -> void {
 
 [[nodiscard]] auto ObjSerializationVisitor::compile() const -> std::string {
     //
-    return _output;
+    auto stream = std::ostringstream{};
+    stream.imbue( std::locale::classic() );
+    stream.precision( std::numeric_limits<double>::max_digits10 );
+    stream << "o scene\n";
+
+    size_t positionOffset{};
+    size_t uvOffset{};
+    size_t normalOffset{};
+
+    for ( const auto &chunk : _chunks ) {
+        const auto vertexCount = chunk._vertices.size() / 3;
+
+        for ( size_t index = 0; index < vertexCount; ++index ) {
+            stream << "v " << chunk._vertices[index * 3] << " " << chunk._vertices[( index * 3 ) + 1] << " "
+                   << chunk._vertices[( index * 3 ) + 2] << "\n";
+        }
+
+        for ( size_t index = 0; index < vertexCount; ++index ) {
+            stream << "vt " << chunk._txcoords[index * 2] << " " << chunk._txcoords[( index * 2 ) + 1] << "\n";
+        }
+
+        for ( size_t index = 0; index < vertexCount; ++index ) {
+            stream << "vn " << chunk._vnormals[index * 3] << " " << chunk._vnormals[( index * 3 ) + 1] << " "
+                   << chunk._vnormals[( index * 3 ) + 2] << "\n";
+        }
+
+        for ( const auto &triangle : chunk._triangles ) {
+            const auto firstPosition = positionOffset + triangle._vertexIndices[0] + 1;
+            const auto secondPosition = positionOffset + triangle._vertexIndices[1] + 1;
+            const auto thirdPosition = positionOffset + triangle._vertexIndices[2] + 1;
+
+            const auto firstTexcoord = uvOffset + triangle._texCoordIndices[0] + 1;
+            const auto secondTexcoord = uvOffset + triangle._texCoordIndices[1] + 1;
+            const auto thirdTexcoord = uvOffset + triangle._texCoordIndices[2] + 1;
+
+            const auto firstNormal = normalOffset + triangle._normalIndices[0] + 1;
+            const auto secondNormal = normalOffset + triangle._normalIndices[1] + 1;
+            const auto thirdNormal = normalOffset + triangle._normalIndices[2] + 1;
+
+            stream << "f " << firstPosition << "/" << firstTexcoord << "/" << firstNormal << " " << secondPosition << "/"
+                   << secondTexcoord << "/" << secondNormal << " " << thirdPosition << "/" << thirdTexcoord << "/"
+                   << thirdNormal << "\n";
+        }
+
+        positionOffset += vertexCount;
+        uvOffset += vertexCount;
+        normalOffset += vertexCount;
+    }
+
+    return stream.str();
 }
 
 auto ObjSerializationVisitor::serializeMesh( SceneObjectNode *object ) -> void {
@@ -215,9 +264,7 @@ auto ObjSerializationVisitor::serializeMesh( SceneObjectNode *object ) -> void {
     const auto normalMatrix = vsg::transpose( vsg::inverse( matrix ) );
     const auto reverseWinding = determinant < 0.0;
 
-    auto stream = std::ostringstream{};
-    stream.imbue( std::locale::classic() );
-    stream.precision( std::numeric_limits<double>::max_digits10 );
+    auto chunk = ObjChunk{};
 
     for ( size_t index = 0; index < vertexCount; ++index ) {
         const auto &source = ( *positions )[index];
@@ -228,7 +275,9 @@ auto ObjSerializationVisitor::serializeMesh( SceneObjectNode *object ) -> void {
             return;
         }
 
-        stream << "v " << transformed.x << " " << transformed.y << " " << transformed.z << "\n";
+        chunk._vertices.push_back( transformed.x );
+        chunk._vertices.push_back( transformed.y );
+        chunk._vertices.push_back( transformed.z );
     }
 
     for ( size_t index = 0; index < vertexCount; ++index ) {
@@ -239,7 +288,8 @@ auto ObjSerializationVisitor::serializeMesh( SceneObjectNode *object ) -> void {
             return;
         }
 
-        stream << "vt " << source.x << " " << source.y << "\n";
+        chunk._txcoords.push_back( source.x );
+        chunk._txcoords.push_back( source.y );
     }
 
     for ( size_t index = 0; index < vertexCount; ++index ) {
@@ -256,7 +306,9 @@ auto ObjSerializationVisitor::serializeMesh( SceneObjectNode *object ) -> void {
 
         const auto unit = direction / length;
 
-        stream << "vn " << unit.x << " " << unit.y << " " << unit.z << "\n";
+        chunk._vnormals.push_back( unit.x );
+        chunk._vnormals.push_back( unit.y );
+        chunk._vnormals.push_back( unit.z );
     }
 
     for ( size_t triangle = 0; triangle < ( drawCount / 3 ); ++triangle ) {
@@ -278,28 +330,10 @@ auto ObjSerializationVisitor::serializeMesh( SceneObjectNode *object ) -> void {
             std::swap( corners[1], corners[2] );
         }
 
-        const auto firstPosition = _positionOffset + corners[0] + 1;
-        const auto secondPosition = _positionOffset + corners[1] + 1;
-        const auto thirdPosition = _positionOffset + corners[2] + 1;
-
-        const auto firstTexcoord = _uvOffset + corners[0] + 1;
-        const auto secondTexcoord = _uvOffset + corners[1] + 1;
-        const auto thirdTexcoord = _uvOffset + corners[2] + 1;
-
-        const auto firstNormal = _normalOffset + corners[0] + 1;
-        const auto secondNormal = _normalOffset + corners[1] + 1;
-        const auto thirdNormal = _normalOffset + corners[2] + 1;
-
-        stream << "f " << firstPosition << "/" << firstTexcoord << "/" << firstNormal << " " << secondPosition << "/"
-               << secondTexcoord << "/" << secondNormal << " " << thirdPosition << "/" << thirdTexcoord << "/"
-               << thirdNormal << "\n";
+        chunk._triangles.push_back( ObjChunk::TriangleIndices{ corners, corners, corners } );
     }
 
-    _output += stream.str();
-
-    _positionOffset += vertexCount;
-    _uvOffset += vertexCount;
-    _normalOffset += vertexCount;
+    _chunks.push_back( std::move( chunk ) );
 }
 
 }  // namespace tire
