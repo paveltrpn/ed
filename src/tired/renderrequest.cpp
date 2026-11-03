@@ -4,7 +4,6 @@
 #include <exception>
 #include <stdexcept>
 #include <string>
-#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -49,27 +48,6 @@ auto payloadPreview( const std::vector<std::byte> &payload ) -> std::string {
     }
 
     return preview;
-}
-
-auto messageFromString( std::string_view text ) -> std::vector<std::byte> {
-    auto message = std::vector<std::byte>{};
-    message.resize( static_cast<size_t>( text.size() ) );
-    std::memcpy( message.data(), text.data(), static_cast<size_t>( text.size() ) );
-    return message;
-}
-
-auto payloadIs( const std::vector<std::byte> &payload, std::string_view text ) -> bool {
-    if ( payload.size() != text.size() ) {
-        return false;
-    }
-
-    for ( size_t index = 0; index < payload.size(); ++index ) {
-        if ( payload[index] != static_cast<std::byte>( text[index] ) ) {
-            return false;
-        }
-    }
-
-    return true;
 }
 
 }  // namespace
@@ -153,14 +131,12 @@ void RenderRequest::start() {
         log::info()( "OBJ serialization completed: {} meshes, {} vertices, {} triangles", sceneInfo._meshCount,
                      sceneInfo._vertexCount, sceneInfo._triangleCount );
 
-        const auto cameraSnapshot = RenderCamera{
-            { lookAt->eye.x, lookAt->eye.y, lookAt->eye.z },
-            { lookAt->center.x, lookAt->center.y, lookAt->center.z },
-            { lookAt->up.x, lookAt->up.y, lookAt->up.z },
-            perspective->fieldOfViewY,
-            perspective->nearDistance,
-            perspective->farDistance
-        };
+        const auto cameraSnapshot = RenderCamera{ { lookAt->eye.x, lookAt->eye.y, lookAt->eye.z },
+                                                  { lookAt->center.x, lookAt->center.y, lookAt->center.z },
+                                                  { lookAt->up.x, lookAt->up.y, lookAt->up.z },
+                                                  perspective->fieldOfViewY,
+                                                  perspective->nearDistance,
+                                                  perspective->farDistance };
 
         _pendingSceneObj = std::move( sceneObj );
         _pendingCamera = cameraSnapshot;
@@ -276,31 +252,13 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
     const auto renderWidth = static_cast<uint32_t>( _width );
     const auto renderHeight = static_cast<uint32_t>( _height );
 
-    auto status = co_await _bridge->connect( "127.0.0.1", kRenderServerPort, TcpBridgeRetryOptions{} );
-
-    if ( status == 0 ) {
-        status = co_await _bridge->send( messageFromString( "handshake_from_ed" ) );
-    }
-
-    while ( status == 0 ) {
-        const auto reply = co_await _bridge->read();
-        status = reply._status;
-
-        if ( status != 0 ) {
-            break;
-        }
-
-        if ( payloadIs( reply._payload, "hello from rt" ) ) {
-            break;
-        }
-    }
-
     auto failureMessage = QString{};
-    auto finalReceived = false;
+    auto handshakeMessage = std::vector<std::byte>{};
     auto requestMessage = std::vector<std::byte>{};
     auto pollMessage = std::vector<std::byte>{};
 
     try {
+        handshakeMessage = ChatMessage{ "handshake_from_ed" }.encode();
         requestMessage = RequestRenderMessage{ renderWidth, renderHeight, std::move( sceneObj ), camera }.encode();
         pollMessage = ChatMessage{ RenderMessageType::POLL, std::string{} }.encode();
     } catch ( const std::exception &exception ) {
@@ -309,7 +267,52 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
         failureMessage = QStringLiteral( "Cannot encode render request with an unknown error" );
     }
 
-    if ( status == 0 ) {
+    auto status{ 0 };
+    if ( failureMessage.isEmpty() ) {
+        status = co_await _bridge->connect( "127.0.0.1", kRenderServerPort, TcpBridgeRetryOptions{} );
+    }
+
+    if ( status == 0 && failureMessage.isEmpty() ) {
+        status = co_await _bridge->send( std::move( handshakeMessage ) );
+    }
+
+    auto handshakeComplete = false;
+    if ( status == 0 && failureMessage.isEmpty() ) {
+        const auto reply = co_await _bridge->read();
+        status = reply._status;
+
+        if ( status == 0 ) {
+            try {
+                const auto message{ RenderMessage::create( reply._payload ) };
+
+                if ( message->type() == RenderMessageType::ERROR ) {
+                    const auto *errorMessage = static_cast<ChatMessage *>( message.get() );
+                    const auto error = errorMessage->message();
+                    failureMessage =
+                        QStringLiteral( "RT render error: %1" )
+                            .arg( QString::fromUtf8( error.data(), static_cast<qsizetype>( error.size() ) ) );
+                } else {
+                    if ( message->type() != RenderMessageType::CHAT ) {
+                        throw std::runtime_error{ "Unexpected message received during the RT handshake" };
+                    }
+
+                    const auto *handshake = static_cast<ChatMessage *>( message.get() );
+                    if ( handshake->message() != "hello from rt" ) {
+                        throw std::runtime_error{ "Unexpected RT handshake response" };
+                    }
+
+                    handshakeComplete = true;
+                }
+            } catch ( const std::exception &exception ) {
+                log::error()( "RT handshake payload preview: {}", payloadPreview( reply._payload ) );
+                failureMessage = QStringLiteral( "Invalid RT handshake response: %1" ).arg( exception.what() );
+            } catch ( ... ) {
+                failureMessage = QStringLiteral( "Invalid RT handshake response with an unknown error" );
+            }
+        }
+    }
+
+    if ( status == 0 && failureMessage.isEmpty() && handshakeComplete ) {
         QMetaObject::invokeMethod(
             this,
             [this]() -> void {
@@ -317,13 +320,12 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
                 handleHandshakeDone();
             },
             Qt::QueuedConnection );
-    }
 
-    if ( status == 0 && failureMessage.isEmpty() ) {
         status = co_await _bridge->send( std::move( requestMessage ) );
     }
 
-    while ( status == 0 && failureMessage.isEmpty() && !finalReceived ) {
+    auto finalReceived = false;
+    while ( status == 0 && failureMessage.isEmpty() && handshakeComplete && !finalReceived ) {
         status = co_await _bridge->send( pollMessage );
 
         if ( status != 0 ) {
@@ -438,7 +440,7 @@ auto RenderRequest::handleHandshakeDone() -> void {
 
     _state = RenderRequestState::WaitingForReply;
 
-    log::info()( "handshake done!" );
+    log::info()( "Handshake done!" );
 }
 
 auto RenderRequest::handleImage( const QImage &image ) -> void {

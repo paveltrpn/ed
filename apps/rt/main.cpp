@@ -142,27 +142,6 @@ struct ServeCompletion {
     bool _finished{ false };
 };
 
-auto messageFromString( std::string_view text ) -> std::vector<std::byte> {
-    auto message = std::vector<std::byte>( text.size() );
-    if ( !text.empty() ) {
-        std::memcpy( message.data(), text.data(), text.size() );
-    }
-    return message;
-}
-
-auto payloadIs( const std::vector<std::byte>& payload, std::string_view text ) -> bool {
-    if ( payload.size() != text.size() ) {
-        return false;
-    }
-
-    for ( size_t index = 0; index < payload.size(); ++index ) {
-        if ( payload[index] != static_cast<std::byte>( text[index] ) ) {
-            return false;
-        }
-    }
-    return true;
-}
-
 auto makeRenderImageResponse( const tire::RenderJob& job ) -> std::vector<std::byte> {
     const auto snapshot = job.snapshot();
     if ( snapshot._state == tire::RenderJobState::Failed ) {
@@ -220,12 +199,18 @@ auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint
         auto response = std::vector<std::byte>{};
         try {
             if ( !handshakeComplete ) {
-                if ( !payloadIs( message._payload, "handshake_from_ed" ) ) {
+                const auto renderMessage{ tire::RenderMessage::create( message._payload ) };
+                if ( renderMessage->type() != tire::RenderMessageType::CHAT ) {
+                    throw std::runtime_error{ "Expected the ED handshake" };
+                }
+
+                const auto *handshake = static_cast<tire::ChatMessage *>( renderMessage.get() );
+                if ( handshake->message() != "handshake_from_ed" ) {
                     throw std::runtime_error{ "Expected the ED handshake" };
                 }
 
                 handshakeComplete = true;
-                response = messageFromString( "hello from rt" );
+                response = tire::ChatMessage{ "hello from rt" }.encode();
             } else {
                 const auto renderMessage{ tire::RenderMessage::create( message._payload ) };
 

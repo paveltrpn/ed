@@ -53,3 +53,4 @@ Follow it and all will be ok.
 - Use standart c++ library facilities, do use library specific types only if library strongly requires it!
 - Prefer std::format string facilities over old strams API. Prefer stringstream only as performans goal. 
 - Use std::numeric_limits instead of hardcoded values.
+- Use uppercase enum values.
