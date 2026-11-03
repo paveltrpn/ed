@@ -93,7 +93,8 @@ private:
 
 struct RequestRenderMessage final : RenderMessage {
     RequestRenderMessage() = default;
-    RequestRenderMessage( uint32_t width, uint32_t height, std::string accelerator, uint32_t threadCount );
+    RequestRenderMessage( uint32_t width, uint32_t height, std::string accelerator = "sparse",
+                          uint32_t threadCount = 4 );
 
     auto toJson() const -> std::string override;
     auto parse( std::string jsonString ) -> void override;
@@ -101,7 +102,7 @@ struct RequestRenderMessage final : RenderMessage {
 private:
     uint32_t _width{ 0 };
     uint32_t _height{ 0 };
-    std::string _accelerator;
+    std::string _accelerator{};
     uint32_t _threadCount;
 };
 

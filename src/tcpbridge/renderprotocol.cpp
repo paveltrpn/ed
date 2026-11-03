@@ -474,9 +474,8 @@ auto ImageMessage::pixels() const -> std::vector<std::byte> {
     const auto rawPixels{ base64::decode_into<std::vector<unsigned char>>( _pixels ) };
 
     auto pixels = std::vector<std::byte>( rawPixels.size() );
-    std::transform( rawPixels.cbegin(), rawPixels.cend(), pixels.begin(), []( unsigned char value ) -> std::byte {
-        return static_cast<std::byte>( value );
-    } );
+    std::transform( rawPixels.cbegin(), rawPixels.cend(), pixels.begin(),
+                    []( unsigned char value ) -> std::byte { return static_cast<std::byte>( value ); } );
 
     return pixels;
 }
@@ -498,6 +497,7 @@ auto createRenderMessage( const std::vector<std::byte> &payload ) -> std::unique
     }
 
     const auto &type = root["type"];
+
     if ( !type.is_number_integer() ) {
         throw std::runtime_error{ "Render protocol message has a non-integer type field" };
     }
@@ -524,6 +524,7 @@ auto createRenderMessage( const std::vector<std::byte> &payload ) -> std::unique
     }
 
     message->parse( std::move( jsonString ) );
+
     return message;
 }
 
