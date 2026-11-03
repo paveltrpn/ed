@@ -4,22 +4,9 @@
 
 #include "io/scheduler.h"
 
-namespace tire {
-
-struct TcpConnectAwaitable::State {
-    Scheduler *_scheduler{ nullptr };
-    std::shared_ptr<TcpConnectResult> _result{ std::make_shared<TcpConnectResult>() };
-    std::shared_ptr<TcpConnection> _connection{};
-    std::coroutine_handle<> _coroutine{};
-    std::string _host{};
-    uint16_t _port{ 0 };
-    uv_connect_t _request{};
-    bool _completed{ false };
-};
-
 namespace {
 
-using ConnectState = TcpConnectAwaitable::State;
+using ConnectState = tire::TcpConnectAwaitableState;
 
 auto completeConnect( const std::shared_ptr<ConnectState> &state, int status ) -> void {
     if ( state->_completed ) {
@@ -106,8 +93,10 @@ auto startConnect( const std::shared_ptr<ConnectState> &state, uv_loop_t *loop )
 
 }  // namespace
 
+namespace tire {
+
 TcpConnectAwaitable::TcpConnectAwaitable( Scheduler &scheduler, std::string host, uint16_t port )
-    : _state{ std::make_shared<State>() } {
+    : _state{ std::make_shared<TcpConnectAwaitableState>() } {
     _state->_scheduler = &scheduler;
     _state->_host = std::move( host );
     _state->_port = port;

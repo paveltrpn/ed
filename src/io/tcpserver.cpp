@@ -4,13 +4,11 @@
 
 #include "io/scheduler.h"
 
-namespace tire {
-
 namespace {
 
-using ListenerState = TcpListenerState;
-using ListenState = TcpListenAwaitableState;
-using AcceptState = TcpAcceptAwaitableState;
+using ListenerState = tire::TcpListenerState;
+using ListenState = tire::TcpListenAwaitableState;
+using AcceptState = tire::TcpAcceptAwaitableState;
 
 auto completeListen( const std::shared_ptr<ListenState> &operation, int status ) -> void {
     if ( operation == nullptr || operation->_completed ) {
@@ -109,10 +107,12 @@ auto connectionCallback( uv_stream_t *stream, int status ) -> void {
 
 auto startListen( const std::shared_ptr<ListenState> &operation, uv_loop_t *loop ) -> void {
     auto state = operation->_server;
+
     if ( state->_closed ) {
         completeListen( operation, UV_ECANCELED );
         return;
     }
+
     if ( state->_initialized || state->_listenOperation != nullptr ) {
         completeListen( operation, UV_EALREADY );
         return;
@@ -120,6 +120,7 @@ auto startListen( const std::shared_ptr<ListenState> &operation, uv_loop_t *loop
 
     state->_listenOperation = operation;
     auto status = uv_tcp_init( loop, &state->_handle );
+
     if ( status != 0 ) {
         state->_listenOperation.reset();
         completeListen( operation, status );
@@ -152,11 +153,13 @@ auto startListen( const std::shared_ptr<ListenState> &operation, uv_loop_t *loop
     }
 
     state->_listenOperation.reset();
+
     completeListen( operation, 0 );
 }
 
 auto startAccept( const std::shared_ptr<AcceptState> &operation ) -> void {
     auto state = operation->_server;
+
     if ( state->_closed || !state->_initialized ) {
         completeAccept( operation, UV_ECANCELED );
         return;
@@ -171,6 +174,8 @@ auto startAccept( const std::shared_ptr<AcceptState> &operation ) -> void {
 }
 
 }  // namespace
+
+namespace tire {
 
 TcpListener::TcpListener( std::shared_ptr<TcpListenerState> state )
     : _state{ std::move( state ) } {
