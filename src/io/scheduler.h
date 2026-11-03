@@ -80,8 +80,8 @@ public:
     //
     auto watchFile( const std::string &path ) -> FilesystemWatchAwaitable<Task<void>>;
 
-    // Create a connection handle on the given loop.
-    auto createTcpConnection( uv_loop_t *loop, int &status ) -> std::shared_ptr<TcpConnection>;
+    // Create a connection handle.
+    auto createTcpConnection( int &status ) -> std::shared_ptr<TcpConnection>;
 
     // Connect to a TCP endpoint.
     auto connect( std::string host, uint16_t port ) -> TcpConnectAwaitable;

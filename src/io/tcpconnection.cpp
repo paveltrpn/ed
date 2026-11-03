@@ -197,10 +197,10 @@ TcpConnection::TcpConnection( std::shared_ptr<TcpConnectionState> state )
     : _state{ std::move( state ) } {
 }
 
-auto Scheduler::createTcpConnection( uv_loop_t *loop, int &status ) -> std::shared_ptr<TcpConnection> {
+auto Scheduler::createTcpConnection( int &status ) -> std::shared_ptr<TcpConnection> {
     auto state = std::make_shared<TcpConnectionState>();
     state->_scheduler = this;
-    status = uv_tcp_init( loop, &state->_handle );
+    status = uv_tcp_init( _loop, &state->_handle );
 
     if ( status != 0 ) {
         return {};

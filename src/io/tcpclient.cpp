@@ -58,13 +58,13 @@ auto cancelConnect( const std::shared_ptr<ConnectState> &state ) -> void {
     completeConnect( state, UV_ECANCELED );
 }
 
-auto startConnect( const std::shared_ptr<ConnectState> &state, uv_loop_t *loop ) -> void {
+auto startConnect( const std::shared_ptr<ConnectState> &state ) -> void {
     if ( state->_completed ) {
         return;
     }
 
     auto status = 0;
-    auto connection = state->_scheduler->createTcpConnection( loop, status );
+    auto connection = state->_scheduler->createTcpConnection( status );
     if ( status != 0 ) {
         completeConnect( state, status );
         return;
@@ -109,9 +109,9 @@ auto TcpConnectAwaitable::await_ready() noexcept -> bool {
 auto TcpConnectAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
     _state->_coroutine = coroutine;
 
-    _state->_scheduler->post( [state = _state]( uv_loop_t *loop ) -> void {
+    _state->_scheduler->post( [state = _state]( uv_loop_t * ) -> void {
         //
-        startConnect( state, loop );
+        startConnect( state );
     } );
 }
 
