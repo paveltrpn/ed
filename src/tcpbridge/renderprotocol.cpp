@@ -11,64 +11,6 @@
 
 namespace tire {
 
-constexpr size_t kRenderImageJsonReserve{ 4096 };
-
-auto renderPixelCount( uint32_t width, uint32_t height ) -> uint32_t {
-    if ( width == 0 || height == 0 ) {
-        throw std::invalid_argument{ "Render dimensions must be positive" };
-    }
-
-    const auto wideWidth = static_cast<size_t>( width );
-    const auto wideHeight = static_cast<size_t>( height );
-    if ( wideHeight > std::numeric_limits<size_t>::max() / wideWidth ) {
-        throw std::overflow_error{ "Render dimensions overflow the pixel count" };
-    }
-
-    const auto pixelCount = wideWidth * wideHeight;
-    if ( pixelCount > std::numeric_limits<uint32_t>::max() ) {
-        throw std::overflow_error{ "Render dimensions exceed the 32-bit pixel count" };
-    }
-
-    if ( pixelCount + pixelCount / 3 + kRenderImageJsonReserve > kRenderProtocolMaximumPayload ) {
-        throw std::length_error{ "Render image exceeds the protocol frame limit" };
-    }
-
-    return static_cast<uint32_t>( pixelCount );
-}
-
-auto renderImageSizeIsValid( uint32_t width, uint32_t height ) noexcept -> bool {
-    try {
-        renderPixelCount( width, height );
-        return true;
-    } catch ( ... ) {
-        return false;
-    }
-}
-
-namespace {
-
-auto parseJsonString( const std::string &jsonString ) -> nlohmann::json {
-    try {
-        return nlohmann::json::parse( jsonString );
-    } catch ( const nlohmann::json::exception &exception ) {
-        throw std::runtime_error{ std::string{ "Failed to parse render protocol JSON: " } + exception.what() };
-    }
-}
-
-auto stringFromMessage( const std::vector<std::byte> &message ) -> std::string {
-    auto str = std::string( message.size(), '\0' );
-    if ( !message.empty() ) {
-        std::memcpy( str.data(), message.data(), message.size() );
-    }
-    return str;
-}
-
-auto fieldError( std::string_view prefix, std::string_view name, std::string_view suffix ) -> std::runtime_error {
-    return std::runtime_error{ std::string{ prefix } + std::string{ name } + std::string{ suffix } };
-}
-
-}  // namespace
-
 // ======================================================================================
 // ==================== RenderMessage ===================================================
 // ======================================================================================
@@ -79,7 +21,7 @@ auto RenderMessage::encode() const -> std::vector<std::byte> {
 }
 
 auto RenderMessage::parse( std::string jsonString ) -> void {
-    const auto root = parseJsonString( jsonString );
+    const auto root = parseJson( jsonString );
     readHeader( root );
 }
 
@@ -189,6 +131,36 @@ auto RenderMessage::readString( const nlohmann::json &object, std::string_view n
     return value.get<std::string>();
 }
 
+auto RenderMessage::parseJson( const std::string &jsonString ) -> nlohmann::json {
+    try {
+        return nlohmann::json::parse( jsonString );
+    } catch ( const nlohmann::json::exception &exception ) {
+        throw std::runtime_error{ std::string{ "Failed to parse render protocol JSON: " } + exception.what() };
+    }
+}
+
+auto RenderMessage::messageFromString( const std::string &str ) const -> std::vector<std::byte> {
+    auto message = std::vector<std::byte>{};
+
+    message.resize( static_cast<size_t>( str.size() ) );
+    std::memcpy( message.data(), str.data(), static_cast<size_t>( str.size() ) );
+
+    return message;
+}
+
+auto RenderMessage::stringFromMessage( const std::vector<std::byte> &message ) -> std::string {
+    auto str = std::string( message.size(), '\0' );
+    if ( !message.empty() ) {
+        std::memcpy( str.data(), message.data(), message.size() );
+    }
+    return str;
+}
+
+auto RenderMessage::fieldError( std::string_view prefix, std::string_view name, std::string_view suffix )
+    -> std::runtime_error {
+    return std::runtime_error{ std::string{ prefix } + std::string{ name } + std::string{ suffix } };
+}
+
 // ======================================================================================
 // ==================== ChatMessage =====================================================
 // ======================================================================================
@@ -223,7 +195,7 @@ auto ChatMessage::toJson() const -> std::string {
 }
 
 auto ChatMessage::parse( std::string jsonString ) -> void {
-    const auto root = parseJsonString( jsonString );
+    const auto root = parseJson( jsonString );
     readHeader( root );
 
     if ( _type != RenderMessageType::CHAT && _type != RenderMessageType::POLL &&
@@ -241,7 +213,7 @@ auto ChatMessage::parse( std::string jsonString ) -> void {
 
 RequestRenderMessage::RequestRenderMessage( uint32_t width, uint32_t height, std::string accelerator,
                                             uint32_t threadCount ) {
-    renderPixelCount( width, height );
+    ImageMessage::pixelCount( width, height );
 
     _type = RenderMessageType::REQUEST;
     _timestamp = std::chrono::system_clock::now();
@@ -282,7 +254,7 @@ auto RequestRenderMessage::toJson() const -> std::string {
 }
 
 auto RequestRenderMessage::parse( std::string jsonString ) -> void {
-    const auto root = parseJsonString( jsonString );
+    const auto root = parseJson( jsonString );
     readHeader( root );
 
     if ( _type != RenderMessageType::REQUEST ) {
@@ -301,7 +273,7 @@ auto RequestRenderMessage::parse( std::string jsonString ) -> void {
 // ======================================================================================
 
 ImageMessage::ImageMessage( uint32_t width, uint32_t height, bool isFinal, const std::vector<std::byte> &pixels ) {
-    const auto pixelCount = renderPixelCount( width, height );
+    const auto pixelCount{ ImageMessage::pixelCount( width, height ) };
     if ( pixels.size() != static_cast<size_t>( pixelCount ) ) {
         throw std::runtime_error{ "Render image pixel count does not match its dimensions" };
     }
@@ -348,7 +320,7 @@ auto ImageMessage::toJson() const -> std::string {
 }
 
 auto ImageMessage::parse( std::string jsonString ) -> void {
-    const auto root = parseJsonString( jsonString );
+    const auto root = parseJson( jsonString );
     readHeader( root );
 
     if ( _type != RenderMessageType::IMAGE ) {
@@ -381,13 +353,45 @@ auto ImageMessage::pixels() const -> std::vector<std::byte> {
     return pixels;
 }
 
+auto ImageMessage::pixelCount( uint32_t width, uint32_t height ) -> uint32_t {
+    if ( width == 0 || height == 0 ) {
+        throw std::invalid_argument{ "Render dimensions must be positive" };
+    }
+
+    const auto wideWidth = static_cast<size_t>( width );
+    const auto wideHeight = static_cast<size_t>( height );
+    if ( wideHeight > std::numeric_limits<size_t>::max() / wideWidth ) {
+        throw std::overflow_error{ "Render dimensions overflow the pixel count" };
+    }
+
+    const auto pixelCount = wideWidth * wideHeight;
+    if ( pixelCount > std::numeric_limits<uint32_t>::max() ) {
+        throw std::overflow_error{ "Render dimensions exceed the 32-bit pixel count" };
+    }
+
+    if ( pixelCount + pixelCount / 3 + _imageJsonReserve > kRenderProtocolMaximumPayload ) {
+        throw std::length_error{ "Render image exceeds the protocol frame limit" };
+    }
+
+    return static_cast<uint32_t>( pixelCount );
+}
+
+auto ImageMessage::sizeIsValid( uint32_t width, uint32_t height ) noexcept -> bool {
+    try {
+        pixelCount( width, height );
+        return true;
+    } catch ( ... ) {
+        return false;
+    }
+}
+
 // ======================================================================================
-// ==================== Render message factory ==========================================
+// ==================== RenderMessage factory ===========================================
 // ======================================================================================
 
-auto createRenderMessage( const std::vector<std::byte> &payload ) -> std::unique_ptr<RenderMessage> {
+auto RenderMessage::create( const std::vector<std::byte> &payload ) -> std::unique_ptr<RenderMessage> {
     const auto jsonString{ stringFromMessage( payload ) };
-    const auto root = parseJsonString( jsonString );
+    const auto root = parseJson( jsonString );
 
     if ( !root.is_object() ) {
         throw std::runtime_error{ "Render protocol message is not a JSON object" };

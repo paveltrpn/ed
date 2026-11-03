@@ -227,7 +227,7 @@ auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint
                 handshakeComplete = true;
                 response = messageFromString( "hello from rt" );
             } else {
-                const auto renderMessage{ tire::createRenderMessage( message._payload ) };
+                const auto renderMessage{ tire::RenderMessage::create( message._payload ) };
 
                 switch ( renderMessage->type() ) {
                     case tire::RenderMessageType::REQUEST: {

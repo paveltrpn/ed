@@ -202,7 +202,7 @@ auto RenderRequest::setWidth( int value ) -> void {
         return;
     }
 
-    if ( !renderImageSizeIsValid( static_cast<uint32_t>( value ), static_cast<uint32_t>( _height ) ) ) {
+    if ( !ImageMessage::sizeIsValid( static_cast<uint32_t>( value ), static_cast<uint32_t>( _height ) ) ) {
         return;
     }
 
@@ -219,7 +219,7 @@ auto RenderRequest::setHeight( int value ) -> void {
         return;
     }
 
-    if ( !renderImageSizeIsValid( static_cast<uint32_t>( _width ), static_cast<uint32_t>( value ) ) ) {
+    if ( !ImageMessage::sizeIsValid( static_cast<uint32_t>( _width ), static_cast<uint32_t>( value ) ) ) {
         return;
     }
 
@@ -306,7 +306,7 @@ auto RenderRequest::runSession() -> Task<void> {
         }
 
         try {
-            const auto message{ createRenderMessage( reply._payload ) };
+            const auto message{ RenderMessage::create( reply._payload ) };
 
             if ( message->type() == RenderMessageType::ERROR ) {
                 const auto *errorMessage = static_cast<ChatMessage *>( message.get() );

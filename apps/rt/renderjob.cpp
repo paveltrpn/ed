@@ -24,7 +24,7 @@ constexpr size_t kThreadCount{ kTilesRoot * kTilesRoot };
 RenderJob::RenderJob( uint32_t width, uint32_t height )
     : _width{ width }
     , _height{ height }
-    , _image( renderPixelCount( width, height ), 0.0f ) {
+    , _image( tire::ImageMessage::pixelCount( width, height ), 0.0f ) {
 }
 
 RenderJob::~RenderJob() {

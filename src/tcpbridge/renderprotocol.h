@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -45,6 +46,8 @@ struct RenderMessage {
 
     auto type() const -> RenderMessageType;
 
+    static auto create( const std::vector<std::byte> &payload ) -> std::unique_ptr<RenderMessage>;
+
 protected:
     auto writeHeader( nlohmann::json &root ) const -> void;
     auto readHeader( const nlohmann::json &root ) -> void;
@@ -55,15 +58,15 @@ protected:
     static auto readBool( const nlohmann::json &object, std::string_view name ) -> bool;
     static auto readString( const nlohmann::json &object, std::string_view name ) -> std::string;
 
+    static auto parseJson( const std::string &jsonString ) -> nlohmann::json;
+
 private:
-    auto messageFromString( const std::string &str ) const -> std::vector<std::byte> {
-        auto message = std::vector<std::byte>{};
+    auto messageFromString( const std::string &str ) const -> std::vector<std::byte>;
 
-        message.resize( static_cast<size_t>( str.size() ) );
-        std::memcpy( message.data(), str.data(), static_cast<size_t>( str.size() ) );
+    static auto stringFromMessage( const std::vector<std::byte> &message ) -> std::string;
 
-        return message;
-    }
+    static auto fieldError( std::string_view prefix, std::string_view name, std::string_view suffix )
+        -> std::runtime_error;
 
 protected:
     const uint32_t _magic{ 0xffaabbcc };
@@ -90,6 +93,40 @@ private:
 };
 
 // ======================================================================================
+// ==================== ImageMessage ====================================================
+// ======================================================================================
+
+struct ImageMessage final : RenderMessage {
+    ImageMessage() = default;
+    ImageMessage( uint32_t width, uint32_t height, bool isFinal, const std::vector<std::byte> &pixels );
+
+    auto toJson() const -> std::string override;
+    auto parse( std::string jsonString ) -> void override;
+
+    auto width() const -> uint32_t;
+    auto height() const -> uint32_t;
+    auto final() const -> bool;
+
+    // Decode base64 encoded string to raw bytes.
+    auto pixels() const -> std::vector<std::byte>;
+
+    static auto pixelCount( uint32_t width, uint32_t height ) -> uint32_t;
+    static auto sizeIsValid( uint32_t width, uint32_t height ) noexcept -> bool;
+
+private:
+    static constexpr size_t _imageJsonReserve{ 4096 };
+
+private:
+    uint32_t _width{ 0 };
+    uint32_t _height{ 0 };
+
+    bool _final{ false };
+
+    // NOTE: Base64 encoded.
+    std::string _pixels{};
+};
+
+// ======================================================================================
 // ==================== RequestRenderMessage ============================================
 // ======================================================================================
 
@@ -112,38 +149,5 @@ private:
     std::string _accelerator{};
     uint32_t _threadCount{ 0 };
 };
-
-// ======================================================================================
-// ==================== ImageMessage ====================================================
-// ======================================================================================
-
-struct ImageMessage final : RenderMessage {
-    ImageMessage() = default;
-    ImageMessage( uint32_t width, uint32_t height, bool isFinal, const std::vector<std::byte> &pixels );
-
-    auto toJson() const -> std::string override;
-    auto parse( std::string jsonString ) -> void override;
-
-    auto width() const -> uint32_t;
-    auto height() const -> uint32_t;
-    auto final() const -> bool;
-
-    // Decode base64 encoded string to raw bytes.
-    auto pixels() const -> std::vector<std::byte>;
-
-private:
-    uint32_t _width{ 0 };
-    uint32_t _height{ 0 };
-
-    bool _final{ false };
-
-    // NOTE: Base64 encoded.
-    std::string _pixels{};
-};
-
-auto renderPixelCount( uint32_t width, uint32_t height ) -> uint32_t;
-auto renderImageSizeIsValid( uint32_t width, uint32_t height ) noexcept -> bool;
-
-auto createRenderMessage( const std::vector<std::byte> &payload ) -> std::unique_ptr<RenderMessage>;
 
 }  // namespace tire
