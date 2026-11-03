@@ -108,38 +108,24 @@ void RenderRequest::start() {
     }
 
     try {
-        if ( !_camera || _scene == nullptr ) {
-            throw std::runtime_error{ "Render scene and camera are not available" };
-        }
-
-        if ( !_camera->viewMatrix || !_camera->projectionMatrix ) {
-            throw std::runtime_error{ "Render camera view and projection matrices are required" };
-        }
-
         const auto lookAt = _camera->viewMatrix.cast<vsg::LookAt>();
-        if ( !lookAt ) {
-            throw std::runtime_error{ "Render camera view matrix must be a LookAt" };
-        }
-
         const auto perspective = _camera->projectionMatrix.cast<vsg::Perspective>();
-        if ( !perspective ) {
-            throw std::runtime_error{ "Render camera projection matrix must be a Perspective" };
-        }
 
         log::info()( "RT render started" );
+
         auto [sceneObj, sceneInfo] = _scene->serializeObjectsToObj();
+
         log::info()( "OBJ serialization completed: {} meshes, {} vertices, {} triangles", sceneInfo._meshCount,
                      sceneInfo._vertexCount, sceneInfo._triangleCount );
 
-        const auto cameraSnapshot = RenderCamera{ { lookAt->eye.x, lookAt->eye.y, lookAt->eye.z },
-                                                  { lookAt->center.x, lookAt->center.y, lookAt->center.z },
-                                                  { lookAt->up.x, lookAt->up.y, lookAt->up.z },
-                                                  perspective->fieldOfViewY,
-                                                  perspective->nearDistance,
-                                                  perspective->farDistance };
+        _pendingCamera = RenderCamera{ { lookAt->eye.x, lookAt->eye.y, lookAt->eye.z },
+                                       { lookAt->center.x, lookAt->center.y, lookAt->center.z },
+                                       { lookAt->up.x, lookAt->up.y, lookAt->up.z },
+                                       perspective->fieldOfViewY,
+                                       perspective->nearDistance,
+                                       perspective->farDistance };
 
         _pendingSceneObj = std::move( sceneObj );
-        _pendingCamera = cameraSnapshot;
 
         _bridge = std::make_unique<TcpBridge>( kRenderProtocolMaximumPayload );
 
@@ -253,6 +239,7 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
     const auto renderHeight = static_cast<uint32_t>( _height );
 
     auto failureMessage = QString{};
+
     auto handshakeMessage = std::vector<std::byte>{};
     auto requestMessage = std::vector<std::byte>{};
     auto pollMessage = std::vector<std::byte>{};

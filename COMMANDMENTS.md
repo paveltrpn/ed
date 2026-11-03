@@ -54,3 +54,4 @@ Follow it and all will be ok.
 - Prefer std::format string facilities over old strams API. Prefer stringstream only as performans goal. 
 - Use std::numeric_limits instead of hardcoded values.
 - Use uppercase enum values.
+- Ignore bad_alloc like it never happens, this is world wide non recoverable failure.
