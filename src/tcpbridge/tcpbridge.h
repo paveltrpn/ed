@@ -9,8 +9,6 @@
 #include <string>
 #include <vector>
 
-#include "tcpbridge/framecodec.h"
-
 #include "io/async.h"
 #include "io/scheduler.h"
 #include "io/tcpclient.h"
@@ -21,6 +19,44 @@
 namespace tire {
 
 struct Scheduler;
+
+enum class FrameStatus {
+    //
+    Ok,
+    Oversized,
+    PartialEof
+};
+
+struct FrameDecodeResult {
+    FrameStatus _status{ FrameStatus::Ok };
+    std::vector<std::vector<std::byte>> _messages{};
+};
+
+// ======================================================================================
+// ==================== TcpFrameCodec ===================================================
+// ======================================================================================
+
+// Encodes payloads with a 32-bit big-endian length prefix and decodes complete frames
+// from a TCP byte stream, buffering partial input and rejecting oversized payloads.
+struct TcpFrameCodec {
+    static constexpr size_t _defaultMaximumPayload{ 1024 * 1024 };
+
+    explicit TcpFrameCodec( size_t maximumPayload = _defaultMaximumPayload );
+
+    auto push( const std::byte *data, size_t size ) -> FrameDecodeResult;
+    auto push( const std::vector<std::byte> &data ) -> FrameDecodeResult;
+    auto endOfStream() const noexcept -> FrameStatus;
+    auto reset() -> void;
+
+    static auto encode( const std::vector<std::byte> &payload ) -> std::vector<std::byte>;
+
+private:
+    static constexpr size_t _prefixSize{ 4 };
+
+private:
+    size_t _maximumPayload;
+    std::vector<std::byte> _buffer{};
+};
 
 // ======================================================================================
 // ==================== TcpBridgeRetryOptions ===========================================
@@ -45,7 +81,7 @@ struct TcpBridgeMessage {
 // ======================================================================================
 
 struct TcpBridge final {
-    explicit TcpBridge( size_t maximumPayload = FrameCodec::_defaultMaximumPayload );
+    explicit TcpBridge( size_t maximumPayload = TcpFrameCodec::_defaultMaximumPayload );
     ~TcpBridge();
 
     TcpBridge( const TcpBridge& ) = delete;
@@ -73,8 +109,8 @@ struct TcpBridge final {
 private:
     std::unique_ptr<Scheduler> _scheduler{};
     std::atomic<bool> _closing{ false };
-    size_t _maximumPayload{ FrameCodec::_defaultMaximumPayload };
-    FrameCodec _codec{ _maximumPayload };
+    size_t _maximumPayload{ TcpFrameCodec::_defaultMaximumPayload };
+    TcpFrameCodec _codec{ _maximumPayload };
 
     std::mutex _sessionMutex{};
 
