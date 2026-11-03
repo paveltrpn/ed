@@ -148,7 +148,11 @@ void RenderRequest::start() {
             throw std::runtime_error{ "Render camera projection matrix must be a Perspective" };
         }
 
-        auto sceneObj = _scene->serializeObjectsToObj();
+        log::info()( "RT render started" );
+        auto [sceneObj, sceneInfo] = _scene->serializeObjectsToObj();
+        log::info()( "OBJ serialization completed: {} meshes, {} vertices, {} triangles", sceneInfo._meshCount,
+                     sceneInfo._vertexCount, sceneInfo._triangleCount );
+
         const auto cameraSnapshot = RenderCamera{
             { lookAt->eye.x, lookAt->eye.y, lookAt->eye.z },
             { lookAt->center.x, lookAt->center.y, lookAt->center.z },

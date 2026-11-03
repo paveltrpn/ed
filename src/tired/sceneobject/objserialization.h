@@ -4,6 +4,7 @@
 #include <array>
 #include <cstddef>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include "serialization.h"
@@ -25,6 +26,16 @@ struct ObjChunk {
     std::vector<double> _vnormals;
     std::vector<double> _txcoords;
     std::vector<TriangleIndices> _triangles;
+};
+
+// ======================================================================================
+// ==================== ObjSceneInfo ====================================================
+// ======================================================================================
+
+struct ObjSceneInfo {
+    size_t _meshCount{};
+    size_t _vertexCount{};
+    size_t _triangleCount{};
 };
 
 // ======================================================================================
@@ -53,7 +64,7 @@ struct ObjSerializationVisitor final : public SerializationVisitor {
     auto serialize( SpringNode *object ) -> void override;
     auto serialize( TeapotNode *object ) -> void override;
 
-    [[nodiscard]] auto compile() const -> std::string;
+    [[nodiscard]] auto compile() const -> std::tuple<std::string, ObjSceneInfo>;
 
 private:
     auto serializeMesh( SceneObjectNode *object ) -> void;

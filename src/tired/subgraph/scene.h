@@ -2,6 +2,7 @@
 #pragma once
 
 #include <string>
+#include <tuple>
 
 #include <QJsonArray>
 #include <QVariantMap>
@@ -14,6 +15,7 @@
 
 #include "boundingrender.h"
 #include "../dynamicrendergraphicspipeline.h"
+#include "../sceneobject/objserialization.h"
 
 namespace tire {
 
@@ -82,7 +84,7 @@ public:
 
     Q_INVOKABLE SceneObjectBase* findObject( const QString& uid ) const;
     Q_INVOKABLE [[nodiscard]] QJsonArray serializeObjects() const;
-    [[nodiscard]] auto serializeObjectsToObj() const -> std::string;
+    [[nodiscard]] auto serializeObjectsToObj() const -> std::tuple<std::string, ObjSceneInfo>;
 
 signals:
     void objectsChanged();

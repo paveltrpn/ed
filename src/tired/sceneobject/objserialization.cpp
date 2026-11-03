@@ -131,10 +131,13 @@ auto ObjSerializationVisitor::serialize( TeapotNode *object ) -> void {
     serializeMesh( object );
 }
 
-[[nodiscard]] auto ObjSerializationVisitor::compile() const -> std::string {
+[[nodiscard]] auto ObjSerializationVisitor::compile() const -> std::tuple<std::string, ObjSceneInfo> {
     //
     auto stream = std::ostringstream{};
     stream << std::format( "o scene\n" );
+
+    auto sceneInfo = ObjSceneInfo{};
+    sceneInfo._meshCount = _chunks.size();
 
     size_t positionOffset{};
     size_t uvOffset{};
@@ -142,6 +145,8 @@ auto ObjSerializationVisitor::serialize( TeapotNode *object ) -> void {
 
     for ( const auto &chunk : _chunks ) {
         const auto vertexCount = chunk._vertices.size() / 3;
+        sceneInfo._vertexCount += vertexCount;
+        sceneInfo._triangleCount += chunk._triangles.size();
 
         for ( size_t index = 0; index < vertexCount; ++index ) {
             stream << std::format( "v {:.17g} {:.17g} {:.17g}\n", chunk._vertices[index * 3],
@@ -181,7 +186,7 @@ auto ObjSerializationVisitor::serialize( TeapotNode *object ) -> void {
         normalOffset += vertexCount;
     }
 
-    return stream.str();
+    return { stream.str(), sceneInfo };
 }
 
 auto ObjSerializationVisitor::serializeMesh( SceneObjectNode *object ) -> void {

@@ -31,7 +31,6 @@
 #include "../sceneobject/spring.h"
 #include "../sceneobject/teapot.h"
 #include "../sceneobject/jsonserialization.h"
-#include "../sceneobject/objserialization.h"
 
 #include "../vsgcommands/setpolygonmode.h"
 #include "tired/subgraph/boundingdraw.h"
@@ -161,7 +160,7 @@ auto SceneUIProxy::serializeObjects() const -> QJsonArray {
     return result;
 }
 
-auto SceneUIProxy::serializeObjectsToObj() const -> std::string {
+auto SceneUIProxy::serializeObjectsToObj() const -> std::tuple<std::string, ObjSceneInfo> {
     auto visitor = ObjSerializationVisitor{};
 
     for ( const auto& object : *_scene.get()->objectsList() ) {
