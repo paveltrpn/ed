@@ -42,7 +42,7 @@ struct TcpWriteAwaitable;
 
 struct Scheduler final {
 public:
-    using AsyncJob = std::pair<std::function<void( uv_loop_t *, AsyncJobPayload * )>, AsyncJobPayload *>;
+    using AsyncJob = std::pair<std::function<void( uv_loop_t*, AsyncJobPayload* )>, AsyncJobPayload*>;
 
     template <typename T>
     friend struct TimeoutAwaitable;
@@ -59,29 +59,27 @@ public:
     friend struct TcpReadAwaitable;
     friend struct TcpWriteAwaitable;
 
-    Scheduler( const Scheduler &other ) = delete;
-    Scheduler( Scheduler &&other ) = delete;
-
-    auto operator=( const Scheduler &other ) -> Scheduler & = delete;
-    auto operator=( Scheduler &&other ) -> Scheduler & = delete;
-
     Scheduler();
 
-    ~Scheduler();
+    Scheduler( const Scheduler& other ) = delete;
+    Scheduler( Scheduler&& other ) = delete;
 
-    [[nodiscard]] auto isLoopThread() const noexcept -> bool;
+    auto operator=( const Scheduler& other ) -> Scheduler& = delete;
+    auto operator=( Scheduler&& other ) -> Scheduler& = delete;
+
+    ~Scheduler();
 
     // Fire once by timeout.
     auto timeout( uint64_t timeout ) -> TimeoutAwaitable<Task<void>>;
 
     //
-    auto openFile( const std::string &path ) -> FileIOAwaitable<Task<void>>;
+    auto openFile( const std::string& path ) -> FileIOAwaitable<Task<void>>;
 
     //
-    auto watchFile( const std::string &path ) -> FilesystemWatchAwaitable<Task<void>>;
+    auto watchFile( const std::string& path ) -> FilesystemWatchAwaitable<Task<void>>;
 
     // Create a connection handle.
-    auto initTcp( int &status ) -> std::shared_ptr<TcpConnection>;
+    auto initTcp( int& status ) -> std::shared_ptr<TcpConnection>;
 
     // Connect to a TCP endpoint.
     auto connect( std::string host, uint16_t port ) -> TcpConnectAwaitable;
@@ -90,42 +88,44 @@ public:
     auto listen( std::string host, uint16_t port ) -> TcpListenAwaitable;
 
     // Accept one incoming TCP connection.
-    auto accept( const std::shared_ptr<TcpListener> &listener ) -> TcpAcceptAwaitable;
+    auto accept( const std::shared_ptr<TcpListener>& listener ) -> TcpAcceptAwaitable;
 
     // Read once from a TCP connection.
-    auto read( const std::shared_ptr<TcpConnection> &connection ) -> TcpReadAwaitable;
+    auto read( const std::shared_ptr<TcpConnection>& connection ) -> TcpReadAwaitable;
 
     // Write bytes to a TCP connection.
-    auto write( const std::shared_ptr<TcpConnection> &connection, std::vector<std::byte> bytes )
-        -> TcpWriteAwaitable;
+    auto write( const std::shared_ptr<TcpConnection>& connection, std::vector<std::byte> bytes ) -> TcpWriteAwaitable;
 
     // Close a TCP connection, canceling any pending read or write.
-    auto close( const std::shared_ptr<TcpConnection> &connection ) -> void;
+    auto close( const std::shared_ptr<TcpConnection>& connection ) -> void;
 
     // Close a TCP listener, canceling any pending listen or accept.
-    auto close( const std::shared_ptr<TcpListener> &listener ) -> void;
+    auto close( const std::shared_ptr<TcpListener>& listener ) -> void;
 
 private:
-    static auto asyncCallback( uv_async_t *handle ) -> void;
+    static auto asyncCallback( uv_async_t* handle ) -> void;
 
     auto enqueue( AsyncJob job ) -> void;
-    auto dequeue( AsyncJob &job ) -> bool;
+    auto dequeue( AsyncJob& job ) -> bool;
     auto stop() -> void;
 
     // Submit callback to event loop.
-    auto post( std::function<void( uv_loop_t * )> task ) -> void;
+    auto post( std::function<void( uv_loop_t* )> task ) -> void;
 
     // Submit callback to event loop.
-    auto schedule( std::function<void( uv_loop_t *, AsyncJobPayload * )> task, AsyncJobPayload *p )
-        -> void;
+    auto schedule( std::function<void( uv_loop_t*, AsyncJobPayload* )> task, AsyncJobPayload* p ) -> void;
 
+private:
     uv_async_t _asyncWakeup{};
-    uv_loop_t *_loop{};
+    uv_loop_t* _loop{};
+
     std::unique_ptr<std::thread> _thread{};
     std::mutex _startupMutex{};
     std::condition_variable _startupCondition{};
+
     bool _startupComplete{ false };
     int _startupStatus{ 0 };
+
     std::mutex _jobMutex{};
     std::deque<AsyncJob> _jobs{};
 };

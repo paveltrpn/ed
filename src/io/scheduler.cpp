@@ -10,7 +10,7 @@
 namespace tire {
 
 Scheduler::Scheduler()
-    : _loop{ static_cast<uv_loop_t *>( std::malloc( sizeof( uv_loop_t ) ) ) } {
+    : _loop{ static_cast<uv_loop_t*>( std::malloc( sizeof( uv_loop_t ) ) ) } {
     if ( _loop == nullptr ) {
         throw std::bad_alloc{};
     }
@@ -29,6 +29,7 @@ Scheduler::Scheduler()
             _startupStatus = status;
             _startupComplete = true;
         }
+
         _startupCondition.notify_one();
 
         if ( status != 0 ) {
@@ -40,9 +41,10 @@ Scheduler::Scheduler()
 
         uv_run( _loop, UV_RUN_DEFAULT );
 
-        if ( !uv_is_closing( reinterpret_cast<uv_handle_t *>( &_asyncWakeup ) ) ) {
-            uv_close( reinterpret_cast<uv_handle_t *>( &_asyncWakeup ), nullptr );
+        if ( !uv_is_closing( reinterpret_cast<uv_handle_t*>( &_asyncWakeup ) ) ) {
+            uv_close( reinterpret_cast<uv_handle_t*>( &_asyncWakeup ), nullptr );
         }
+
         uv_run( _loop, UV_RUN_DEFAULT );
 
         const auto closeStatus = uv_loop_close( _loop );
@@ -52,14 +54,22 @@ Scheduler::Scheduler()
     } );
 
     std::unique_lock lock{ _startupMutex };
-    _startupCondition.wait( lock, [this]() -> bool { return _startupComplete; } );
+
+    _startupCondition.wait( lock, [this]() -> bool {
+        //
+        return _startupComplete;
+    } );
+
     const auto startupStatus = _startupStatus;
     lock.unlock();
 
     if ( startupStatus != 0 ) {
         _thread->join();
+
         std::free( _loop );
+
         _loop = nullptr;
+
         throw std::runtime_error{ uv_strerror( startupStatus ) };
     }
 }
@@ -70,30 +80,33 @@ Scheduler::~Scheduler() {
     std::free( _loop );
 }
 
-auto Scheduler::asyncCallback( uv_async_t *handle ) -> void {
-    auto *context = static_cast<Scheduler *>( handle->data );
+auto Scheduler::asyncCallback( uv_async_t* handle ) -> void {
+    auto* context = static_cast<Scheduler*>( handle->data );
 
     while ( true ) {
         auto item = AsyncJob{};
+
         if ( !context->dequeue( item ) ) {
             break;
         }
+
         auto [task, payload] = std::move( item );
+
         try {
             task( context->_loop, payload );
-        } catch ( const std::exception &exception ) {
+        } catch ( const std::exception& exception ) {
             log::error()( "Scheduled libuv job failed: {}", exception.what() );
-        } catch ( ... ) {
-            log::error()( "Scheduled libuv job failed with an unknown exception" );
         }
     }
 }
 
 auto Scheduler::stop() -> void {
-    auto unrefTask = [this]( uv_loop_t *, AsyncJobPayload * ) -> void {
-        uv_unref( reinterpret_cast<uv_handle_t *>( &_asyncWakeup ) );
+    auto unrefTask = [this]( uv_loop_t*, AsyncJobPayload* ) -> void {
+        uv_unref( reinterpret_cast<uv_handle_t*>( &_asyncWakeup ) );
     };
+
     enqueue( std::make_pair( std::move( unrefTask ), nullptr ) );
+
     uv_async_send( &_asyncWakeup );
 }
 
@@ -102,23 +115,21 @@ auto Scheduler::enqueue( AsyncJob job ) -> void {
     _jobs.push_back( std::move( job ) );
 }
 
-auto Scheduler::dequeue( AsyncJob &job ) -> bool {
+auto Scheduler::dequeue( AsyncJob& job ) -> bool {
     std::scoped_lock lock{ _jobMutex };
+
     if ( _jobs.empty() ) {
         return false;
     }
 
     job = std::move( _jobs.front() );
     _jobs.pop_front();
+
     return true;
 }
 
-auto Scheduler::isLoopThread() const noexcept -> bool {
-    return _thread != nullptr && std::this_thread::get_id() == _thread->get_id();
-}
-
-auto Scheduler::post( std::function<void( uv_loop_t * )> task ) -> void {
-    auto scheduledTask = [task = std::move( task )]( uv_loop_t *loop, AsyncJobPayload * ) mutable -> void {
+auto Scheduler::post( std::function<void( uv_loop_t* )> task ) -> void {
+    auto scheduledTask = [task = std::move( task )]( uv_loop_t* loop, AsyncJobPayload* ) mutable -> void {
         //
         task( loop );
     };
@@ -126,8 +137,7 @@ auto Scheduler::post( std::function<void( uv_loop_t * )> task ) -> void {
     schedule( std::move( scheduledTask ), nullptr );
 }
 
-auto Scheduler::schedule( std::function<void( uv_loop_t *, AsyncJobPayload * )> task, AsyncJobPayload *p )
-    -> void {
+auto Scheduler::schedule( std::function<void( uv_loop_t*, AsyncJobPayload* )> task, AsyncJobPayload* p ) -> void {
     enqueue( std::make_pair( std::move( task ), p ) );
 
     // Wakeup event loop and process task queue.
