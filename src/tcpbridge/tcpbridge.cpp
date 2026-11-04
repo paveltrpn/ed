@@ -163,7 +163,7 @@ auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions 
     auto lastStatus = static_cast<int>( UV_ECANCELED );
 
     for ( size_t attempt = 0; attempt < retry._maximumAttempts; ++attempt ) {
-        auto connect = std::make_shared<TcpConnectAwaitable>( *_scheduler, host, port );
+        auto connect = std::make_shared<TcpConnectAwaitableState>( *_scheduler, host, port );
 
         {
             std::scoped_lock lock{ _sessionMutex };
@@ -176,7 +176,7 @@ auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions 
             _connect = connect;
         }
 
-        const auto connectResult = co_await( *connect );
+        const auto connectResult = co_await TcpConnectAwaitable{ connect };
 
         {
             std::scoped_lock lock{ _sessionMutex };
@@ -211,7 +211,7 @@ auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions 
         }
 
         if ( attempt + 1 < retry._maximumAttempts ) {
-            auto timer = std::make_shared<TimeoutAwaitable<Task<void>>>( *_scheduler, retry._delayMilliseconds );
+            auto timer = std::make_shared<TimeoutAwaitableState>( *_scheduler, retry._delayMilliseconds );
             {
                 std::scoped_lock lock{ _sessionMutex };
 
@@ -223,7 +223,7 @@ auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions 
                 _retryTimer = timer;
             }
 
-            const auto timerStatus = co_await( *timer );
+            const auto timerStatus = co_await TimeoutAwaitable{ timer };
 
             {
                 std::scoped_lock lock{ _sessionMutex };
@@ -358,7 +358,7 @@ auto TcpBridge::send( std::vector<std::byte> message ) -> Task<int> {
 }
 
 auto TcpBridge::delay( uint64_t timeoutMilliseconds ) -> Task<int> {
-    auto timer = std::make_shared<TimeoutAwaitable<Task<void>>>( *_scheduler, timeoutMilliseconds );
+    auto timer = std::make_shared<TimeoutAwaitableState>( *_scheduler, timeoutMilliseconds );
     auto status = 0;
 
     {
@@ -377,7 +377,7 @@ auto TcpBridge::delay( uint64_t timeoutMilliseconds ) -> Task<int> {
         co_return status;
     }
 
-    status = co_await * timer;
+    status = co_await TimeoutAwaitable{ timer };
 
     {
         std::scoped_lock lock{ _sessionMutex };
@@ -395,9 +395,9 @@ auto TcpBridge::close() -> void {
 
     auto listener = std::shared_ptr<TcpListener>{};
     auto connection = std::shared_ptr<TcpConnection>{};
-    auto connect = std::shared_ptr<TcpConnectAwaitable>{};
-    auto retryTimer = std::shared_ptr<TimeoutAwaitable<Task<void>>>{};
-    auto delayTimer = std::shared_ptr<TimeoutAwaitable<Task<void>>>{};
+    auto connect = std::shared_ptr<TcpConnectAwaitableState>{};
+    auto retryTimer = std::shared_ptr<TimeoutAwaitableState>{};
+    auto delayTimer = std::shared_ptr<TimeoutAwaitableState>{};
 
     {
         std::scoped_lock lock{ _sessionMutex };

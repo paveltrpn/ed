@@ -95,11 +95,21 @@ auto startConnect( const std::shared_ptr<ConnectState> &state ) -> void {
 
 namespace tire {
 
-TcpConnectAwaitable::TcpConnectAwaitable( Scheduler &scheduler, std::string host, uint16_t port )
-    : _state{ std::make_shared<TcpConnectAwaitableState>() } {
-    _state->_scheduler = &scheduler;
-    _state->_host = std::move( host );
-    _state->_port = port;
+TcpConnectAwaitableState::TcpConnectAwaitableState( Scheduler &scheduler, std::string host, uint16_t port )
+    : _scheduler{ &scheduler }
+    , _host{ std::move( host ) }
+    , _port{ port } {
+}
+
+auto TcpConnectAwaitableState::cancel() -> void {
+    _scheduler->schedule( [state = shared_from_this()]( uv_loop_t * ) -> void {
+        //
+        cancelConnect( state );
+    } );
+}
+
+TcpConnectAwaitable::TcpConnectAwaitable( std::shared_ptr<TcpConnectAwaitableState> state )
+    : _state{ std::move( state ) } {
 }
 
 auto TcpConnectAwaitable::await_ready() noexcept -> bool {
@@ -119,16 +129,9 @@ auto TcpConnectAwaitable::await_resume() noexcept -> TcpConnectResult {
     return std::move( *_state->_result );
 }
 
-auto TcpConnectAwaitable::cancel() -> void {
-    _state->_scheduler->schedule( [state = _state]( uv_loop_t * ) -> void {
-        //
-        cancelConnect( state );
-    } );
-}
-
 auto Scheduler::connect( std::string host, uint16_t port ) -> TcpConnectAwaitable {
     //
-    return TcpConnectAwaitable{ *this, std::move( host ), port };
+    return TcpConnectAwaitable{ std::make_shared<TcpConnectAwaitableState>( *this, std::move( host ), port ) };
 }
 
 }  // namespace tire

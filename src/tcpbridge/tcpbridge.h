@@ -107,6 +107,7 @@ struct TcpBridge final {
 
 private:
     std::unique_ptr<Scheduler> _scheduler{};
+
     std::atomic<bool> _closing{ false };
     size_t _maximumPayload{ TcpFrameCodec::_defaultMaximumPayload };
     TcpFrameCodec _codec{ _maximumPayload };
@@ -117,9 +118,9 @@ private:
 
     std::shared_ptr<TcpListener> _listener{};
     std::shared_ptr<TcpConnection> _connection{};
-    std::shared_ptr<TcpConnectAwaitable> _connect{};
-    std::shared_ptr<TimeoutAwaitable<Task<void>>> _retryTimer{};
-    std::shared_ptr<TimeoutAwaitable<Task<void>>> _delayTimer{};
+    std::shared_ptr<TcpConnectAwaitableState> _connect{};
+    std::shared_ptr<TimeoutAwaitableState> _retryTimer{};
+    std::shared_ptr<TimeoutAwaitableState> _delayTimer{};
 
     // Messages decoded ahead of the last co_awaited read.
     std::deque<std::vector<std::byte>> _pendingMessages{};

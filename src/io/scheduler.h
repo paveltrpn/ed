@@ -19,8 +19,8 @@
 
 namespace tire {
 
-template <typename T>
 struct TimeoutAwaitable;
+struct TimeoutAwaitableState;
 
 template <typename T>
 struct FileIOAwaitable;
@@ -31,6 +31,7 @@ struct FilesystemWatchAwaitable;
 struct TcpConnection;
 struct TcpListener;
 struct TcpConnectAwaitable;
+struct TcpConnectAwaitableState;
 struct TcpListenAwaitable;
 struct TcpAcceptAwaitable;
 struct TcpReadAwaitable;
@@ -42,8 +43,8 @@ struct TcpWriteAwaitable;
 
 struct Scheduler final {
 public:
-    template <typename T>
     friend struct TimeoutAwaitable;
+    friend struct TimeoutAwaitableState;
 
     template <typename T>
     friend struct FileIOAwaitable;
@@ -52,6 +53,7 @@ public:
     friend struct FilesystemWatchAwaitable;
 
     friend struct TcpConnectAwaitable;
+    friend struct TcpConnectAwaitableState;
     friend struct TcpListenAwaitable;
     friend struct TcpAcceptAwaitable;
     friend struct TcpReadAwaitable;
@@ -68,7 +70,7 @@ public:
     ~Scheduler();
 
     // Fire once by timeout.
-    auto timeout( uint64_t timeout ) -> TimeoutAwaitable<Task<void>>;
+    auto timeout( uint64_t timeout ) -> TimeoutAwaitable;
 
     //
     auto openFile( const std::string& path ) -> FileIOAwaitable<Task<void>>;

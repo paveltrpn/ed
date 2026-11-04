@@ -17,7 +17,16 @@ struct TcpConnectResult {
     std::shared_ptr<TcpConnection> _connection{};
 };
 
-struct TcpConnectAwaitableState {
+// ======================================================================================
+// ==================== TcpConnectAwaitableState ========================================
+// ======================================================================================
+
+struct TcpConnectAwaitableState : std::enable_shared_from_this<TcpConnectAwaitableState> {
+    TcpConnectAwaitableState( Scheduler &scheduler, std::string host, uint16_t port );
+
+    auto cancel() -> void;
+
+public:
     Scheduler *_scheduler{ nullptr };
     std::shared_ptr<TcpConnectResult> _result{ std::make_shared<TcpConnectResult>() };
     std::shared_ptr<TcpConnection> _connection{};
@@ -33,13 +42,11 @@ struct TcpConnectAwaitableState {
 // ======================================================================================
 
 struct TcpConnectAwaitable final {
-    TcpConnectAwaitable( Scheduler &scheduler, std::string host, uint16_t port );
+    explicit TcpConnectAwaitable( std::shared_ptr<TcpConnectAwaitableState> state );
 
     auto await_ready() noexcept -> bool;
     auto await_suspend( std::coroutine_handle<> coroutine ) -> void;
     auto await_resume() noexcept -> TcpConnectResult;
-
-    auto cancel() -> void;
 
     std::shared_ptr<TcpConnectAwaitableState> _state{};
 };
