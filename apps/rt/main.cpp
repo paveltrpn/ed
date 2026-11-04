@@ -243,6 +243,7 @@ auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint
 
                         break;
                     }
+
                     default: {
                         throw std::runtime_error{ "Unexpected message sent to the RT render server" };
                     }
@@ -250,8 +251,6 @@ auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint
             }
         } catch ( const std::exception& exception ) {
             response = tire::ChatMessage{ tire::RenderMessageType::ERROR, exception.what() }.encode();
-        } catch ( ... ) {
-            response = tire::ChatMessage{ tire::RenderMessageType::ERROR, "Unknown RT render server failure" }.encode();
         }
 
         if ( !response.empty() ) {
