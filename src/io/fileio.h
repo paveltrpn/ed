@@ -33,10 +33,10 @@ struct FileIOAwaitable final {
 
     auto await_suspend( std::coroutine_handle<typename T::promise_type> coroHandle ) noexcept -> void {
         // Execute on event loop.
-        auto newFileIOTask = []( uv_loop_t *loop, AsyncJobPayload *payload ) -> void {
+        auto newFileIOTask = [payload = payload_]( uv_loop_t *loop ) -> void {
             auto openRqst = static_cast<uv_fs_t *>( std::malloc( sizeof( uv_fs_t ) ) );
 
-            uv_handle_set_data( reinterpret_cast<uv_handle_t *>( openRqst ), payload );
+            uv_handle_set_data( reinterpret_cast<uv_handle_t *>( openRqst ), payload.get() );
 
             // Coroutine resume callback.
             auto onFiresCb = []( uv_fs_t *openRqst ) -> void {
@@ -61,7 +61,7 @@ struct FileIOAwaitable final {
                 }
             };
 
-            auto p = static_cast<FileIOCbPayload *>( payload );
+            auto p = static_cast<FileIOCbPayload *>( payload.get() );
 
             int r = uv_fs_open( loop, openRqst, p->path.c_str(), O_RDONLY, 0, onFiresCb );
             if ( r < 0 ) {
@@ -72,7 +72,7 @@ struct FileIOAwaitable final {
 
         payload_->coro = coroHandle.address();
 
-        context_.schedule( newFileIOTask, payload_.get() );
+        context_.schedule( std::move( newFileIOTask ) );
     }
 
     [[nodiscard]] auto await_resume() const noexcept -> size_t {

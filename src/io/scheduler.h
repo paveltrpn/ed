@@ -15,7 +15,6 @@
 #include <uv.h>
 
 #include "io/async.h"
-#include "io/payload.h"
 
 namespace tire {
 
@@ -42,7 +41,7 @@ struct TcpWriteAwaitable;
 
 struct Scheduler final {
 public:
-    using AsyncJob = std::pair<std::function<void( uv_loop_t*, AsyncJobPayload* )>, AsyncJobPayload*>;
+    using AsyncJob = std::function<void( uv_loop_t* )>;
 
     template <typename T>
     friend struct TimeoutAwaitable;
@@ -111,9 +110,6 @@ private:
 
     // Submit callback to event loop.
     auto schedule( std::function<void( uv_loop_t* )> task ) -> void;
-
-    // Submit callback to event loop.
-    auto schedule( std::function<void( uv_loop_t*, AsyncJobPayload* )> task, AsyncJobPayload* p ) -> void;
 
 private:
     // Это единственный хендл, который живёт всё время работы loop'а и держит uv_run от возврата.

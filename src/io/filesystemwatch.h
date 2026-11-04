@@ -31,7 +31,7 @@ struct FilesystemWatchAwaitable final {
     }
 
     auto await_suspend( std::coroutine_handle<typename T::promise_type> coroHandle ) -> void {
-        auto newFilesystemWatchTask = []( uv_loop_t *loop, AsyncJobPayload *payload ) -> void {
+        auto newFilesystemWatchTask = [payload = payload_]( uv_loop_t *loop ) -> void {
             auto onFSEvent = []( uv_fs_event_t *handle, const char *filename, int events, int status ) -> void {
                 auto payload = static_cast<FilesystemWatchCbPayload *>( handle->data );
                 payload->status = status;
@@ -60,9 +60,9 @@ struct FilesystemWatchAwaitable final {
 
             uv_fs_event_init( loop, watcher );
 
-            uv_handle_set_data( reinterpret_cast<uv_handle_t *>( watcher ), payload );
+            uv_handle_set_data( reinterpret_cast<uv_handle_t *>( watcher ), payload.get() );
 
-            auto p = static_cast<FilesystemWatchCbPayload *>( payload );
+            auto p = static_cast<FilesystemWatchCbPayload *>( payload.get() );
 
             // "Callback passed to uv_fs_event_start() which will be called repeatedly
             // after the handle is started." therefore we need to stop them manually.
@@ -71,7 +71,7 @@ struct FilesystemWatchAwaitable final {
 
         payload_->coro = coroHandle.address();
 
-        context_.schedule( newFilesystemWatchTask, payload_.get() );
+        context_.schedule( std::move( newFilesystemWatchTask ) );
     }
 
     auto await_resume() noexcept -> std::tuple<int, int> {

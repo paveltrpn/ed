@@ -98,10 +98,10 @@ auto Scheduler::asyncCallback( uv_async_t* handle ) -> void {
             break;
         }
 
-        auto [task, payload] = std::move( item );
+        auto task = std::move( item );
 
         try {
-            task( context->_loop, payload );
+            task( context->_loop );
         } catch ( const std::exception& exception ) {
             log::error()( "Scheduled libuv job failed: {}", exception.what() );
         }
@@ -109,12 +109,12 @@ auto Scheduler::asyncCallback( uv_async_t* handle ) -> void {
 }
 
 auto Scheduler::stop() -> void {
-    auto unrefTask = [this]( uv_loop_t*, AsyncJobPayload* ) -> void {
+    auto unrefTask = [this]( uv_loop_t* ) -> void {
         //
         uv_unref( reinterpret_cast<uv_handle_t*>( &_asyncWakeup ) );
     };
 
-    enqueue( std::make_pair( std::move( unrefTask ), nullptr ) );
+    enqueue( std::move( unrefTask ) );
 
     uv_async_send( &_asyncWakeup );
 }
@@ -138,16 +138,7 @@ auto Scheduler::dequeue( AsyncJob& job ) -> bool {
 }
 
 auto Scheduler::schedule( std::function<void( uv_loop_t* )> task ) -> void {
-    auto scheduledTask = [task = std::move( task )]( uv_loop_t* loop, AsyncJobPayload* ) mutable -> void {
-        //
-        task( loop );
-    };
-
-    schedule( std::move( scheduledTask ), nullptr );
-}
-
-auto Scheduler::schedule( std::function<void( uv_loop_t*, AsyncJobPayload* )> task, AsyncJobPayload* p ) -> void {
-    enqueue( std::make_pair( std::move( task ), p ) );
+    enqueue( std::move( task ) );
 
     // Wakeup event loop and process task queue.
     uv_async_send( &_asyncWakeup );
