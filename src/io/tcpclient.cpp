@@ -9,16 +9,8 @@ namespace {
 using ConnectState = tire::TcpConnectAwaitableState;
 
 auto completeConnect( const std::shared_ptr<ConnectState> &state, int status ) -> void {
-    if ( state->_completed ) {
-        return;
-    }
-
-    state->_completed = true;
-    state->_result->_status = status;
-    const auto coroutine = std::exchange( state->_coroutine, nullptr );
-    if ( coroutine ) {
-        coroutine.resume();
-    }
+    //
+    state->finish( status );
 }
 
 auto failConnect( const std::shared_ptr<ConnectState> &state, int status ) -> void {

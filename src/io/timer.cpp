@@ -7,19 +7,6 @@ TimeoutAwaitableState::TimeoutAwaitableState( Scheduler& scheduler, uint64_t tim
     , _timeout{ timeout } {
 }
 
-auto TimeoutAwaitableState::finish( int status ) -> void {
-    if ( _completed ) {
-        return;
-    }
-
-    _completed = true;
-    *_status = status;
-    const auto coroutine = std::exchange( _coroutine, nullptr );
-    if ( coroutine ) {
-        coroutine.resume();
-    }
-}
-
 auto TimeoutAwaitableState::close( int status ) -> void {
     if ( _closing ) {
         return;
@@ -111,7 +98,7 @@ auto TimeoutAwaitable::await_suspend( std::coroutine_handle<> coroutine ) noexce
 
 auto TimeoutAwaitable::await_resume() const noexcept -> int {
     //
-    return *_state->_status;
+    return _state->_result->_status;
 }
 
 auto Scheduler::timeout( uint64_t timeout ) -> TimeoutAwaitable {

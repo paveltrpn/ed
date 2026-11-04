@@ -11,29 +11,19 @@ using ListenState = tire::TcpListenAwaitableState;
 using AcceptState = tire::TcpAcceptAwaitableState;
 
 auto completeListen( const std::shared_ptr<ListenState> &operation, int status ) -> void {
-    if ( operation == nullptr || operation->_completed ) {
+    if ( operation == nullptr ) {
         return;
     }
 
-    operation->_completed = true;
-    operation->_result->_status = status;
-    const auto coroutine = std::exchange( operation->_coroutine, nullptr );
-    if ( coroutine ) {
-        coroutine.resume();
-    }
+    operation->finish( status );
 }
 
 auto completeAccept( const std::shared_ptr<AcceptState> &operation, int status ) -> void {
-    if ( operation == nullptr || operation->_completed ) {
+    if ( operation == nullptr ) {
         return;
     }
 
-    operation->_completed = true;
-    operation->_result->_status = status;
-    const auto coroutine = std::exchange( operation->_coroutine, nullptr );
-    if ( coroutine ) {
-        coroutine.resume();
-    }
+    operation->finish( status );
 }
 
 auto closeServerHandle( const std::shared_ptr<ListenerState> &state ) -> void {

@@ -14,33 +14,19 @@ namespace {
 using ConnectionState = TcpConnectionState;
 
 auto completeRead( const std::shared_ptr<TcpReadOperation> &operation, int status ) -> void {
-    if ( operation == nullptr || operation->_completed ) {
+    if ( operation == nullptr ) {
         return;
     }
 
-    operation->_completed = true;
-    operation->_result->_status = status;
-
-    const auto coroutine = std::exchange( operation->_coroutine, nullptr );
-
-    if ( coroutine ) {
-        coroutine.resume();
-    }
+    operation->finish( status );
 }
 
 auto completeWrite( const std::shared_ptr<TcpWriteOperation> &operation, int status ) -> void {
-    if ( operation == nullptr || operation->_completed ) {
+    if ( operation == nullptr ) {
         return;
     }
 
-    operation->_completed = true;
-    operation->_result->_status = status;
-
-    const auto coroutine = std::exchange( operation->_coroutine, nullptr );
-
-    if ( coroutine ) {
-        coroutine.resume();
-    }
+    operation->finish( status );
 }
 
 auto closeConnection( const std::shared_ptr<ConnectionState> &state ) -> void {

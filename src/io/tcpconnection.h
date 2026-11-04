@@ -7,6 +7,8 @@
 
 #include <uv.h>
 
+#include "io/awaitablestate.h"
+
 namespace tire {
 
 struct Scheduler;
@@ -22,21 +24,15 @@ struct TcpWriteResult {
     int _status{ 0 };
 };
 
-struct TcpReadOperation {
+struct TcpReadOperation : AwaitableState<TcpReadOperation, TcpReadResult> {
     std::shared_ptr<TcpConnectionState> _state{};
-    std::coroutine_handle<> _coroutine{};
-    std::shared_ptr<TcpReadResult> _result{};
     void* _allocation{ nullptr };
-    bool _completed{ false };
 };
 
-struct TcpWriteOperation {
+struct TcpWriteOperation : AwaitableState<TcpWriteOperation, TcpWriteResult> {
     std::shared_ptr<TcpConnectionState> _state{};
-    std::coroutine_handle<> _coroutine{};
     std::vector<std::byte> _bytes{};
-    std::shared_ptr<TcpWriteResult> _result{};
     uv_write_t _request{};
-    bool _completed{ false };
 };
 
 struct TcpConnectionState : std::enable_shared_from_this<TcpConnectionState> {

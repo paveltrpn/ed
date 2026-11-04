@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 
+#include "io/awaitablestate.h"
 #include "io/tcpconnection.h"
 
 namespace tire {
@@ -22,22 +23,16 @@ struct TcpAcceptResult {
     std::shared_ptr<TcpConnection> _connection{};
 };
 
-struct TcpAcceptAwaitableState {
+struct TcpAcceptAwaitableState : AwaitableState<TcpAcceptAwaitableState, TcpAcceptResult> {
     std::shared_ptr<TcpListenerState> _server{};
-    std::shared_ptr<TcpAcceptResult> _result{ std::make_shared<TcpAcceptResult>() };
-    std::coroutine_handle<> _coroutine{};
-    bool _completed{ false };
 };
 
-struct TcpListenAwaitableState {
+struct TcpListenAwaitableState : AwaitableState<TcpListenAwaitableState, TcpListenResult> {
     Scheduler *_scheduler{ nullptr };
     std::shared_ptr<TcpListenerState> _server{};
     std::shared_ptr<TcpListener> _listener{};
-    std::shared_ptr<TcpListenResult> _result{ std::make_shared<TcpListenResult>() };
-    std::coroutine_handle<> _coroutine{};
     std::string _host{};
     uint16_t _port{ 0 };
-    bool _completed{ false };
 };
 
 struct TcpListenerState {

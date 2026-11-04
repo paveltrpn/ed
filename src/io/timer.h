@@ -7,18 +7,26 @@
 
 #include <uv.h>
 
+#include "io/awaitablestate.h"
 #include "io/scheduler.h"
 
 namespace tire {
 
 // ======================================================================================
+// ==================== TimeoutResult ===================================================
+// ======================================================================================
+
+struct TimeoutResult {
+    int _status{ 0 };
+};
+
+// ======================================================================================
 // ==================== TimeoutAwaitableState ===========================================
 // ======================================================================================
 
-struct TimeoutAwaitableState : std::enable_shared_from_this<TimeoutAwaitableState> {
+struct TimeoutAwaitableState : AwaitableState<TimeoutAwaitableState, TimeoutResult> {
     TimeoutAwaitableState( Scheduler& scheduler, uint64_t timeout );
 
-    auto finish( int status ) -> void;
     auto close( int status ) -> void;
     auto fire() -> void;
     auto cancel() -> void;
@@ -28,14 +36,11 @@ public:
     uv_timer_t _timer{};
 
     std::shared_ptr<TimeoutAwaitableState>* _lifetime{ nullptr };
-    std::coroutine_handle<> _coroutine{};
-    std::shared_ptr<int> _status{ std::make_shared<int>( 0 ) };
 
     uint64_t _timeout{ 0 };
 
     bool _initialized{ false };
     bool _closing{ false };
-    bool _completed{ false };
 };
 
 // ======================================================================================
