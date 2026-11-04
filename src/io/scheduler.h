@@ -116,6 +116,7 @@ private:
     auto schedule( std::function<void( uv_loop_t*, AsyncJobPayload* )> task, AsyncJobPayload* p ) -> void;
 
 private:
+    // Это единственный хендл, который живёт всё время работы loop'а и держит uv_run от возврата.
     uv_async_t _asyncWakeup{};
     uv_loop_t* _loop{};
 

@@ -36,15 +36,19 @@ Scheduler::Scheduler()
             if ( loopInitialized ) {
                 uv_loop_close( _loop );
             }
+
             return;
         }
 
+        // Далее стандартная идиома корректного завершения libuv loop:
+        // первый uv_run — рабочая фаза...
         uv_run( _loop, UV_RUN_DEFAULT );
 
         if ( !uv_is_closing( reinterpret_cast<uv_handle_t*>( &_asyncWakeup ) ) ) {
             uv_close( reinterpret_cast<uv_handle_t*>( &_asyncWakeup ), nullptr );
         }
 
+        // ... второй uv_run — фаза «сброса» pending close-колбэков.
         uv_run( _loop, UV_RUN_DEFAULT );
 
         const auto closeStatus = uv_loop_close( _loop );
@@ -55,6 +59,7 @@ Scheduler::Scheduler()
 
     std::unique_lock lock{ _startupMutex };
 
+    // Sleep untill uv loop thread fully initialzed.
     _startupCondition.wait( lock, [this]() -> bool {
         //
         return _startupComplete;
@@ -63,6 +68,7 @@ Scheduler::Scheduler()
     const auto startupStatus = _startupStatus;
     lock.unlock();
 
+    // When uv loop thread fully initialized and error occured - we throw!.
     if ( startupStatus != 0 ) {
         _thread->join();
 
@@ -102,6 +108,7 @@ auto Scheduler::asyncCallback( uv_async_t* handle ) -> void {
 
 auto Scheduler::stop() -> void {
     auto unrefTask = [this]( uv_loop_t*, AsyncJobPayload* ) -> void {
+        //
         uv_unref( reinterpret_cast<uv_handle_t*>( &_asyncWakeup ) );
     };
 
