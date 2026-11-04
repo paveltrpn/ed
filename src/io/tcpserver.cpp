@@ -202,7 +202,7 @@ auto TcpListenAwaitable::await_ready() noexcept -> bool {
 auto TcpListenAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
     _state->_coroutine = coroutine;
 
-    _state->_scheduler->post( [operation = _state]( uv_loop_t *loop ) -> void {
+    _state->_scheduler->schedule( [operation = _state]( uv_loop_t *loop ) -> void {
         //
         startListen( operation, loop );
     } );
@@ -228,7 +228,7 @@ auto TcpAcceptAwaitable::await_ready() noexcept -> bool {
 auto TcpAcceptAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
     _state->_coroutine = coroutine;
 
-    _state->_server->_scheduler->post( [operation = _state]( uv_loop_t * ) -> void {
+    _state->_server->_scheduler->schedule( [operation = _state]( uv_loop_t * ) -> void {
         //
         startAccept( operation );
     } );
@@ -249,7 +249,7 @@ auto Scheduler::accept( const std::shared_ptr<TcpListener> &listener ) -> TcpAcc
 }
 
 auto Scheduler::close( const std::shared_ptr<TcpListener> &listener ) -> void {
-    listener->_state->_scheduler->post( [state = listener->_state]( uv_loop_t * ) -> void {
+    listener->_state->_scheduler->schedule( [state = listener->_state]( uv_loop_t * ) -> void {
         //
         closeServer( state );
     } );

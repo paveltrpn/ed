@@ -109,7 +109,7 @@ auto TcpConnectAwaitable::await_ready() noexcept -> bool {
 auto TcpConnectAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
     _state->_coroutine = coroutine;
 
-    _state->_scheduler->post( [state = _state]( uv_loop_t * ) -> void {
+    _state->_scheduler->schedule( [state = _state]( uv_loop_t * ) -> void {
         //
         startConnect( state );
     } );
@@ -120,7 +120,7 @@ auto TcpConnectAwaitable::await_resume() noexcept -> TcpConnectResult {
 }
 
 auto TcpConnectAwaitable::cancel() -> void {
-    _state->_scheduler->post( [state = _state]( uv_loop_t * ) -> void {
+    _state->_scheduler->schedule( [state = _state]( uv_loop_t * ) -> void {
         //
         cancelConnect( state );
     } );

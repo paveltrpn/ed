@@ -110,7 +110,7 @@ private:
     auto stop() -> void;
 
     // Submit callback to event loop.
-    auto post( std::function<void( uv_loop_t* )> task ) -> void;
+    auto schedule( std::function<void( uv_loop_t* )> task ) -> void;
 
     // Submit callback to event loop.
     auto schedule( std::function<void( uv_loop_t*, AsyncJobPayload* )> task, AsyncJobPayload* p ) -> void;

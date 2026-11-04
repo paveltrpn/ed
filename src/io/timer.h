@@ -67,10 +67,13 @@ struct TimeoutAwaitableState {
 public:
     Scheduler* _scheduler{ nullptr };
     uv_timer_t _timer{};
+
     std::shared_ptr<TimeoutAwaitableState>* _lifetime{ nullptr };
     std::coroutine_handle<> _coroutine{};
     std::shared_ptr<int> _status{ std::make_shared<int>( 0 ) };
+
     uint64_t _timeout{ 0 };
+
     bool _initialized{ false };
     bool _closing{ false };
     bool _completed{ false };
@@ -84,12 +87,15 @@ struct TimeoutAwaitable final {
         _state->_timeout = timeout;
     }
 
-    [[nodiscard]] auto await_ready() const noexcept -> bool { return false; }
+    [[nodiscard]] auto await_ready() const noexcept -> bool {
+        //
+        return false;
+    }
 
     auto await_suspend( std::coroutine_handle<> coroutine ) noexcept -> void {
         _state->_coroutine = coroutine;
 
-        _state->_scheduler->post( [state = _state]( uv_loop_t* loop ) -> void {
+        _state->_scheduler->schedule( [state = _state]( uv_loop_t* loop ) -> void {
             //
             if ( state->_closing ) {
                 state->finish( UV_ECANCELED );
@@ -127,12 +133,13 @@ struct TimeoutAwaitable final {
     }
 
     auto cancel() -> void {
-        _state->_scheduler->post( [state = _state]( uv_loop_t* ) -> void {
+        _state->_scheduler->schedule( [state = _state]( uv_loop_t* ) -> void {
             //
             state->close( UV_ECANCELED );
         } );
     }
 
+private:
     std::shared_ptr<TimeoutAwaitableState> _state{};
 };
 

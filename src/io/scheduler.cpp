@@ -59,7 +59,7 @@ Scheduler::Scheduler()
 
     std::unique_lock lock{ _startupMutex };
 
-    // Sleep untill uv loop thread fully initialzed.
+    // Sleep until uv loop thread fully initialzed.
     _startupCondition.wait( lock, [this]() -> bool {
         //
         return _startupComplete;
@@ -82,7 +82,9 @@ Scheduler::Scheduler()
 
 Scheduler::~Scheduler() {
     stop();
+
     _thread->join();
+
     std::free( _loop );
 }
 
@@ -135,7 +137,7 @@ auto Scheduler::dequeue( AsyncJob& job ) -> bool {
     return true;
 }
 
-auto Scheduler::post( std::function<void( uv_loop_t* )> task ) -> void {
+auto Scheduler::schedule( std::function<void( uv_loop_t* )> task ) -> void {
     auto scheduledTask = [task = std::move( task )]( uv_loop_t* loop, AsyncJobPayload* ) mutable -> void {
         //
         task( loop );

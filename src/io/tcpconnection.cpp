@@ -224,7 +224,7 @@ auto TcpReadAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> voi
     operation->_coroutine = coroutine;
     operation->_result = _result;
 
-    _state->_scheduler->post( [state = _state, operation = std::move( operation )]( uv_loop_t * ) mutable -> void {
+    _state->_scheduler->schedule( [state = _state, operation = std::move( operation )]( uv_loop_t * ) mutable -> void {
         //
         startRead( state, operation );
     } );
@@ -244,7 +244,7 @@ auto TcpWriteAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> vo
     operation->_coroutine = coroutine;
     operation->_result = _result;
     operation->_bytes = std::move( _bytes );
-    _state->_scheduler->post( [state = _state, operation = std::move( operation )]( uv_loop_t * ) mutable -> void {
+    _state->_scheduler->schedule( [state = _state, operation = std::move( operation )]( uv_loop_t * ) mutable -> void {
         startWrite( state, operation );
     } );
 }
@@ -265,7 +265,7 @@ auto Scheduler::write( const std::shared_ptr<TcpConnection> &connection, std::ve
 }
 
 auto Scheduler::close( const std::shared_ptr<TcpConnection> &connection ) -> void {
-    connection->_state->_scheduler->post( [state = connection->_state]( uv_loop_t * ) -> void {
+    connection->_state->_scheduler->schedule( [state = connection->_state]( uv_loop_t * ) -> void {
         //
         closeConnection( state );
     } );
