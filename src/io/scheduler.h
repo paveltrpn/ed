@@ -22,11 +22,10 @@ namespace tire {
 struct TimeoutAwaitable;
 struct TimeoutAwaitableState;
 
-template <typename T>
-struct FileIOAwaitable;
-
-template <typename T>
-struct FilesystemWatchAwaitable;
+struct FileOpenAwaitable;
+struct FileOpenAwaitableState;
+struct FileWatchAwaitable;
+struct FileWatchAwaitableState;
 
 struct TcpConnection;
 struct TcpListener;
@@ -46,11 +45,10 @@ public:
     friend struct TimeoutAwaitable;
     friend struct TimeoutAwaitableState;
 
-    template <typename T>
-    friend struct FileIOAwaitable;
-
-    template <typename T>
-    friend struct FilesystemWatchAwaitable;
+    friend struct FileOpenAwaitable;
+    friend struct FileOpenAwaitableState;
+    friend struct FileWatchAwaitable;
+    friend struct FileWatchAwaitableState;
 
     friend struct TcpConnectAwaitable;
     friend struct TcpConnectAwaitableState;
@@ -73,10 +71,10 @@ public:
     auto timeout( uint64_t timeout ) -> TimeoutAwaitable;
 
     //
-    auto openFile( const std::string& path ) -> FileIOAwaitable<Task<void>>;
+    auto openFile( const std::string& path ) -> FileOpenAwaitable;
 
     //
-    auto watchFile( const std::string& path ) -> FilesystemWatchAwaitable<Task<void>>;
+    auto watchFile( const std::string& path ) -> FileWatchAwaitable;
 
     // Create a connection handle.
     auto initTcp( int& status ) -> std::shared_ptr<TcpConnection>;

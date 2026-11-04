@@ -2,88 +2,57 @@
 
 #include <fcntl.h>
 
-#include <cstddef>
-#include <print>
-#include <string>
-#include <cstdlib>
 #include <coroutine>
 #include <memory>
-#include <utility>
+#include <string>
 
 #include <uv.h>
 
-#include "log/log.h"
-
-#include "io/async.h"
-#include "io/payload.h"
+#include "io/awaitablestate.h"
 #include "io/scheduler.h"
 
 namespace tire {
 
-template <typename T>
-struct FileIOAwaitable final {
-    FileIOAwaitable( Scheduler &context, std::string path )
-        : context_( context )
-        , payload_{ std::shared_ptr<FileIOCbPayload>( new FileIOCbPayload{ nullptr, std::move( path ), 0 } ) } {};
+// ======================================================================================
+// ==================== FileOpenResult ==================================================
+// ======================================================================================
 
-    [[nodiscard]] auto await_ready() const noexcept -> bool {
-        //
-        return false;
-    }
+struct FileOpenResult {
+    int _status{ 0 };
+};
 
-    auto await_suspend( std::coroutine_handle<typename T::promise_type> coroHandle ) noexcept -> void {
-        // Execute on event loop.
-        auto newFileIOTask = [payload = payload_]( uv_loop_t *loop ) -> void {
-            auto openRqst = static_cast<uv_fs_t *>( std::malloc( sizeof( uv_fs_t ) ) );
+// ======================================================================================
+// ==================== FileOpenAwaitableState ==========================================
+// ======================================================================================
 
-            uv_handle_set_data( reinterpret_cast<uv_handle_t *>( openRqst ), payload.get() );
+struct FileOpenAwaitableState : AwaitableState<FileOpenAwaitableState, FileOpenResult> {
+    FileOpenAwaitableState( Scheduler& scheduler, std::string path );
 
-            // Coroutine resume callback.
-            auto onFiresCb = []( uv_fs_t *openRqst ) -> void {
-                auto payload = static_cast<FileIOCbPayload *>( openRqst->data );
-                payload->opentResult = openRqst->result;
+    auto cancel() -> void;
 
-                // std::println( "Open error: {}", uv_strerror( openRqst->result ) );
+public:
+    Scheduler* _scheduler{ nullptr };
+    std::string _path{};
+    uv_fs_t _request{};
 
-                // File descriptor can be read, written, or closed here.
-                // uv_file opened_fd = openRqst->result;
-                // std::println( "File successfully opened with FD: {}", opened_fd );
+    std::shared_ptr<FileOpenAwaitableState>* _lifetime{ nullptr };
 
-                // Must always clean up the request.
-                uv_fs_req_cleanup( openRqst );
+    bool _started{ false };
+};
 
-                auto coroHandle = std::coroutine_handle<typename T::promise_type>::from_address( payload->coro );
+// ======================================================================================
+// ==================== FileOpenAwaitable ===============================================
+// ======================================================================================
 
-                if ( !coroHandle ) {
-                    log::error()( "Bad coro handle!" );
-                } else {
-                    coroHandle.resume();
-                }
-            };
+struct FileOpenAwaitable final {
+    explicit FileOpenAwaitable( std::shared_ptr<FileOpenAwaitableState> state );
 
-            auto p = static_cast<FileIOCbPayload *>( payload.get() );
+    [[nodiscard]] auto await_ready() const noexcept -> bool;
+    auto await_suspend( std::coroutine_handle<> coroutine ) noexcept -> void;
+    [[nodiscard]] auto await_resume() const noexcept -> int;
 
-            int r = uv_fs_open( loop, openRqst, p->path.c_str(), O_RDONLY, 0, onFiresCb );
-            if ( r < 0 ) {
-                std::println( "Failed to initiate open: {}.", uv_strerror( r ) );
-                return;
-            }
-        };
-
-        payload_->coro = coroHandle.address();
-
-        context_.schedule( std::move( newFileIOTask ) );
-    }
-
-    [[nodiscard]] auto await_resume() const noexcept -> size_t {
-        //
-        auto p = static_cast<FileIOCbPayload *>( payload_.get() );
-        return p->opentResult;
-    }
-
-    Scheduler &context_;
-    // Store FileIOCbPayload by base class ptr.
-    std::shared_ptr<AsyncJobPayload> payload_{};
+private:
+    std::shared_ptr<FileOpenAwaitableState> _state{};
 };
 
 }  // namespace tire

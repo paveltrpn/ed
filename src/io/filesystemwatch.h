@@ -1,87 +1,59 @@
 #pragma once
 
-#include <print>
-#include <string>
-#include <cstdlib>
 #include <coroutine>
 #include <memory>
-#include <tuple>
-#include <utility>
+#include <string>
 
 #include <uv.h>
 
-#include "log/log.h"
-
-#include "io/async.h"
-#include "io/payload.h"
+#include "io/awaitablestate.h"
 #include "io/scheduler.h"
 
 namespace tire {
 
-template <typename T>
-struct FilesystemWatchAwaitable final {
-    FilesystemWatchAwaitable( Scheduler &context, std::string path )
-        : context_( context )
-        , payload_{ std::shared_ptr<FilesystemWatchCbPayload>(
-              new FilesystemWatchCbPayload{ nullptr, std::move( path ), 0, 0 } ) } {};
+// ======================================================================================
+// ==================== FileWatchResult =================================================
+// ======================================================================================
 
-    [[nodiscard]] auto await_ready() const noexcept -> bool {
-        //
-        return false;
-    }
+struct FileWatchResult {
+    int _status{ 0 };
+    int _events{ 0 };
+};
 
-    auto await_suspend( std::coroutine_handle<typename T::promise_type> coroHandle ) -> void {
-        auto newFilesystemWatchTask = [payload = payload_]( uv_loop_t *loop ) -> void {
-            auto onFSEvent = []( uv_fs_event_t *handle, const char *filename, int events, int status ) -> void {
-                auto payload = static_cast<FilesystemWatchCbPayload *>( handle->data );
-                payload->status = status;
-                payload->events = events;
+// ======================================================================================
+// ==================== FileWatchAwaitableState =========================================
+// ======================================================================================
 
-                // Stop the handle, the callback will no longer be called.
-                uv_fs_event_stop( handle );
+struct FileWatchAwaitableState : AwaitableState<FileWatchAwaitableState, FileWatchResult> {
+    FileWatchAwaitableState( Scheduler& scheduler, std::string path );
 
-                // Remove handle.
-                uv_close( reinterpret_cast<uv_handle_t *>( handle ), []( uv_handle_t *handle ) -> void {
-                    //
-                    std::free( handle );
-                } );
+    auto close( int status ) -> void;
+    auto cancel() -> void;
 
-                // Awake coroutine.
-                auto coroHandle = std::coroutine_handle<typename T::promise_type>::from_address( payload->coro );
+public:
+    Scheduler* _scheduler{ nullptr };
+    std::string _path{};
+    uv_fs_event_t _watcher{};
 
-                if ( !coroHandle ) {
-                    log::error()( "Bad coro handle!" );
-                } else {
-                    coroHandle.resume();
-                }
-            };
+    std::shared_ptr<FileWatchAwaitableState>* _lifetime{ nullptr };
 
-            auto watcher = static_cast<uv_fs_event_t *>( std::malloc( sizeof( uv_fs_event_t ) ) );
+    bool _initialized{ false };
+    bool _closing{ false };
+};
 
-            uv_fs_event_init( loop, watcher );
+// ======================================================================================
+// ==================== FileWatchAwaitable ==============================================
+// ======================================================================================
 
-            uv_handle_set_data( reinterpret_cast<uv_handle_t *>( watcher ), payload.get() );
+struct FileWatchAwaitable final {
+    explicit FileWatchAwaitable( std::shared_ptr<FileWatchAwaitableState> state );
 
-            auto p = static_cast<FilesystemWatchCbPayload *>( payload.get() );
+    [[nodiscard]] auto await_ready() const noexcept -> bool;
+    auto await_suspend( std::coroutine_handle<> coroutine ) noexcept -> void;
+    [[nodiscard]] auto await_resume() const noexcept -> FileWatchResult;
 
-            // "Callback passed to uv_fs_event_start() which will be called repeatedly
-            // after the handle is started." therefore we need to stop them manually.
-            uv_fs_event_start( watcher, onFSEvent, p->path.c_str(), 0 );
-        };
-
-        payload_->coro = coroHandle.address();
-
-        context_.schedule( std::move( newFilesystemWatchTask ) );
-    }
-
-    auto await_resume() noexcept -> std::tuple<int, int> {
-        auto p = static_cast<FilesystemWatchCbPayload *>( payload_.get() );
-        return std::make_tuple( p->status, p->events );
-    }
-
-    Scheduler &context_;
-    // Store FilesystemWatchCbPayload by base class ptr.
-    std::shared_ptr<AsyncJobPayload> payload_{};
+private:
+    std::shared_ptr<FileWatchAwaitableState> _state{};
 };
 
 }  // namespace tire
