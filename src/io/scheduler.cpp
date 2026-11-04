@@ -92,14 +92,14 @@ auto Scheduler::asyncCallback( uv_async_t* handle ) -> void {
     auto* context = static_cast<Scheduler*>( handle->data );
 
     while ( true ) {
-        auto item = std::function<void( uv_loop_t* )>{};
+        auto item = context->dequeue();
 
-        if ( !context->dequeue( item ) ) {
+        if ( !item.has_value() ) {
             break;
         }
 
         try {
-            item( context->_loop );
+            ( *item )( context->_loop );
         } catch ( const std::exception& exception ) {
             log::error()( "Scheduled libuv job failed: {}", exception.what() );
         }
@@ -115,17 +115,17 @@ auto Scheduler::stop() -> void {
     schedule( std::move( unrefTask ) );
 }
 
-auto Scheduler::dequeue( std::function<void( uv_loop_t* )>& job ) -> bool {
+auto Scheduler::dequeue() -> std::optional<std::function<void( uv_loop_t* )>> {
     std::scoped_lock lock{ _jobMutex };
 
     if ( _jobs.empty() ) {
-        return false;
+        return std::nullopt;
     }
 
-    job = std::move( _jobs.front() );
+    auto job = std::move( _jobs.front() );
     _jobs.pop_front();
 
-    return true;
+    return job;
 }
 
 auto Scheduler::schedule( std::function<void( uv_loop_t* )> task ) -> void {
@@ -135,6 +135,8 @@ auto Scheduler::schedule( std::function<void( uv_loop_t* )> task ) -> void {
     }
 
     // Wakeup event loop and process task queue.
+    // Note that multiple sequenced uv_async_send() calls
+    // coalesced into one asyncCallback call on uv loop.
     uv_async_send( &_asyncWakeup );
 }
 

@@ -7,6 +7,7 @@
 #include <functional>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <thread>
 #include <utility>
@@ -102,7 +103,7 @@ public:
 private:
     static auto asyncCallback( uv_async_t* handle ) -> void;
 
-    auto dequeue( std::function<void( uv_loop_t* )>& job ) -> bool;
+    auto dequeue() -> std::optional<std::function<void( uv_loop_t* )>>;
     auto stop() -> void;
 
     // Submit callback to event loop.
