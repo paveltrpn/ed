@@ -50,8 +50,6 @@ struct TcpFrameCodec {
 
 public:
     static constexpr size_t _defaultMaximumPayload{ 1024 * 1024 };
-
-private:
     static constexpr size_t _prefixSize{ 4 };
 
 private:
