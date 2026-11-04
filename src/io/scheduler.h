@@ -41,8 +41,6 @@ struct TcpWriteAwaitable;
 
 struct Scheduler final {
 public:
-    using AsyncJob = std::function<void( uv_loop_t* )>;
-
     template <typename T>
     friend struct TimeoutAwaitable;
 
@@ -104,8 +102,7 @@ public:
 private:
     static auto asyncCallback( uv_async_t* handle ) -> void;
 
-    auto enqueue( AsyncJob job ) -> void;
-    auto dequeue( AsyncJob& job ) -> bool;
+    auto dequeue( std::function<void( uv_loop_t* )>& job ) -> bool;
     auto stop() -> void;
 
     // Submit callback to event loop.
@@ -124,7 +121,7 @@ private:
     int _startupStatus{ 0 };
 
     std::mutex _jobMutex{};
-    std::deque<AsyncJob> _jobs{};
+    std::deque<std::function<void( uv_loop_t* )>> _jobs{};
 };
 
 }  // namespace tire
