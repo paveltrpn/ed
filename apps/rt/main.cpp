@@ -187,7 +187,7 @@ auto makeRenderImageResponse( const tire::RenderJob& job ) -> RenderImageRespons
     return RenderImageResponse{ std::move( payload ), isFinal };
 }
 
-auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint16_t port ) -> tire::Task<int> {
+auto serveSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint16_t port ) -> tire::Task<int> {
     auto state{ ServeSessionState::ACCEPTING };
     auto job = std::unique_ptr<tire::RenderJob>{};
 
@@ -358,7 +358,7 @@ static auto runServe( uint16_t port ) -> int {
     auto completion = ServeCompletion{};
     auto bridge = std::make_unique<tire::TcpBridge>( tire::kRenderProtocolMaximumPayload );
 
-    auto session = runServeSession( *bridge, completion, port );
+    auto session = serveSession( *bridge, completion, port );
     session.start();
 
     std::unique_lock lock{ completion._mutex };

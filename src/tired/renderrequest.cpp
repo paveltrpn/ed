@@ -321,6 +321,8 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
                             },
                             Qt::QueuedConnection );
 
+                        log::info()( "Handshake done, send render request." );
+
                         state = RenderSessionState::SENDING_REQUEST;
                     }
                 } catch ( const std::exception &exception ) {
@@ -340,6 +342,8 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
                     failureStatus = status;
                     state = RenderSessionState::TRANSPORT_FAILED;
                 } else {
+                    log::info()( "Request send done, poll images..." );
+
                     state = RenderSessionState::SENDING_POLL;
                 }
 
@@ -414,6 +418,8 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
                                 Qt::QueuedConnection );
 
                             if ( isFinal ) {
+                                log::info()( "Receive final image." );
+
                                 state = RenderSessionState::COMPLETE;
                             } else {
                                 state = RenderSessionState::DELAYING_POLL;
@@ -459,6 +465,8 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
 
     switch ( state ) {
         case RenderSessionState::COMPLETE: {
+            log::info()( "Render complete." );
+
             QMetaObject::invokeMethod(
                 this,
                 [this]() -> void {
@@ -471,6 +479,8 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
         }
 
         case RenderSessionState::FAILED: {
+            log::warning()( "Render failed due to RenderSessionState::FAILED." );
+
             QMetaObject::invokeMethod(
                 this,
                 [this, failureMessage]() -> void {
@@ -483,6 +493,8 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
         }
 
         case RenderSessionState::TRANSPORT_FAILED: {
+            log::warning()( "Render failed due to RenderSessionState::TRANSPORT_FAILED." );
+
             QMetaObject::invokeMethod(
                 this,
                 [this, failureStatus]() -> void {
@@ -524,8 +536,6 @@ auto RenderRequest::handleHandshakeDone() -> void {
     }
 
     setRequestRenderState( RenderRequestState::WaitingForReply );
-
-    log::info()( "Handshake done!" );
 }
 
 auto RenderRequest::handleImage( const QImage &image ) -> void {
@@ -540,8 +550,6 @@ auto RenderRequest::handleRenderComplete() -> void {
     if ( _requestRenderState == RenderRequestState::Idle || _requestRenderState == RenderRequestState::Failed ) {
         return;
     }
-
-    log::info()( "Render completed" );
 
     stop();
 
