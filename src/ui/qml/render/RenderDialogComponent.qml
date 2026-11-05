@@ -23,6 +23,10 @@ Rectangle {
     color: _color.si_background_light
     radius: _units.radiusEight
 
+    function applyImageRatio(candidateRatio) {
+        renderComponent.imageRatio = Math.min(Math.max(candidateRatio, renderComponent.minImageRatio), renderComponent.maxImageRatio);
+    }
+
     Item {
         id: splitArea
 
@@ -82,7 +86,22 @@ Rectangle {
                     const cursorX = splitHandleArea.mapToItem(splitArea, mouse.x, 0).x;
                     const candidateRatio = (cursorX - splitHandle.pressOffsetX) / splitArea.width;
 
-                    renderComponent.imageRatio = Math.min(Math.max(candidateRatio, renderComponent.minImageRatio), renderComponent.maxImageRatio);
+                    renderComponent.applyImageRatio(candidateRatio);
+                }
+
+                onDoubleClicked: {
+                    if (splitArea.width <= 0) {
+                        return;
+                    }
+
+                    const contentInset = 2 * _units.scaled_4;
+                    const contentHeight = imageArea.height - contentInset;
+                    const imageAspect = Tired.renderRequest.width / Tired.renderRequest.height;
+                    const fittedImageAreaWidth = (contentHeight * imageAspect) + contentInset;
+
+                    const candidateRatio = (fittedImageAreaWidth + (splitHandle.width / 2)) / splitArea.width;
+
+                    renderComponent.applyImageRatio(candidateRatio);
                 }
             }
         }
