@@ -21,11 +21,11 @@ struct TcpBridge;
 
 enum class RenderRequestState {
     //
-    Idle,
-    Starting,
-    Connecting,
-    WaitingForReply,
-    Failed
+    IDLE,
+    STARTING,
+    CONNECTING,
+    WAITING_FOR_REPLY,
+    FAILED
 };
 
 // ======================================================================================
@@ -82,7 +82,7 @@ private:
     auto handleFailure( int status ) -> void;
 
 private:
-    RenderRequestState _requestRenderState{ RenderRequestState::Idle };
+    RenderRequestState _requestRenderState{ RenderRequestState::IDLE };
 
     int _width{ 1024 };
     int _height{ 768 };
