@@ -14,6 +14,8 @@ namespace tire {
 struct Scheduler;
 struct TcpConnectionState;
 struct TcpListenerState;
+struct TcpReadAwaitable;
+struct TcpWriteAwaitable;
 
 struct TcpReadResult {
     int _status{ 0 };
@@ -24,23 +26,12 @@ struct TcpWriteResult {
     int _status{ 0 };
 };
 
-struct TcpReadOperation : AwaitableState<TcpReadOperation, TcpReadResult> {
-    std::shared_ptr<TcpConnectionState> _state{};
-    void* _allocation{ nullptr };
-};
-
-struct TcpWriteOperation : AwaitableState<TcpWriteOperation, TcpWriteResult> {
-    std::shared_ptr<TcpConnectionState> _state{};
-    std::vector<std::byte> _bytes{};
-    uv_write_t _request{};
-};
-
 struct TcpConnectionState : std::enable_shared_from_this<TcpConnectionState> {
     Scheduler* _scheduler{ nullptr };
     uv_tcp_t _handle{};
     std::shared_ptr<TcpConnectionState>* _lifetime{ nullptr };
-    std::shared_ptr<TcpReadOperation> _readOperation{};
-    std::shared_ptr<TcpWriteOperation> _writeOperation{};
+    TcpReadAwaitable* _readOperation{ nullptr };
+    TcpWriteAwaitable* _writeOperation{ nullptr };
     bool _initialized{ false };
     bool _closing{ false };
 };
@@ -79,27 +70,43 @@ private:
 // ==================== TcpReadAwaitable ================================================
 // ======================================================================================
 
-struct TcpReadAwaitable final {
-    std::shared_ptr<TcpConnectionState> _state{};
-    std::shared_ptr<TcpReadResult> _result{ std::make_shared<TcpReadResult>() };
+struct TcpReadAwaitable final : AwaitableState<TcpReadResult> {
+    explicit TcpReadAwaitable( std::shared_ptr<TcpConnectionState> state );
+
+    TcpReadAwaitable( const TcpReadAwaitable &other ) = delete;
+    TcpReadAwaitable( TcpReadAwaitable &&other ) = delete;
+
+    auto operator=( const TcpReadAwaitable &other ) -> TcpReadAwaitable & = delete;
+    auto operator=( TcpReadAwaitable &&other ) -> TcpReadAwaitable & = delete;
 
     auto await_ready() noexcept -> bool;
     auto await_suspend( std::coroutine_handle<> coroutine ) -> void;
     auto await_resume() noexcept -> TcpReadResult;
+
+    std::shared_ptr<TcpConnectionState> _state{};
+    void *_allocation{ nullptr };
 };
 
 // ======================================================================================
 // ==================== TcpWriteAwaitable ===============================================
 // ======================================================================================
 
-struct TcpWriteAwaitable final {
-    std::shared_ptr<TcpConnectionState> _state{};
-    std::vector<std::byte> _bytes{};
-    std::shared_ptr<TcpWriteResult> _result{ std::make_shared<TcpWriteResult>() };
+struct TcpWriteAwaitable final : AwaitableState<TcpWriteResult> {
+    TcpWriteAwaitable( std::shared_ptr<TcpConnectionState> state, std::vector<std::byte> bytes );
+
+    TcpWriteAwaitable( const TcpWriteAwaitable &other ) = delete;
+    TcpWriteAwaitable( TcpWriteAwaitable &&other ) = delete;
+
+    auto operator=( const TcpWriteAwaitable &other ) -> TcpWriteAwaitable & = delete;
+    auto operator=( TcpWriteAwaitable &&other ) -> TcpWriteAwaitable & = delete;
 
     auto await_ready() noexcept -> bool;
     auto await_suspend( std::coroutine_handle<> coroutine ) -> void;
     auto await_resume() noexcept -> TcpWriteResult;
+
+    std::shared_ptr<TcpConnectionState> _state{};
+    std::vector<std::byte> _bytes{};
+    uv_write_t _request{};
 };
 
 }  // namespace tire

@@ -140,6 +140,7 @@ void RenderRequest::start() {
             }
 
             _state = RenderRequestState::Connecting;
+
             _sessionTask = runSession( std::move( _pendingSceneObj ), _pendingCamera );
         } );
 
@@ -480,13 +481,9 @@ auto RenderRequest::fail( const std::string &message ) -> void {
 }
 
 auto RenderRequest::cleanupSession() -> void {
-    if ( _bridge != nullptr ) {
+    if ( _bridge != nullptr && _sessionTask.empty() ) {
         _bridge->close();
-
-        // The bridge outlives the session coroutine while its awaits are being canceled.
-        if ( _sessionTask.empty() ) {
-            _bridge.reset();
-        }
+        _bridge.reset();
     }
 
     if ( _process == nullptr ) {

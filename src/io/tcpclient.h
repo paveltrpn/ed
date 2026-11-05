@@ -19,34 +19,27 @@ struct TcpConnectResult {
 };
 
 // ======================================================================================
-// ==================== TcpConnectAwaitableState ========================================
-// ======================================================================================
-
-struct TcpConnectAwaitableState : AwaitableState<TcpConnectAwaitableState, TcpConnectResult> {
-    TcpConnectAwaitableState( Scheduler &scheduler, std::string host, uint16_t port );
-
-    auto cancel() -> void;
-
-public:
-    Scheduler *_scheduler{ nullptr };
-    std::shared_ptr<TcpConnection> _connection{};
-    std::string _host{};
-    uint16_t _port{ 0 };
-    uv_connect_t _request{};
-};
-
-// ======================================================================================
 // ==================== TcpConnectAwaitable =============================================
 // ======================================================================================
 
-struct TcpConnectAwaitable final {
-    explicit TcpConnectAwaitable( std::shared_ptr<TcpConnectAwaitableState> state );
+struct TcpConnectAwaitable final : AwaitableState<TcpConnectResult> {
+    TcpConnectAwaitable( Scheduler &scheduler, std::string host, uint16_t port );
+
+    TcpConnectAwaitable( const TcpConnectAwaitable &other ) = delete;
+    TcpConnectAwaitable( TcpConnectAwaitable &&other ) = delete;
+
+    auto operator=( const TcpConnectAwaitable &other ) -> TcpConnectAwaitable & = delete;
+    auto operator=( TcpConnectAwaitable &&other ) -> TcpConnectAwaitable & = delete;
 
     auto await_ready() noexcept -> bool;
     auto await_suspend( std::coroutine_handle<> coroutine ) -> void;
     auto await_resume() noexcept -> TcpConnectResult;
 
-    std::shared_ptr<TcpConnectAwaitableState> _state{};
+    Scheduler *_scheduler{ nullptr };
+    std::shared_ptr<TcpConnection> _connection{};
+    std::string _host{};
+    uint16_t _port{ 0 };
+    uv_connect_t _request{};
 };
 
 }  // namespace tire

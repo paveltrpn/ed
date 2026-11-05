@@ -13,20 +13,39 @@ namespace {
 
 using ConnectionState = TcpConnectionState;
 
-auto completeRead( const std::shared_ptr<TcpReadOperation> &operation, int status ) -> void {
+auto completeRead( TcpReadAwaitable *operation, int status ) -> void {
     if ( operation == nullptr ) {
         return;
     }
 
-    operation->finish( status );
+    if ( operation->_allocation != nullptr ) {
+        std::free( operation->_allocation );
+        operation->_allocation = nullptr;
+    }
+
+    if ( operation->_state->_readOperation == operation ) {
+        operation->_state->_readOperation = nullptr;
+    }
+
+    const auto coroutine = operation->complete( status );
+    if ( coroutine ) {
+        coroutine.resume();
+    }
 }
 
-auto completeWrite( const std::shared_ptr<TcpWriteOperation> &operation, int status ) -> void {
+auto completeWrite( TcpWriteAwaitable *operation, int status ) -> void {
     if ( operation == nullptr ) {
         return;
     }
 
-    operation->finish( status );
+    if ( operation->_state->_writeOperation == operation ) {
+        operation->_state->_writeOperation = nullptr;
+    }
+
+    const auto coroutine = operation->complete( status );
+    if ( coroutine ) {
+        coroutine.resume();
+    }
 }
 
 auto closeConnection( const std::shared_ptr<ConnectionState> &state ) -> void {
@@ -35,6 +54,9 @@ auto closeConnection( const std::shared_ptr<ConnectionState> &state ) -> void {
     }
 
     state->_closing = true;
+
+    auto *readOperation = std::exchange( state->_readOperation, nullptr );
+    state->_writeOperation = nullptr;
 
     if ( state->_initialized && !uv_is_closing( reinterpret_cast<uv_handle_t *>( &state->_handle ) ) ) {
         uv_read_stop( reinterpret_cast<uv_stream_t *>( &state->_handle ) );
@@ -47,16 +69,13 @@ auto closeConnection( const std::shared_ptr<ConnectionState> &state ) -> void {
         } );
     }
 
-    auto readOperation = std::exchange( state->_readOperation, nullptr );
-    auto writeOperation = std::exchange( state->_writeOperation, nullptr );
     completeRead( readOperation, UV_ECANCELED );
-    completeWrite( writeOperation, UV_ECANCELED );
 }
 
 auto allocateReadBuffer( uv_handle_t *handle, size_t suggestedSize, uv_buf_t *buffer ) -> void {
     auto *lifetime = static_cast<std::shared_ptr<ConnectionState> *>( handle->data );
     auto state = *lifetime;
-    const auto operation = state->_readOperation;
+    auto *operation = state->_readOperation;
 
     buffer->base = nullptr;
     buffer->len = 0;
@@ -77,13 +96,12 @@ auto allocateReadBuffer( uv_handle_t *handle, size_t suggestedSize, uv_buf_t *bu
 auto readCallback( uv_stream_t *stream, ssize_t nread, const uv_buf_t *buffer ) -> void {
     auto *lifetime = static_cast<std::shared_ptr<ConnectionState> *>( stream->data );
     auto state = *lifetime;
-    auto operation = state->_readOperation;
+    auto *operation = state->_readOperation;
 
     if ( nread > 0 && operation != nullptr && !operation->_completed && buffer != nullptr && buffer->base != nullptr ) {
         const auto size = static_cast<size_t>( nread );
-        operation->_result->_bytes.resize( size );
-        std::memcpy( operation->_result->_bytes.data(), buffer->base, size );
-        operation->_result->_status = 0;
+        operation->_result._bytes.resize( size );
+        std::memcpy( operation->_result._bytes.data(), buffer->base, size );
     }
 
     if ( buffer != nullptr && buffer->base != nullptr ) {
@@ -98,34 +116,30 @@ auto readCallback( uv_stream_t *stream, ssize_t nread, const uv_buf_t *buffer ) 
         return;
     }
 
+    auto status = 0;
     if ( nread < 0 ) {
-        operation->_result->_bytes.clear();
-        operation->_result->_status = static_cast<int>( nread );
+        operation->_result._bytes.clear();
+        status = static_cast<int>( nread );
     }
 
     uv_read_stop( stream );
-
-    state->_readOperation.reset();
-    const auto status = operation->_result->_status;
-
     completeRead( operation, status );
 }
 
 auto writeCallback( uv_write_t *request, int status ) -> void {
-    auto *lifetime = static_cast<std::shared_ptr<TcpWriteOperation> *>( request->data );
-    auto operation = *lifetime;
-    delete lifetime;
+    auto *operation = static_cast<TcpWriteAwaitable *>( request->data );
     request->data = nullptr;
 
-    auto state = operation->_state;
-    if ( state->_writeOperation == operation ) {
-        state->_writeOperation.reset();
+    if ( operation->_state->_closing ) {
+        status = UV_ECANCELED;
     }
+
     completeWrite( operation, status );
 }
 
-auto startRead( const std::shared_ptr<ConnectionState> &state, const std::shared_ptr<TcpReadOperation> &operation )
-    -> void {
+auto startRead( TcpReadAwaitable *operation ) -> void {
+    const auto state = operation->_state;
+
     if ( state->_closing || !state->_initialized ) {
         completeRead( operation, UV_ECANCELED );
         return;
@@ -141,13 +155,13 @@ auto startRead( const std::shared_ptr<ConnectionState> &state, const std::shared
         uv_read_start( reinterpret_cast<uv_stream_t *>( &state->_handle ), allocateReadBuffer, readCallback );
 
     if ( status != 0 ) {
-        state->_readOperation.reset();
         completeRead( operation, status );
     }
 }
 
-auto startWrite( const std::shared_ptr<ConnectionState> &state, const std::shared_ptr<TcpWriteOperation> &operation )
-    -> void {
+auto startWrite( TcpWriteAwaitable *operation ) -> void {
+    const auto state = operation->_state;
+
     if ( state->_closing || !state->_initialized ) {
         completeWrite( operation, UV_ECANCELED );
         return;
@@ -163,16 +177,13 @@ auto startWrite( const std::shared_ptr<ConnectionState> &state, const std::share
     }
 
     state->_writeOperation = operation;
-    operation->_request.data = new std::shared_ptr<TcpWriteOperation>{ operation };
+    operation->_request.data = operation;
     auto buffer = uv_buf_init( reinterpret_cast<char *>( operation->_bytes.data() ),
                                static_cast<unsigned int>( operation->_bytes.size() ) );
     const auto status =
         uv_write( &operation->_request, reinterpret_cast<uv_stream_t *>( &state->_handle ), &buffer, 1, writeCallback );
     if ( status != 0 ) {
-        auto *lifetime = static_cast<std::shared_ptr<TcpWriteOperation> *>( operation->_request.data );
-        delete lifetime;
         operation->_request.data = nullptr;
-        state->_writeOperation.reset();
         completeWrite( operation, status );
     }
 }
@@ -181,6 +192,15 @@ auto startWrite( const std::shared_ptr<ConnectionState> &state, const std::share
 
 TcpConnection::TcpConnection( std::shared_ptr<TcpConnectionState> state )
     : _state{ std::move( state ) } {
+}
+
+TcpReadAwaitable::TcpReadAwaitable( std::shared_ptr<TcpConnectionState> state )
+    : _state{ std::move( state ) } {
+}
+
+TcpWriteAwaitable::TcpWriteAwaitable( std::shared_ptr<TcpConnectionState> state, std::vector<std::byte> bytes )
+    : _state{ std::move( state ) }
+    , _bytes{ std::move( bytes ) } {
 }
 
 auto Scheduler::initTcp( int &status ) -> std::shared_ptr<TcpConnection> {
@@ -204,20 +224,16 @@ auto TcpReadAwaitable::await_ready() noexcept -> bool {
 }
 
 auto TcpReadAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
-    auto operation = std::make_shared<TcpReadOperation>();
+    _coroutine = coroutine;
 
-    operation->_state = _state;
-    operation->_coroutine = coroutine;
-    operation->_result = _result;
-
-    _state->_scheduler->schedule( [state = _state, operation = std::move( operation )]( uv_loop_t * ) mutable -> void {
+    _state->_scheduler->schedule( [this]( uv_loop_t * ) -> void {
         //
-        startRead( state, operation );
+        startRead( this );
     } );
 }
 
 auto TcpReadAwaitable::await_resume() noexcept -> TcpReadResult {
-    return std::move( *_result );
+    return std::move( _result );
 }
 
 auto TcpWriteAwaitable::await_ready() noexcept -> bool {
@@ -225,18 +241,15 @@ auto TcpWriteAwaitable::await_ready() noexcept -> bool {
 }
 
 auto TcpWriteAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
-    auto operation = std::make_shared<TcpWriteOperation>();
-    operation->_state = _state;
-    operation->_coroutine = coroutine;
-    operation->_result = _result;
-    operation->_bytes = std::move( _bytes );
-    _state->_scheduler->schedule( [state = _state, operation = std::move( operation )]( uv_loop_t * ) mutable -> void {
-        startWrite( state, operation );
+    _coroutine = coroutine;
+
+    _state->_scheduler->schedule( [this]( uv_loop_t * ) -> void {
+        startWrite( this );
     } );
 }
 
 auto TcpWriteAwaitable::await_resume() noexcept -> TcpWriteResult {
-    return *_result;
+    return _result;
 }
 
 auto Scheduler::read( const std::shared_ptr<TcpConnection> &connection ) -> TcpReadAwaitable {

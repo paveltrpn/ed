@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <cassert>
 #include <coroutine>
 #include <exception>
 #include <memory>
@@ -26,7 +27,7 @@ struct Task {
             return false;
         }
 
-        auto await_suspend( handle_type handle ) noexcept -> void;
+        auto await_suspend( handle_type handle ) noexcept -> std::coroutine_handle<>;
 
         auto await_resume() const noexcept -> void {
             //
@@ -64,8 +65,6 @@ struct Task {
         std::coroutine_handle<> _continuation{};
         bool _done{ false };
         bool _started{ false };
-        bool _completing{ false };
-        bool _destroyRequested{ false };
     };
 
     explicit Task( handle_type h )
@@ -80,8 +79,6 @@ struct Task {
 
     auto operator=( Task &&other ) noexcept -> Task & {
         if ( std::addressof( other ) != this ) {
-            // Destroy this handle, but it allowed only when
-            // coroutine is suspended.
             release();
 
             handle_ = other.handle_;
@@ -153,16 +150,9 @@ struct Task {
 private:
     auto release() noexcept -> void {
         if ( handle_ ) {
-            // Never free the frame while the coroutine is completing on its own stack
-            // inside FinalAwaiter: a continuation resumed from the completion chain may
-            // destroy the task temporary in flight. The final awaiter destroys the frame
-            // instead, once that continuation has unwound.
-            if ( handle_.promise()._completing ) {
-                handle_.promise()._destroyRequested = true;
-            } else {
-                handle_.destroy();
-            }
-
+            // A root Task may be destroyed only before start or after completion.
+            assert( !handle_.promise()._started || handle_.promise()._done );
+            handle_.destroy();
             handle_ = nullptr;
         }
     }
@@ -171,22 +161,16 @@ private:
 };
 
 template <typename T>
-auto Task<T>::FinalAwaiter::await_suspend( handle_type handle ) noexcept -> void {
+auto Task<T>::FinalAwaiter::await_suspend( handle_type handle ) noexcept -> std::coroutine_handle<> {
     auto &promise = handle.promise();
-
-    promise._completing = true;
+    promise._done = true;
 
     const auto continuation = std::exchange( promise._continuation, nullptr );
     if ( continuation ) {
-        continuation.resume();
+        return continuation;
     }
 
-    promise._completing = false;
-    promise._done = true;
-
-    if ( promise._destroyRequested ) {
-        handle.destroy();
-    }
+    return std::noop_coroutine();
 }
 
 template <>

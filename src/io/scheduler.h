@@ -20,17 +20,13 @@
 namespace tire {
 
 struct TimeoutAwaitable;
-struct TimeoutAwaitableState;
 
 struct FileOpenAwaitable;
-struct FileOpenAwaitableState;
 struct FileWatchAwaitable;
-struct FileWatchAwaitableState;
 
 struct TcpConnection;
 struct TcpListener;
 struct TcpConnectAwaitable;
-struct TcpConnectAwaitableState;
 struct TcpListenAwaitable;
 struct TcpAcceptAwaitable;
 struct TcpReadAwaitable;
@@ -43,15 +39,11 @@ struct TcpWriteAwaitable;
 struct Scheduler final {
 public:
     friend struct TimeoutAwaitable;
-    friend struct TimeoutAwaitableState;
 
     friend struct FileOpenAwaitable;
-    friend struct FileOpenAwaitableState;
     friend struct FileWatchAwaitable;
-    friend struct FileWatchAwaitableState;
 
     friend struct TcpConnectAwaitable;
-    friend struct TcpConnectAwaitableState;
     friend struct TcpListenAwaitable;
     friend struct TcpAcceptAwaitable;
     friend struct TcpReadAwaitable;
@@ -65,6 +57,7 @@ public:
     auto operator=( const Scheduler& other ) -> Scheduler& = delete;
     auto operator=( Scheduler&& other ) -> Scheduler& = delete;
 
+    // Destroy after all pending coroutine frames have completed and TCP handles have closed.
     ~Scheduler();
 
     // Fire once by timeout.
@@ -94,10 +87,10 @@ public:
     // Write bytes to a TCP connection.
     auto write( const std::shared_ptr<TcpConnection>& connection, std::vector<std::byte> bytes ) -> TcpWriteAwaitable;
 
-    // Close a TCP connection, canceling any pending read or write.
+    // Close a TCP connection during quiescent session teardown.
     auto close( const std::shared_ptr<TcpConnection>& connection ) -> void;
 
-    // Close a TCP listener, canceling any pending listen or accept.
+    // Close a TCP listener during quiescent session teardown.
     auto close( const std::shared_ptr<TcpListener>& listener ) -> void;
 
 private:

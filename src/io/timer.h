@@ -2,8 +2,6 @@
 
 #include <cstdint>
 #include <coroutine>
-#include <memory>
-#include <utility>
 
 #include <uv.h>
 
@@ -21,41 +19,32 @@ struct TimeoutResult {
 };
 
 // ======================================================================================
-// ==================== TimeoutAwaitableState ===========================================
-// ======================================================================================
-
-struct TimeoutAwaitableState : AwaitableState<TimeoutAwaitableState, TimeoutResult> {
-    TimeoutAwaitableState( Scheduler& scheduler, uint64_t timeout );
-
-    auto close( int status ) -> void;
-    auto fire() -> void;
-    auto cancel() -> void;
-
-public:
-    Scheduler* _scheduler{ nullptr };
-    uv_timer_t _timer{};
-
-    std::shared_ptr<TimeoutAwaitableState>* _lifetime{ nullptr };
-
-    uint64_t _timeout{ 0 };
-
-    bool _initialized{ false };
-    bool _closing{ false };
-};
-
-// ======================================================================================
 // ==================== TimeoutAwaitable ================================================
 // ======================================================================================
 
-struct TimeoutAwaitable final {
-    explicit TimeoutAwaitable( std::shared_ptr<TimeoutAwaitableState> state );
+struct TimeoutAwaitable final : AwaitableState<TimeoutResult> {
+    TimeoutAwaitable( Scheduler& scheduler, uint64_t timeout );
+
+    TimeoutAwaitable( const TimeoutAwaitable& other ) = delete;
+    TimeoutAwaitable( TimeoutAwaitable&& other ) = delete;
+
+    auto operator=( const TimeoutAwaitable& other ) -> TimeoutAwaitable& = delete;
+    auto operator=( TimeoutAwaitable&& other ) -> TimeoutAwaitable& = delete;
 
     [[nodiscard]] auto await_ready() const noexcept -> bool;
     auto await_suspend( std::coroutine_handle<> coroutine ) noexcept -> void;
     auto await_resume() const noexcept -> int;
 
 private:
-    std::shared_ptr<TimeoutAwaitableState> _state{};
+    auto close( int status ) -> void;
+
+private:
+    Scheduler* _scheduler{ nullptr };
+    uv_timer_t _timer{};
+    uint64_t _timeout{ 0 };
+
+    bool _initialized{ false };
+    bool _closing{ false };
 };
 
 }  // namespace tire

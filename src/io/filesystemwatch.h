@@ -1,7 +1,6 @@
 #pragma once
 
 #include <coroutine>
-#include <memory>
 #include <string>
 
 #include <uv.h>
@@ -21,39 +20,33 @@ struct FileWatchResult {
 };
 
 // ======================================================================================
-// ==================== FileWatchAwaitableState =========================================
-// ======================================================================================
-
-struct FileWatchAwaitableState : AwaitableState<FileWatchAwaitableState, FileWatchResult> {
-    FileWatchAwaitableState( Scheduler& scheduler, std::string path );
-
-    auto close( int status ) -> void;
-    auto cancel() -> void;
-
-public:
-    Scheduler* _scheduler{ nullptr };
-    std::string _path{};
-    uv_fs_event_t _watcher{};
-
-    std::shared_ptr<FileWatchAwaitableState>* _lifetime{ nullptr };
-
-    bool _initialized{ false };
-    bool _closing{ false };
-};
-
-// ======================================================================================
 // ==================== FileWatchAwaitable ==============================================
 // ======================================================================================
 
-struct FileWatchAwaitable final {
-    explicit FileWatchAwaitable( std::shared_ptr<FileWatchAwaitableState> state );
+struct FileWatchAwaitable final : AwaitableState<FileWatchResult> {
+    FileWatchAwaitable( Scheduler& scheduler, std::string path );
+
+    FileWatchAwaitable( const FileWatchAwaitable& other ) = delete;
+    FileWatchAwaitable( FileWatchAwaitable&& other ) = delete;
+
+    auto operator=( const FileWatchAwaitable& other ) -> FileWatchAwaitable& = delete;
+    auto operator=( FileWatchAwaitable&& other ) -> FileWatchAwaitable& = delete;
 
     [[nodiscard]] auto await_ready() const noexcept -> bool;
     auto await_suspend( std::coroutine_handle<> coroutine ) noexcept -> void;
     [[nodiscard]] auto await_resume() const noexcept -> FileWatchResult;
 
 private:
-    std::shared_ptr<FileWatchAwaitableState> _state{};
+    static auto eventCallback( uv_fs_event_t* handle, const char* filename, int events, int status ) -> void;
+    auto close( int status ) -> void;
+
+private:
+    Scheduler* _scheduler{ nullptr };
+    std::string _path{};
+    uv_fs_event_t _watcher{};
+
+    bool _initialized{ false };
+    bool _closing{ false };
 };
 
 }  // namespace tire

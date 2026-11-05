@@ -2,58 +2,29 @@
 
 namespace tire {
 
-TimeoutAwaitableState::TimeoutAwaitableState( Scheduler& scheduler, uint64_t timeout )
+TimeoutAwaitable::TimeoutAwaitable( Scheduler& scheduler, uint64_t timeout )
     : _scheduler{ &scheduler }
     , _timeout{ timeout } {
 }
 
-auto TimeoutAwaitableState::close( int status ) -> void {
-    if ( _closing ) {
-        return;
-    }
-
-    _closing = true;
-    if ( _initialized && !uv_is_closing( reinterpret_cast<uv_handle_t*>( &_timer ) ) ) {
-        uv_timer_stop( &_timer );
-        uv_close( reinterpret_cast<uv_handle_t*>( &_timer ), []( uv_handle_t* handle ) -> void {
-            auto* lifetime = static_cast<std::shared_ptr<TimeoutAwaitableState>*>( handle->data );
-            auto state = *lifetime;
-            delete lifetime;
-            handle->data = nullptr;
-            state->_initialized = false;
-        } );
-    }
-    finish( status );
-}
-
-auto TimeoutAwaitableState::fire() -> void {
+auto TimeoutAwaitable::close( int status ) -> void {
     if ( _closing || _completed ) {
         return;
     }
 
     _closing = true;
-    if ( _initialized && !uv_is_closing( reinterpret_cast<uv_handle_t*>( &_timer ) ) ) {
-        uv_close( reinterpret_cast<uv_handle_t*>( &_timer ), []( uv_handle_t* handle ) -> void {
-            auto* lifetime = static_cast<std::shared_ptr<TimeoutAwaitableState>*>( handle->data );
-            auto state = *lifetime;
-            delete lifetime;
-            handle->data = nullptr;
-            state->_initialized = false;
-        } );
-    }
+    _result._status = status;
+    uv_timer_stop( &_timer );
+    uv_close( reinterpret_cast<uv_handle_t*>( &_timer ), []( uv_handle_t* handle ) -> void {
+        auto* awaitable = static_cast<TimeoutAwaitable*>( handle->data );
+        handle->data = nullptr;
+        awaitable->_initialized = false;
 
-    finish( 0 );
-}
-
-auto TimeoutAwaitableState::cancel() -> void {
-    _scheduler->schedule( [state = shared_from_this()]( uv_loop_t* ) -> void {
-        //
-        state->close( UV_ECANCELED );
+        const auto coroutine = awaitable->complete( awaitable->_result._status );
+        if ( coroutine ) {
+            coroutine.resume();
+        }
     } );
-}
-
-TimeoutAwaitable::TimeoutAwaitable( std::shared_ptr<TimeoutAwaitableState> state )
-    : _state{ std::move( state ) } {
 }
 
 auto TimeoutAwaitable::await_ready() const noexcept -> bool {
@@ -62,48 +33,44 @@ auto TimeoutAwaitable::await_ready() const noexcept -> bool {
 }
 
 auto TimeoutAwaitable::await_suspend( std::coroutine_handle<> coroutine ) noexcept -> void {
-    _state->_coroutine = coroutine;
+    _coroutine = coroutine;
 
-    _state->_scheduler->schedule( [state = _state]( uv_loop_t* loop ) -> void {
+    _scheduler->schedule( [this]( uv_loop_t* loop ) -> void {
         //
-        if ( state->_closing ) {
-            state->finish( UV_ECANCELED );
-            return;
-        }
-
-        const auto initStatus = uv_timer_init( loop, &state->_timer );
+        const auto initStatus = uv_timer_init( loop, &_timer );
         if ( initStatus != 0 ) {
-            state->finish( initStatus );
+            const auto coroutine = complete( initStatus );
+            if ( coroutine ) {
+                coroutine.resume();
+            }
             return;
         }
 
-        state->_initialized = true;
-        state->_lifetime = new std::shared_ptr<TimeoutAwaitableState>{ state };
-        state->_timer.data = state->_lifetime;
+        _initialized = true;
+        _timer.data = this;
 
         const auto startStatus = uv_timer_start(
-            &state->_timer,
+            &_timer,
             []( uv_timer_t* timer ) -> void {
                 //
-                auto* lifetime = static_cast<std::shared_ptr<TimeoutAwaitableState>*>( timer->data );
-                auto state = *lifetime;
-                state->fire();
+                auto* awaitable = static_cast<TimeoutAwaitable*>( timer->data );
+                awaitable->close( 0 );
             },
-            state->_timeout, 0 );
+            _timeout, 0 );
         if ( startStatus != 0 ) {
-            state->close( startStatus );
+            close( startStatus );
         }
     } );
 }
 
 auto TimeoutAwaitable::await_resume() const noexcept -> int {
     //
-    return _state->_result->_status;
+    return _result._status;
 }
 
 auto Scheduler::timeout( uint64_t timeout ) -> TimeoutAwaitable {
     //
-    return TimeoutAwaitable{ std::make_shared<TimeoutAwaitableState>( *this, timeout ) };
+    return TimeoutAwaitable{ *this, timeout };
 };
 
 }  // namespace tire

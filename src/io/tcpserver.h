@@ -23,24 +23,15 @@ struct TcpAcceptResult {
     std::shared_ptr<TcpConnection> _connection{};
 };
 
-struct TcpAcceptAwaitableState : AwaitableState<TcpAcceptAwaitableState, TcpAcceptResult> {
-    std::shared_ptr<TcpListenerState> _server{};
-};
-
-struct TcpListenAwaitableState : AwaitableState<TcpListenAwaitableState, TcpListenResult> {
-    Scheduler *_scheduler{ nullptr };
-    std::shared_ptr<TcpListenerState> _server{};
-    std::shared_ptr<TcpListener> _listener{};
-    std::string _host{};
-    uint16_t _port{ 0 };
-};
+struct TcpListenAwaitable;
+struct TcpAcceptAwaitable;
 
 struct TcpListenerState {
     Scheduler *_scheduler{ nullptr };
     uv_tcp_t _handle{};
     std::shared_ptr<TcpListenerState> *_lifetime{ nullptr };
-    std::shared_ptr<TcpListenAwaitableState> _listenOperation{};
-    std::shared_ptr<TcpAcceptAwaitableState> _acceptOperation{};
+    TcpListenAwaitable *_listenOperation{ nullptr };
+    TcpAcceptAwaitable *_acceptOperation{ nullptr };
     bool _initialized{ false };
     bool _closed{ false };
 };
@@ -49,8 +40,14 @@ struct TcpListenerState {
 // ==================== TcpListenAwaitable ==============================================
 // ======================================================================================
 
-struct TcpListenAwaitable final {
+struct TcpListenAwaitable final : AwaitableState<TcpListenResult> {
     TcpListenAwaitable( Scheduler &scheduler, std::string host, uint16_t port );
+
+    TcpListenAwaitable( const TcpListenAwaitable &other ) = delete;
+    TcpListenAwaitable( TcpListenAwaitable &&other ) = delete;
+
+    auto operator=( const TcpListenAwaitable &other ) -> TcpListenAwaitable & = delete;
+    auto operator=( TcpListenAwaitable &&other ) -> TcpListenAwaitable & = delete;
 
     auto await_ready() noexcept -> bool;
     auto await_suspend( std::coroutine_handle<> coroutine ) -> void;
@@ -58,21 +55,31 @@ struct TcpListenAwaitable final {
 
     [[nodiscard]] auto listener() const -> std::shared_ptr<TcpListener>;
 
-    std::shared_ptr<TcpListenAwaitableState> _state{};
+    Scheduler *_scheduler{ nullptr };
+    std::shared_ptr<TcpListenerState> _server{};
+    std::shared_ptr<TcpListener> _listener{};
+    std::string _host{};
+    uint16_t _port{ 0 };
 };
 
 // ======================================================================================
 // ==================== TcpAcceptAwaitable ==============================================
 // ======================================================================================
 
-struct TcpAcceptAwaitable final {
+struct TcpAcceptAwaitable final : AwaitableState<TcpAcceptResult> {
     explicit TcpAcceptAwaitable( const std::shared_ptr<TcpListenerState> &state );
+
+    TcpAcceptAwaitable( const TcpAcceptAwaitable &other ) = delete;
+    TcpAcceptAwaitable( TcpAcceptAwaitable &&other ) = delete;
+
+    auto operator=( const TcpAcceptAwaitable &other ) -> TcpAcceptAwaitable & = delete;
+    auto operator=( TcpAcceptAwaitable &&other ) -> TcpAcceptAwaitable & = delete;
 
     auto await_ready() noexcept -> bool;
     auto await_suspend( std::coroutine_handle<> coroutine ) -> void;
     auto await_resume() noexcept -> TcpAcceptResult;
 
-    std::shared_ptr<TcpAcceptAwaitableState> _state{};
+    std::shared_ptr<TcpListenerState> _server{};
 };
 
 }  // namespace tire

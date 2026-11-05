@@ -8,6 +8,8 @@
 
 #include "tcpbridge/tcpbridge.h"
 
+#include "io/timer.h"
+
 namespace tire {
 
 // ======================================================================================
@@ -103,7 +105,7 @@ TcpBridge::~TcpBridge() {
 }
 
 auto TcpBridge::accept( std::string host, uint16_t port ) -> Task<int> {
-    auto listenAwaitable = std::make_shared<TcpListenAwaitable>( *_scheduler, std::move( host ), port );
+    auto listenAwaitable = _scheduler->listen( std::move( host ), port );
 
     auto status = 0;
     {
@@ -112,7 +114,7 @@ auto TcpBridge::accept( std::string host, uint16_t port ) -> Task<int> {
         if ( _closing ) {
             status = UV_ECANCELED;
         } else {
-            _listener = listenAwaitable->listener();
+            _listener = listenAwaitable.listener();
         }
     }
 
@@ -120,7 +122,7 @@ auto TcpBridge::accept( std::string host, uint16_t port ) -> Task<int> {
         co_return status;
     }
 
-    const auto listenResult = co_await * listenAwaitable;
+    const auto listenResult = co_await listenAwaitable;
 
     if ( listenResult._status != 0 ) {
         co_return listenResult._status;
@@ -171,8 +173,6 @@ auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions 
     auto lastStatus = static_cast<int>( UV_ECANCELED );
 
     for ( size_t attempt = 0; attempt < retry._maximumAttempts; ++attempt ) {
-        auto connect = std::make_shared<TcpConnectAwaitableState>( *_scheduler, host, port );
-
         {
             std::scoped_lock lock{ _sessionMutex };
 
@@ -180,20 +180,9 @@ auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions 
                 lastStatus = UV_ECANCELED;
                 break;
             }
-
-            _connect = connect;
         }
 
-        const auto connectResult = co_await TcpConnectAwaitable{ connect };
-
-        {
-            std::scoped_lock lock{ _sessionMutex };
-
-            if ( _connect == connect ) {
-                _connect.reset();
-            }
-        }
-
+        const auto connectResult = co_await _scheduler->connect( host, port );
         lastStatus = connectResult._status;
 
         if ( lastStatus == 0 ) {
@@ -219,7 +208,6 @@ auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions 
         }
 
         if ( attempt + 1 < retry._maximumAttempts ) {
-            auto timer = std::make_shared<TimeoutAwaitableState>( *_scheduler, retry._delayMilliseconds );
             {
                 std::scoped_lock lock{ _sessionMutex };
 
@@ -227,19 +215,9 @@ auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions 
                     lastStatus = UV_ECANCELED;
                     break;
                 }
-
-                _retryTimer = timer;
             }
 
-            const auto timerStatus = co_await TimeoutAwaitable{ timer };
-
-            {
-                std::scoped_lock lock{ _sessionMutex };
-
-                if ( _retryTimer == timer ) {
-                    _retryTimer.reset();
-                }
-            }
+            const auto timerStatus = co_await _scheduler->timeout( retry._delayMilliseconds );
 
             if ( timerStatus != 0 ) {
                 lastStatus = timerStatus;
@@ -366,7 +344,6 @@ auto TcpBridge::send( std::vector<std::byte> message ) -> Task<int> {
 }
 
 auto TcpBridge::delay( uint64_t timeoutMilliseconds ) -> Task<int> {
-    auto timer = std::make_shared<TimeoutAwaitableState>( *_scheduler, timeoutMilliseconds );
     auto status = 0;
 
     {
@@ -374,10 +351,10 @@ auto TcpBridge::delay( uint64_t timeoutMilliseconds ) -> Task<int> {
 
         if ( _closing ) {
             status = UV_ECANCELED;
-        } else if ( _delayTimer != nullptr ) {
+        } else if ( _delayActive ) {
             status = UV_EBUSY;
         } else {
-            _delayTimer = timer;
+            _delayActive = true;
         }
     }
 
@@ -385,14 +362,11 @@ auto TcpBridge::delay( uint64_t timeoutMilliseconds ) -> Task<int> {
         co_return status;
     }
 
-    status = co_await TimeoutAwaitable{ timer };
+    status = co_await _scheduler->timeout( timeoutMilliseconds );
 
     {
         std::scoped_lock lock{ _sessionMutex };
-
-        if ( _delayTimer == timer ) {
-            _delayTimer.reset();
-        }
+        _delayActive = false;
     }
 
     co_return status;
@@ -403,30 +377,12 @@ auto TcpBridge::close() -> void {
 
     auto listener = std::shared_ptr<TcpListener>{};
     auto connection = std::shared_ptr<TcpConnection>{};
-    auto connect = std::shared_ptr<TcpConnectAwaitableState>{};
-    auto retryTimer = std::shared_ptr<TimeoutAwaitableState>{};
-    auto delayTimer = std::shared_ptr<TimeoutAwaitableState>{};
 
     {
         std::scoped_lock lock{ _sessionMutex };
 
         listener = _listener;
         connection = _connection;
-        connect = _connect;
-        retryTimer = _retryTimer;
-        delayTimer = _delayTimer;
-    }
-
-    if ( retryTimer != nullptr ) {
-        retryTimer->cancel();
-    }
-
-    if ( delayTimer != nullptr ) {
-        delayTimer->cancel();
-    }
-
-    if ( connect != nullptr ) {
-        connect->cancel();
     }
 
     if ( listener != nullptr ) {

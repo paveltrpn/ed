@@ -6,80 +6,59 @@
 
 namespace {
 
-using ConnectState = tire::TcpConnectAwaitableState;
+using ConnectAwaitable = tire::TcpConnectAwaitable;
 
-auto completeConnect( const std::shared_ptr<ConnectState> &state, int status ) -> void {
-    //
-    state->finish( status );
+auto completeConnect( ConnectAwaitable *operation, int status ) -> void {
+    const auto coroutine = operation->complete( status );
+    if ( coroutine ) {
+        coroutine.resume();
+    }
 }
 
-auto failConnect( const std::shared_ptr<ConnectState> &state, int status ) -> void {
-    if ( state->_connection != nullptr ) {
-        state->_scheduler->close( state->_connection );
-        state->_connection.reset();
+auto failConnect( ConnectAwaitable *operation, int status ) -> void {
+    if ( operation->_connection != nullptr ) {
+        operation->_scheduler->close( operation->_connection );
+        operation->_connection.reset();
     }
-    state->_result->_connection.reset();
-    completeConnect( state, status );
+    operation->_result._connection.reset();
+    completeConnect( operation, status );
 }
 
 auto connectCallback( uv_connect_t *request, int status ) -> void {
-    auto *lifetime = static_cast<std::shared_ptr<ConnectState> *>( request->data );
-    auto state = *lifetime;
-    delete lifetime;
+    auto *operation = static_cast<ConnectAwaitable *>( request->data );
     request->data = nullptr;
 
     if ( status != 0 ) {
-        failConnect( state, status );
+        failConnect( operation, status );
         return;
     }
 
-    state->_result->_connection = state->_connection;
-    completeConnect( state, status );
+    operation->_result._connection = std::move( operation->_connection );
+    completeConnect( operation, status );
 }
 
-auto cancelConnect( const std::shared_ptr<ConnectState> &state ) -> void {
-    if ( state->_completed ) {
-        return;
-    }
-
-    if ( state->_connection != nullptr ) {
-        state->_scheduler->close( state->_connection );
-        state->_connection.reset();
-    }
-    state->_result->_connection.reset();
-    completeConnect( state, UV_ECANCELED );
-}
-
-auto startConnect( const std::shared_ptr<ConnectState> &state ) -> void {
-    if ( state->_completed ) {
-        return;
-    }
-
+auto startConnect( ConnectAwaitable *operation ) -> void {
     auto status = 0;
-    auto connection = state->_scheduler->initTcp( status );
+    operation->_connection = operation->_scheduler->initTcp( status );
     if ( status != 0 ) {
-        completeConnect( state, status );
+        failConnect( operation, status );
         return;
     }
-
-    state->_connection = connection;
 
     sockaddr_in address{};
-    status = uv_ip4_addr( state->_host.c_str(), static_cast<int>( state->_port ), &address );
+    status = uv_ip4_addr( operation->_host.c_str(), static_cast<int>( operation->_port ), &address );
 
     if ( status != 0 ) {
-        failConnect( state, status );
+        failConnect( operation, status );
         return;
     }
 
-    state->_request.data = new std::shared_ptr<ConnectState>{ state };
-    status = uv_tcp_connect( &state->_request, connection->nativeHandle(),
-                             reinterpret_cast<const sockaddr *>( &address ), connectCallback );
+    operation->_request.data = operation;
+    status = uv_tcp_connect( &operation->_request, operation->_connection->nativeHandle(),
+                              reinterpret_cast<const sockaddr *>( &address ), connectCallback );
     if ( status != 0 ) {
-        auto *lifetime = static_cast<std::shared_ptr<ConnectState> *>( state->_request.data );
-        delete lifetime;
-        state->_request.data = nullptr;
-        failConnect( state, status );
+        operation->_request.data = nullptr;
+        failConnect( operation, status );
     }
 }
 
@@ -87,21 +66,10 @@ auto startConnect( const std::shared_ptr<ConnectState> &state ) -> void {
 
 namespace tire {
 
-TcpConnectAwaitableState::TcpConnectAwaitableState( Scheduler &scheduler, std::string host, uint16_t port )
+TcpConnectAwaitable::TcpConnectAwaitable( Scheduler &scheduler, std::string host, uint16_t port )
     : _scheduler{ &scheduler }
     , _host{ std::move( host ) }
     , _port{ port } {
-}
-
-auto TcpConnectAwaitableState::cancel() -> void {
-    _scheduler->schedule( [state = shared_from_this()]( uv_loop_t * ) -> void {
-        //
-        cancelConnect( state );
-    } );
-}
-
-TcpConnectAwaitable::TcpConnectAwaitable( std::shared_ptr<TcpConnectAwaitableState> state )
-    : _state{ std::move( state ) } {
 }
 
 auto TcpConnectAwaitable::await_ready() noexcept -> bool {
@@ -109,21 +77,21 @@ auto TcpConnectAwaitable::await_ready() noexcept -> bool {
 }
 
 auto TcpConnectAwaitable::await_suspend( std::coroutine_handle<> coroutine ) -> void {
-    _state->_coroutine = coroutine;
+    _coroutine = coroutine;
 
-    _state->_scheduler->schedule( [state = _state]( uv_loop_t * ) -> void {
+    _scheduler->schedule( [this]( uv_loop_t * ) -> void {
         //
-        startConnect( state );
+        startConnect( this );
     } );
 }
 
 auto TcpConnectAwaitable::await_resume() noexcept -> TcpConnectResult {
-    return std::move( *_state->_result );
+    return std::move( _result );
 }
 
 auto Scheduler::connect( std::string host, uint16_t port ) -> TcpConnectAwaitable {
     //
-    return TcpConnectAwaitable{ std::make_shared<TcpConnectAwaitableState>( *this, std::move( host ), port ) };
+    return TcpConnectAwaitable{ *this, std::move( host ), port };
 }
 
 }  // namespace tire

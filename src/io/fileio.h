@@ -3,7 +3,6 @@
 #include <fcntl.h>
 
 #include <coroutine>
-#include <memory>
 #include <string>
 
 #include <uv.h>
@@ -22,37 +21,30 @@ struct FileOpenResult {
 };
 
 // ======================================================================================
-// ==================== FileOpenAwaitableState ==========================================
-// ======================================================================================
-
-struct FileOpenAwaitableState : AwaitableState<FileOpenAwaitableState, FileOpenResult> {
-    FileOpenAwaitableState( Scheduler& scheduler, std::string path );
-
-    auto cancel() -> void;
-
-public:
-    Scheduler* _scheduler{ nullptr };
-    std::string _path{};
-    uv_fs_t _request{};
-
-    std::shared_ptr<FileOpenAwaitableState>* _lifetime{ nullptr };
-
-    bool _started{ false };
-};
-
-// ======================================================================================
 // ==================== FileOpenAwaitable ===============================================
 // ======================================================================================
 
-struct FileOpenAwaitable final {
-    explicit FileOpenAwaitable( std::shared_ptr<FileOpenAwaitableState> state );
+struct FileOpenAwaitable final : AwaitableState<FileOpenResult> {
+    FileOpenAwaitable( Scheduler& scheduler, std::string path );
+
+    FileOpenAwaitable( const FileOpenAwaitable& other ) = delete;
+    FileOpenAwaitable( FileOpenAwaitable&& other ) = delete;
+
+    auto operator=( const FileOpenAwaitable& other ) -> FileOpenAwaitable& = delete;
+    auto operator=( FileOpenAwaitable&& other ) -> FileOpenAwaitable& = delete;
 
     [[nodiscard]] auto await_ready() const noexcept -> bool;
     auto await_suspend( std::coroutine_handle<> coroutine ) noexcept -> void;
     [[nodiscard]] auto await_resume() const noexcept -> int;
 
 private:
-    std::shared_ptr<FileOpenAwaitableState> _state{};
+    static auto openCallback( uv_fs_t* request ) -> void;
+    auto start( uv_loop_t* loop ) -> void;
+
+private:
+    Scheduler* _scheduler{ nullptr };
+    std::string _path{};
+    uv_fs_t _request{};
 };
 
 }  // namespace tire

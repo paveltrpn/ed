@@ -14,7 +14,6 @@
 #include "io/tcpclient.h"
 #include "io/tcpconnection.h"
 #include "io/tcpserver.h"
-#include "io/timer.h"
 
 namespace tire {
 
@@ -102,7 +101,7 @@ struct TcpBridge final {
 
     auto delay( uint64_t timeoutMilliseconds ) -> Task<int>;
 
-    // Cancel all pending operations and close the session. Safe to call from any thread.
+    // Reject new work and close resources after all session Tasks have completed.
     auto close() -> void;
 
 private:
@@ -113,14 +112,12 @@ private:
     TcpFrameCodec _codec{ _maximumPayload };
 
     // Protects session state shared by scheduler coroutines and external threads, including
-    // connection handles, pending operations, codec state, and queued messages.
+    // connection handles, delay policy, codec state, and queued messages.
     std::mutex _sessionMutex{};
 
     std::shared_ptr<TcpListener> _listener{};
     std::shared_ptr<TcpConnection> _connection{};
-    std::shared_ptr<TcpConnectAwaitableState> _connect{};
-    std::shared_ptr<TimeoutAwaitableState> _retryTimer{};
-    std::shared_ptr<TimeoutAwaitableState> _delayTimer{};
+    bool _delayActive{ false };
 
     // Messages decoded ahead of the last co_awaited read.
     std::deque<std::vector<std::byte>> _pendingMessages{};
