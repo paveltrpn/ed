@@ -9,9 +9,7 @@
 #include <vector>
 
 #include <QCoreApplication>
-#include <QLinearGradient>
 #include <QMetaObject>
-#include <QPainter>
 #include <QProcess>
 #include <QDir>
 
@@ -60,13 +58,7 @@ RenderRequest::RenderRequest( vsg::ref_ptr<vsg::Camera> camera, SceneUIProxy *sc
     , _camera{ std::move( camera ) }
     , _scene{ scene } {
     _renderedImage = QImage{ _width, _height, QImage::Format_RGB32 };
-
-    auto gradient = QLinearGradient{ QPointF{ 0.0, 0.0 }, QPointF{ static_cast<qreal>( _width ), 0.0 } };
-    gradient.setColorAt( 0.0, Qt::blue );
-    gradient.setColorAt( 1.0, Qt::gray );
-
-    auto painter = QPainter{ &_renderedImage };
-    painter.fillRect( _renderedImage.rect(), gradient );
+    _renderedImage.fill( Qt::black );
 }
 
 RenderRequest::~RenderRequest() {
@@ -112,7 +104,7 @@ void RenderRequest::start() {
         const auto lookAt = _camera->viewMatrix.cast<vsg::LookAt>();
         const auto perspective = _camera->projectionMatrix.cast<vsg::Perspective>();
 
-        log::info()( "Begin render..." );
+        log::info()( "Begin render." );
 
         auto [sceneObj, sceneInfo] = _scene->serializeObjectsToObj();
 
