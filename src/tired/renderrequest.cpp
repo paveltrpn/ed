@@ -26,7 +26,6 @@ namespace {
 
 constexpr uint16_t kRenderServerPort{ 45454 };
 constexpr uint64_t kRenderPollDelayMilliseconds{ 200 };
-constexpr size_t kPayloadPreviewMaximumSize{ 512 };
 
 enum class RenderSessionState {
     CONNECTING,
@@ -40,27 +39,6 @@ enum class RenderSessionState {
     FAILED,
     TRANSPORT_FAILED
 };
-
-auto payloadPreview( const std::vector<std::byte> &payload ) -> std::string {
-    auto size = payload.size();
-    if ( size > kPayloadPreviewMaximumSize ) {
-        size = kPayloadPreviewMaximumSize;
-    }
-
-    auto preview = std::string{};
-    preview.reserve( size );
-
-    for ( size_t index = 0; index < size; ++index ) {
-        const auto value = std::to_integer<unsigned char>( payload[index] );
-        if ( value >= 0x20U && value < 0x7fU ) {
-            preview += static_cast<char>( value );
-        } else {
-            preview += '.';
-        }
-    }
-
-    return preview;
-}
 
 }  // namespace
 
@@ -326,7 +304,6 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
                         state = RenderSessionState::SENDING_REQUEST;
                     }
                 } catch ( const std::exception &exception ) {
-                    log::error()( "RT handshake payload preview: {}", payloadPreview( reply._payload ) );
                     failureMessage = std::format( "Invalid RT handshake response: {}", exception.what() );
                     state = RenderSessionState::FAILED;
                 }
@@ -435,7 +412,6 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
                         }
                     }
                 } catch ( const std::exception &exception ) {
-                    log::error()( "RT response payload preview: {}", payloadPreview( reply._payload ) );
                     failureMessage = std::format( "Invalid RT render response: {}", exception.what() );
                     state = RenderSessionState::FAILED;
                 }
