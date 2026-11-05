@@ -7,29 +7,26 @@ import QtQuick.Layouts
 import Tire 1.0
 import "../components"
 
-Item {
+Rectangle {
     id: renderImageAreaItem
 
     readonly property var _color: Appearence.colors.data
     readonly property var _fonts: Appearence.fonts.data
     readonly property var _units: Appearence.units.data
 
-    width: renderedImageArea.width
-    height: renderedImageArea.height
+    border {
+        width: _units.scaled_1
+        color: _color.si_background_dark
+    }
 
-    signal close
+    color: _color.si_background_light_faded
 
-    Rectangle {
-        id: renderedImageArea
-
-        width: Tired.renderRequest.width
-        height: Tired.renderRequest.height
-
-        color: "transparent"
-
-        RenderImageItem {
-            anchors.fill: parent
-            image: Tired.renderRequest.renderedImage
+    RenderImageItem {
+        anchors {
+            fill: parent;
+            margins: _units.scaled_4
         }
+
+        image: Tired.renderRequest.renderedImage
     }
 }

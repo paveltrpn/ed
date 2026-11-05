@@ -14,8 +14,7 @@ Rectangle {
     readonly property var _fonts: Appearence.fonts.data
     readonly property var _units: Appearence.units.data
 
-    // color: _color.si_background_light
-    color: "transparent"
+    color: _color.si_background_light
 
     border {
         width: _units.scaled_1

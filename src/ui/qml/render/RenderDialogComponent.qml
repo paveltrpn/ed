@@ -22,8 +22,14 @@ Rectangle {
 
         anchors {
             left: parent.left
+            leftMargin: _units.scaled_4
             top: parent.top
+            topMargin: _units.scaled_4
+            bottom: parent.bottom
+            bottomMargin: _units.scaled_4
         }
+
+        width: parent.width * 0.75
     }
 
     RenderSettingsComponent {
@@ -31,23 +37,13 @@ Rectangle {
 
         anchors {
             right: parent.right
+            rightMargin: _units.scaled_4
             left: imageArea.right
             leftMargin: _units.scaled_4
             top: parent.top
-            bottom: processLogArea.top
-            bottomMargin: _units.scaled_4
-        }
-    }
-
-    RenderProcessLogComponent {
-        id: processLogArea
-
-        anchors {
-            top: imageArea.bottom
             topMargin: _units.scaled_4
             bottom: parent.bottom
-            left: parent.left
-            right: parent.right
+            bottomMargin: _units.scaled_4
         }
     }
 }

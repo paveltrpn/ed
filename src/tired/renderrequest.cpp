@@ -112,7 +112,7 @@ void RenderRequest::start() {
         const auto lookAt = _camera->viewMatrix.cast<vsg::LookAt>();
         const auto perspective = _camera->projectionMatrix.cast<vsg::Perspective>();
 
-        log::info()( "RT render started" );
+        log::info()( "Begin render..." );
 
         auto [sceneObj, sceneInfo] = _scene->serializeObjectsToObj();
 
@@ -135,6 +135,8 @@ void RenderRequest::start() {
 
         QObject::connect( _process.get(), &QProcess::started, this, [this]() -> void {
             //
+            log::info()( "Remote render process started." );
+
             if ( _requestRenderState != RenderRequestState::Starting || _bridge == nullptr ) {
                 return;
             }
@@ -156,9 +158,13 @@ void RenderRequest::start() {
         QObject::connect( _process.get(), &QProcess::finished, this,
                           [this]( int exitCode, QProcess::ExitStatus ) -> void {
                               //
-                              if ( _requestRenderState == RenderRequestState::Idle || _requestRenderState == RenderRequestState::Failed ) {
+                              log::info()( "Remote render process finished." );
+
+                              if ( _requestRenderState == RenderRequestState::Idle ||
+                                   _requestRenderState == RenderRequestState::Failed ) {
                                   return;
                               }
+
                               fail( std::format( "rt process exited unexpectedly with code {}", exitCode ) );
                           } );
 
@@ -171,8 +177,6 @@ void RenderRequest::start() {
 
     } catch ( const std::exception &exception ) {
         fail( std::format( "Failed to initialize render request: {}", exception.what() ) );
-    } catch ( ... ) {
-        fail( "Failed to initialize render request with an unknown error" );
     }
 }
 
@@ -444,7 +448,7 @@ auto RenderRequest::handleRenderComplete() -> void {
         return;
     }
 
-    log::info()( "RT render completed" );
+    log::info()( "Render completed" );
 
     stop();
 
