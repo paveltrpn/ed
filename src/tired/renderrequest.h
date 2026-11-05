@@ -38,6 +38,7 @@ struct RenderRequest final : QObject {
     Q_PROPERTY( int width READ width WRITE setWidth NOTIFY widthChanged FINAL )
     Q_PROPERTY( int height READ height WRITE setHeight NOTIFY heightChanged FINAL )
     Q_PROPERTY( QImage renderedImage READ renderedImage WRITE setRenderedImage NOTIFY renderedImageChanged FINAL )
+    Q_PROPERTY( bool requestPending READ requestPending NOTIFY requestPendingChanged )
 
 public:
     RenderRequest( vsg::ref_ptr<vsg::Camera> camera, SceneUIProxy *scene, QObject *parent = nullptr );
@@ -45,6 +46,8 @@ public:
 
     Q_INVOKABLE void start();
     Q_INVOKABLE void stop();
+
+    Q_INVOKABLE bool requestPending() const;
 
     auto width() const -> int;
     auto height() const -> int;
@@ -62,9 +65,12 @@ signals:
     auto errorOccurred( const std::string &message ) -> void;
     auto renderCompleted() -> void;
 
+    auto requestPendingChanged() -> void;
+
 private:
     auto runSession( std::string sceneObj, RenderCamera camera ) -> Task<void>;
 
+    auto setRequestRenderState( RenderRequestState state ) -> void;
     auto fail( const std::string &message ) -> void;
 
     auto cleanupSession() -> void;
@@ -76,7 +82,7 @@ private:
     auto handleFailure( int status ) -> void;
 
 private:
-    RenderRequestState _state{ RenderRequestState::Idle };
+    RenderRequestState _requestRenderState{ RenderRequestState::Idle };
 
     int _width{ 1024 };
     int _height{ 768 };

@@ -90,7 +90,7 @@ RenderRequest::~RenderRequest() {
 }
 
 void RenderRequest::start() {
-    if ( _state != RenderRequestState::Idle && _state != RenderRequestState::Failed ) {
+    if ( _requestRenderState != RenderRequestState::Idle && _requestRenderState != RenderRequestState::Failed ) {
         return;
     }
 
@@ -99,7 +99,7 @@ void RenderRequest::start() {
         return;
     }
 
-    _state = RenderRequestState::Starting;
+    setRequestRenderState( RenderRequestState::Starting );
 
     auto *application = QCoreApplication::instance();
 
@@ -135,11 +135,11 @@ void RenderRequest::start() {
 
         QObject::connect( _process.get(), &QProcess::started, this, [this]() -> void {
             //
-            if ( _state != RenderRequestState::Starting || _bridge == nullptr ) {
+            if ( _requestRenderState != RenderRequestState::Starting || _bridge == nullptr ) {
                 return;
             }
 
-            _state = RenderRequestState::Connecting;
+            setRequestRenderState( RenderRequestState::Connecting );
 
             _sessionTask = runSession( std::move( _pendingSceneObj ), _pendingCamera );
         } );
@@ -156,7 +156,7 @@ void RenderRequest::start() {
         QObject::connect( _process.get(), &QProcess::finished, this,
                           [this]( int exitCode, QProcess::ExitStatus ) -> void {
                               //
-                              if ( _state == RenderRequestState::Idle || _state == RenderRequestState::Failed ) {
+                              if ( _requestRenderState == RenderRequestState::Idle || _requestRenderState == RenderRequestState::Failed ) {
                                   return;
                               }
                               fail( std::format( "rt process exited unexpectedly with code {}", exitCode ) );
@@ -177,8 +177,12 @@ void RenderRequest::start() {
 }
 
 void RenderRequest::stop() {
-    _state = RenderRequestState::Idle;
+    setRequestRenderState( RenderRequestState::Idle );
     cleanupSession();
+}
+
+bool RenderRequest::requestPending() const {
+    return _requestRenderState != RenderRequestState::Idle && _requestRenderState != RenderRequestState::Failed;
 }
 
 auto RenderRequest::width() const -> int {
@@ -418,17 +422,17 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
 }
 
 auto RenderRequest::handleHandshakeDone() -> void {
-    if ( _state != RenderRequestState::Connecting ) {
+    if ( _requestRenderState != RenderRequestState::Connecting ) {
         return;
     }
 
-    _state = RenderRequestState::WaitingForReply;
+    setRequestRenderState( RenderRequestState::WaitingForReply );
 
     log::info()( "Handshake done!" );
 }
 
 auto RenderRequest::handleImage( const QImage &image ) -> void {
-    if ( _state == RenderRequestState::Idle || _state == RenderRequestState::Failed ) {
+    if ( _requestRenderState == RenderRequestState::Idle || _requestRenderState == RenderRequestState::Failed ) {
         return;
     }
 
@@ -436,7 +440,7 @@ auto RenderRequest::handleImage( const QImage &image ) -> void {
 }
 
 auto RenderRequest::handleRenderComplete() -> void {
-    if ( _state == RenderRequestState::Idle || _state == RenderRequestState::Failed ) {
+    if ( _requestRenderState == RenderRequestState::Idle || _requestRenderState == RenderRequestState::Failed ) {
         return;
     }
 
@@ -448,7 +452,7 @@ auto RenderRequest::handleRenderComplete() -> void {
 }
 
 auto RenderRequest::handleFailure( int status ) -> void {
-    if ( _state == RenderRequestState::Idle || _state == RenderRequestState::Failed ) {
+    if ( _requestRenderState == RenderRequestState::Idle || _requestRenderState == RenderRequestState::Failed ) {
         return;
     }
 
@@ -466,12 +470,22 @@ auto RenderRequest::handleFailure( int status ) -> void {
     fail( message );
 }
 
-auto RenderRequest::fail( const std::string &message ) -> void {
-    if ( _state == RenderRequestState::Idle || _state == RenderRequestState::Failed ) {
+auto RenderRequest::setRequestRenderState( RenderRequestState state ) -> void {
+    if ( _requestRenderState == state ) {
         return;
     }
 
-    _state = RenderRequestState::Failed;
+    _requestRenderState = state;
+
+    emit requestPendingChanged();
+}
+
+auto RenderRequest::fail( const std::string &message ) -> void {
+    if ( _requestRenderState == RenderRequestState::Idle || _requestRenderState == RenderRequestState::Failed ) {
+        return;
+    }
+
+    setRequestRenderState( RenderRequestState::Failed );
 
     cleanupSession();
 

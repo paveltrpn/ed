@@ -69,6 +69,10 @@ Rectangle {
                 title: "Render"
 
                 contentSource: "../render/RenderDialogComponent.qml"
+
+                onClosing: {
+                    Tired.renderRequest.stop();
+                }
             }
         }
     }

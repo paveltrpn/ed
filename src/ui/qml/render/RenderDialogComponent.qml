@@ -17,8 +17,6 @@ Rectangle {
     color: _color.si_background_light
     radius: _units.radiusEight
 
-    signal close
-
     RenderImageAreaComponent {
         id: imageArea
 

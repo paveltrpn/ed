@@ -17,6 +17,8 @@ QuickTemplates.Button {
 
     property alias buttonLabel: buttonLabel.text
 
+    opacity: enabled ? 1.0 : 0.6
+
     states: [
         State {
             when: control.down
@@ -30,7 +32,7 @@ QuickTemplates.Button {
             }
         },
         State {
-            when: control.hovered && !control.checked
+            when: control.hovered && (!control.checked && enabled)
             PropertyChanges {
                 target: bottomRect
                 fillColor: _color.background_overlay_40

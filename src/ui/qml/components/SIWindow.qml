@@ -163,7 +163,10 @@ Window {
 
                 width: _units.scaled_24
                 height: _units.scaled_24
-                onClicked: siWindowComponent.close()
+
+                onClicked: {
+                    siWindowComponent.close();
+                }
             }
         }
 
