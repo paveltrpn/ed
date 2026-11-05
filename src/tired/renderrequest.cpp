@@ -232,8 +232,10 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
     const auto renderHeight = static_cast<uint32_t>( _height );
 
     auto state{ RenderSessionState::CONNECTING };
+
     auto failureMessage = std::string{};
     auto failureStatus{ 0 };
+
     const auto pollMessage{ ChatMessage{ RenderMessageType::POLL, std::string{} }.encode() };
 
     while ( state != RenderSessionState::COMPLETE && state != RenderSessionState::FAILED &&
@@ -287,7 +289,7 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
                         }
 
                         const auto *handshake = static_cast<ChatMessage *>( message.get() );
-                        if ( handshake->message() != "hello from rt" ) {
+                        if ( handshake->message() != "hello_from_rt" ) {
                             throw std::runtime_error{ "Unexpected RT handshake response" };
                         }
 

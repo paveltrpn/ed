@@ -195,12 +195,16 @@ auto serveSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint16_
         switch ( state ) {
             case ServeSessionState::ACCEPTING: {
                 const auto acceptStatus = co_await bridge.accept( "127.0.0.1", port );
+
                 if ( acceptStatus != 0 ) {
                     std::cerr << "Failed to accept TCP connection";
+
                     if ( acceptStatus != UV_ECANCELED ) {
                         std::cerr << ": " << uv_strerror( acceptStatus );
                     }
+
                     std::cerr << std::endl;
+
                     state = ServeSessionState::FAILED;
                 } else {
                     state = ServeSessionState::AWAITING_HANDSHAKE;
@@ -245,7 +249,7 @@ auto serveSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint16_
                                 throw std::runtime_error{ "Expected the ED handshake" };
                             }
 
-                            response = tire::ChatMessage{ "hello from rt" }.encode();
+                            response = tire::ChatMessage{ "hello_from_rt" }.encode();
                             nextState = ServeSessionState::AWAITING_REQUEST;
 
                             break;
@@ -254,11 +258,16 @@ auto serveSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint16_
                         case ServeSessionState::AWAITING_REQUEST: {
                             switch ( renderMessage->type() ) {
                                 case tire::RenderMessageType::REQUEST: {
-                                    const auto* request = static_cast<tire::RequestRenderMessage*>( renderMessage.get() );
+                                    const auto* request =
+                                        static_cast<tire::RequestRenderMessage*>( renderMessage.get() );
+
                                     auto newJob = std::make_unique<tire::RenderJob>(
                                         request->width(), request->height(), request->sceneObj(), request->camera() );
+
                                     newJob->start();
+
                                     job = std::move( newJob );
+
                                     nextState = ServeSessionState::AWAITING_POLL;
 
                                     break;
@@ -285,7 +294,9 @@ auto serveSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint16_
 
                                 case tire::RenderMessageType::POLL: {
                                     auto imageResponse{ makeRenderImageResponse( *job ) };
+
                                     response = std::move( imageResponse._payload );
+
                                     if ( state == ServeSessionState::AWAITING_POLL && imageResponse._final ) {
                                         nextState = ServeSessionState::DRAINING;
                                     }
@@ -313,11 +324,14 @@ auto serveSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint16_
 
                 if ( !response.empty() ) {
                     const auto sendStatus = co_await bridge.send( std::move( response ) );
+
                     if ( sendStatus != 0 ) {
                         if ( sendStatus != UV_ECANCELED ) {
                             std::cerr << "TCP send failed: " << uv_strerror( sendStatus ) << std::endl;
                         }
+
                         state = ServeSessionState::FAILED;
+
                         break;
                     }
                 }
