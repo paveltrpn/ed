@@ -142,7 +142,22 @@ struct ServeCompletion {
     bool _finished{ false };
 };
 
-auto makeRenderImageResponse( const tire::RenderJob& job ) -> std::vector<std::byte> {
+enum class ServeSessionState {
+    ACCEPTING,
+    AWAITING_HANDSHAKE,
+    AWAITING_REQUEST,
+    AWAITING_POLL,
+    DRAINING,
+    COMPLETE,
+    FAILED
+};
+
+struct RenderImageResponse {
+    std::vector<std::byte> _payload{};
+    bool _final{ false };
+};
+
+auto makeRenderImageResponse( const tire::RenderJob& job ) -> RenderImageResponse {
     const auto snapshot = job.snapshot();
 
     if ( snapshot._state == tire::RenderJobState::Failed ) {
@@ -167,98 +182,152 @@ auto makeRenderImageResponse( const tire::RenderJob& job ) -> std::vector<std::b
     }
 
     const auto isFinal{ snapshot._state == tire::RenderJobState::Complete };
+    auto payload{ tire::ImageMessage{ job.width(), job.height(), isFinal, pixels }.encode() };
 
-    return tire::ImageMessage{ job.width(), job.height(), isFinal, pixels }.encode();
+    return RenderImageResponse{ std::move( payload ), isFinal };
 }
 
 auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint16_t port ) -> tire::Task<int> {
-    auto exitCode = 1;
-    auto handshakeComplete = false;
+    auto state{ ServeSessionState::ACCEPTING };
     auto job = std::unique_ptr<tire::RenderJob>{};
 
-    const auto acceptStatus = co_await bridge.accept( "127.0.0.1", port );
+    while ( state != ServeSessionState::COMPLETE && state != ServeSessionState::FAILED ) {
+        switch ( state ) {
+            case ServeSessionState::ACCEPTING: {
+                const auto acceptStatus = co_await bridge.accept( "127.0.0.1", port );
+                if ( acceptStatus != 0 ) {
+                    std::cerr << "Failed to accept TCP connection";
+                    if ( acceptStatus != UV_ECANCELED ) {
+                        std::cerr << ": " << uv_strerror( acceptStatus );
+                    }
+                    std::cerr << std::endl;
+                    state = ServeSessionState::FAILED;
+                } else {
+                    state = ServeSessionState::AWAITING_HANDSHAKE;
+                }
 
-    if ( acceptStatus != 0 ) {
-        std::cerr << "Failed to accept TCP connection";
-        if ( acceptStatus != UV_ECANCELED ) {
-            std::cerr << ": " << uv_strerror( acceptStatus );
-        }
-        std::cerr << std::endl;
-    }
-
-    while ( acceptStatus == 0 ) {
-        const auto message = co_await bridge.read();
-
-        if ( message._status == UV_EOF ) {
-            exitCode = 0;
-            break;
-        }
-
-        if ( message._status != 0 ) {
-            if ( message._status != UV_ECANCELED ) {
-                std::cerr << "TCP read failed: " << uv_strerror( message._status ) << std::endl;
+                break;
             }
-            break;
-        }
 
-        auto response = std::vector<std::byte>{};
-        try {
-            if ( !handshakeComplete ) {
-                const auto renderMessage{ tire::RenderMessage::create( message._payload ) };
-                if ( renderMessage->type() != tire::RenderMessageType::CHAT ) {
-                    throw std::runtime_error{ "Expected the ED handshake" };
+            case ServeSessionState::AWAITING_HANDSHAKE:
+            case ServeSessionState::AWAITING_REQUEST:
+            case ServeSessionState::AWAITING_POLL:
+            case ServeSessionState::DRAINING: {
+                const auto message = co_await bridge.read();
+
+                if ( message._status == UV_EOF ) {
+                    state = ServeSessionState::COMPLETE;
+                    break;
                 }
 
-                const auto* handshake = static_cast<tire::ChatMessage*>( renderMessage.get() );
-                if ( handshake->message() != "handshake_from_ed" ) {
-                    throw std::runtime_error{ "Expected the ED handshake" };
+                if ( message._status != 0 ) {
+                    if ( message._status != UV_ECANCELED ) {
+                        std::cerr << "TCP read failed: " << uv_strerror( message._status ) << std::endl;
+                    }
+                    state = ServeSessionState::FAILED;
+                    break;
                 }
 
-                handshakeComplete = true;
-                response = tire::ChatMessage{ "hello from rt" }.encode();
-            } else {
-                const auto renderMessage{ tire::RenderMessage::create( message._payload ) };
+                auto response = std::vector<std::byte>{};
+                auto nextState{ state };
 
-                switch ( renderMessage->type() ) {
-                    case tire::RenderMessageType::REQUEST: {
-                        if ( job != nullptr ) {
-                            throw std::runtime_error{ "A render request is already active" };
+                try {
+                    const auto renderMessage{ tire::RenderMessage::create( message._payload ) };
+
+                    switch ( state ) {
+                        case ServeSessionState::AWAITING_HANDSHAKE: {
+                            if ( renderMessage->type() != tire::RenderMessageType::CHAT ) {
+                                throw std::runtime_error{ "Expected the ED handshake" };
+                            }
+
+                            const auto* handshake = static_cast<tire::ChatMessage*>( renderMessage.get() );
+                            if ( handshake->message() != "handshake_from_ed" ) {
+                                throw std::runtime_error{ "Expected the ED handshake" };
+                            }
+
+                            response = tire::ChatMessage{ "hello from rt" }.encode();
+                            nextState = ServeSessionState::AWAITING_REQUEST;
+
+                            break;
                         }
 
-                        const auto* request = static_cast<tire::RequestRenderMessage*>( renderMessage.get() );
-                        auto newJob = std::make_unique<tire::RenderJob>( request->width(), request->height(),
-                                                                         request->sceneObj(), request->camera() );
-                        newJob->start();
-                        job = std::move( newJob );
+                        case ServeSessionState::AWAITING_REQUEST: {
+                            switch ( renderMessage->type() ) {
+                                case tire::RenderMessageType::REQUEST: {
+                                    const auto* request = static_cast<tire::RequestRenderMessage*>( renderMessage.get() );
+                                    auto newJob = std::make_unique<tire::RenderJob>(
+                                        request->width(), request->height(), request->sceneObj(), request->camera() );
+                                    newJob->start();
+                                    job = std::move( newJob );
+                                    nextState = ServeSessionState::AWAITING_POLL;
 
-                        break;
-                    }
+                                    break;
+                                }
 
-                    case tire::RenderMessageType::POLL: {
-                        if ( job == nullptr ) {
-                            throw std::runtime_error{ "Cannot poll before starting a render" };
+                                case tire::RenderMessageType::POLL: {
+                                    throw std::runtime_error{ "Cannot poll before starting a render" };
+                                }
+
+                                default: {
+                                    throw std::runtime_error{ "Unexpected message sent to the RT render server" };
+                                }
+                            }
+
+                            break;
                         }
 
-                        response = makeRenderImageResponse( *job );
+                        case ServeSessionState::AWAITING_POLL:
+                        case ServeSessionState::DRAINING: {
+                            switch ( renderMessage->type() ) {
+                                case tire::RenderMessageType::REQUEST: {
+                                    throw std::runtime_error{ "A render request is already active" };
+                                }
 
+                                case tire::RenderMessageType::POLL: {
+                                    auto imageResponse{ makeRenderImageResponse( *job ) };
+                                    response = std::move( imageResponse._payload );
+                                    if ( state == ServeSessionState::AWAITING_POLL && imageResponse._final ) {
+                                        nextState = ServeSessionState::DRAINING;
+                                    }
+
+                                    break;
+                                }
+
+                                default: {
+                                    throw std::runtime_error{ "Unexpected message sent to the RT render server" };
+                                }
+                            }
+
+                            break;
+                        }
+
+                        case ServeSessionState::ACCEPTING:
+                        case ServeSessionState::COMPLETE:
+                        case ServeSessionState::FAILED: {
+                            break;
+                        }
+                    }
+                } catch ( const std::exception& exception ) {
+                    response = tire::ChatMessage{ tire::RenderMessageType::ERROR, exception.what() }.encode();
+                }
+
+                if ( !response.empty() ) {
+                    const auto sendStatus = co_await bridge.send( std::move( response ) );
+                    if ( sendStatus != 0 ) {
+                        if ( sendStatus != UV_ECANCELED ) {
+                            std::cerr << "TCP send failed: " << uv_strerror( sendStatus ) << std::endl;
+                        }
+                        state = ServeSessionState::FAILED;
                         break;
                     }
-
-                    default: {
-                        throw std::runtime_error{ "Unexpected message sent to the RT render server" };
-                    }
                 }
+
+                state = nextState;
+                break;
             }
-        } catch ( const std::exception& exception ) {
-            response = tire::ChatMessage{ tire::RenderMessageType::ERROR, exception.what() }.encode();
-        }
 
-        if ( !response.empty() ) {
-            const auto sendStatus = co_await bridge.send( std::move( response ) );
-            if ( sendStatus != 0 ) {
-                if ( sendStatus != UV_ECANCELED ) {
-                    std::cerr << "TCP send failed: " << uv_strerror( sendStatus ) << std::endl;
-                }
+            case ServeSessionState::COMPLETE:
+            case ServeSessionState::FAILED: {
                 break;
             }
         }
@@ -276,7 +345,11 @@ auto runServeSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint
 
     completion._condition.notify_all();
 
-    co_return exitCode;
+    if ( state == ServeSessionState::COMPLETE ) {
+        co_return 0;
+    }
+
+    co_return 1;
 }
 
 }  // namespace

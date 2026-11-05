@@ -28,6 +28,19 @@ constexpr uint16_t kRenderServerPort{ 45454 };
 constexpr uint64_t kRenderPollDelayMilliseconds{ 200 };
 constexpr size_t kPayloadPreviewMaximumSize{ 512 };
 
+enum class RenderSessionState {
+    CONNECTING,
+    SENDING_HANDSHAKE,
+    RECEIVING_HANDSHAKE,
+    SENDING_REQUEST,
+    SENDING_POLL,
+    RECEIVING_IMAGE,
+    DELAYING_POLL,
+    COMPLETE,
+    FAILED,
+    TRANSPORT_FAILED
+};
+
 auto payloadPreview( const std::vector<std::byte> &payload ) -> std::string {
     auto size = payload.size();
     if ( size > kPayloadPreviewMaximumSize ) {
@@ -240,168 +253,256 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
     const auto renderWidth = static_cast<uint32_t>( _width );
     const auto renderHeight = static_cast<uint32_t>( _height );
 
+    auto state{ RenderSessionState::CONNECTING };
     auto failureMessage = std::string{};
-    auto status{ 0 };
+    auto failureStatus{ 0 };
+    const auto pollMessage{ ChatMessage{ RenderMessageType::POLL, std::string{} }.encode() };
 
-    {
-        //
-        status = co_await _bridge->connect( "127.0.0.1", kRenderServerPort, TcpBridgeRetryOptions{} );
-    }
-
-    if ( status == 0 && failureMessage.empty() ) {
-        auto handshakeMessage = ChatMessage{ "handshake_from_ed" }.encode();
-        status = co_await _bridge->send( std::move( handshakeMessage ) );
-    }
-
-    auto handshakeComplete = false;
-    if ( status == 0 && failureMessage.empty() ) {
-        const auto reply = co_await _bridge->read();
-        status = reply._status;
-
-        if ( status == 0 ) {
-            try {
-                const auto message{ RenderMessage::create( reply._payload ) };
-
-                if ( message->type() == RenderMessageType::ERROR ) {
-                    const auto *errorMessage = static_cast<ChatMessage *>( message.get() );
-                    const auto error = errorMessage->message();
-                    failureMessage = std::format( "RT render error: {}", error );
+    while ( state != RenderSessionState::COMPLETE && state != RenderSessionState::FAILED &&
+            state != RenderSessionState::TRANSPORT_FAILED ) {
+        switch ( state ) {
+            case RenderSessionState::CONNECTING: {
+                const auto status =
+                    co_await _bridge->connect( "127.0.0.1", kRenderServerPort, TcpBridgeRetryOptions{} );
+                if ( status != 0 ) {
+                    failureStatus = status;
+                    state = RenderSessionState::TRANSPORT_FAILED;
                 } else {
-                    if ( message->type() != RenderMessageType::CHAT ) {
-                        throw std::runtime_error{ "Unexpected message received during the RT handshake" };
-                    }
-
-                    const auto *handshake = static_cast<ChatMessage *>( message.get() );
-                    if ( handshake->message() != "hello from rt" ) {
-                        throw std::runtime_error{ "Unexpected RT handshake response" };
-                    }
-
-                    handshakeComplete = true;
+                    state = RenderSessionState::SENDING_HANDSHAKE;
                 }
-            } catch ( const std::exception &exception ) {
-                log::error()( "RT handshake payload preview: {}", payloadPreview( reply._payload ) );
-                failureMessage = std::format( "Invalid RT handshake response: {}", exception.what() );
+
+                break;
+            }
+
+            case RenderSessionState::SENDING_HANDSHAKE: {
+                auto handshakeMessage = ChatMessage{ "handshake_from_ed" }.encode();
+                const auto status = co_await _bridge->send( std::move( handshakeMessage ) );
+                if ( status != 0 ) {
+                    failureStatus = status;
+                    state = RenderSessionState::TRANSPORT_FAILED;
+                } else {
+                    state = RenderSessionState::RECEIVING_HANDSHAKE;
+                }
+
+                break;
+            }
+
+            case RenderSessionState::RECEIVING_HANDSHAKE: {
+                const auto reply = co_await _bridge->read();
+                if ( reply._status != 0 ) {
+                    failureStatus = reply._status;
+                    state = RenderSessionState::TRANSPORT_FAILED;
+                    break;
+                }
+
+                try {
+                    const auto message{ RenderMessage::create( reply._payload ) };
+
+                    if ( message->type() == RenderMessageType::ERROR ) {
+                        const auto *errorMessage = static_cast<ChatMessage *>( message.get() );
+                        const auto error = errorMessage->message();
+                        failureMessage = std::format( "RT render error: {}", error );
+                        state = RenderSessionState::FAILED;
+                    } else {
+                        if ( message->type() != RenderMessageType::CHAT ) {
+                            throw std::runtime_error{ "Unexpected message received during the RT handshake" };
+                        }
+
+                        const auto *handshake = static_cast<ChatMessage *>( message.get() );
+                        if ( handshake->message() != "hello from rt" ) {
+                            throw std::runtime_error{ "Unexpected RT handshake response" };
+                        }
+
+                        QMetaObject::invokeMethod(
+                            this,
+                            [this]() -> void {
+                                //
+                                handleHandshakeDone();
+                            },
+                            Qt::QueuedConnection );
+
+                        state = RenderSessionState::SENDING_REQUEST;
+                    }
+                } catch ( const std::exception &exception ) {
+                    log::error()( "RT handshake payload preview: {}", payloadPreview( reply._payload ) );
+                    failureMessage = std::format( "Invalid RT handshake response: {}", exception.what() );
+                    state = RenderSessionState::FAILED;
+                }
+
+                break;
+            }
+
+            case RenderSessionState::SENDING_REQUEST: {
+                auto requestMessage =
+                    RequestRenderMessage{ renderWidth, renderHeight, std::move( sceneObj ), camera }.encode();
+                const auto status = co_await _bridge->send( std::move( requestMessage ) );
+                if ( status != 0 ) {
+                    failureStatus = status;
+                    state = RenderSessionState::TRANSPORT_FAILED;
+                } else {
+                    state = RenderSessionState::SENDING_POLL;
+                }
+
+                break;
+            }
+
+            case RenderSessionState::SENDING_POLL: {
+                const auto status = co_await _bridge->send( pollMessage );
+                if ( status != 0 ) {
+                    failureStatus = status;
+                    state = RenderSessionState::TRANSPORT_FAILED;
+                } else {
+                    state = RenderSessionState::RECEIVING_IMAGE;
+                }
+
+                break;
+            }
+
+            case RenderSessionState::RECEIVING_IMAGE: {
+                const auto reply = co_await _bridge->read();
+                if ( reply._status != 0 ) {
+                    failureStatus = reply._status;
+                    state = RenderSessionState::TRANSPORT_FAILED;
+                    break;
+                }
+
+                try {
+                    const auto message{ RenderMessage::create( reply._payload ) };
+
+                    switch ( message->type() ) {
+                        case RenderMessageType::ERROR: {
+                            const auto *errorMessage = static_cast<ChatMessage *>( message.get() );
+                            const auto error = errorMessage->message();
+                            failureMessage = std::format( "RT render error: {}", error );
+                            state = RenderSessionState::FAILED;
+
+                            break;
+                        }
+
+                        case RenderMessageType::IMAGE: {
+                            const auto *imageMessage = static_cast<ImageMessage *>( message.get() );
+
+                            if ( imageMessage->width() != renderWidth || imageMessage->height() != renderHeight ) {
+                                throw std::runtime_error{ "Render response dimensions do not match the request" };
+                            }
+
+                            const auto pixels{ imageMessage->pixels() };
+
+                            auto image =
+                                QImage{ static_cast<int>( imageMessage->width() ),
+                                        static_cast<int>( imageMessage->height() ), QImage::Format_Grayscale8 };
+
+                            if ( image.isNull() ) {
+                                throw std::runtime_error{ "Cannot allocate the received render image" };
+                            }
+
+                            const auto rowSize = static_cast<size_t>( imageMessage->width() );
+
+                            for ( size_t row = 0; row < imageMessage->height(); ++row ) {
+                                std::memcpy( image.scanLine( static_cast<int>( row ) ), pixels.data() + row * rowSize,
+                                             rowSize );
+                            }
+
+                            const auto isFinal{ imageMessage->final() };
+
+                            QMetaObject::invokeMethod(
+                                this,
+                                [this, image = std::move( image )]() -> void {
+                                    //
+                                    handleImage( image );
+                                },
+                                Qt::QueuedConnection );
+
+                            if ( isFinal ) {
+                                state = RenderSessionState::COMPLETE;
+                            } else {
+                                state = RenderSessionState::DELAYING_POLL;
+                            }
+
+                            break;
+                        }
+
+                        default: {
+                            failureMessage = "Unexpected message received from the RT render server";
+                            state = RenderSessionState::FAILED;
+                            break;
+                        }
+                    }
+                } catch ( const std::exception &exception ) {
+                    log::error()( "RT response payload preview: {}", payloadPreview( reply._payload ) );
+                    failureMessage = std::format( "Invalid RT render response: {}", exception.what() );
+                    state = RenderSessionState::FAILED;
+                }
+
+                break;
+            }
+
+            case RenderSessionState::DELAYING_POLL: {
+                const auto status = co_await _bridge->delay( kRenderPollDelayMilliseconds );
+                if ( status != 0 ) {
+                    failureStatus = status;
+                    state = RenderSessionState::TRANSPORT_FAILED;
+                } else {
+                    state = RenderSessionState::SENDING_POLL;
+                }
+
+                break;
+            }
+
+            case RenderSessionState::COMPLETE:
+            case RenderSessionState::FAILED:
+            case RenderSessionState::TRANSPORT_FAILED: {
+                break;
             }
         }
     }
 
-    if ( status == 0 && failureMessage.empty() && handshakeComplete ) {
-        QMetaObject::invokeMethod(
-            this,
-            [this]() -> void {
-                //
-                handleHandshakeDone();
-            },
-            Qt::QueuedConnection );
+    switch ( state ) {
+        case RenderSessionState::COMPLETE: {
+            QMetaObject::invokeMethod(
+                this,
+                [this]() -> void {
+                    //
+                    handleRenderComplete();
+                },
+                Qt::QueuedConnection );
 
-        auto requestMessage = RequestRenderMessage{ renderWidth, renderHeight, std::move( sceneObj ), camera }.encode();
-        status = co_await _bridge->send( std::move( requestMessage ) );
-    }
-
-    auto finalReceived = false;
-    auto pollMessage = ChatMessage{ RenderMessageType::POLL, std::string{} }.encode();
-    while ( status == 0 && failureMessage.empty() && handshakeComplete && !finalReceived ) {
-        status = co_await _bridge->send( pollMessage );
-
-        if ( status != 0 ) {
             break;
         }
 
-        const auto reply = co_await _bridge->read();
-        status = reply._status;
+        case RenderSessionState::FAILED: {
+            QMetaObject::invokeMethod(
+                this,
+                [this, failureMessage]() -> void {
+                    //
+                    fail( failureMessage );
+                },
+                Qt::QueuedConnection );
 
-        if ( status != 0 ) {
             break;
         }
 
-        try {
-            const auto message{ RenderMessage::create( reply._payload ) };
+        case RenderSessionState::TRANSPORT_FAILED: {
+            QMetaObject::invokeMethod(
+                this,
+                [this, failureStatus]() -> void {
+                    //
+                    handleFailure( failureStatus );
+                },
+                Qt::QueuedConnection );
 
-            switch ( message->type() ) {
-                case RenderMessageType::ERROR: {
-                    const auto *errorMessage = static_cast<ChatMessage *>( message.get() );
-                    const auto error = errorMessage->message();
-                    failureMessage = std::format( "RT render error: {}", error );
-
-                    break;
-                }
-
-                case RenderMessageType::IMAGE: {
-                    const auto *imageMessage = static_cast<ImageMessage *>( message.get() );
-
-                    if ( imageMessage->width() != renderWidth || imageMessage->height() != renderHeight ) {
-                        throw std::runtime_error{ "Render response dimensions do not match the request" };
-                    }
-
-                    const auto pixels{ imageMessage->pixels() };
-
-                    auto image = QImage{ static_cast<int>( imageMessage->width() ),
-                                         static_cast<int>( imageMessage->height() ), QImage::Format_Grayscale8 };
-
-                    if ( image.isNull() ) {
-                        throw std::runtime_error{ "Cannot allocate the received render image" };
-                    }
-
-                    const auto rowSize = static_cast<size_t>( imageMessage->width() );
-
-                    for ( size_t row = 0; row < imageMessage->height(); ++row ) {
-                        std::memcpy( image.scanLine( static_cast<int>( row ) ), pixels.data() + row * rowSize,
-                                     rowSize );
-                    }
-
-                    finalReceived = imageMessage->final();
-
-                    QMetaObject::invokeMethod(
-                        this,
-                        [this, image = std::move( image )]() -> void {
-                            //
-                            handleImage( image );
-                        },
-                        Qt::QueuedConnection );
-
-                    break;
-                }
-
-                default: {
-                    failureMessage = "Unexpected message received from the RT render server";
-                    break;
-                }
-            }
-        } catch ( const std::exception &exception ) {
-            log::error()( "RT response payload preview: {}", payloadPreview( reply._payload ) );
-            failureMessage = std::format( "Invalid RT render response: {}", exception.what() );
+            break;
         }
 
-        if ( status == 0 && failureMessage.empty() && !finalReceived ) {
-            status = co_await _bridge->delay( kRenderPollDelayMilliseconds );
+        case RenderSessionState::CONNECTING:
+        case RenderSessionState::SENDING_HANDSHAKE:
+        case RenderSessionState::RECEIVING_HANDSHAKE:
+        case RenderSessionState::SENDING_REQUEST:
+        case RenderSessionState::SENDING_POLL:
+        case RenderSessionState::RECEIVING_IMAGE:
+        case RenderSessionState::DELAYING_POLL: {
+            break;
         }
-    }
-
-    if ( !failureMessage.empty() ) {
-        QMetaObject::invokeMethod(
-            this,
-            [this, failureMessage]() -> void {
-                //
-                fail( failureMessage );
-            },
-            Qt::QueuedConnection );
-    } else if ( status != 0 ) {
-        const auto failure = status;
-        QMetaObject::invokeMethod(
-            this,
-            [this, failure]() -> void {
-                //
-                handleFailure( failure );
-            },
-            Qt::QueuedConnection );
-    } else {
-        QMetaObject::invokeMethod(
-            this,
-            [this]() -> void {
-                //
-                handleRenderComplete();
-            },
-            Qt::QueuedConnection );
     }
 
     // NOTE: LLM suggest do it trough SessionEndAwaitable in await_suspend(),
