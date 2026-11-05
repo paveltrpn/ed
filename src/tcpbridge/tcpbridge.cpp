@@ -7,7 +7,6 @@
 #include <uv.h>
 
 #include "tcpbridge/tcpbridge.h"
-
 #include "io/timer.h"
 
 namespace tire {
@@ -183,6 +182,7 @@ auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions 
         }
 
         const auto connectResult = co_await _scheduler->connect( host, port );
+
         lastStatus = connectResult._status;
 
         if ( lastStatus == 0 ) {

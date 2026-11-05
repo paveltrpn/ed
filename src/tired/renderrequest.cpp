@@ -271,7 +271,9 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
                 const auto reply = co_await _bridge->read();
                 if ( reply._status != 0 ) {
                     failureStatus = reply._status;
+
                     state = RenderSessionState::TRANSPORT_FAILED;
+
                     break;
                 }
 
@@ -281,7 +283,9 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
                     if ( message->type() == RenderMessageType::ERROR ) {
                         const auto *errorMessage = static_cast<ChatMessage *>( message.get() );
                         const auto error = errorMessage->message();
+
                         failureMessage = std::format( "RT render error: {}", error );
+
                         state = RenderSessionState::FAILED;
                     } else {
                         if ( message->type() != RenderMessageType::CHAT ) {
