@@ -250,6 +250,7 @@ auto serveSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint16_
                             }
 
                             response = tire::ChatMessage{ "hello_from_rt" }.encode();
+
                             nextState = ServeSessionState::AWAITING_REQUEST;
 
                             break;
