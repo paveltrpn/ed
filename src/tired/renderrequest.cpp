@@ -409,12 +409,14 @@ auto RenderRequest::runSession( std::string sceneObj, RenderCamera camera ) -> T
 
                         default: {
                             failureMessage = "Unexpected message received from the RT render server";
+
                             state = RenderSessionState::FAILED;
                             break;
                         }
                     }
                 } catch ( const std::exception &exception ) {
                     failureMessage = std::format( "Invalid RT render response: {}", exception.what() );
+
                     state = RenderSessionState::FAILED;
                 }
 

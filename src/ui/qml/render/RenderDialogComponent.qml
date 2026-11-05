@@ -10,6 +10,12 @@ import "../components"
 Rectangle {
     id: renderComponent
 
+    anchors.fill: parent
+
+    property real imageRatio: 0.75
+    readonly property real minImageRatio: 0.2
+    readonly property real maxImageRatio: 0.85
+
     readonly property var _color: Appearence.colors.data
     readonly property var _fonts: Appearence.fonts.data
     readonly property var _units: Appearence.units.data
@@ -17,33 +23,80 @@ Rectangle {
     color: _color.si_background_light
     radius: _units.radiusEight
 
-    RenderImageAreaComponent {
-        id: imageArea
+    Item {
+        id: splitArea
 
         anchors {
-            left: parent.left
-            leftMargin: _units.scaled_4
-            top: parent.top
-            topMargin: _units.scaled_4
-            bottom: parent.bottom
-            bottomMargin: _units.scaled_4
+            fill: parent
+            margins: _units.scaled_4
         }
 
-        width: parent.width * 0.75
-    }
+        clip: true
 
-    RenderSettingsComponent {
-        id: settingsArea
+        RenderImageAreaComponent {
+            id: imageArea
 
-        anchors {
-            right: parent.right
-            rightMargin: _units.scaled_4
-            left: imageArea.right
-            leftMargin: _units.scaled_4
-            top: parent.top
-            topMargin: _units.scaled_4
-            bottom: parent.bottom
-            bottomMargin: _units.scaled_4
+            anchors {
+                left: parent.left
+                top: parent.top
+                bottom: parent.bottom
+            }
+
+            width: (splitArea.width * renderComponent.imageRatio) - (splitHandle.width / 2)
+        }
+
+        Item {
+            id: splitHandle
+
+            width: _units.scaled_8
+
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+            }
+
+            x: imageArea.width
+
+            property real pressOffsetX: 0
+
+            MouseArea {
+                id: splitHandleArea
+
+                anchors.fill: parent
+
+                acceptedButtons: Qt.LeftButton
+                cursorShape: Qt.SizeHorCursor
+
+                onPressed: mouse => {
+                    const cursorX = splitHandleArea.mapToItem(splitArea, mouse.x, 0).x;
+                    const boundaryX = splitArea.width * renderComponent.imageRatio;
+
+                    splitHandle.pressOffsetX = cursorX - boundaryX;
+                }
+
+                onPositionChanged: mouse => {
+                    if (!pressed) {
+                        return;
+                    }
+
+                    const cursorX = splitHandleArea.mapToItem(splitArea, mouse.x, 0).x;
+                    const candidateRatio = (cursorX - splitHandle.pressOffsetX) / splitArea.width;
+
+                    renderComponent.imageRatio = Math.min(Math.max(candidateRatio, renderComponent.minImageRatio), renderComponent.maxImageRatio);
+                }
+            }
+        }
+
+        RenderSettingsComponent {
+            id: settingsArea
+
+            anchors {
+                left: splitHandle.right
+                //leftMargin: _units.scaled_4
+                right: parent.right
+                top: parent.top
+                bottom: parent.bottom
+            }
         }
     }
 }
