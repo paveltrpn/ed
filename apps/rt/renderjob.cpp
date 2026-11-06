@@ -74,12 +74,15 @@ auto RenderJob::run() -> void {
         const auto eye = tire::algebra::vector<float, 3>{ static_cast<float>( _camera._eye[0] ),
                                                           static_cast<float>( _camera._eye[1] ),
                                                           static_cast<float>( _camera._eye[2] ) };
+
         const auto target = tire::algebra::vector<float, 3>{ static_cast<float>( _camera._target[0] ),
                                                              static_cast<float>( _camera._target[1] ),
                                                              static_cast<float>( _camera._target[2] ) };
-        const auto up = tire::algebra::vector<float, 3>{ static_cast<float>( _camera._up[0] ),
-                                                         static_cast<float>( _camera._up[1] ),
-                                                         static_cast<float>( _camera._up[2] ) };
+
+        const auto up =
+            tire::algebra::vector<float, 3>{ static_cast<float>( _camera._up[0] ), static_cast<float>( _camera._up[1] ),
+                                             static_cast<float>( _camera._up[2] ) };
+
         const auto aspect = static_cast<double>( _width ) / static_cast<double>( _height );
         const auto verticalFov = tire::algebra::degToRad( _camera._fieldOfViewY );
         const auto horizontalFov = tire::algebra::radToDeg( 2.0 * std::atan( aspect * std::tan( verticalFov / 2.0 ) ) );
@@ -117,8 +120,8 @@ auto RenderJob::run() -> void {
         primaryThreads.reserve( kThreadCount );
         try {
             for ( size_t tileIndex = 0; tileIndex < kThreadCount; ++tileIndex ) {
-                primaryThreads.emplace_back( [this, &camera, &accelerator, &hitPoints, pixelCount,
-                                              &captureWorkerError, tileIndex]() -> void {
+                primaryThreads.emplace_back( [this, &camera, &accelerator, &hitPoints, pixelCount, &captureWorkerError,
+                                              tileIndex]() -> void {
                     try {
                         const auto width = static_cast<size_t>( _width );
                         const auto height = static_cast<size_t>( _height );
@@ -128,6 +131,7 @@ auto RenderJob::run() -> void {
                         const auto xEnd = ( tileX + 1 ) * width / kTilesRoot;
                         const auto yBegin = tileY * height / kTilesRoot;
                         const auto yEnd = ( tileY + 1 ) * height / kTilesRoot;
+
                         Random rnd{ static_cast<int>( 31251 + tileIndex ) };
                         Tracer tracer{ camera, accelerator };
 
@@ -138,14 +142,15 @@ auto RenderJob::run() -> void {
                                 }
 
                                 const auto sampleIndex = sy * kSamplesRoot + sx;
+
                                 for ( size_t y = yBegin; y < yEnd; ++y ) {
                                     for ( size_t x = xBegin; x < xEnd; ++x ) {
-                                        const auto px = static_cast<float>( x ) +
-                                                        ( static_cast<float>( sx ) + rnd.nextFloat() ) /
-                                                            static_cast<float>( kSamplesRoot );
-                                        const auto py = static_cast<float>( y ) +
-                                                        ( static_cast<float>( sy ) + rnd.nextFloat() ) /
-                                                            static_cast<float>( kSamplesRoot );
+                                        const auto px =
+                                            static_cast<float>( x ) + ( static_cast<float>( sx ) + rnd.nextFloat() ) /
+                                                                          static_cast<float>( kSamplesRoot );
+                                        const auto py =
+                                            static_cast<float>( y ) + ( static_cast<float>( sy ) + rnd.nextFloat() ) /
+                                                                          static_cast<float>( kSamplesRoot );
                                         const auto hitPointIndex = sampleIndex * pixelCount + y * width + x;
                                         hitPoints[hitPointIndex] = tracer.samplePrimary( px, py );
                                     }
@@ -164,9 +169,11 @@ auto RenderJob::run() -> void {
         }
 
         joinThreads( primaryThreads );
+
         if ( workerError != nullptr ) {
             std::rethrow_exception( workerError );
         }
+
         if ( _cancellation ) {
             return;
         }
@@ -186,6 +193,7 @@ auto RenderJob::run() -> void {
                         const auto xEnd = ( tileX + 1 ) * width / kTilesRoot;
                         const auto yBegin = tileY * height / kTilesRoot;
                         const auto yEnd = ( tileY + 1 ) * height / kTilesRoot;
+
                         auto tilePixels = std::vector<float>( ( xEnd - xBegin ) * ( yEnd - yBegin ), 0.0f );
                         Tracer tracer{ camera, accelerator };
 
@@ -196,6 +204,7 @@ auto RenderJob::run() -> void {
                                 }
 
                                 const auto sampleIndex = sy * kSamplesRoot + sx;
+
                                 for ( size_t y = yBegin; y < yEnd; ++y ) {
                                     for ( size_t x = xBegin; x < xEnd; ++x ) {
                                         const auto hitPointIndex = sampleIndex * pixelCount + y * width + x;
@@ -205,8 +214,7 @@ auto RenderJob::run() -> void {
                                             intensity = tracer.sampleAO( hitPoint );
                                         }
 
-                                        const auto tilePixelIndex =
-                                            ( y - yBegin ) * ( xEnd - xBegin ) + ( x - xBegin );
+                                        const auto tilePixelIndex = ( y - yBegin ) * ( xEnd - xBegin ) + ( x - xBegin );
                                         tilePixels[tilePixelIndex] +=
                                             intensity / static_cast<float>( kSamplesRoot * kSamplesRoot );
                                     }
@@ -235,10 +243,8 @@ auto RenderJob::run() -> void {
         }
 
         setState( RenderJobState::Complete );
-    } catch ( const std::exception &exception ) {
+    } catch ( const std::exception& exception ) {
         fail( exception.what() );
-    } catch ( ... ) {
-        fail( "Unknown render worker failure" );
     }
 }
 
@@ -247,14 +253,14 @@ auto RenderJob::setState( RenderJobState state ) -> void {
     _state = state;
 }
 
-auto RenderJob::fail( const std::string &message ) -> void {
+auto RenderJob::fail( const std::string& message ) -> void {
     const std::scoped_lock lock{ _snapshotMutex };
     _error = message;
     _state = RenderJobState::Failed;
 }
 
 auto RenderJob::publishTile( size_t xBegin, size_t xEnd, size_t yBegin, size_t yEnd,
-                             const std::vector<float> &tilePixels ) -> void {
+                             const std::vector<float>& tilePixels ) -> void {
     const auto width = static_cast<size_t>( _width );
     const auto tileWidth = xEnd - xBegin;
     const std::scoped_lock lock{ _snapshotMutex };
@@ -266,8 +272,8 @@ auto RenderJob::publishTile( size_t xBegin, size_t xEnd, size_t yBegin, size_t y
     }
 }
 
-auto RenderJob::joinThreads( std::vector<std::thread> &threads ) -> void {
-    for ( auto &thread : threads ) {
+auto RenderJob::joinThreads( std::vector<std::thread>& threads ) -> void {
+    for ( auto& thread : threads ) {
         if ( thread.joinable() ) {
             thread.join();
         }
