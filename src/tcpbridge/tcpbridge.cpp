@@ -103,7 +103,7 @@ TcpBridge::~TcpBridge() {
     close();
 }
 
-auto TcpBridge::accept( std::string host, uint16_t port ) -> Task<int> {
+auto TcpBridge::listen( std::string host, uint16_t port ) -> Task<int> {
     auto listenAwaitable = _scheduler->listen( std::move( host ), port );
 
     auto status = 0;

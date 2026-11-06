@@ -194,7 +194,7 @@ auto serveSession( tire::TcpBridge& bridge, ServeCompletion& completion, uint16_
     while ( state != ServeSessionState::COMPLETE && state != ServeSessionState::FAILED ) {
         switch ( state ) {
             case ServeSessionState::ACCEPTING: {
-                const auto acceptStatus = co_await bridge.accept( "127.0.0.1", port );
+                const auto acceptStatus = co_await bridge.listen( "127.0.0.1", port );
 
                 if ( acceptStatus != 0 ) {
                     std::cerr << "Failed to accept TCP connection";

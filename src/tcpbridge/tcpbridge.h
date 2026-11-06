@@ -88,7 +88,7 @@ struct TcpBridge final {
     auto operator=( TcpBridge&& ) -> TcpBridge& = delete;
 
     // Listen on the endpoint and accept one incoming TCP connection.
-    auto accept( std::string host, uint16_t port ) -> Task<int>;
+    auto listen( std::string host, uint16_t port ) -> Task<int>;
 
     // Connect to a TCP endpoint, retrying until the attempt limit is exhausted.
     auto connect( std::string host, uint16_t port, TcpBridgeRetryOptions retry ) -> Task<int>;
