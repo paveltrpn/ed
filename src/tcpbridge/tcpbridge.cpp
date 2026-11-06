@@ -230,85 +230,100 @@ auto TcpBridge::connect( std::string host, uint16_t port, TcpBridgeRetryOptions 
 }
 
 auto TcpBridge::read() -> Task<TcpBridgeMessage> {
-    while ( true ) {
-        auto connection = std::shared_ptr<TcpConnection>{};
-        auto message = std::vector<std::byte>{};
-        auto hasMessage = false;
-        auto status = 0;
+    enum class ReadState {
+        CHECK_SESSION,
+        AWAITING_DATA,
+        HANDLING_READ_RESULT,
+        DECODING,
+        COMPLETE
+    };
 
-        {
-            std::scoped_lock lock{ _sessionMutex };
+    auto state{ ReadState::CHECK_SESSION };
+    auto connection = std::shared_ptr<TcpConnection>{};
+    auto readResult = TcpReadResult{};
+    auto result = TcpBridgeMessage{};
 
-            if ( !_pendingMessages.empty() ) {
-                message = std::move( _pendingMessages.front() );
-                _pendingMessages.pop_front();
-                hasMessage = true;
-            } else if ( _closing ) {
-                status = UV_ECANCELED;
-            } else {
-                connection = _connection;
-            }
-        }
+    while ( state != ReadState::COMPLETE ) {
+        switch ( state ) {
+            case ReadState::CHECK_SESSION: {
+                {
+                    std::scoped_lock lock{ _sessionMutex };
 
-        if ( hasMessage ) {
-            co_return TcpBridgeMessage{ 0, std::move( message ) };
-        }
-
-        if ( status != 0 ) {
-            co_return TcpBridgeMessage{ status, std::vector<std::byte>{} };
-        }
-
-        if ( connection == nullptr ) {
-            co_return TcpBridgeMessage{ UV_ENOTCONN, std::vector<std::byte>{} };
-        }
-
-        const auto readResult = co_await _scheduler->read( connection );
-
-        if ( readResult._status != 0 ) {
-            if ( readResult._status != UV_EOF ) {
-                co_return TcpBridgeMessage{ readResult._status, std::vector<std::byte>{} };
-            }
-
-            auto endStatus = UV_EOF;
-            {
-                std::scoped_lock lock{ _sessionMutex };
-
-                if ( _codec.endOfStream() == FrameStatus::PARTIAL_EOF ) {
-                    endStatus = UV_EPROTO;
-                }
-            }
-
-            co_return TcpBridgeMessage{ endStatus, std::vector<std::byte>{} };
-        }
-
-        {
-            std::scoped_lock lock{ _sessionMutex };
-
-            const auto decoded = _codec.push( readResult._bytes );
-
-            if ( decoded._status == FrameStatus::OVERSIZED ) {
-                status = UV_EPROTO;
-            } else {
-                for ( auto& decodedMessage : decoded._messages ) {
-                    _pendingMessages.push_back( std::move( decodedMessage ) );
+                    if ( !_pendingMessages.empty() ) {
+                        result._payload = std::move( _pendingMessages.front() );
+                        _pendingMessages.pop_front();
+                        state = ReadState::COMPLETE;
+                    } else if ( _closing ) {
+                        result._status = UV_ECANCELED;
+                        state = ReadState::COMPLETE;
+                    } else {
+                        connection = _connection;
+                        state = ReadState::AWAITING_DATA;
+                    }
                 }
 
-                if ( !_pendingMessages.empty() ) {
-                    message = std::move( _pendingMessages.front() );
-                    _pendingMessages.pop_front();
-                    hasMessage = true;
+                if ( state == ReadState::AWAITING_DATA && connection == nullptr ) {
+                    result._status = UV_ENOTCONN;
+                    state = ReadState::COMPLETE;
                 }
+                break;
             }
-        }
+            case ReadState::AWAITING_DATA: {
+                readResult = co_await _scheduler->read( connection );
+                state = ReadState::HANDLING_READ_RESULT;
+                break;
+            }
+            case ReadState::HANDLING_READ_RESULT: {
+                if ( readResult._status == 0 ) {
+                    state = ReadState::DECODING;
+                } else if ( readResult._status != UV_EOF ) {
+                    result._status = readResult._status;
+                    state = ReadState::COMPLETE;
+                } else {
+                    result._status = UV_EOF;
+                    {
+                        std::scoped_lock lock{ _sessionMutex };
 
-        if ( status != 0 ) {
-            co_return TcpBridgeMessage{ status, std::vector<std::byte>{} };
-        }
+                        if ( _codec.endOfStream() == FrameStatus::PARTIAL_EOF ) {
+                            result._status = UV_EPROTO;
+                        }
+                    }
+                    state = ReadState::COMPLETE;
+                }
+                break;
+            }
+            case ReadState::DECODING: {
+                {
+                    std::scoped_lock lock{ _sessionMutex };
 
-        if ( hasMessage ) {
-            co_return TcpBridgeMessage{ 0, std::move( message ) };
+                    const auto decoded = _codec.push( readResult._bytes );
+
+                    if ( decoded._status == FrameStatus::OVERSIZED ) {
+                        result._status = UV_EPROTO;
+                        state = ReadState::COMPLETE;
+                    } else {
+                        for ( auto& decodedMessage : decoded._messages ) {
+                            _pendingMessages.push_back( std::move( decodedMessage ) );
+                        }
+
+                        if ( !_pendingMessages.empty() ) {
+                            result._payload = std::move( _pendingMessages.front() );
+                            _pendingMessages.pop_front();
+                            state = ReadState::COMPLETE;
+                        } else {
+                            state = ReadState::CHECK_SESSION;
+                        }
+                    }
+                }
+                break;
+            }
+            case ReadState::COMPLETE: {
+                break;
+            }
         }
     }
+
+    co_return std::move( result );
 }
 
 auto TcpBridge::send( std::vector<std::byte> message ) -> Task<int> {
