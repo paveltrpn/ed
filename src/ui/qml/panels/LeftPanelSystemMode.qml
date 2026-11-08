@@ -22,6 +22,12 @@ Rectangle {
 
     property string modeColor: _color.si_mode_system
 
+    function centeredWidgetPosition(widget) {
+        const center = tiredUI.mainWindowCenter;
+
+        return Qt.point(center.x - widget.width / 2, center.y - widget.height / 2);
+    }
+
     Item {
         id: leftPanelMainComponentWrapper
         anchors {
@@ -62,8 +68,6 @@ Rectangle {
             SIEmbeddedWidget {
                 id: aboutWidget
 
-                parent: mainWindow
-
                 visible: false
 
                 width: 640
@@ -73,8 +77,8 @@ Rectangle {
 
                 contentSource: "../panels/AboutComponent.qml"
 
-                x: mainWindow.centeredWidgetPosition(aboutWidget).x
-                y: mainWindow.centeredWidgetPosition(aboutWidget).y
+                x: centeredWidgetPosition(aboutWidget).x
+                y: centeredWidgetPosition(aboutWidget).y
             }
         }
 
@@ -100,8 +104,6 @@ Rectangle {
             SIEmbeddedWidget {
                 id: vulkanInfoWidget
 
-                parent: mainWindow
-
                 visible: false
 
                 width: 640
@@ -111,8 +113,8 @@ Rectangle {
 
                 contentSource: "../panels/VulkanInfoComponent.qml"
 
-                x: mainWindow.centeredWidgetPosition(vulkanInfoWidget).x
-                y: mainWindow.centeredWidgetPosition(vulkanInfoWidget).y
+                x: centeredWidgetPosition(vulkanInfoWidget).x
+                y: centeredWidgetPosition(vulkanInfoWidget).y
             }
         }
 

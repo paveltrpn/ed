@@ -19,13 +19,6 @@ Item {
 
     property bool disableAllUI: false
 
-    function centeredWidgetPosition(widget) {
-        const center = tiredUI.mainWindowCenter;
-
-        return Qt.point(center.x - widget.width / 2,
-                        center.y - widget.height / 2);
-    }
-
     MouseArea {
         id: mainWindowFocusEater
         anchors.fill: parent
