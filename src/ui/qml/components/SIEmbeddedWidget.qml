@@ -40,7 +40,9 @@ Rectangle {
 
     Rectangle {
         id: widgetBody
+
         anchors.fill: parent
+
         color: _color.si_background_light
         radius: _units.radiusEight
 
@@ -120,12 +122,10 @@ Rectangle {
 
                 anchors {
                     fill: parent
-                    margins: _units.scaled_4
                 }
 
                 onItemChanged: {
                     if (item !== null) {
-                        // item.someProperty = value
                     }
                 }
 

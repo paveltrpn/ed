@@ -273,8 +273,7 @@ TiredUI::TiredUI( std::shared_ptr<VsgRender> render, bool resetPanelsSize, QObje
 }
 
 QVector2D TiredUI::mainWindowCenter() const {
-    const auto g = this->geometry();
-    return { static_cast<float>( g.center().x() ), static_cast<float>( g.center().y() ) };
+    return { static_cast<float>( width() ) / 2.0f, static_cast<float>( height() ) / 2.0f };
 }
 
 void TiredUI::quitApplication() {
@@ -325,6 +324,8 @@ void TiredUI::resizeEvent( QResizeEvent* event ) {
     const auto g = geometry();
 
     _settings->setMainWindowRect( { { g.topLeft() }, g.size() } );
+
+    emit mainWindowCenterChanged();
 
     QQuickView::resizeEvent( event );
 }

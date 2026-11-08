@@ -53,32 +53,66 @@ Rectangle {
             modeRelatedBgColor: leftPanelSystemComponent.modeColor
             buttonLabel: "About"
 
-            checked: mainWindow.panelsActiveBtn === "aboutButton"
-
             onClicked: {
-                if (aboutButton.checked) {
-                    mainWindow.panelsActiveBtn = "";
-                    return;
+                if (!aboutWidget.visible) {
+                    aboutWidget.visible = true;
                 }
+            }
 
-                mainWindow.panelsActiveBtn = "aboutButton";
+            SIEmbeddedWidget {
+                id: aboutWidget
+
+                parent: mainWindow
+
+                visible: false
+
+                width: 640
+                height: 480
+
+                title: "About"
+
+                contentSource: "../panels/AboutComponent.qml"
+
+                x: mainWindow.centeredWidgetPosition(aboutWidget).x
+                y: mainWindow.centeredWidgetPosition(aboutWidget).y
             }
         }
 
-        AboutPanel {
-            id: aboutPanelItem
+        SIButtonMain {
+            id: vulkanInfoButton
 
             anchors {
                 top: aboutButton.bottom
-                topMargin: visible ? _units.eight : 0
+                topMargin: _units.half
                 left: parent.left
                 right: parent.right
             }
 
-            visible: aboutButton.checked
+            modeRelatedBgColor: leftPanelSystemComponent.modeColor
+            buttonLabel: "Vulkan Info"
 
-            onClose: {
-                mainWindow.panelsActiveBtn = "";
+            onClicked: {
+                if (!vulkanInfoWidget.visible) {
+                    vulkanInfoWidget.visible = true;
+                }
+            }
+
+            SIEmbeddedWidget {
+                id: vulkanInfoWidget
+
+                parent: mainWindow
+
+                visible: false
+
+                width: 640
+                height: 480
+
+                title: "Vulkan Info"
+
+                contentSource: "../panels/VulkanInfoComponent.qml"
+
+                x: mainWindow.centeredWidgetPosition(vulkanInfoWidget).x
+                y: mainWindow.centeredWidgetPosition(vulkanInfoWidget).y
             }
         }
 
@@ -86,8 +120,8 @@ Rectangle {
             id: uiSettingsButton
 
             anchors {
-                top: aboutPanelItem.bottom
-                topMargin: aboutPanelItem._units.half
+                top: vulkanInfoButton.bottom
+                topMargin: _units.half
                 left: parent.left
                 right: parent.right
             }

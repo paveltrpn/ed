@@ -82,6 +82,9 @@ private:
 
 struct TiredUI final : public QQuickView {
     Q_OBJECT
+
+    Q_PROPERTY( QVector2D mainWindowCenter READ mainWindowCenter NOTIFY mainWindowCenterChanged FINAL )
+
 public:
     TiredUI( std::shared_ptr<VsgRender> render, bool resetPanelsSize, QObject* parent = nullptr );
 
@@ -101,6 +104,9 @@ public:
     void mousePressEvent( QMouseEvent* event ) override;
     void mouseReleaseEvent( QMouseEvent* event ) override;
     void resizeEvent( QResizeEvent* event ) override;
+
+signals:
+    void mainWindowCenterChanged();
 
 private:
     AppStateSettings* _settings{};
