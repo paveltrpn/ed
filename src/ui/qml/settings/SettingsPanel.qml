@@ -19,6 +19,7 @@ Rectangle {
     height: visible ? settingsPanelButtonsLayout.implicitHeight : 0
 
     signal close
+    signal serviceObjectsRequested
 
     Behavior on height {
         NumberAnimation {
@@ -51,22 +52,8 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
-                if (!settingsWindow.visible) {
-                    settingsWindow.show();
-                }
-
+                settingsPanelComponent.serviceObjectsRequested();
                 settingsPanelComponent.close()
-            }
-
-            SIWindow {
-                id: settingsWindow
-
-                width: 640
-                height: 480
-
-                title: "Service objects settings"
-
-                contentSource: "../settings/SettingsComponent.qml"
             }
         }
 

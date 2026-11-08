@@ -22,6 +22,13 @@ Rectangle {
 
     property string modeColor: _color.si_mode_scene
 
+    function centeredWidgetPosition(widget) {
+        const center = tiredUI.mainWindowCenter;
+        const position = widget.parent.mapFromItem(null, center.x, center.y);
+
+        return Qt.point(position.x - widget.width / 2, position.y - widget.height / 2);
+    }
+
     Item {
         id: rightPanelScenemodeWrapper
         anchors {
@@ -432,6 +439,32 @@ Rectangle {
             }
 
             visible: sceneButton.checked
+
+            onInformationRequested: {
+                sceneInfoWidget.visible = true;
+            }
+        }
+
+        SIEmbeddedWidget {
+            id: sceneInfoWidget
+
+            visible: false
+
+            width: 640
+            height: 480
+
+            title: "Scene info"
+
+            dragBounds: renderViewWrapper
+
+            onAboutToClose: {
+                sceneInfoWidget.visible = false;
+            }
+
+            contentSource: "../sceneinfo/SceneInfoComponent.qml"
+
+            x: centeredWidgetPosition(sceneInfoWidget).x
+            y: centeredWidgetPosition(sceneInfoWidget).y
         }
     }
 }

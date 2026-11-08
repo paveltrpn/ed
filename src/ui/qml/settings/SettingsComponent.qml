@@ -1,3 +1,5 @@
+// qmllint disable unqualified
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -5,70 +7,127 @@ import Tire 1.0
 
 import "../components"
 
-Item {
+Rectangle {
     id: settingsComponent
 
     readonly property var _color: Appearence.colors.data
     readonly property var _fonts: Appearence.fonts.data
     readonly property var _units: Appearence.units.data
 
-    anchors {
-        top: parent.top
-        left: parent.left
-        leftMargin: _units.scaled_1
-        right: parent.right
-        rightMargin: _units.scaled_1
+    color: _color.si_background_light
+
+    border {
+        width: _units.scaled_1
+        color: _color.si_background_dark
     }
 
-    height: settingsTabBar.height + settingsTabLayout.implicitHeight
-    clip: true
+    anchors.fill: parent
 
-    TabBar {
-        id: settingsTabBar
+    Rectangle {
+        id: tabsArea
 
         anchors {
+            left: parent.left
+            right: parent.right
             top: parent.top
-            left: parent.left
-            right: parent.right
+            bottom: bottomPanelArea.top
+            margins: _units.scaled_4
         }
 
-        height: _units.scaled_24
-
-        NpTabButton {
-            text: qsTr("Grid")
-            anchors.top: parent.top
-            height: parent.height
-            font: _fonts.label_accent
+        border {
+            width: _units.scaled_1
+            color: _color.si_background_dark
         }
 
-        NpTabButton {
-            text: qsTr("Navbox")
-            anchors.top: parent.top
-            height: parent.height
-            font: _fonts.label_accent
+        TabBar {
+            id: settingsTabBar
+
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: parent.right
+                margins: _units.scaled_4
+            }
+
+            height: _units.scaled_24
+
+            NpTabButton {
+                text: qsTr("Grid")
+                anchors.top: parent.top
+                height: parent.height
+                font: _fonts.label_accent
+            }
+
+            NpTabButton {
+                text: qsTr("Navbox")
+                anchors.top: parent.top
+                height: parent.height
+                font: _fonts.label_accent
+            }
+        }
+
+        StackLayout {
+            id: settingsTabLayout
+
+            anchors {
+                top: settingsTabBar.bottom
+                bottom: parent.bottom
+                left: parent.left
+                right: parent.right
+                margins: _units.scaled_4
+            }
+
+            implicitHeight: children[settingsTabBar.currentIndex].implicitHeight
+            currentIndex: settingsTabBar.currentIndex
+
+            GridTab {
+                id: gridTab
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
+
+            NavboxTab {
+                id: navboxTab
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
         }
     }
 
-    StackLayout {
-        id: settingsTabLayout
+    Rectangle {
+        id: bottomPanelArea
 
         anchors {
-            top: settingsTabBar.bottom
             left: parent.left
             right: parent.right
+            bottom: parent.bottom
+            margins: _units.scaled_4
         }
 
-        implicitHeight: children[settingsTabBar.currentIndex].implicitHeight
-        currentIndex: settingsTabBar.currentIndex
+        height: 40
 
-        GridTab {
-            id: gridTab
-            Layout.fillWidth: true
+        border {
+            width: _units.scaled_1
+            color: _color.si_background_dark
         }
 
-        NavboxTab {
-            id: navboxTab
-            Layout.fillWidth: true
+        SIButton {
+            id: closeButton
+
+            anchors {
+                right: parent.right
+                bottom: parent.bottom
+                margins: _units.scaled_4
+            }
+
+            height: _units.scaled_32
+            width: _units.scaled_64
+
+            buttonLabel: "Close"
+
+            onClicked: {
+                siEmbeddedWidgetComponent.aboutToClose();
+            }
         }
     }
 }

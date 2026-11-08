@@ -21,6 +21,8 @@ Rectangle {
         color: _color.si_background_dark
     }
 
+    anchors.fill: parent
+
     SIButton {
         id: closeButton
 

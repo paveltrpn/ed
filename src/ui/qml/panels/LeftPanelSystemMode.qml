@@ -208,6 +208,10 @@ Rectangle {
             }
 
             visible: settingsButton.checked
+
+            onServiceObjectsRequested: {
+                serviceObjectsSettingsWidget.visible = true;
+            }
         }
 
         SIButtonMain {
@@ -253,6 +257,28 @@ Rectangle {
             onDecline: {
                 mainWindow.panelsActiveBtn = "";
             }
+        }
+
+        SIEmbeddedWidget {
+            id: serviceObjectsSettingsWidget
+
+            visible: false
+
+            width: 640
+            height: 480
+
+            title: "Service objects settings"
+
+            dragBounds: renderViewWrapper
+
+            onAboutToClose: {
+                serviceObjectsSettingsWidget.visible = false;
+            }
+
+            contentSource: "../settings/SettingsComponent.qml"
+
+            x: centeredWidgetPosition(serviceObjectsSettingsWidget).x
+            y: centeredWidgetPosition(serviceObjectsSettingsWidget).y
         }
     }
 }

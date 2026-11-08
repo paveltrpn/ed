@@ -19,6 +19,7 @@ Rectangle {
     height: visible ? sceneinfoPanelButtonsLayout.implicitHeight : 0
 
     signal close
+    signal informationRequested
 
     Behavior on height {
         NumberAnimation {
@@ -51,21 +52,8 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
-                if (!sceneInfoWindow.visible) {
-                    sceneInfoWindow.show();
-                }
+                sceneinfoPanelComponent.informationRequested();
                 sceneinfoPanelComponent.close();
-            }
-
-            SIWindow {
-                id: sceneInfoWindow
-
-                width: 640
-                height: 480
-
-                title: "Scene info"
-
-                contentSource: "../sceneinfo/SceneInfoComponent.qml"
             }
         }
 
