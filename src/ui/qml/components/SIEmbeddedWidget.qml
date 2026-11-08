@@ -23,6 +23,8 @@ Rectangle {
 
     property var internalItem: widgetContentLoader.item
 
+    property Item dragBounds: null
+
     MouseArea {
         id: clickEater
         anchors.fill: parent
@@ -77,7 +79,7 @@ Rectangle {
                 property point widgetOrigin
 
                 onPressed: mouse => {
-                    pressOrigin = Qt.point(mouse.x, mouse.y);
+                    pressOrigin = mapToItem(null, mouse.x, mouse.y);
                     widgetOrigin = Qt.point(siEmbeddedWidgetComponent.x, siEmbeddedWidgetComponent.y);
                 }
 
@@ -86,8 +88,35 @@ Rectangle {
                         return;
                     }
 
-                    siEmbeddedWidgetComponent.x = widgetOrigin.x + (mouse.x - pressOrigin.x);
-                    siEmbeddedWidgetComponent.y = widgetOrigin.y + (mouse.y - pressOrigin.y);
+                    const position = mapToItem(null, mouse.x, mouse.y);
+
+                    let newX = widgetOrigin.x + (position.x - pressOrigin.x);
+                    let newY = widgetOrigin.y + (position.y - pressOrigin.y);
+
+                    if (siEmbeddedWidgetComponent.dragBounds !== null) {
+                        const bounds = siEmbeddedWidgetComponent.dragBounds.mapToItem(siEmbeddedWidgetComponent.parent, 0, 0);
+                        const boundsRight = bounds.x + siEmbeddedWidgetComponent.dragBounds.width;
+                        const boundsBottom = bounds.y + siEmbeddedWidgetComponent.dragBounds.height;
+
+                        if (newX < bounds.x) {
+                            newX = bounds.x;
+                        }
+
+                        if (newY < bounds.y) {
+                            newY = bounds.y;
+                        }
+
+                        if (newX + siEmbeddedWidgetComponent.width > boundsRight) {
+                            newX = boundsRight - siEmbeddedWidgetComponent.width;
+                        }
+
+                        if (newY + siEmbeddedWidgetComponent.height > boundsBottom) {
+                            newY = boundsBottom - siEmbeddedWidgetComponent.height;
+                        }
+                    }
+
+                    siEmbeddedWidgetComponent.x = newX;
+                    siEmbeddedWidgetComponent.y = newY;
                 }
             }
 

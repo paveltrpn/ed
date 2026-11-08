@@ -76,6 +76,8 @@ Rectangle {
 
                 title: "About"
 
+                dragBounds: renderViewWrapper
+
                 onAboutToClose: {
                     aboutWidget.visible = false;
                 }
@@ -115,6 +117,8 @@ Rectangle {
                 height: 480
 
                 title: "Vulkan Info"
+
+                dragBounds: renderViewWrapper
 
                 onAboutToClose: {
                     vulkanInfoWidget.visible = false;

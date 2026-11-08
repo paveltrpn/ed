@@ -297,6 +297,8 @@ Rectangle {
 
             title: "Load scene"
 
+            dragBounds: renderViewWrapper
+
             onAboutToClose: {
                 loadSceneDialogItem.visible = false
             }
@@ -340,6 +342,8 @@ Rectangle {
             height: 480
 
             title: "Save scene"
+
+            dragBounds: renderViewWrapper
 
             onAboutToClose: {
                 saveSceneDialogItem.visible = false
