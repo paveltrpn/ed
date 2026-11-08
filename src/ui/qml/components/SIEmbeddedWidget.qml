@@ -2,7 +2,6 @@
 // qmllint disable Quick.property-changes-parsed
 
 import QtQuick
-import QtQuick.Window
 
 import Tire 1.0
 
@@ -71,11 +70,24 @@ Rectangle {
 
             MouseArea {
                 id: headerArea
+
                 anchors.fill: parent
-                property bool dragActive
-                propagateComposedEvents: true
-                onPressed: {
-                    siEmbeddedWidgetComponent.startSystemMove();
+
+                property point pressOrigin
+                property point widgetOrigin
+
+                onPressed: mouse => {
+                    pressOrigin = Qt.point(mouse.x, mouse.y);
+                    widgetOrigin = Qt.point(siEmbeddedWidgetComponent.x, siEmbeddedWidgetComponent.y);
+                }
+
+                onPositionChanged: mouse => {
+                    if (!headerArea.pressed) {
+                        return;
+                    }
+
+                    siEmbeddedWidgetComponent.x = widgetOrigin.x + (mouse.x - pressOrigin.x);
+                    siEmbeddedWidgetComponent.y = widgetOrigin.y + (mouse.y - pressOrigin.y);
                 }
             }
 

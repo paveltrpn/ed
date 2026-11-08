@@ -24,8 +24,9 @@ Rectangle {
 
     function centeredWidgetPosition(widget) {
         const center = tiredUI.mainWindowCenter;
+        const position = widget.parent.mapFromItem(null, center.x, center.y);
 
-        return Qt.point(center.x - widget.width / 2, center.y - widget.height / 2);
+        return Qt.point(position.x - widget.width / 2, position.y - widget.height / 2);
     }
 
     Item {
@@ -75,6 +76,10 @@ Rectangle {
 
                 title: "About"
 
+                onAboutToClose: {
+                    aboutWidget.visible = false;
+                }
+
                 contentSource: "../panels/AboutComponent.qml"
 
                 x: centeredWidgetPosition(aboutWidget).x
@@ -110,6 +115,10 @@ Rectangle {
                 height: 480
 
                 title: "Vulkan Info"
+
+                onAboutToClose: {
+                    vulkanInfoWidget.visible = false;
+                }
 
                 contentSource: "../panels/VulkanInfoComponent.qml"
 

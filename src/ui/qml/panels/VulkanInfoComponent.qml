@@ -31,12 +31,12 @@ Rectangle {
         }
 
         height: _units.scaled_32
+        width: _units.scaled_64
 
-        buttonLabel: "Stop"
-
-        enabled: Tired.renderRequest.requestPending
+        buttonLabel: "Close"
 
         onClicked: {
+            siEmbeddedWidgetComponent.aboutToClose();
         }
     }
 }

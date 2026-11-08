@@ -22,6 +22,13 @@ Rectangle {
 
     property string modeColor: _color.si_mode_scene
 
+    function centeredWidgetPosition(widget) {
+        const center = tiredUI.mainWindowCenter;
+        const position = widget.parent.mapFromItem(null, center.x, center.y);
+
+        return Qt.point(position.x - widget.width / 2, position.y - widget.height / 2);
+    }
+
     Item {
         id: leftPanelMainComponentWrapper
         anchors {
@@ -294,15 +301,8 @@ Rectangle {
                 loadSceneDialogItem.visible = false
             }
 
-            onVisibleChanged: {
-                if (loadSceneDialogItem.visible) {
-                    const centerX = mainWindow.width / 2;
-                    const centerY = mainWindow.height / 2;
-
-                    loadSceneDialogItem.x = centerX - loadSceneDialogItem.width / 2;
-                    loadSceneDialogItem.y = centerY - loadSceneDialogItem.height / 2;
-                }
-            }
+            x: centeredWidgetPosition(loadSceneDialogItem).x
+            y: centeredWidgetPosition(loadSceneDialogItem).y
 
             contentSource: "../components/FilesystemComponent.qml"
 
@@ -345,15 +345,8 @@ Rectangle {
                 saveSceneDialogItem.visible = false
             }
 
-            onVisibleChanged: {
-                if (saveSceneDialogItem.visible) {
-                    const centerX = mainWindow.width / 2;
-                    const centerY = mainWindow.height / 2;
-
-                    saveSceneDialogItem.x = centerX - saveSceneDialogItem.width / 2;
-                    saveSceneDialogItem.y = centerY - saveSceneDialogItem.height / 2;
-                }
-            }
+            x: centeredWidgetPosition(saveSceneDialogItem).x
+            y: centeredWidgetPosition(saveSceneDialogItem).y
 
             contentSource: "../components/FilesystemComponent.qml"
 
