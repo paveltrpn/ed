@@ -439,32 +439,6 @@ Rectangle {
             }
 
             visible: sceneButton.checked
-
-            onInformationRequested: {
-                sceneInfoWidget.visible = true;
-            }
-        }
-
-        SIEmbeddedWidget {
-            id: sceneInfoWidget
-
-            visible: false
-
-            width: 640
-            height: 480
-
-            title: "Scene info"
-
-            dragBounds: renderViewWrapper
-
-            onAboutToClose: {
-                sceneInfoWidget.visible = false;
-            }
-
-            contentSource: "../sceneinfo/SceneInfoComponent.qml"
-
-            x: centeredWidgetPosition(sceneInfoWidget).x
-            y: centeredWidgetPosition(sceneInfoWidget).y
         }
     }
 }

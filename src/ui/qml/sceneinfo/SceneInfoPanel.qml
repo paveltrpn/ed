@@ -52,23 +52,32 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
-                sceneinfoPanelComponent.informationRequested();
-                sceneinfoPanelComponent.close();
+                if (!sceneInfoWidget.visible) {
+                    sceneInfoWidget.visible = true;
+                }
+            }
+
+            SIEmbeddedWidget {
+                id: sceneInfoWidget
+
+                visible: false
+
+                width: 640
+                height: 480
+
+                title: "Scene info"
+
+                dragBounds: renderViewWrapper
+
+                onAboutToClose: {
+                    sceneInfoWidget.visible = false;
+                }
+
+                contentSource: "../sceneinfo/SceneInfoComponent.qml"
+
+                x: centeredWidgetPosition(sceneInfoWidget).x
+                y: centeredWidgetPosition(sceneInfoWidget).y
             }
         }
-
-        // NpContextMenuButton {
-        //     id: showcaseButton
-        //     Layout.fillWidth: true
-        //     Layout.preferredHeight: settingsPanelButtonsLayout.itemsHeight
-        //     text: "Settings"
-        //     enabled: false
-
-        //     font: _fonts.label_accent
-
-        //     onClicked: {
-        //         settingsPanelComponent.close()
-        //     }
-        // }
     }
 }

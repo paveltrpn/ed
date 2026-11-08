@@ -19,7 +19,6 @@ Rectangle {
     height: visible ? settingsPanelButtonsLayout.implicitHeight : 0
 
     signal close
-    signal serviceObjectsRequested
 
     Behavior on height {
         NumberAnimation {
@@ -52,24 +51,33 @@ Rectangle {
             font: _fonts.label_accent
 
             onClicked: {
-                settingsPanelComponent.serviceObjectsRequested();
-                settingsPanelComponent.close()
+                console.log(" ===== ");
+                if (!serviceObjectsSettingsWidget.visible) {
+                    serviceObjectsSettingsWidget.visible = true;
+                }
+            }
+
+            SIEmbeddedWidget {
+                id: serviceObjectsSettingsWidget
+
+                visible: false
+
+                width: 640
+                height: 480
+
+                title: "Service objects settings"
+
+                dragBounds: renderViewWrapper
+
+                onAboutToClose: {
+                    serviceObjectsSettingsWidget.visible = false;
+                }
+
+                contentSource: "../settings/SettingsComponent.qml"
+
+                x: centeredWidgetPosition(serviceObjectsSettingsWidget).x
+                y: centeredWidgetPosition(serviceObjectsSettingsWidget).y
             }
         }
-
-        // NpContextMenuButton {
-        //     id: showcaseButton
-        //     Layout.fillWidth: true
-        //     Layout.preferredHeight: settingsPanelButtonsLayout.itemsHeight
-        //     text: "Settings"
-        //     enabled: false
-
-        //     font: _fonts.label_accent
-
-        //     onClicked: {
-        //         settingsPanelComponent.close()
-        //     }
-        // }
     }
 }
-

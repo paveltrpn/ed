@@ -30,23 +30,5 @@ Rectangle {
             leftMargin: rightPanelSystemComponent._units.scaled_2
             rightMargin: rightPanelSystemComponent._units.scaled_2
         }
-
-        // SIButtonMain {
-        //     id: tcpBridgeTestStartButton
-
-        //     anchors {
-        //         bottom: parent.bottom
-        //         bottomMargin: _units.quarter
-        //         left: parent.left
-        //         right: parent.right
-        //     }
-
-        //     modeRelatedBgColor: rightPanelSystemComponent.modeColor
-        //     buttonLabel: "TCP test start"
-
-        //     onClicked: {
-        //         Tired.renderRequest.start()
-        //     }
-        // }
     }
 }
