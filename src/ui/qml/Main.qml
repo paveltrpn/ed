@@ -394,6 +394,29 @@ Item {
         visible: mainWindow.disableAllUI
     }
 
+    // Topmost transparent layer hosting every SIEmbeddedWidget. Widgets must not
+    // live as children of side panel buttons or panels while being visually
+    // positioned over the render view: Qt Quick event delivery skips subtrees
+    // that lie outside an ancestor event handling bounds when the ancestor is
+    // treated as effectively clipping its children, which left such widgets
+    // without any mouse events. Parenting them here keeps their input delivery
+    // independent of the panels and lets them stay open when a panel collapses.
+    Item {
+        id: widgetOverlayLayer
+
+        property int _raiseSequence: 0
+
+        // Moves the given widget above all other widgets in this layer by
+        // assigning a z value from a monotonically increasing sequence, so a
+        // newly shown dialog stacks on top of one that is already open.
+        function raiseWidget(widget) {
+            _raiseSequence = _raiseSequence + 1;
+            widget.z = _raiseSequence;
+        }
+
+        anchors.fill: parent
+    }
+
     // Rectangle {
     //     anchors {
     //         // right: parent.right

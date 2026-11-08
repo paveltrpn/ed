@@ -90,6 +90,7 @@ Rectangle {
                 onVisibleChanged: {
                     if (visible) {
                         sceneinfoPanelComponent.centerWidget(sceneInfoWidget);
+                        widgetOverlayLayer.raiseWidget(sceneInfoWidget);
                     }
                 }
             }

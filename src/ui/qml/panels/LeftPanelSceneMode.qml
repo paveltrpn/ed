@@ -290,6 +290,8 @@ Rectangle {
         SIEmbeddedWidget {
             id: loadSceneDialogItem
 
+            parent: widgetOverlayLayer
+
             visible: false
 
             width: 640
@@ -301,6 +303,12 @@ Rectangle {
 
             onAboutToClose: {
                 loadSceneDialogItem.visible = false
+            }
+
+            onVisibleChanged: {
+                if (visible) {
+                    widgetOverlayLayer.raiseWidget(loadSceneDialogItem);
+                }
             }
 
             x: centeredWidgetPosition(loadSceneDialogItem).x
@@ -336,6 +344,8 @@ Rectangle {
         SIEmbeddedWidget {
             id: saveSceneDialogItem
 
+            parent: widgetOverlayLayer
+
             visible: false
 
             width: 640
@@ -347,6 +357,12 @@ Rectangle {
 
             onAboutToClose: {
                 saveSceneDialogItem.visible = false
+            }
+
+            onVisibleChanged: {
+                if (visible) {
+                    widgetOverlayLayer.raiseWidget(saveSceneDialogItem);
+                }
             }
 
             x: centeredWidgetPosition(saveSceneDialogItem).x

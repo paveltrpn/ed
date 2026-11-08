@@ -69,6 +69,8 @@ Rectangle {
             SIEmbeddedWidget {
                 id: aboutWidget
 
+                parent: widgetOverlayLayer
+
                 visible: false
 
                 width: 640
@@ -80,6 +82,12 @@ Rectangle {
 
                 onAboutToClose: {
                     aboutWidget.visible = false;
+                }
+
+                onVisibleChanged: {
+                    if (visible) {
+                        widgetOverlayLayer.raiseWidget(aboutWidget);
+                    }
                 }
 
                 contentSource: "../panels/AboutComponent.qml"
@@ -111,6 +119,8 @@ Rectangle {
             SIEmbeddedWidget {
                 id: vulkanInfoWidget
 
+                parent: widgetOverlayLayer
+
                 visible: false
 
                 width: 640
@@ -122,6 +132,12 @@ Rectangle {
 
                 onAboutToClose: {
                     vulkanInfoWidget.visible = false;
+                }
+
+                onVisibleChanged: {
+                    if (visible) {
+                        widgetOverlayLayer.raiseWidget(vulkanInfoWidget);
+                    }
                 }
 
                 contentSource: "../panels/VulkanInfoComponent.qml"
@@ -201,7 +217,7 @@ Rectangle {
         SettingsPanel {
             id: settingsPanelItem
 
-            widgetParent: leftPanelSystemComponent
+            widgetParent: widgetOverlayLayer
 
             anchors {
                 bottom: exitButton.top

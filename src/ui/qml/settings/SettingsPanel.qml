@@ -90,6 +90,7 @@ Rectangle {
                 onVisibleChanged: {
                     if (visible) {
                         settingsPanelComponent.centerWidget(serviceObjectsSettingsWidget);
+                        widgetOverlayLayer.raiseWidget(serviceObjectsSettingsWidget);
                     }
                 }
             }
