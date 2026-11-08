@@ -54,7 +54,6 @@ Rectangle {
                 text: qsTr("Instance")
                 anchors.top: parent.top
                 height: parent.height
-                width: vulkanInfoTabBar.width / 7
                 font: _fonts.label_accent
             }
 
@@ -62,7 +61,6 @@ Rectangle {
                 text: qsTr("Physical device")
                 anchors.top: parent.top
                 height: parent.height
-                width: vulkanInfoTabBar.width / 7
                 font: _fonts.label_accent
             }
 
@@ -70,7 +68,6 @@ Rectangle {
                 text: qsTr("Features")
                 anchors.top: parent.top
                 height: parent.height
-                width: vulkanInfoTabBar.width / 7
                 font: _fonts.label_accent
             }
 
@@ -78,7 +75,6 @@ Rectangle {
                 text: qsTr("Extensions")
                 anchors.top: parent.top
                 height: parent.height
-                width: vulkanInfoTabBar.width / 7
                 font: _fonts.label_accent
             }
 
@@ -86,7 +82,6 @@ Rectangle {
                 text: qsTr("Queues")
                 anchors.top: parent.top
                 height: parent.height
-                width: vulkanInfoTabBar.width / 7
                 font: _fonts.label_accent
             }
 
@@ -94,7 +89,6 @@ Rectangle {
                 text: qsTr("Memory")
                 anchors.top: parent.top
                 height: parent.height
-                width: vulkanInfoTabBar.width / 7
                 font: _fonts.label_accent
             }
 
@@ -102,7 +96,6 @@ Rectangle {
                 text: qsTr("Device")
                 anchors.top: parent.top
                 height: parent.height
-                width: vulkanInfoTabBar.width / 7
                 font: _fonts.label_accent
             }
         }
@@ -115,6 +108,7 @@ Rectangle {
                 bottom: parent.bottom
                 left: parent.left
                 right: parent.right
+                margins: _units.scaled_4
             }
 
             implicitHeight: children[vulkanInfoTabBar.currentIndex].implicitHeight
