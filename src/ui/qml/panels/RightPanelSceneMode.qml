@@ -431,6 +431,8 @@ Rectangle {
         SceneInfoPanel {
             id: sceneinfoPanelItem
 
+            widgetParent: rightPanelSceneComponent
+
             anchors {
                 bottom: rightPanelScenemodeWrapper.bottom
                 bottomMargin: visible ? _units.quarter : 0

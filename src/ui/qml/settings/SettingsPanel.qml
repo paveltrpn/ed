@@ -14,11 +14,21 @@ Rectangle {
     readonly property var _fonts: Appearence.fonts.data
     readonly property var _units: Appearence.units.data
 
+    property Item widgetParent: null
+
     color: _color.si_background_light
     radius: _units.radiusEight
     height: visible ? settingsPanelButtonsLayout.implicitHeight : 0
 
     signal close
+
+    function centerWidget(widget) {
+        const center = tiredUI.mainWindowCenter;
+        const position = widget.parent.mapFromItem(null, center.x, center.y);
+
+        widget.x = position.x - widget.width / 2;
+        widget.y = position.y - widget.height / 2;
+    }
 
     Behavior on height {
         NumberAnimation {
@@ -60,6 +70,8 @@ Rectangle {
             SIEmbeddedWidget {
                 id: serviceObjectsSettingsWidget
 
+                parent: settingsPanelComponent.widgetParent
+
                 visible: false
 
                 width: 640
@@ -75,8 +87,11 @@ Rectangle {
 
                 contentSource: "../settings/SettingsComponent.qml"
 
-                x: centeredWidgetPosition(serviceObjectsSettingsWidget).x
-                y: centeredWidgetPosition(serviceObjectsSettingsWidget).y
+                onVisibleChanged: {
+                    if (visible) {
+                        settingsPanelComponent.centerWidget(serviceObjectsSettingsWidget);
+                    }
+                }
             }
         }
     }

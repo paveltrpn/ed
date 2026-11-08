@@ -200,6 +200,9 @@ Rectangle {
 
         SettingsPanel {
             id: settingsPanelItem
+
+            widgetParent: leftPanelSystemComponent
+
             anchors {
                 bottom: exitButton.top
                 bottomMargin: visible ? _units.half : 0
