@@ -25,6 +25,8 @@ set(MANIFOLD_SRCS
     src/tree2d.cpp
 )
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS true)
+
 add_library(manifold ${MANIFOLD_SRCS})
 target_compile_features(manifold PUBLIC cxx_std_17)
 target_compile_definitions(manifold PUBLIC MANIFOLD_PAR=-1)
