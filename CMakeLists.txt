@@ -14,6 +14,9 @@ add_subdirectory(vsg)
 # Add OpenMesh subdirectory.
 add_subdirectory(libs/OpenMesh)
 
+# Add manifold subdirectory.
+add_subdirectory(libs/manifold)
+
 find_package(Vulkan 1.3 REQUIRED)
 find_package(glslang 15.0 REQUIRED)
 
